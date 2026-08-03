@@ -1,93 +1,93 @@
 ---
 name: clean-abap
-description: Clean ABAP coding standards and best practices. Use when writing ABAP code, reviewing ABAP code, or refactoring ABAP code to ensure it follows SAP's official Clean ABAP style guide. Covers naming conventions, modern language constructs, class/method design, error handling, formatting, comments, and unit testing patterns.
-argument-hint: '[ABAP code task or ABAP code review request]'
+description: Clean ABAP 编码规范与最佳实践。编写、审查或重构 ABAP 代码时使用，确保遵循 SAP 官方的 Clean ABAP 风格指南。涵盖命名规范、现代语言构造、类/方法设计、错误处理、格式化、注释和单元测试模式。
+argument-hint: '[ABAP 编码任务或 ABAP 代码审查请求]'
 user-invocable: true
 disable-model-invocation: false
 ---
 
-# Clean ABAP — AI-Optimized Rules
+# Clean ABAP — AI 优化规则
 
-> Distilled from the [SAP Clean ABAP Style Guide](https://github.com/SAP/styleguides).
-> Licensed under [Creative Commons BY 3.0](https://creativecommons.org/licenses/by/3.0/).
-> © SAP SE. Attribution preserved per license terms.
+> 提炼自 [SAP Clean ABAP 风格指南](https://github.com/SAP/styleguides)。
+> 按 [Creative Commons BY 3.0](https://creativecommons.org/licenses/by/3.0/) 许可。
+> © SAP SE。按许可条款保留署名。
 
-Apply ALL rules below when writing or reviewing ABAP code. Every rule is mandatory unless explicitly marked "consider".
+编写或审查 ABAP 代码时应用以下所有规则。除非明确标记为 "consider"（酌情考虑），否则每条规则都是强制性的。
 
 ---
 
-## Names
+## 命名
 
-- Use descriptive names that convey meaning. `customizing_entries` not `ce_tab`.
-- Prefer solution domain terms (queue, tree) in technical layers, problem domain terms (account, ledger) in business layers.
-- Use plural for collections: `materials` not `material_tab`.
-- Use pronounceable names: `detection_object_types` not `dobjt`.
-- Use `snake_case`. When hitting length limits, abbreviate the least important words.
+- 使用能传达含义的描述性名称。用 `customizing_entries` 而不是 `ce_tab`。
+- 技术层优先使用解决方案域术语（queue、tree），业务层使用问题域术语（account、ledger）。
+- 集合使用复数：用 `materials` 而不是 `material_tab`。
+- 使用可发音的名称：用 `detection_object_types` 而不是 `dobjt`。
+- 使用 `snake_case`。达到长度限制时，缩写最不重要的词。
   ```abap
   DATA max_response_time_in_millisec TYPE i.
   ```
-- Avoid abbreviations. Use the same abbreviation everywhere for the same concept.
-- Use nouns for classes/interfaces, verbs for methods. Prefix boolean methods with `is_` or `has_`.
+- 避免缩写。同一概念在所有地方使用相同的缩写。
+- 类/接口用名词，方法用动词。布尔方法加 `is_` 或 `has_` 前缀。
   ```abap
   CLASS /clean/account.
   METHODS read_entries.
   IF is_empty( table ).
   ```
-- Avoid noise words: `account` not `account_data`; `user_preferences` not `user_info`.
-- Pick one word per concept: always `read_*`, never mix `read_this` with `retrieve_that`.
-- Use pattern names (factory, singleton) only if the class actually implements that pattern.
-- **No Hungarian notation or prefixes.** Drop `iv_`, `rv_`, `lt_`, etc.
+- 避免噪音词：用 `account` 而不是 `account_data`；用 `user_preferences` 而不是 `user_info`。
+- 每个概念选一个词：始终用 `read_*`，绝不混用 `read_this` 和 `retrieve_that`。
+- 只有在类确实实现该模式时才使用模式名称（factory、singleton）。
+- **不要用匈牙利命名法或前缀。** 去掉 `iv_`、`rv_`、`lt_` 等。
   ```abap
-  " good
+  " 好
   result = a + b.
-  " bad
+  " 坏
   rv_result = iv_a + iv_b.
   ```
-- Do not shadow built-in functions (`condense`, `lines`, `strlen`, etc.) with method names.
+- 不要用方法名遮蔽内置函数（`condense`、`lines`、`strlen` 等）。
 
-## Language
+## 语言
 
-- Verify modern syntax is supported on the target release before using it.
-- Do not optimize prematurely. Write clean code first, profile later.
-- Prefer OO over procedural. Wrap function modules as thin shells around classes.
+- 使用现代语法前，确认目标版本支持它。
+- 不要过早优化。先写干净代码，之后再分析性能。
+- 优先面向对象而不是过程化。把函数模块包装成类周围的薄壳。
   ```abap
   FUNCTION check_business_partner [...].
     DATA(validator) = NEW /clean/biz_partner_validator( ).
     result = validator->validate( business_partners ).
   ENDFUNCTION.
   ```
-- Prefer functional constructs:
+- 优先函数式构造：
   ```abap
-  DATA(variable) = 'A'.              " not MOVE
-  DATA(uppercase) = to_upper( str ). " not TRANSLATE
-  index += 1.                        " not ADD 1 TO
-  DATA(obj) = NEW /clean/cls( ).     " not CREATE OBJECT
+  DATA(variable) = 'A'.              " 不用 MOVE
+  DATA(uppercase) = to_upper( str ). " 不用 TRANSLATE
+  index += 1.                        " 不用 ADD 1 TO
+  DATA(obj) = NEW /clean/cls( ).     " 不用 CREATE OBJECT
   ```
-- Use modern table expressions:
+- 使用现代表表达式：
   ```abap
   DATA(line) = value_pairs[ name = 'A' ].
   ```
-- Avoid obsolete elements. Use `@`-escaped host variables in SQL:
+- 避免过时元素。SQL 中使用 `@` 转义的主机变量：
   ```abap
   SELECT * FROM spfli WHERE carrid = @carrid INTO TABLE @itab.
   ```
-- Use design patterns only where they provide clear benefit.
+- 只在带来明确收益时使用设计模式。
 
-## Constants
+## 常量
 
-- Use constants instead of magic numbers:
+- 用常量代替魔法数字：
   ```abap
-  IF abap_type = cl_abap_typedescr=>typekind_date.   " not 'D'
+  IF abap_type = cl_abap_typedescr=>typekind_date.   " 不用 'D'
   ```
-- Give constants descriptive names reflecting meaning, not value:
+- 常量名要反映含义而不是值：
   ```abap
-  CONSTANTS status_inactive TYPE mmsta VALUE '90'.     " not c_01
+  CONSTANTS status_inactive TYPE mmsta VALUE '90'.     " 不用 c_01
   ```
-- Prefer `ENUM` (7.51+) over constants interfaces:
+- 优先用 `ENUM`（7.51+）而不是常量接口：
   ```abap
   TYPES: BEGIN OF ENUM type, warning, error, END OF ENUM type.
   ```
-- If not using ENUM, group constants with `BEGIN OF ... END OF`:
+- 如果不使用 ENUM，用 `BEGIN OF ... END OF` 分组常量：
   ```abap
   CONSTANTS:
     BEGIN OF message_severity,
@@ -96,41 +96,41 @@ Apply ALL rules below when writing or reviewing ABAP code. Every rule is mandato
     END OF message_severity.
   ```
 
-## Variables
+## 变量
 
-- Prefer inline declarations at first use:
+- 优先在首次使用时内联声明：
   ```abap
   DATA(name) = 'something'.
   ```
-- Do not use a variable outside the block where it was declared.
-- One `DATA` per variable — no chaining:
+- 不要在声明变量的代码块之外使用它。
+- 每个变量一条 `DATA`——不链式声明：
   ```abap
   DATA name TYPE seoclsname.
   DATA reader TYPE REF TO reader.
   ```
-- Avoid field symbols when modern syntax suffices (2021+). Use `dref->*` directly.
-- Loop targets:
-  - `ASSIGNING FIELD-SYMBOL(<line>)` — read/modify in place (fastest).
-  - `REFERENCE INTO DATA(line)` — when references needed outside loop.
-  - `INTO DATA(line)` — when you need a copy.
+- 现代语法足够时避免字段符号（2021+）。直接使用 `dref->*`。
+- 循环目标：
+  - `ASSIGNING FIELD-SYMBOL(<line>)` — 就地读/改（最快）。
+  - `REFERENCE INTO DATA(line)` — 需要在循环外使用引用时。
+  - `INTO DATA(line)` — 需要副本时。
 
-## Tables
+## 表
 
-- `HASHED` — large, filled once, read often by unique key.
-- `SORTED` — large, filled incrementally, read by full/partial key.
-- `STANDARD` — small tables, arrays, or mixed access.
-- Avoid `DEFAULT KEY`. Use explicit keys or `EMPTY KEY`:
+- `HASHED` — 大表、一次性填充、频繁按唯一键读取。
+- `SORTED` — 大表、增量填充、按键（完整/部分）读取。
+- `STANDARD` — 小表、数组或混合访问。
+- 避免 `DEFAULT KEY`。使用显式键或 `EMPTY KEY`：
   ```abap
   DATA itab TYPE STANDARD TABLE OF row_type WITH EMPTY KEY.
   ```
-- Prefer `INSERT INTO TABLE` over `APPEND TO`.
-- Use `line_exists( )` for existence checks:
+- 优先 `INSERT INTO TABLE` 而不是 `APPEND TO`。
+- 存在性检查用 `line_exists( )`：
   ```abap
   IF line_exists( my_table[ key = 'A' ] ).
   ```
-- Prefer `READ TABLE` over `LOOP AT ... EXIT` for single-row retrieval.
-- Prefer `LOOP AT ... WHERE` over nested IF inside LOOP.
-- Avoid double reads — read once and catch the exception:
+- 单行检索优先 `READ TABLE` 而不是 `LOOP AT ... EXIT`。
+- 优先 `LOOP AT ... WHERE` 而不是循环内嵌 IF。
+- 避免双重读取——读一次并捕获异常：
   ```abap
   TRY.
       DATA(row) = my_table[ key = input ].
@@ -139,273 +139,273 @@ Apply ALL rules below when writing or reviewing ABAP code. Every rule is mandato
   ENDTRY.
   ```
 
-## Strings
+## 字符串
 
-- Use backtick literals for constants: `` DATA(s) = `ABC`. `` Not single quotes.
-- Use string templates `| |` to assemble text:
+- 常量用反引号字面量：`` DATA(s) = `ABC`. `` 不用单引号。
+- 用字符串模板 `| |` 拼接文本：
   ```abap
   DATA(msg) = |HTTP { status_code }: { text }|.
   ```
 
-## Booleans
+## 布尔值
 
-- Prefer enumerations when a third state may emerge. Use Booleans only for true binary states.
-- Use `abap_bool` as the type. Use `abap_true`/`abap_false` for comparisons — never `'X'`, `' '`, or `IS INITIAL`.
+- 可能出现第三种状态时优先用枚举。只有真正的二值状态才用布尔值。
+- 类型用 `abap_bool`。比较用 `abap_true`/`abap_false`——绝不用 `'X'`、`' '` 或 `IS INITIAL`。
   ```abap
   DATA has_entries TYPE abap_bool.
   IF has_entries = abap_false.
   ```
-- Use `xsdbool( )` to set Booleans:
+- 用 `xsdbool( )` 设置布尔值：
   ```abap
   DATA(has_entries) = xsdbool( line IS NOT INITIAL ).
   ```
 
-## Conditions
+## 条件
 
-- Prefer positive conditions. Avoid double negatives.
-- Prefer `IS NOT` over `NOT IS`, `<>` over `NOT =`.
-- Use predicative method calls for Boolean methods:
+- 优先正面条件。避免双重否定。
+- 优先 `IS NOT` 而不是 `NOT IS`，`<>` 而不是 `NOT =`。
+- 布尔方法用谓词式调用：
   ```abap
-  IF condition_is_fulfilled( ).    " not = abap_true
+  IF condition_is_fulfilled( ).    " 不用 = abap_true
   ```
-- Decompose complex conditions into named Boolean helpers.
-- Extract complex conditions into dedicated methods.
+- 把复杂条件拆解为命名的布尔辅助方法。
+- 把复杂条件提取到专用方法中。
 
-## Ifs
+## IF
 
-- No empty IF branches — negate instead.
-- Prefer `CASE` over `ELSE IF` chains.
-- Keep nesting depth low — flatten with sub-methods, Boolean helpers, or `AND`.
+- 不要空 IF 分支——改用取反。
+- 优先 `CASE` 而不是 `ELSE IF` 链。
+- 保持嵌套深度低——用子方法、布尔辅助方法或 `AND` 展平。
 
-## Regular Expressions
+## 正则表达式
 
-- Prefer simple string methods over regex when possible.
-- Prefer existing SAP basis checks over hand-written regex.
-- Assemble complex regex from named constants.
+- 能用简单字符串方法时优先使用，避免正则。
+- 优先使用 SAP 现有的 basis 检查，而不是手写正则。
+- 复杂正则用命名常量组装。
 
-## Classes
+## 类
 
-### Object Orientation
+### 面向对象
 
-- Prefer objects to static classes. Static defeats mocking.
-- Exception: stateless utility classes with pure functions are acceptable as static.
-- Prefer composition to inheritance.
-- Don't mix stateful and stateless in the same class.
+- 优先对象而不是静态类。静态类无法 mock。
+- 例外：带纯函数的无状态工具类可以静态。
+- 优先组合而不是继承。
+- 不要在同一个类中混用有状态和无状态。
 
-### Scope
+### 作用域
 
-- Global classes by default. Local only for private structures, complex algorithms, or test injection.
-- Mark classes `FINAL` unless designed for inheritance.
-- Members `PRIVATE` by default. `PROTECTED` only for intentional subclass override.
-- For immutable objects, prefer `READ-ONLY` attributes over getters:
+- 默认全局类。本地类仅用于私有结构、复杂算法或测试注入。
+- 除非为继承设计，否则类标记 `FINAL`。
+- 成员默认 `PRIVATE`。`PROTECTED` 仅用于有意的子类覆盖。
+- 不可变对象优先用 `READ-ONLY` 属性而不是 getter：
   ```abap
   DATA name TYPE string READ-ONLY.
   ```
 
-### Constructors
+### 构造函数
 
-- Prefer `NEW` to `CREATE OBJECT`. Use `CREATE OBJECT` only for dynamic types.
-- If `CREATE PRIVATE`, keep CONSTRUCTOR in PUBLIC SECTION.
-- Prefer multiple static creation methods over optional constructor parameters:
+- 优先 `NEW` 而不是 `CREATE OBJECT`。`CREATE OBJECT` 仅用于动态类型。
+- 如果 `CREATE PRIVATE`，CONSTRUCTOR 保留在 PUBLIC SECTION。
+- 优先多个静态创建方法，而不是可选的构造参数：
   ```abap
   CLASS-METHODS new_from_template IMPORTING template TYPE REF TO zcl_tmpl
     RETURNING VALUE(result) TYPE REF TO zcl_doc.
   CLASS-METHODS new_from_name IMPORTING name TYPE string
     RETURNING VALUE(result) TYPE REF TO zcl_doc.
   ```
-- Use singletons only when multiple instances genuinely don't make sense.
+- 只有在多个实例确实没有意义时才使用单例。
 
-## Methods
+## 方法
 
-### Calls
+### 调用
 
-- Call static methods via class name, not instance:
+- 通过类名调用静态方法，而不是实例：
   ```abap
-  cl_my_class=>static_method( ).     " not lo_instance->static_method( )
+  cl_my_class=>static_method( ).     " 不用 lo_instance->static_method( )
   ```
-- Access types via class name, not instance.
-- Prefer functional call style. Use `CALL METHOD` only for dynamic dispatch.
-- Omit `RECEIVING` — capture return value directly.
-- Omit the optional `EXPORTING` keyword.
-- Omit parameter name in single-parameter calls (unless ambiguous).
-- Omit `me->` unless resolving a scope conflict.
+- 通过类名访问类型，而不是实例。
+- 优先函数式调用风格。`CALL METHOD` 仅用于动态分派。
+- 省略 `RECEIVING`——直接捕获返回值。
+- 省略可选的 `EXPORTING` 关键字。
+- 单参数调用省略参数名（除非有歧义）。
+- 除非解决作用域冲突，否则省略 `me->`。
 
-### Object Orientation
+### 面向对象
 
-- Prefer instance methods. Static only for factories.
-- Public instance methods should be part of an interface.
+- 优先实例方法。静态仅用于工厂。
+- 公共实例方法应该是接口的一部分。
 
-### Parameters
+### 参数
 
-- Aim for < 3 IMPORTING parameters. Combine related ones into structures.
-- Split methods instead of adding OPTIONAL parameters.
-- Use `PREFERRED PARAMETER` sparingly.
-- Return/export/change exactly one parameter. Return a structure for multi-part output.
-- Prefer `RETURNING` over `EXPORTING` — enables functional style.
-- `RETURNING` large tables is okay — don't prematurely switch to `EXPORTING`.
-- Don't mix `RETURNING` with `EXPORTING`/`CHANGING`.
-- Use `CHANGING` sparingly — only for in-place updates.
-- Split methods instead of Boolean input parameters:
+- 目标 < 3 个 IMPORTING 参数。把相关的合并为结构。
+- 拆分方法而不是添加 OPTIONAL 参数。
+- 谨慎使用 `PREFERRED PARAMETER`。
+- 恰好返回/导出/修改一个参数。多部分输出返回结构。
+- 优先 `RETURNING` 而不是 `EXPORTING`——支持函数式风格。
+- `RETURNING` 大表没问题——不要过早改用 `EXPORTING`。
+- 不要混用 `RETURNING` 与 `EXPORTING`/`CHANGING`。
+- 谨慎使用 `CHANGING`——仅用于就地更新。
+- 拆分方法而不是使用布尔输入参数：
   ```abap
-  update_without_saving( ).     " not update( do_save = abap_true )
+  update_without_saving( ).     " 不用 update( do_save = abap_true )
   update_and_save( ).
   ```
-- Name RETURNING parameter `RESULT`:
+- RETURNING 参数命名为 `RESULT`：
   ```abap
   METHODS get_name RETURNING VALUE(result) TYPE string.
   ```
 
-### Parameter Initialization
+### 参数初始化
 
-- Always clear/overwrite EXPORTING reference parameters at method start.
-- Beware same-variable input/output — defer CLEAR if needed.
-- Don't clear VALUE parameters (already empty).
+- 方法开头始终清空/覆盖 EXPORTING 引用参数。
+- 注意同一变量的输入/输出——需要时延后 CLEAR。
+- 不要清空 VALUE 参数（本来就是空的）。
 
-### Method Body
+### 方法体
 
-- Do one thing, do it well, do it only.
-- Focus on happy path OR error handling, not both. Extract validation separately.
-- Descend one level of abstraction per method.
-- Keep methods small: 3-5 statements, max ~20.
+- 只做一件事，做好，只做这一件。
+- 聚焦于正常路径或错误处理之一，不要两者兼顾。把校验单独提取。
+- 每个方法下降一层抽象。
+- 保持方法短小：3-5 条语句，最多约 20 条。
 
-### Control Flow
+### 控制流
 
-- Fail fast — validate inputs at top before expensive work.
-- Prefer `IF ... RETURN` over `CHECK`. Use `CHECK` only at method start.
-- Never use `CHECK` inside loops — use `IF` + `CONTINUE`.
+- 快速失败——在昂贵工作之前先在校验输入。
+- 优先 `IF ... RETURN` 而不是 `CHECK`。`CHECK` 只在方法开头使用。
+- 绝不在循环内使用 `CHECK`——用 `IF` + `CONTINUE`。
 
-## Error Handling
+## 错误处理
 
-### Messages
+### 消息
 
-- Use `MESSAGE e001(ad) INTO DATA(message).` for where-used traceability.
+- 用 `MESSAGE e001(ad) INTO DATA(message).` 实现 where-used 可追溯性。
 
-### Return Codes
+### 返回码
 
-- Prefer exceptions to return codes.
-- Check legacy return codes and convert to exceptions.
+- 优先异常而不是返回码。
+- 检查遗留返回码并转换为异常。
 
-### Exceptions
+### 异常
 
-- Exceptions are for errors only, not regular cases.
-- Use class-based exceptions (`TRY`/`CATCH`), not legacy `EXCEPTIONS`.
+- 异常只用于错误，不用于常规情况。
+- 使用基于类的异常（`TRY`/`CATCH`），而不是遗留的 `EXCEPTIONS`。
 
-### Throwing
+### 抛出
 
-- Create abstract app-specific super classes per exception category.
-- Throw one exception type per method; use sub-classes for distinction.
-- `CX_STATIC_CHECK` for manageable expected exceptions.
-- `CX_NO_CHECK` for usually unrecoverable situations.
-- `CX_DYNAMIC_CHECK` only when caller controls whether it can occur.
-- Dump only for totally unrecoverable programming errors.
-- Prefer `RAISE EXCEPTION NEW` to `RAISE EXCEPTION TYPE`:
+- 为每个异常类别创建抽象的应用专属超类。
+- 每个方法抛一种异常类型；用子类区分。
+- 可管理、可预期的异常用 `CX_STATIC_CHECK`。
+- 通常不可恢复的情况用 `CX_NO_CHECK`。
+- 只有调用方控制是否发生时用 `CX_DYNAMIC_CHECK`。
+- 只有完全不可恢复的编程错误才 Dump。
+- 优先 `RAISE EXCEPTION NEW` 而不是 `RAISE EXCEPTION TYPE`：
   ```abap
   RAISE EXCEPTION NEW cx_gen_error( previous = exception ).
   ```
 
-### Catching
+### 捕获
 
-- Wrap foreign exceptions — don't let them invade your API:
+- 包装外来异常——不要让它们侵入你的 API：
   ```abap
   CATCH cx_amdp_failure INTO DATA(ex).
     RAISE EXCEPTION NEW cx_generation_failure( previous = ex ).
   ```
 
-## Comments
+## 注释
 
-- Express yourself in code, not comments. Extract methods with descriptive names.
-- Comments are no excuse for bad names.
-- Write comments for the **why**, not the **what**.
-- Comment with `"`, not `*`.
-- Put comments **before** the statement they relate to.
-- Delete dead code — don't comment it out.
-- No manual versioning with ticket/transport markers.
-- Use `FIXME`, `TODO`, `XXX` with your user ID.
-- No method signature or end-of comments.
-- ABAP Doc only for public APIs consumed by other teams.
-- Prefer pragmas (`##NEEDED`) to pseudo comments (`"#EC NEEDED`).
+- 用代码表达自己，而不是注释。用描述性名称提取方法。
+- 注释不是坏命名的借口。
+- 注释写**为什么**，而不是**是什么**。
+- 用 `"` 注释，不用 `*`。
+- 把注释放在其相关语句**之前**。
+- 删除死代码——不要注释掉。
+- 不用 ticket/传输标记做手动版本管理。
+- 用 `FIXME`、`TODO`、`XXX` 并带上你的用户 ID。
+- 没有方法签名注释或行尾注释。
+- ABAP Doc 只用于其他团队消费的公共 API。
+- 优先 pragma（`##NEEDED`）而不是伪注释（`"#EC NEEDED`）。
 
-## Formatting
+## 格式化
 
-- Be consistent with your team's style.
-- Use the ABAP Formatter before activating.
-- One statement per line.
-- Max line length: 120 characters.
-- Condense — no unneeded blanks.
-- Single blank lines to separate, never more.
-- Align assignments to the same object only:
+- 与团队风格保持一致。
+- 激活前使用 ABAP Formatter。
+- 每行一条语句。
+- 最大行长度：120 个字符。
+- 精简——不要多余空格。
+- 用单个空行分隔，绝不超过一个。
+- 只对齐同一对象的赋值：
   ```abap
   structure-type = 'A'.
   structure-id   = '4711'.
   ```
-- Close brackets at line end, not on new line.
-- Single-parameter calls on one line.
-- Parameters behind the call; break only if too long.
-- Indent broken parameters under the call.
-- One parameter per line for multi-parameter calls.
-- Align parameters vertically.
-- Indent and snap to tab.
-- Don't align TYPE clauses across different declarations.
-- Don't chain assignments.
+- 括号在行尾闭合，不在新行。
+- 单参数调用放在一行。
+- 参数跟在调用后面；太长才换行。
+- 换行的参数在调用下方缩进。
+- 多参数调用每行一个参数。
+- 参数垂直对齐。
+- 缩进并对齐到制表符。
+- 不要跨不同声明对齐 TYPE 子句。
+- 不链式赋值。
 
-## Testing
+## 测试
 
-### Principles
+### 原则
 
-- Write testable code. Refactor if needed.
-- Enable mocking — add interfaces at outward-facing places.
-- Test code must be even more readable than production code.
-- Automate — no $TMP copies or manual test reports.
-- Test publics only. Needing to test privates signals design flaw.
-- Don't obsess about coverage numbers.
+- 编写可测试的代码。必要时重构。
+- 支持 mock——在对外位置添加接口。
+- 测试代码必须比生产代码更易读。
+- 自动化——不要 $TMP 副本或手动测试报告。
+- 只测公共方法。需要测私有方法说明设计有缺陷。
+- 不要痴迷覆盖率数字。
 
-### Test Classes
+### 测试类
 
-- Name by purpose: `ltc_reads_entry`, not `ltc_test`.
-- Unit tests in the local test include.
-- Component/integration tests in separate `FOR TESTING ABSTRACT` global class.
-- Shared helpers in `lth_*` classes.
+- 按用途命名：用 `ltc_reads_entry`，不用 `ltc_test`。
+- 单元测试放在本地测试 include 中。
+- 组件/集成测试放在独立的 `FOR TESTING ABSTRACT` 全局类中。
+- 共享辅助代码放在 `lth_*` 类中。
 
-### Code Under Test
+### 被测代码
 
-- Variable name: `cut` (default) or meaningful name.
-- Type against interface, not class.
-- Extract the call to CUT into its own method.
+- 变量名：`cut`（默认）或有意义的名称。
+- 按接口声明类型，而不是类。
+- 把对 CUT 的调用提取到独立方法中。
 
-### Injection
+### 注入
 
-- Use constructor injection for test doubles.
-- No setter injection, no FRIENDS injection.
-- Consider `cl_abap_testdouble` over hand-written doubles:
+- 用构造函数注入测试替身。
+- 不用 setter 注入、不用 FRIENDS 注入。
+- 考虑用 `cl_abap_testdouble` 而不是手写替身：
   ```abap
   DATA(mock) = CAST if_reader( cl_abap_testdouble=>create( 'if_reader' ) ).
   cl_abap_testdouble=>configure_call( mock )->returning( value ).
   ```
-- Test seams only as temporary workaround.
-- `LOCAL FRIENDS` only for `CREATE PRIVATE` constructor access.
-- Don't mock what the test doesn't need.
-- Don't build test frameworks with case-ID dispatching.
+- 测试接缝只作为临时变通方案。
+- `LOCAL FRIENDS` 仅用于访问 `CREATE PRIVATE` 构造函数。
+- 测试不需要的东西不要 mock。
+- 不要用 case-ID 分发构建测试框架。
 
-### Test Methods
+### 测试方法
 
-- Name reflects given + expected: `reads_existing_entry`, `throws_on_invalid_key`.
-- Structure: given-when-then. Extract sub-methods if long.
-- "When" = exactly one call to CUT.
-- No TEARDOWN unless cleaning external resources.
+- 名称反映给定 + 预期：`reads_existing_entry`、`throws_on_invalid_key`。
+- 结构：given-when-then。太长则提取子方法。
+- "When" = 恰好一次对 CUT 的调用。
+- 除非要清理外部资源，否则不用 TEARDOWN。
 
-### Test Data
+### 测试数据
 
-- Meaningless data must look meaningless: `'42'`, `'?=/"&'`.
-- Make differences easy to spot.
-- Use constants for test data purpose.
+- 无意义的数据必须看起来无意义：`'42'`、`'?=/"&'`。
+- 让差异容易发现。
+- 用常量说明测试数据的用途。
 
-### Assertions
+### 断言
 
-- Few, focused assertions per test method.
-- Use the right assert type: `assert_equals`, `assert_false` — not `assert_true( xsdbool(...) )`.
-- Assert content, not quantity.
-- Assert quality, not content (for meta-properties).
-- Use `fail( )` after CUT call for expected exceptions:
+- 每个测试方法使用少量、聚焦的断言。
+- 使用正确的断言类型：`assert_equals`、`assert_false`——不要 `assert_true( xsdbool(...) )`。
+- 断言内容，而不是数量。
+- 断言质量，而不是内容（针对元属性）。
+- CUT 调用后对预期异常使用 `fail( )`：
   ```abap
   TRY.
       cut->do_something( '' ).
@@ -413,5 +413,5 @@ Apply ALL rules below when writing or reviewing ABAP code. Every rule is mandato
     CATCH /clean/some_exception.
   ENDTRY.
   ```
-- Forward unexpected exceptions via `RAISING` on the test method.
-- Write custom assert methods to reduce duplication.
+- 通过测试方法的 `RAISING` 转发意外异常。
+- 编写自定义断言方法减少重复。

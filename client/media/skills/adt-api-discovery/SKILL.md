@@ -1,70 +1,69 @@
 ---
 name: adt-api-discovery
 description: >-
-  Investigate SAP ADT REST API endpoints. Use when the user asks about ADT API endpoints,
-  request/response XML formats, content types, or how a specific ADT feature works under the hood.
-  Teaches how to trace from discovery documents → RES_APP classes → handler classes →
-  Simple Transformations → XML schemas. Requires the adt_discovery_export tool output files
-  and standard ABAP tools (get_abap_object_lines, search_abap_objects, search_abap_object_lines).
-argument-hint: '[what ADT endpoint or feature to investigate]'
+  调查 SAP ADT REST API 端点。当用户询问 ADT API 端点、请求/响应 XML 格式、内容类型，
+  或特定 ADT 功能的底层工作原理时使用。传授如何从发现文档 → RES_APP 类 → 处理程序类 →
+  简单转换 → XML 模式进行追踪。需要 adt_discovery_export 工具的输出文件和标准 ABAP 工具
+  （get_abap_object_lines、search_abap_objects、search_abap_object_lines）。
+argument-hint: '[要调查的 ADT 端点或功能]'
 user-invocable: true
 disable-model-invocation: false
 ---
 
-# ADT API Discovery — Skill
+# ADT API 发现 — 技能包
 
-You are investigating SAP ADT REST API endpoints. Your goal is to determine the full HTTP contract for any endpoint: URL, HTTP methods, request/response XML format, content types, and headers.
+你在调查 SAP ADT REST API 端点。你的目标是确定任何端点的完整 HTTP 契约：URL、HTTP 方法、请求/响应 XML 格式、内容类型和头。
 
-## Prerequisites
+## 前置条件
 
-Before using this skill, run the `adt_discovery_export` tool with the target `connectionId`. This creates a folder with markdown files containing the raw discovery data. Read these files first.
+使用此技能包前，先对目标 `connectionId` 运行 `adt_discovery_export` 工具。它会创建一个包含原始发现数据 markdown 文件的文件夹。先读这些文件。
 
-## The ADT Architecture
+## ADT 架构
 
-Every ADT REST endpoint exists because of this chain:
+每个 ADT REST 端点的存在都源于这条链：
 
 ```
-SICF node: /sap/bc/adt
-  └── Handler: CL_ADT_WB_RES_APP
-        └── BAdI: BADI_ADT_REST_RFC_APPLICATION
-              └── RES_APP class (inherits CL_ADT_DISC_RES_APP_BASE or CL_ADT_RES_APP_BASE)
-                    └── register_resources() method
+SICF 节点：/sap/bc/adt
+  └── 处理程序：CL_ADT_WB_RES_APP
+        └── BAdI：BADI_ADT_REST_RFC_APPLICATION
+              └── RES_APP 类（继承 CL_ADT_DISC_RES_APP_BASE 或 CL_ADT_RES_APP_BASE）
+                    └── register_resources() 方法
                           ├── registry->register_discoverable_resource(url, handler_class, ...)
                           ├── registry->register_resource(template, handler_class)
                           └── collection->register_disc_res_w_template(relation, template, handler_class)
-                                └── Handler class (inherits CL_ADT_REST_RESOURCE)
-                                      ├── GET/POST/PUT/DELETE method overrides
-                                      ├── Content handler factory → get_handler_for_xml_using_st()
+                                └── 处理程序类（继承 CL_ADT_REST_RESOURCE）
+                                      ├── GET/POST/PUT/DELETE 方法重写
+                                      ├── 内容处理程序工厂 → get_handler_for_xml_using_st()
                                       └── response->set_body_data() / request->get_body_data()
 ```
 
-## Step-by-Step Investigation Process
+## 分步调查流程
 
-### Step 1: Find the endpoint in discovery
+### 第 1 步：在发现文档中找到端点
 
-Search `workspaces.md` for the URL or keyword. This gives you the collection `href` and any template links (URL templates with parameters, relations, content types).
+在 `workspaces.md` 中搜索 URL 或关键字。这会给你集合 `href` 和任何模板链接（带参数的 URL 模板、关系、内容类型）。
 
-If the endpoint isn't in discovery, it may be a **hidden resource** — registered via `register_resource()` instead of `register_discoverable_resource()`. You'll find it in Step 2.
+如果端点在发现文档中不存在，它可能是**隐藏资源**——通过 `register_resource()` 而不是 `register_discoverable_resource()` 注册。你会在第 2 步找到它。
 
-### Step 2: Find the RES_APP class
+### 第 2 步：找到 RES_APP 类
 
-The RES_APP class is what registers the endpoint. To find which one:
+RES_APP 类负责注册端点。要找出是哪一个：
 
-**Option A — Match by URL pattern**: The discovery URL `/sap/bc/adt/oo/classes` is registered by a RES_APP whose `register_resources()` method contains that URL. Search for it:
+**方式 A — 按 URL 模式匹配**：发现 URL `/sap/bc/adt/oo/classes` 由一个 `register_resources()` 方法包含该 URL 的 RES_APP 注册。搜索它：
 ```
 Use search_abap_object_lines on RES_APP classes from res-app-classes.md, searching for the URL segment (e.g., '/oo/classes' or '/datapreview/')
 ```
 
-**Option B — Check RES_APP class names**: The `res-app-classes.md` file lists all RES_APP classes with descriptions. Class names often hint at the feature area (e.g., `CL_ADT_DATAPREVIEW_RES_APP` → data preview, `CL_OO_ADT_RES_APP` → OO classes).
+**方式 B — 检查 RES_APP 类名**：`res-app-classes.md` 文件列出所有带描述的 RES_APP 类。类名通常暗示功能领域（例如 `CL_ADT_DATAPREVIEW_RES_APP` → 数据预览，`CL_OO_ADT_RES_APP` → OO 类）。
 
-**Option C — Use `get_application_title()`**: Each RES_APP has a method `get_application_title()` that returns a title matching the discovery workspace title. Read the method source to match.
+**方式 C — 使用 `get_application_title()`**：每个 RES_APP 有一个返回标题的 `get_application_title()` 方法，与发现工作区标题匹配。读取方法源码进行匹配。
 
-### Step 3: Read `register_resources()` to find the handler class
+### 第 3 步：读取 `register_resources()` 找到处理程序类
 
-Use `get_abap_object_lines` to read the RES_APP class source. Look for three registration patterns:
+用 `get_abap_object_lines` 读取 RES_APP 类源码。寻找三种注册模式：
 
 ```abap
-" Pattern 1 — Discoverable resource (in /sap/bc/adt/discovery):
+" 模式 1 — 可发现资源（在 /sap/bc/adt/discovery 中）：
 registry->register_discoverable_resource(
   url             = '/oo/classes'
   handler_class   = if_oo_adt_res_class_co=>co_class_name
@@ -73,12 +72,12 @@ registry->register_discoverable_resource(
   category_term   = ...
   accepted_types  = ... ).
 
-" Pattern 2 — Hidden resource (NOT in discovery):
+" 模式 2 — 隐藏资源（不在发现文档中）：
 registry->register_resource(
   template      = '/oo/classes/{classname}'
   handler_class = if_oo_adt_res_class_co=>co_class_name ).
 
-" Pattern 3 — Template link on a collection:
+" 模式 3 — 集合上的模板链接：
 classrun_col->register_disc_res_w_template(
   relation      = 'http://www.sap.com/adt/relations/oo/classrun'
   template      = '/oo/classrun/{classname}{?profilerId}'
@@ -86,128 +85,128 @@ classrun_col->register_disc_res_w_template(
   handler_class = if_oo_adt_res_classrun_co=>co_class_name ).
 ```
 
-### Step 4: Resolve the handler class name
+### 第 4 步：解析处理程序类名
 
-The `handler_class` parameter is almost always a **constant reference** like `if_oo_adt_res_class_co=>co_class_name`. You need to resolve it:
+`handler_class` 参数几乎总是**常量引用**，如 `if_oo_adt_res_class_co=>co_class_name`。你需要解析它：
 
-1. Identify the interface/class before `=>` (e.g., `IF_OO_ADT_RES_CLASS_CO`)
-2. Read that interface's source with `get_abap_object_lines`
-3. Find `CONSTANTS co_class_name TYPE ... VALUE 'CL_OO_ADT_RES_CLASS'`
+1. 识别 `=>` 之前的接口/类（例如 `IF_OO_ADT_RES_CLASS_CO`）
+2. 用 `get_abap_object_lines` 读取该接口的源码
+3. 找到 `CONSTANTS co_class_name TYPE ... VALUE 'CL_OO_ADT_RES_CLASS'`
 
-**Naming convention**: Handler classes typically have a companion `*_CO` interface that holds all constants:
-- `IF_OO_ADT_RES_CLASS_CO` → constants for `CL_OO_ADT_RES_CLASS`
-- `IF_ADT_DATAPREVIEW_RES_CO` → constants for `CL_ADT_DATAPREVIEW_RES`
+**命名约定**：处理程序类通常有一个保存所有常量的伴生 `*_CO` 接口：
+- `IF_OO_ADT_RES_CLASS_CO` → `CL_OO_ADT_RES_CLASS` 的常量
+- `IF_ADT_DATAPREVIEW_RES_CO` → `CL_ADT_DATAPREVIEW_RES` 的常量
 
-These contain: `co_class_name`, `co_accept_header_*`, `co_content_type_*`, `co_st_*`, `co_root_*`, `co_uri_*`
+它们包含：`co_class_name`、`co_accept_header_*`、`co_content_type_*`、`co_st_*`、`co_root_*`、`co_uri_*`
 
-### Step 5: Determine HTTP methods
+### 第 5 步：确定 HTTP 方法
 
-Read the handler class source. The base class `CL_ADT_REST_RESOURCE` defines GET/POST/PUT/DELETE methods that all raise `cx_adt_res_meth_not_supported` by default. A handler **overrides only the methods it supports**:
+读取处理程序类源码。基类 `CL_ADT_REST_RESOURCE` 定义了默认全部抛出 `cx_adt_res_meth_not_supported` 的 GET/POST/PUT/DELETE 方法。处理程序**只重写它支持的方法**：
 
 ```abap
-METHODS get  REDEFINITION.    " → GET is supported
-METHODS post REDEFINITION.    " → POST is supported
-" PUT and DELETE are NOT redefined → not supported
+METHODS get  REDEFINITION.    " → 支持 GET
+METHODS post REDEFINITION.    " → 支持 POST
+" PUT 和 DELETE 未重写 → 不支持
 ```
 
-Search for `REDEFINITION` in the class definition section.
+在类定义部分搜索 `REDEFINITION`。
 
-### Step 6: Find Simple Transformations (XML schema)
+### 第 6 步：找到简单转换（XML 模式）
 
-The handler class uses `CL_ADT_REST_CNT_HDL_FACTORY` to create content handlers from Simple Transformations. Search the handler source for:
+处理程序类用 `CL_ADT_REST_CNT_HDL_FACTORY` 从简单转换创建内容处理程序。在处理程序源码中搜索：
 
 ```abap
 cl_adt_rest_cnt_hdl_factory=>get_instance( )->get_handler_for_xml_using_st(
-  st_name      = co_st_name           " → resolve to e.g. 'ST_DATA_PREVIEW'
-  root_name    = co_root_name         " → resolve to e.g. 'DATA_PREVIEW_TABLE_DATA'
-  content_type = if_xxx=>co_content_type_v1  " → resolve to MIME type
+  st_name      = co_st_name           " → 解析为例如 'ST_DATA_PREVIEW'
+  root_name    = co_root_name         " → 解析为例如 'DATA_PREVIEW_TABLE_DATA'
+  content_type = if_xxx=>co_content_type_v1  " → 解析为 MIME 类型
 )
 ```
 
-All three parameters typically need constant resolution (same process as Step 4 — read the `*_CO` interface).
+三个参数通常都需要常量解析（与第 4 步相同的过程——读取 `*_CO` 接口）。
 
-### Step 7: Distinguish request vs response
+### 第 7 步：区分请求与响应
 
-Trace which content handler variable is used where:
+跟踪哪个内容处理程序变量在哪里使用：
 
 ```abap
-" RESPONSE (output):
+" 响应（输出）：
 response->set_body_data(
-  content_handler = lo_response_handler    " ← this handler's ST is the response format
+  content_handler = lo_response_handler    " ← 此处理程序的 ST 是响应格式
   data            = ls_result ).
 
-" REQUEST (input):
+" 请求（输入）：
 request->get_body_data(
-  EXPORTING content_handler = lo_request_handler  " ← this handler's ST is the request format
+  EXPORTING content_handler = lo_request_handler  " ← 此处理程序的 ST 是请求格式
   IMPORTING data = ls_request ).
 ```
 
-- **GET requests**: Usually no request body. Only the response ST matters.
-- **POST/PUT requests**: May have both request and response STs (sometimes different).
+- **GET 请求**：通常没有请求体。只有响应 ST 重要。
+- **POST/PUT 请求**：可能有请求和响应 ST（有时不同）。
 
-### Step 8: Read the Simple Transformation source
+### 第 8 步：读取简单转换源码
 
-Use `get_abap_object_lines` with `objectType = 'XSLT'` to read the ST source:
+用 `get_abap_object_lines` 和 `objectType = 'XSLT'` 读取 ST 源码：
 
 ```
 
-### Step 9: Interpret the ST XML
+### 第 9 步：解读 ST XML
 
-Simple Transformations use `tt:` directives. Here's how to read them:
+简单转换使用 `tt:` 指令。解读方法如下：
 
-| ST Element | Meaning |
+| ST 元素 | 含义 |
 |-----------|---------|
-| `<prefix:element>` | Actual XML element that appears in request/response |
-| `<tt:value ref="$ref.FIELD"/>` | Data value placeholder — becomes the field value |
-| `<tt:attribute name="attr" value-ref="$ref.FIELD"/>` | XML attribute with a data value |
-| `<tt:loop ref="TABLE">` | Repeating element (array/table) |
-| `<tt:cond s-check="not-initial(FIELD)">` | Optional/conditional element |
-| `<tt:apply name="SubTemplate">` | Calls a named template within the same ST |
-| `<tt:include name="OTHER_ST" template="xxx"/>` | Includes a template from another ST — read that ST too |
-| `<tt:template name="xxx">` | Named template block |
-| `<tt:template>` (unnamed) | Default/entry template |
-| `<tt:root name="ROOT" type="..."/>` | Root data binding to ABAP structure |
-| `xmlns:prefix="uri"` | Namespace declaration — include in output |
+| `<prefix:element>` | 出现在请求/响应中的实际 XML 元素 |
+| `<tt:value ref="$ref.FIELD"/>` | 数据值占位符——变为字段值 |
+| `<tt:attribute name="attr" value-ref="$ref.FIELD"/>` | 带数据值的 XML 属性 |
+| `<tt:loop ref="TABLE">` | 重复元素（数组/表） |
+| `<tt:cond s-check="not-initial(FIELD)">` | 可选/条件元素 |
+| `<tt:apply name="SubTemplate">` | 调用同一 ST 内的命名模板 |
+| `<tt:include name="OTHER_ST" template="xxx"/>` | 包含另一个 ST 的模板——也要读那个 ST |
+| `<tt:template name="xxx">` | 命名模板块 |
+| `<tt:template>`（未命名） | 默认/入口模板 |
+| `<tt:root name="ROOT" type="..."/>` | 到 ABAP 结构的根数据绑定 |
+| `xmlns:prefix="uri"` | 命名空间声明——输出中包含 |
 
-**Template call chain**: The unnamed (default) `<tt:template>` is the entry point. It calls named templates via `<tt:apply name="xxx">`. Follow the chain to build the full XML structure.
+**模板调用链**：未命名（默认）`<tt:template>` 是入口点。它通过 `<tt:apply name="xxx">` 调用命名模板。跟踪链条构建完整 XML 结构。
 
-**Included STs**: `<tt:include name="ST_OTHER" template="xxx"/>` means you need to also read `ST_OTHER` with `get_abap_object_lines`.
+**包含的 ST**：`<tt:include name="ST_OTHER" template="xxx"/>` 意味着你还需要用 `get_abap_object_lines` 读取 `ST_OTHER`。
 
-## Content Type Convention
+## 内容类型约定
 
-SAP ADT content types follow this pattern:
+SAP ADT 内容类型遵循此模式：
 ```
-application/vnd.sap.adt.<domain>.<subtype>.v<N>+xml
+application/vnd.sap.adt.<域>.<子类型>.v<N>+xml
 ```
 
-Examples:
+示例：
 - `application/vnd.sap.adt.datapreview.table.v1+xml`
 - `application/vnd.sap.adt.oo.classes.v4+xml`
 
-**The version number matters** — wrong version → 406 Not Acceptable.
+**版本号很重要** — 错误版本 → 406 Not Acceptable。
 
-## Key Base Classes
+## 关键基类
 
-| Class | Role |
+| 类 | 角色 |
 |-------|------|
-| `CL_ADT_RES_APP_BASE` | Root base for all RES_APP classes |
-| `CL_ADT_DISC_RES_APP_BASE` | Extends above, adds discovery support. Most RES_APPs inherit from this |
-| `CL_ADT_REST_RESOURCE` | Base for all handler classes |
-| `CL_ADT_REST_CNT_HDL_FACTORY` | Factory that creates content handlers from Simple Transformations |
+| `CL_ADT_RES_APP_BASE` | 所有 RES_APP 类的根基类 |
+| `CL_ADT_DISC_RES_APP_BASE` | 扩展上述类，添加发现支持。大多数 RES_APP 继承自它 |
+| `CL_ADT_REST_RESOURCE` | 所有处理程序类的基类 |
+| `CL_ADT_REST_CNT_HDL_FACTORY` | 从简单转换创建内容处理程序的工厂 |
 
-## Example: Full Investigation of Data Preview
+## 示例：数据预览的完整调查
 
-1. Search `workspaces.md` for "data preview" → find workspace "Data Preview" with collections like `/sap/bc/adt/datapreview/ddic`, `/sap/bc/adt/datapreview/cds`
-2. From `res-app-classes.md`, `CL_ADT_DATAPREVIEW_RES_APP` matches
-3. Read its `register_resources()` → finds `handler_class = if_adt_datapreview_res_co=>co_class_name`
-4. Read `IF_ADT_DATAPREVIEW_RES_CO` → `co_class_name = 'CL_ADT_DATAPREVIEW_RES'`
-5. Read `CL_ADT_DATAPREVIEW_RES` → `METHODS get REDEFINITION. METHODS post REDEFINITION.` → supports GET, POST
-6. Find `get_handler_for_xml_using_st(st_name = co_st_name ...)` → resolve `co_st_name` from the `*_CO` interface → `'ST_DATA_PREVIEW'`
-7. Read `ST_DATA_PREVIEW` with `objectType='XSLT'` → the XML structure with `dataPreview:tableData`, `dataPreview:totalRows`, etc.
+1. 在 `workspaces.md` 中搜索 “data preview” → 找到带 `/sap/bc/adt/datapreview/ddic`、`/sap/bc/adt/datapreview/cds` 等集合的 “Data Preview” 工作区
+2. 从 `res-app-classes.md` 中，`CL_ADT_DATAPREVIEW_RES_APP` 匹配
+3. 读取它的 `register_resources()` → 找到 `handler_class = if_adt_datapreview_res_co=>co_class_name`
+4. 读取 `IF_ADT_DATAPREVIEW_RES_CO` → `co_class_name = 'CL_ADT_DATAPREVIEW_RES'`
+5. 读取 `CL_ADT_DATAPREVIEW_RES` → `METHODS get REDEFINITION. METHODS post REDEFINITION.` → 支持 GET、POST
+6. 找到 `get_handler_for_xml_using_st(st_name = co_st_name ...)` → 从 `*_CO` 接口解析 `co_st_name` → `'ST_DATA_PREVIEW'`
+7. 用 `objectType='XSLT'` 读取 `ST_DATA_PREVIEW` → 带 `dataPreview:tableData`、`dataPreview:totalRows` 等的 XML 结构
 
-## Tips
+## 提示
 
-- **Search broadly first**: Use `search_abap_object_lines` with wildcards on multiple RES_APP classes when unsure which one registers your endpoint
-- **Read the `*_CO` interface early**: It usually contains ALL constants for the handler — class name, content types, ST names, root names, URI segments
-- **Check for composite content handlers**: Some handlers use `CL_ADT_REST_COMP_CNT_HANDLER` to support multiple content types/versions. Look for `add_handler()` calls
-- **Hidden endpoints are common**: Many endpoints are registered with `register_resource()` and don't appear in discovery. Check the RES_APP source directly
+- **先广泛搜索**：不确定哪个 RES_APP 注册你的端点时，用 `search_abap_object_lines` 对多个 RES_APP 类做通配符搜索
+- **尽早读 `*_CO` 接口**：它通常包含处理程序的所有常量——类名、内容类型、ST 名、根名、URI 段
+- **检查复合内容处理程序**：某些处理程序用 `CL_ADT_REST_COMP_CNT_HANDLER` 支持多种内容类型/版本。查找 `add_handler()` 调用
+- **隐藏端点很常见**：许多端点用 `register_resource()` 注册，不出现在发现文档中。直接检查 RES_APP 源码

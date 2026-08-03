@@ -1,164 +1,164 @@
 ---
 name: abap-code-writing
-description: Structured process for building ABAP solutions. Use BEFORE writing any ABAP code — reports, classes, function modules, enhancements, or full processes. Guides through requirement validation, system exploration, architecture planning, research of existing objects, and detailed design before any code is written.
-argument-hint: '[description of what to build in ABAP]'
+description: 构建 ABAP 解决方案的结构化流程。编写任何 ABAP 代码之前使用——报表、类、函数模块、增强或完整流程。在编写任何代码前引导完成需求验证、系统探索、架构规划、现有对象调研和详细设计。
+argument-hint: '[要在 ABAP 中构建的内容描述]'
 user-invocable: true
 disable-model-invocation: false
 ---
 
-# ABAP Code Writing Process
+# ABAP 代码编写流程
 
-Follow this process **in order** whenever building ABAP solutions. Do NOT skip steps. Do NOT start writing code until Step 6.
+构建 ABAP 解决方案时**按顺序**遵循此流程。不要跳过步骤。在第 6 步之前不要开始写代码。
 
-Ask questions at ANY step if something is unclear — it is always better to clarify early than to rewrite later.
-
----
-
-## Step 1: Understand the Requirement
-
-Before anything else, demonstrate that you understand what the user is asking for.
-
-**Actions:**
-- Restate the requirement back to the user in your own words
-- Describe the expected inputs, outputs, and behavior
-- Identify the business context — what problem does this solve?
-- Call out any assumptions you're making
-- List open questions (edge cases, error scenarios, authorization needs, performance expectations)
-
-**Do NOT proceed until the user confirms your understanding is correct.**
-
-Example response:
-> "Here's my understanding: You need a report that reads material master data for a given plant, filters by material type, and outputs an ALV grid with columns [X, Y, Z]. It should support multiple selection for plant and material type. Is this correct? A few questions: (1) Should it include cross-plant materials? (2) Do you need export to Excel? (3) Any authorization checks beyond standard?"
+任何步骤有不清楚的地方都要提问——尽早澄清总比事后重写好。
 
 ---
 
-## Step 2: Explore the SAP System
+## 第 1 步：理解需求
 
-Once requirements are confirmed, understand what you're working with.
+做任何事之前，先证明你理解了用户的要求。
 
-**Actions:**
-- Use the **SAP system info tool** to determine:
-  - System type (S/4HANA vs ECC)
-  - SAP release / ABAP version (affects available syntax and standard objects)
-  - Installed components
-- Check if standard SAP functionality already does what the user needs:
-  - Search for standard transactions, BAPIs, or reports that cover the requirement
-  - Search for BADIs, enhancement spots, or user exits that could be enhanced
-  - Check if a standard Fiori app exists for this
-- Inform the user of findings: "SAP already provides [X] which does 80% of what you need. We could enhance it via [BADI/exit Y] rather than building from scratch."
+**行动：**
+- 用自己的话向用户复述需求
+- 描述预期的输入、输出和行为
+- 识别业务背景——这解决什么问题？
+- 指出你做的假设
+- 列出待解决的问题（边界情况、错误场景、授权需求、性能预期）
 
-**If standard functionality can be enhanced, recommend that approach.** Custom code should be the last resort.
+**在用户确认你的理解正确之前不要继续。**
 
----
-
-## Step 3: Architecture & High-Level Plan
-
-If custom development is needed, plan the architecture BEFORE any code.
-
-**Actions:**
-- Break down the solution into **sub-tasks / capabilities** needed. Examples:
-  - Sending emails
-  - Downloading data to Excel
-  - Price calculation
-  - Updating a specific custom table
-  - Reading master data
-  - Calling an external API
-  - Authorization checks
-  - Logging / audit trail
-- For each sub-task, note whether it's likely something that:
-  - Already exists as standard SAP functionality (BAPI, FM, standard class)
-  - May exist as a custom object (Z*/Y*) in this system that can be reused
-  - Needs to be built from scratch
-- Sketch the **data flow**: where data comes from, how it's transformed, where it goes
-- Identify **integration points**: other systems, APIs, IDocs
-- Consider **error handling strategy**: how errors are surfaced to the user
-- Consider **authorization** and **performance** needs (expected data volumes)
-
-**Present this as a capability breakdown** — not specific object names yet. Those come after research.
-
-Example:
-> **Capabilities needed:**
-> 1. Read sales order data from SAP tables
-> 2. Validate order data against business rules
-> 3. Calculate pricing (may reuse existing pricing FM/class?)
-> 4. Send confirmation email to customer
-> 5. Update custom status table
-> 6. Log all processing steps for audit
+示例回复：
+> “我的理解是：你需要一个报表，读取指定工厂的物料主数据，按物料类型过滤，输出带 [X, Y, Z] 列的 ALV 网格。它应该支持工厂和物料类型的多选。对吗？几个问题：(1) 是否包含跨工厂物料？(2) 需要导出到 Excel 吗？(3) 除标准之外还需要授权检查吗？”
 
 ---
 
-## Step 4: Research Existing Objects
+## 第 2 步：探索 SAP 系统
 
-For **each sub-task identified in Step 3**, search the SAP system for reusable objects.
+需求确认后，了解你正在处理的环境。
 
-**Actions:**
-- For each capability/sub-task, search for:
-  - **Custom objects (Z*/Y*)** that already do this or something similar — these are high-value reuse candidates
-  - **Standard BAPIs, FMs, classes** that cover the functionality
-  - **Tables and structures** you'll need to read from or write to
-- For every object you find that looks promising:
-  - **Read its signature**: get exact parameter names, types, and structures
-  - **Read its code** to verify it actually does what you expect
-  - **Check quality**: is it well-written? Does it handle errors properly?
-- For tables and structures:
-  - Confirm field names and data types
-  - Check table keys and indexes
+**行动：**
+- 使用 **SAP 系统信息工具** 确定：
+  - 系统类型（S/4HANA vs ECC）
+  - SAP 版本 / ABAP 版本（影响可用语法和标准对象）
+  - 已安装的组件
+- 检查 SAP 标准功能是否已经满足用户需求：
+  - 搜索覆盖需求的标准事务、BAPI 或报表
+  - 搜索可增强的 BADI、增强点或用户出口
+  - 检查是否存在标准 Fiori 应用
+- 告知用户发现：“SAP 已经提供 [X]，完成了你 80% 的需求。我们可以通过 [BADI/出口 Y] 增强它，而不是从零构建。”
 
-**NEVER assume an object exists or guess its parameters.** Every object and every parameter must be verified against the live system.
-
-**Run searches in parallel** when possible — search for multiple sub-tasks simultaneously.
-
-Report findings to the user: "For email sending, I found `ZCL_EMAIL_HELPER=>SEND` which takes X, Y, Z. For pricing, there's no existing custom object but standard FM `PRICING_GET_CONDITIONS` exists."
+**如果标准功能可以增强，推荐该方案。** 自定义代码应该是最后手段。
 
 ---
 
-## Step 5: Detailed Code-Level Plan
+## 第 3 步：架构与高层规划
 
-Now — using research results from Step 4 — define the concrete architecture and detailed design.
+如果需要自定义开发，在写任何代码之前规划架构。
 
-**Actions:**
-- Decide what **objects to create**:
-  - Which classes, interfaces, exception classes, reports, FMs, tables, CDS views?
-  - Name them following **Clean ABAP naming rules** (load the `clean-abap` skill if not already loaded): descriptive names, snake_case, no Hungarian notation, nouns for classes, verbs for methods
-  - Define each object's responsibility
-- For each class/FM:
-  - Define methods and their exact signatures (importing, exporting, returning, raising)
-  - Specify which reusable objects (found in Step 4) are called, with which parameters
-  - Define the data flow through each method
-  - Define error handling: which exceptions are raised/caught at each level
-- Map out the **complete execution flow**:
-  - Entry point → validation → processing → output
-  - What happens on success vs failure at each step
-- Include specifics:
-  - SELECT statements with exact field and table names (verified in Step 4)
-  - BAPI/FM calls with exact parameter mappings
-  - ALV field catalog or CDS annotations
-  - Authorization checks with exact auth objects
+**行动：**
+- 把解决方案分解为所需的**子任务 / 能力**。例如：
+  - 发送邮件
+  - 下载数据到 Excel
+  - 价格计算
+  - 更新特定自定义表
+  - 读取主数据
+  - 调用外部 API
+  - 授权检查
+  - 日志 / 审计追踪
+- 对每个子任务，判断它可能属于：
+  - SAP 标准功能已存在（BAPI、FM、标准类）
+  - 此系统中可能已有可复用的自定义对象（Z*/Y*）
+  - 需要从零构建
+- 勾勒**数据流**：数据来自哪里、如何转换、去向哪里
+- 识别**集成点**：其他系统、API、IDoc
+- 考虑**错误处理策略**：错误如何呈现给用户
+- 考虑**授权**和**性能**需求（预期数据量）
 
-**Share this detailed plan with the user for confirmation before writing code.**
+**以能力分解的形式呈现**——先不写具体对象名。那些在调研之后确定。
 
----
-
-## Step 6: Write the Code
-
-Only NOW do you write code.
-
-**Rules:**
-- Follow Clean ABAP rules (if the clean-abap skill is available, load and use it)
-- Use modern ABAP syntax appropriate for the system version identified in Step 2
-- Every object/parameter reference in your code must have been verified in Step 4
-- Implement proper error handling as designed in Step 5
-- Add meaningful ABAP Doc for public APIs
-- Keep methods small and focused
-
-**If you discover during coding that you need an object you haven't researched, STOP and go back to Step 4 for that object before continuing.**
+示例：
+> **所需能力：**
+> 1. 从 SAP 表读取销售订单数据
+> 2. 按业务规则校验订单数据
+> 3. 计算定价（可能复用现有定价 FM/类？）
+> 4. 向客户发送确认邮件
+> 5. 更新自定义状态表
+> 6. 记录所有处理步骤用于审计
 
 ---
 
-## Key Principles
+## 第 4 步：调研现有对象
 
-- **Questions > Assumptions**: Ask the user rather than guess. One question now saves an hour of rework.
-- **Standard > Custom**: Always check if SAP provides something before building custom.
-- **Verify > Trust**: Never trust your training data for object names or parameters. Always verify against the live system.
-- **Plan > Code**: More time planning = less time debugging. The plan IS the deliverable — code is just the implementation.
-- **Incremental confirmation**: Get user buy-in at Steps 1, 3, and 5. Don't surprise them at Step 6.
+针对**第 3 步确定的每个子任务**，在 SAP 系统中搜索可复用对象。
+
+**行动：**
+- 对每个能力/子任务，搜索：
+  - 已实现此功能或类似功能的**自定义对象（Z*/Y*）**——这些是高价值复用候选
+  - 覆盖该功能的**标准 BAPI、FM、类**
+  - 需要读取或写入的**表和结构**
+- 对每个看起来有希望的对象：
+  - **读取其签名**：获取准确的参数名、类型和结构
+  - **读取其代码**验证它确实如你所预期
+  - **检查质量**：写得好吗？错误处理正确吗？
+- 对表和结构：
+  - 确认字段名和数据类型
+  - 检查表键和索引
+
+**绝不要假设对象存在或猜测参数。** 每个对象和每个参数都必须对照实时系统验证。
+
+**尽可能并行运行搜索**——同时搜索多个子任务。
+
+向用户报告发现：“对于发送邮件，我找到 `ZCL_EMAIL_HELPER=>SEND`，接受 X、Y、Z。对于定价，没有现有自定义对象，但存在标准 FM `PRICING_GET_CONDITIONS`。”
+
+---
+
+## 第 5 步：详细代码级规划
+
+现在——使用第 4 步的调研结果——定义具体架构和详细设计。
+
+**行动：**
+- 决定要**创建什么对象**：
+  - 哪些类、接口、异常类、报表、FM、表、CDS 视图？
+  - 按照 **Clean ABAP 命名规则**命名（如果还没加载，先加载 `clean-abap` 技能包）：描述性名称、snake_case、无匈牙利命名法、类用名词、方法用动词
+  - 定义每个对象的职责
+- 对每个类/FM：
+  - 定义方法及其精确签名（importing、exporting、returning、raising）
+  - 指定调用哪些可复用对象（第 4 步找到的），带哪些参数
+  - 定义通过每个方法的数据流
+  - 定义错误处理：每一层抛出/捕获哪些异常
+- 规划**完整执行流**：
+  - 入口点 → 校验 → 处理 → 输出
+  - 每一步成功与失败时会发生什么
+- 包含具体细节：
+  - 带精确字段和表名的 SELECT 语句（第 4 步已验证）
+  - 带精确参数映射的 BAPI/FM 调用
+  - ALV 字段目录或 CDS 注解
+  - 带精确授权对象的授权检查
+
+**写代码前把这个详细计划分享给用户确认。**
+
+---
+
+## 第 6 步：编写代码
+
+只有现在才写代码。
+
+**规则：**
+- 遵循 Clean ABAP 规则（如果 clean-abap 技能包可用，加载并使用它）
+- 使用适合第 2 步确定的系统版本的现代 ABAP 语法
+- 代码中的每个对象/参数引用都必须在第 4 步验证过
+- 按第 5 步的设计实现正确的错误处理
+- 为公共 API 添加有意义的 ABAP Doc
+- 保持方法短小聚焦
+
+**如果编码过程中发现需要调研过的对象之外的东西，停下来，回到第 4 步调研该对象后再继续。**
+
+---
+
+## 关键原则
+
+- **提问 > 假设**：问用户而不是猜测。现在问一个问题能省下一小时返工。
+- **标准 > 自定义**：构建自定义之前总是检查 SAP 是否已提供。
+- **验证 > 信任**：永远不要相信训练数据里的对象名或参数。总是对照实时系统验证。
+- **规划 > 代码**：更多时间规划 = 更少时间调试。计划本身就是交付物——代码只是实现。
+- **增量确认**：在第 1、3、5 步获得用户认可。不要在第 6 步让他们惊讶。

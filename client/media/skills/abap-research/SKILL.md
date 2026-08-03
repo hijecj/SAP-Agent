@@ -1,141 +1,141 @@
 ---
 name: abap-research
-description: Techniques for navigating and finding objects in SAP systems. Use when searching for transactions, programs, FMs, classes, error messages, BAPIs, tables, custom objects, or anything in an unfamiliar SAP system. Teaches the mindset and metadata knowledge a senior ABAP developer uses to find anything in any system. Load this skill when the user asks to find something and direct search doesn't work, or when investigating errors, screenshots, or unknown functionality.
-argument-hint: '[what to find in the SAP system]'
+description: 在 SAP 系统中导航和查找对象的技术。搜索事务、程序、FM、类、错误消息、BAPI、表、自定义对象，或在陌生 SAP 系统中查找任何东西时使用。传授资深 ABAP 开发人员在任意系统中找到任何内容所用的思维方式和元数据知识。当用户要求查找某物而直接搜索无效，或调查错误、截图、未知功能时，加载此技能包。
+argument-hint: '[要在 SAP 系统中查找的内容]'
 user-invocable: true
 disable-model-invocation: false
 ---
 
-# SAP System Research — Think Like a Senior Developer
+# SAP 系统研究 — 像资深开发人员一样思考
 
-You're a senior ABAP developer dropped into an unfamiliar SAP system. You need to find things, understand how they connect, and trace problems to their source. You have two main tools: **object search** (by name/pattern) and **SQL** (query metadata tables). Use both creatively.
+你是一名被空降到陌生 SAP 系统的资深 ABAP 开发人员。你需要找到东西、理解它们如何关联、把问题追溯到源头。你有两个主要工具：**对象搜索**（按名称/模式）和 **SQL**（查询元数据表）。创造性地使用两者。
 
-**Your mindset:** Be curious. Be a detective. SAP catalogs EVERYTHING in metadata tables. If something exists in the system, there's a table that knows about it. Your job is to figure out which table, read its structure with `get_object_lines`, and then query it.
+**你的心态：** 保持好奇。当侦探。SAP 把一切都编目在元数据表中。如果系统中存在某物，就有一张表知道它。你的任务是弄清楚是哪张表，用 `get_object_lines` 读取它的结构，然后查询它。
 
-**CRITICAL:** Never hardcode field names from memory. Always read a table's structure first with `get_object_lines` to see its actual fields before querying it.
+**关键：** 绝不要凭记忆硬编码字段名。查询前始终先用 `get_object_lines` 读取表的结构，看它的实际字段。
 
-**CRITICAL:** Text fields in SAP are often **case-sensitive**. When searching by text, use wildcards aggressively — skip the first letter of words, put `%` between key phrases. `%rticle%aint%` finds "Article Maintenance", "article maint.", but WILL NOT find "ARTICLE MAINTENANCE."
-
----
-
-## The Metadata Tables You Should Know
-
-These tables are the backbone of SAP's self-documentation. Before querying any of them, **read their structure first** to get correct field names.
-
-### Object Catalog & Repository
-| Table | What it catalogs |
-|-------|-----------------|
-| **TADIR** | Master directory of ALL development objects — every class, program, FM, table, etc. Links objects to packages, authors, creation dates |
-| **TRDIR** | Program directory — all ABAP programs with their type (report, include, class pool, function pool, module pool) |
-| **TRDIRT** | Program short texts (descriptions) |
-
-### Transactions
-| Table | What it catalogs |
-|-------|-----------------|
-| **TSTC** | Transaction code → program mapping |
-| **TSTCT** | Transaction code descriptions/titles (language-dependent) |
-
-### Messages
-| Table | What it catalogs |
-|-------|-----------------|
-| **T100** | All system messages — message class, number, text (language-dependent and case-sensitive) |
-
-### Data Dictionary
-| Table | What it catalogs |
-|-------|-----------------|
-| **DD02L** | Table/structure definitions (metadata) |
-| **DD02T** | Table/structure descriptions (language-dependent) |
-| **DD03L** | Table field list — every field in every table, with data type, length, key flag |
-| **DD04L** | Data element definitions |
-| **DD04T** | Data element descriptions (language-dependent) |
-| **DD01L** | Domain definitions |
-| **DD01T** | Domain descriptions |
-| **DD07L** | Domain fixed values (dropdown values, value ranges) |
-
-### Classes & Interfaces
-| Table | What it catalogs |
-|-------|-----------------|
-| **SEOCLASSTX** | Class/interface descriptions (language-dependent) |
-| **SEOMETAREL** | Interface implementations — which class implements which interface |
-| **SEOCOMPO** | Class/interface components (methods, attributes, events) |
-
-### Function Modules
-| Table | What it catalogs |
-|-------|-----------------|
-| **TFDIR** | Function module directory |
-| **TFTIT** | Function module short texts (language-dependent) |
-| **ENLFDIR** | FM → function group mapping |
-| **FUPARAREF** | Function module parameters (name, type, direction) |
-
-### Transports
-| Table | What it catalogs |
-|-------|-----------------|
-| **E070** | Transport request headers — owner, description, status, type |
-| **E071** | Transport object list — which objects are in which transport |
-
-### Enhancements & Exits
-| Table | What it catalogs |
-|-------|-----------------|
-| **SXS_ATTR** | BAdI definitions |
-| **SXC_ATTR** | BAdI implementations |
-| **MODSAP** | Classic enhancement exits (SMOD/CMOD) |
+**关键：** SAP 中的文本字段通常**区分大小写**。按文本搜索时积极使用通配符——跳过单词首字母，在关键短语之间放 `%`。`%rticle%aint%` 能匹配 "Article Maintenance"、"article maint."，但**不会**匹配 "ARTICLE MAINTENANCE."
 
 ---
 
-## Thinking Patterns
+## 你应该知道的元数据表
 
-These are not step-by-step procedures. They're **ways of thinking** about research problems. Adapt them to the situation.
+这些表是 SAP 自文档化的支柱。查询其中任何一张之前，**先读取其结构**以获取正确的字段名。
 
-### "I see a screen but don't know the tcode"
-You have a title or description. **TSTCT** maps descriptions to tcodes. **TSTC** maps tcodes to programs. Chain them: title → tcode → program → now you can read the code.
+### 对象目录与仓库
+| 表 | 编目内容 |
+|-------|-----------------|
+| **TADIR** | 所有开发对象的主目录——每个类、程序、FM、表等。把对象关联到包、作者、创建日期 |
+| **TRDIR** | 程序目录——所有 ABAP 程序及其类型（报表、include、类池、函数池、模块池） |
+| **TRDIRT** | 程序短文本（描述） |
 
-### "I see an error message"
-The message text is your clue. **T100** stores every message in the system with its class and number. Find it there (wildcard aggressively). Then search code for that message class + number to find where it's raised. Read the surrounding code to understand the trigger condition.
+### 事务
+| 表 | 编目内容 |
+|-------|-----------------|
+| **TSTC** | 事务码 → 程序映射 |
+| **TSTCT** | 事务码描述/标题（语言相关） |
 
-### "I need a function module / BAPI for a specific task"
-BAPIs follow naming conventions: `BAPI_<object>_<action>`. Try the object search tool with patterns like `BAPI_*_CREATE*`, `BAPI_*_GETDETAIL*`, `BAPI_*_GETLIST*`, `BAPI_*_CHANGE*`. Also search **TFTIT** for FM descriptions matching your task.
+### 消息
+| 表 | 编目内容 |
+|-------|-----------------|
+| **T100** | 所有系统消息——消息类、编号、文本（语言相关且区分大小写） |
 
-### "I found one object, now I need everything related"
-**Package clustering.** Every development object lives in a package. Query **TADIR** to find the object's package. Then query TADIR again for ALL objects in that same package. You'll discover the classes, tables, FMs, reports, message classes — everything that was built together as a unit.
+### 数据字典
+| 表 | 编目内容 |
+|-------|-----------------|
+| **DD02L** | 表/结构定义（元数据） |
+| **DD02T** | 表/结构描述（语言相关） |
+| **DD03L** | 表字段列表——每张表的每个字段，含数据类型、长度、键标志 |
+| **DD04L** | 数据元素定义 |
+| **DD04T** | 数据元素描述（语言相关） |
+| **DD01L** | 域定义 |
+| **DD01T** | 域描述 |
+| **DD07L** | 域固定值（下拉值、值范围） |
 
-### "I know a field name but not which tables have it"
-Reverse lookup via **DD03L**. Query it for the field name to find every table containing that field. This reveals the data model — which are master data tables, which are transaction tables, which are config tables.
+### 类与接口
+| 表 | 编目内容 |
+|-------|-----------------|
+| **SEOCLASSTX** | 类/接口描述（语言相关） |
+| **SEOMETAREL** | 接口实现——哪个类实现哪个接口 |
+| **SEOCOMPO** | 类/接口组件（方法、属性、事件） |
 
-### "I need to find what a specific developer built"
-**TADIR** has the author of every object. **E070** has transport request owners. **E071** links transports to their objects. Transports show what was changed together — revealing functional groupings.
+### 函数模块
+| 表 | 编目内容 |
+|-------|-----------------|
+| **TFDIR** | 函数模块目录 |
+| **TFTIT** | 函数模块短文本（语言相关） |
+| **ENLFDIR** | FM → 函数组映射 |
+| **FUPARAREF** | 函数模块参数（名称、类型、方向） |
 
-### "I need to understand a custom table's purpose"
-Read its structure with `get_object_lines`. Check **DD02T** for its description. Look at field names and their data elements — data element names often reveal purpose. Check **DD04T** for the data element descriptions. Run where-used to see which programs read/write it.
+### 传输
+| 表 | 编目内容 |
+|-------|-----------------|
+| **E070** | 传输请求头——所有者、描述、状态、类型 |
+| **E071** | 传输对象列表——哪些对象在哪个传输中 |
 
-### "I need to find enhancements/exits for standard code"
-Search within the program's code for: `CALL CUSTOMER-FUNCTION` (old exits), `GET BADI` / `CALL BADI` (new BADIs), `ENHANCEMENT-POINT` / `ENHANCEMENT-SECTION` (implicit enhancement points). Also check **MODSAP** for classic exits and **SXS_ATTR** for BAdI definitions related to the program.
-
-### "I see field labels on a screen but don't know the data model"
-Screen labels often match data element descriptions. Query **DD04T** for text matching the label. Then use **DD03L** to find which tables use those data elements. Now you know the underlying tables.
-
-### "I need to understand an end-to-end process"
-Start from the transaction (**TSTC** → program). Read the top-level flow. Follow the calls — which classes, which FMs? Use where-used and code search to trace the chain. Check the package for siblings. Build the picture incrementally.
+### 增强与出口
+| 表 | 编目内容 |
+|-------|-----------------|
+| **SXS_ATTR** | BAdI 定义 |
+| **SXC_ATTR** | BAdI 实现 |
+| **MODSAP** | 经典增强出口（SMOD/CMOD） |
 
 ---
 
-## Research Principles
+## 思维模式
 
-1. **Start with what you have.** A name, a screenshot, an error, a vague description — anything is a starting point.
+这些不是分步流程。它们是解决研究问题的**思维方式**。根据情况调整。
 
-2. **Read table structures before querying.** Never assume field names. Use `get_object_lines` on any table to see its fields first. Then query.
+### “我看到一个界面但不知道事务码”
+你有标题或描述。**TSTCT** 把描述映射到事务码。**TSTC** 把事务码映射到程序。把它们串起来：标题 → 事务码 → 程序 → 现在你可以读代码了。
 
-3. **Cast a wide net with wildcards.** Case sensitivity kills searches. Skip first letters: `%rticle` not `Article`. Put `%` between words: `%rder%rocess%` not `Order Processing`. Over-wildcard first, narrow down later.
+### “我看到一条错误消息”
+消息文本就是线索。**T100** 存储系统中每条消息及其类和编号。在那里找到它（积极使用通配符）。然后搜索代码中该消息类 + 编号，找到它在哪里抛出。阅读周围代码理解触发条件。
 
-4. **Follow the chain.** Nothing in SAP exists in isolation. Object → package → siblings. Message → code → program → transaction. Table → programs that use it → business process. Always ask: "what's connected to this?"
+### “我需要一个完成特定任务的函数模块 / BAPI”
+BAPI 遵循命名约定：`BAPI_<对象>_<动作>`。尝试对象搜索工具，使用 `BAPI_*_CREATE*`、`BAPI_*_GETDETAIL*`、`BAPI_*_GETLIST*`、`BAPI_*_CHANGE*` 等模式。也可以在 **TFTIT** 中搜索与你任务匹配的 FM 描述。
 
-5. **Use packages as clusters.** A package is a developer's grouping of things that belong together. Finding the package is often more valuable than finding the individual object.
+### “我找到一个对象，现在需要所有相关的东西”
+**包聚类。** 每个开发对象都存在于一个包中。查询 **TADIR** 找到对象的包。然后再次查询 TADIR 获取同一包中的所有对象。你会发现一起构建为一个单元的类、表、FM、报表、消息类——全部。
 
-6. **Cross-reference and verify.** Found something? Verify from another angle. Found a tcode via text? Check TSTC to confirm the program. Found a message? Search code to confirm it's raised where you expect.
+### “我知道字段名，但不知道哪些表有它”
+通过 **DD03L** 反向查找。查询字段名，找到包含该字段的每张表。这揭示数据模型——哪些是主数据表、哪些是事务表、哪些是配置表。
 
-7. **Think about who and when.** TADIR stores authors and creation dates. Transports show change history. This context helps judge purpose, quality, and relevance.
+### “我需要找到某个开发人员构建了什么”
+**TADIR** 有每个对象的作者。**E070** 有传输请求所有者。**E071** 把传输链接到对象。传输显示一起变更的内容——揭示功能分组。
 
-8. **Be creative.** Object search and SQL are not your only tools. Where-used analysis, code search within objects, version history — combine tools however the problem demands. If one approach hits a wall, try another angle entirely.
+### “我需要理解自定义表的用途”
+用 `get_object_lines` 读取它的结构。在 **DD02T** 中查它的描述。看字段名及其数据元素——数据元素名通常揭示用途。在 **DD04T** 中查数据元素描述。运行 where-used 看哪些程序读写它。
 
-9. **Search within, don't read everything.** Don't read a 5000-line program top to bottom. Search within it for the specific pattern, message, or variable you're tracing.
+### “我需要为标准代码找增强/出口”
+在程序代码中搜索：`CALL CUSTOMER-FUNCTION`（旧出口）、`GET BADI` / `CALL BADI`（新 BADI）、`ENHANCEMENT-POINT` / `ENHANCEMENT-SECTION`（隐式增强点）。也可以在 **MODSAP** 中查经典出口，在 **SXS_ATTR** 中查与程序相关的 BAdI 定义。
 
-10. **Know when to ask the user.** If you've tried multiple approaches and can't find it, explain what you tried and ask. The user may have context that changes your strategy completely.
+### “我看到界面上的字段标签，但不知道数据模型”
+界面标签通常与数据元素描述匹配。在 **DD04T** 中查询与标签匹配的文本。然后用 **DD03L** 找出哪些表使用这些数据元素。现在你知道底层表了。
+
+### “我需要理解端到端的流程”
+从事务开始（**TSTC** → 程序）。读取顶层流程。跟踪调用——哪些类、哪些 FM？用 where-used 和代码搜索追踪链条。检查包中的兄弟对象。逐步构建全貌。
+
+---
+
+## 研究原则
+
+1. **从你拥有的开始。** 一个名字、一张截图、一个错误、一个模糊描述——任何东西都是起点。
+
+2. **查询前先读表结构。** 绝不要假设字段名。先对任何表用 `get_object_lines` 看字段。然后再查询。
+
+3. **用通配符撒大网。** 大小写敏感会毁掉搜索。跳过首字母：`%rticle` 而不是 `Article`。在词之间放 `%`：`%rder%rocess%` 而不是 `Order Processing`。先过度通配，再逐步收窄。
+
+4. **跟踪链条。** SAP 中没有任何东西孤立存在。对象 → 包 → 兄弟对象。消息 → 代码 → 程序 → 事务。表 → 使用它的程序 → 业务流程。始终问：“这与什么关联？”
+
+5. **把包当作聚类。** 包是开发人员对属于一起的东西的分组。找到包往往比找到单个对象更有价值。
+
+6. **交叉引用并验证。** 找到了什么？从另一个角度验证。通过文本找到事务码？查 TSTC 确认程序。找到消息？搜索代码确认它在预期位置抛出。
+
+7. **思考谁和何时。** TADIR 存储作者和创建日期。传输显示变更历史。这些上下文有助于判断用途、质量和相关性。
+
+8. **保持创造性。** 对象搜索和 SQL 不是你仅有的工具。Where-used 分析、对象内代码搜索、版本历史——按问题需要组合工具。一种方法碰壁，就换一个完全不同的角度。
+
+9. **在内部搜索，不要通读一切。** 不要从头到尾读 5000 行的程序。在内部搜索你要追踪的具体模式、消息或变量。
+
+10. **知道何时问用户。** 如果尝试了多种方法还是找不到，说明你尝试了什么并提问。用户可能有完全改变你策略的上下文。

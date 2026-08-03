@@ -1,61 +1,61 @@
 ---
 name: abap-performance-hana
-description: ABAP performance best practices for S/4HANA and HANA database systems.Use when writing or reviewing ABAP code on HANA-based systems.IMPORTANT: First use the SAP system info tool to check the system type — if the system is ECC or runs on a traditional database (Oracle, DB2, MSSQL), load the abap-performance-ecc skill instead. Covers code pushdown, CDS views, AMDP, advanced SQL, and HANA-optimized patterns.
-argument-hint: '[ABAP code to optimize on HANA]'
+description: S/4HANA 和 HANA 数据库系统的 ABAP 性能最佳实践。在基于 HANA 的系统上编写或审查 ABAP 代码时使用。重要：先用 SAP 系统信息工具检查系统类型——如果是 ECC 或运行在传统数据库（Oracle、DB2、MSSQL）上，改用 abap-performance-ecc 技能包。涵盖代码下推、CDS 视图、AMDP、高级 SQL 和 HANA 优化模式。
+argument-hint: '[要在 HANA 上优化的 ABAP 代码]'
 user-invocable: true
 disable-model-invocation: false
 ---
 
-# ABAP Performance — S/4HANA / HANA Database
+# ABAP 性能 — S/4HANA / HANA 数据库
 
-These rules apply to SAP S/4HANA systems or any ABAP system running on HANA DB.
+这些规则适用于 SAP S/4HANA 系统或任何运行在 HANA DB 上的 ABAP 系统。
 
-**Before using this skill:** Call the SAP system info tool. If the system is ECC on a traditional DB, use the `abap-performance-ecc` skill instead.
+**使用此技能包前：** 调用 SAP 系统信息工具。如果系统是传统 DB 上的 ECC，改用 `abap-performance-ecc` 技能包。
 
-**Core philosophy on HANA:** Push data-intensive operations to the database. HANA is a columnar in-memory DB optimized for set-based operations, aggregations, and complex SQL. Let it do the heavy lifting. Keep ABAP for business logic, authorization, and exception handling.
+**HANA 核心哲学：** 把数据密集型操作下推到数据库。HANA 是面向集合操作、聚合和复杂 SQL 优化的列式内存数据库。让它做重活。ABAP 只负责业务逻辑、授权和异常处理。
 
 ---
 
-## Code Pushdown — The #1 Rule
+## 代码下推 — 第一原则
 
-**Move data-intensive operations to the database layer.**
+**把数据密集型操作移到数据库层。**
 
-### Push down to HANA:
-- Aggregations (SUM, COUNT, AVG, MIN, MAX)
-- Filtering (WHERE clauses — the more selective, the better)
-- Sorting (ORDER BY)
-- JOINs (HANA handles complex multi-table JOINs efficiently)
-- String operations and arithmetic in SQL
-- CASE expressions / conditional logic on data
-- Grouping and HAVING
-- Window functions (OVER/PARTITION BY)
+### 下推到 HANA：
+- 聚合（SUM、COUNT、AVG、MIN、MAX）
+- 过滤（WHERE 子句——选择性越强越好）
+- 排序（ORDER BY）
+- JOIN（HANA 高效处理复杂多表 JOIN）
+- SQL 中的字符串操作和算术
+- 数据的 CASE 表达式 / 条件逻辑
+- 分组和 HAVING
+- 窗口函数（OVER/PARTITION BY）
 - UNION / INTERSECT / EXCEPT
 
-### Keep in ABAP:
-- Complex business logic with many branches
-- Authority checks, messages, exceptions
-- Small dataset processing where pushdown overhead exceeds benefit
-- Operations requiring ABAP runtime features (RFC calls, file I/O, etc.)
+### 留在 ABAP：
+- 多分支的复杂业务逻辑
+- 权限检查、消息、异常
+- 下推开销超过收益的小数据集处理
+- 需要 ABAP 运行时特性的操作（RFC 调用、文件 I/O 等）
 
-### Avoid:
-- Reading all rows to ABAP and filtering/aggregating in loops
-- Using internal tables as intermediate storage for what SQL can do in one statement
-- Multiple sequential SELECTs that could be a single JOIN
+### 避免：
+- 把所有行读到 ABAP 然后在循环中过滤/聚合
+- 用内部表作为 SQL 一条语句就能完成的中间存储
+- 本可以合并为一个 JOIN 的多次顺序 SELECT
 
 ---
 
-## Database Access
+## 数据库访问
 
-### SELECT Patterns
+### SELECT 模式
 
-- Select only the fields you need. Never `SELECT *` in production.
+- 只选择需要的字段。生产环境绝不用 `SELECT *`。
   ```abap
   SELECT matnr, maktx FROM mara INTO TABLE @DATA(itab).
   ```
 
-- Always use a WHERE clause. Always use `@` escaped host variables.
+- 始终使用 WHERE 子句。始终使用 `@` 转义的主机变量。
 
-- Use JOINs aggressively — HANA handles complex JOINs very well, even 5+ tables.
+- 积极使用 JOIN——HANA 非常擅长处理复杂 JOIN，甚至 5+ 个表。
   ```abap
   SELECT m~matnr, t~maktx, p~werks, p~ekgrp
     FROM mara AS m
@@ -66,7 +66,7 @@ These rules apply to SAP S/4HANA systems or any ABAP system running on HANA DB.
     INTO TABLE @DATA(materials).
   ```
 
-- Use aggregate functions and GROUP BY — let HANA calculate:
+- 使用聚合函数和 GROUP BY——让 HANA 计算：
   ```abap
   SELECT werks, SUM( labst ) AS total_stock, COUNT(*) AS item_count
     FROM mard
@@ -75,7 +75,7 @@ These rules apply to SAP S/4HANA systems or any ABAP system running on HANA DB.
     INTO TABLE @DATA(stock_by_plant).
   ```
 
-- Use CASE expressions to push conditional logic to the DB:
+- 用 CASE 表达式把条件逻辑下推到数据库：
   ```abap
   SELECT matnr,
          CASE mtart
@@ -87,7 +87,7 @@ These rules apply to SAP S/4HANA systems or any ABAP system running on HANA DB.
     INTO TABLE @DATA(materials).
   ```
 
-- Use string functions in SQL:
+- SQL 中使用字符串函数：
   ```abap
   SELECT matnr, CONCAT( matnr, CONCAT( ' - ', maktx ) ) AS display_text
     FROM mara
@@ -95,98 +95,98 @@ These rules apply to SAP S/4HANA systems or any ABAP system running on HANA DB.
     INTO TABLE @DATA(display_data).
   ```
 
-- Use `FOR ALL ENTRIES` when JOINs aren't possible. **Always check driver table is not empty.**
+- 无法 JOIN 时使用 `FOR ALL ENTRIES`。**始终检查驱动表不为空。**
 
-- Use `UP TO n ROWS` when you only need limited results.
+- 只需要有限结果时使用 `UP TO n ROWS`。
 
-- Use subqueries where they simplify logic:
+- 能简化逻辑时使用子查询：
   ```abap
   SELECT matnr, maktx FROM mara
     WHERE matnr IN ( SELECT matnr FROM marc WHERE werks = @plant )
     INTO TABLE @DATA(plant_materials).
   ```
 
-### CDS Views
+### CDS 视图
 
-- **Prefer CDS views** for complex data models. They are the primary code pushdown mechanism on HANA.
-- CDS views are reusable, testable, and automatically optimized by HANA.
-- Use CDS for: complex joins, calculated fields, aggregations, associations, access control.
-- Consume CDS views in ABAP via `SELECT FROM zcds_view`.
+- **复杂数据模型优先用 CDS 视图。** 它们是 HANA 上主要的代码下推机制。
+- CDS 视图可复用、可测试，HANA 自动优化。
+- CDS 用于：复杂 JOIN、计算字段、聚合、关联、访问控制。
+- ABAP 中通过 `SELECT FROM zcds_view` 消费 CDS 视图。
 
-### AMDP (ABAP-Managed Database Procedures)
+### AMDP（ABAP 托管数据库过程）
 
-- Use AMDP for very complex calculations that must run entirely on HANA.
-- AMDP gives you access to full SQLScript (HANA's procedural SQL language).
-- Use when: complex multi-step transformations, heavy string processing, graph operations, or when CDS is insufficient.
-- AMDP is NOT portable to other DBs — use only when you're certain the system stays on HANA.
+- 必须在 HANA 上完全运行的极复杂计算用 AMDP。
+- AMDP 让你使用完整的 SQLScript（HANA 的过程化 SQL 语言）。
+- 适用场景：复杂的多步转换、繁重字符串处理、图操作，或 CDS 不够用时。
+- AMDP **不可移植**到其他数据库——只有确定系统留在 HANA 时才使用。
 
-### Avoiding Redundant DB Access
+### 避免冗余数据库访问
 
-- Never SELECT the same data twice. Read once, reuse.
-- Use `READ TABLE` on internal table buffer instead of `SELECT SINGLE` in a loop:
+- 绝不对同一数据 SELECT 两次。读一次，复用。
+- 用内部表缓冲上的 `READ TABLE` 而不是循环中 `SELECT SINGLE`：
   ```abap
   SELECT matnr, maktx FROM makt WHERE spras = @sy-langu INTO TABLE @DATA(texts).
-  " later:
+  " 稍后：
   READ TABLE texts WITH KEY matnr = current_matnr INTO DATA(text_line).
   ```
 
-- On HANA, even redundant DB access is faster than on traditional DBs — but it's still wasteful and adds network overhead.
+- HANA 上冗余数据库访问比传统数据库快——但仍然浪费并增加网络开销。
 
-### Table Buffering
+### 表缓冲
 
-Buffering matters **less** on HANA than ECC because HANA is in-memory. But it still helps for:
-- Reducing network round-trips between app server and DB server
-- Avoiding query parsing overhead for tiny lookups
+缓冲在 HANA 上比 ECC **重要性低**，因为 HANA 是内存数据库。但仍有帮助：
+- 减少应用服务器和数据库服务器之间的网络往返
+- 避免微小查找的查询解析开销
 
-- Use `SELECT SINGLE` on buffered tables — reads from buffer. `UP TO 1 ROWS` bypasses buffer.
+- 缓冲表使用 `SELECT SINGLE`——从缓冲读取。`UP TO 1 ROWS` 绕过缓冲。
   ```abap
-  " good — uses buffer
+  " 好 — 使用缓冲
   SELECT SINGLE * FROM t001 WHERE bukrs = @bukrs INTO @DATA(company).
-  " bad — bypasses buffer
+  " 坏 — 绕过缓冲
   SELECT * FROM t001 UP TO 1 ROWS WHERE bukrs = @bukrs INTO @DATA(company).
   ```
 
-- JOINs, aggregates, GROUP BY, ORDER BY, subqueries **bypass the buffer**.
+- JOIN、聚合、GROUP BY、ORDER BY、子查询**绕过缓冲**。
 
 ---
 
-## Internal Tables
+## 内部表
 
-### Table Type Selection
+### 表类型选择
 
-Same rules as any ABAP system — this is ABAP runtime, not DB:
-- **HASHED**: O(1) lookup. Large tables, unique key, read-heavy, filled once.
-- **SORTED**: O(log n) lookup. Non-unique key, range access, incremental fill.
-- **STANDARD**: O(n) unless sorted + binary search. Small tables or sequential.
+与任何 ABAP 系统规则相同——这是 ABAP 运行时，不是数据库：
+- **HASHED**：O(1) 查找。大表、唯一键、读多、一次性填充。
+- **SORTED**：O(log n) 查找。非唯一键、范围访问、增量填充。
+- **STANDARD**：除非排序 + 二分搜索，否则 O(n)。小表或顺序访问。
 
 ```abap
-" good — O(1) lookup
+" 好 — O(1) 查找
 DATA materials TYPE HASHED TABLE OF mara WITH UNIQUE KEY matnr.
 READ TABLE materials WITH TABLE KEY matnr = input INTO DATA(mat).
 ```
 
-### Loop Optimization
+### 循环优化
 
-- Use `ASSIGNING FIELD-SYMBOL(<fs>)` for fastest loop processing.
-- Use `WHERE` on LOOP — especially on SORTED tables.
-- Avoid nested loops O(n*m). Use HASHED lookup for inner data.
-- Use `FILTER` for extracting subsets from SORTED/HASHED tables:
+- 用 `ASSIGNING FIELD-SYMBOL(<fs>)` 获得最快的循环处理。
+- LOOP 上用 `WHERE`——尤其在 SORTED 表上。
+- 避免嵌套循环 O(n*m)。内部数据用 HASHED 查找。
+- 用 `FILTER` 从 SORTED/HASHED 表提取子集：
   ```abap
   DATA(subset) = FILTER #( sorted_table WHERE status = 'A' ).
   ```
 
-### Bulk Operations
+### 批量操作
 
-- `INSERT lines_of` for bulk inserts.
-- `VALUE #( FOR ... )` and `REDUCE` for functional transformations.
-- `CORRESPONDING #( )` for structure mapping.
+- 批量插入用 `INSERT lines_of`。
+- 函数式转换用 `VALUE #( FOR ... )` 和 `REDUCE`。
+- 结构映射用 `CORRESPONDING #( )`。
 
-### HANA-Specific: Consider Pushing to SQL
+### HANA 专属：考虑下推到 SQL
 
-Before writing a complex ABAP loop with aggregation, filtering, or transformation — ask: **can this be a SQL statement instead?**
+编写带聚合、过滤或转换的复杂 ABAP 循环之前——问自己：**这能不能用一条 SQL 语句实现？**
 
 ```abap
-" ABAP way (acceptable for small data)
+" ABAP 方式（小数据可接受）
 LOOP AT sales ASSIGNING FIELD-SYMBOL(<s>).
   AT NEW kunnr.
     total = 0.
@@ -197,7 +197,7 @@ LOOP AT sales ASSIGNING FIELD-SYMBOL(<s>).
   ENDAT.
 ENDLOOP.
 
-" HANA way (better for large data)
+" HANA 方式（大数据更优）
 SELECT kunnr, SUM( netwr ) AS total
   FROM vbak
   WHERE erdat >= @from_date
@@ -207,10 +207,10 @@ SELECT kunnr, SUM( netwr ) AS total
 
 ---
 
-## String Operations
+## 字符串操作
 
-- Use string templates `| |` instead of CONCATENATE.
-- Avoid repeated string concatenation in loops — build a string table:
+- 用字符串模板 `| |` 而不是 CONCATENATE。
+- 避免在循环中重复拼接字符串——构建字符串表：
   ```abap
   DATA lines TYPE string_table.
   LOOP AT data INTO DATA(d).
@@ -219,54 +219,54 @@ SELECT kunnr, SUM( netwr ) AS total
   DATA(csv) = concat_lines_of( table = lines sep = cl_abap_char_utilities=>cr_lf ).
   ```
 
-- **HANA-specific:** For heavy string assembly from DB data, consider doing it in SQL with `CONCAT` or `STRING_AGG` (via CDS/AMDP).
+- **HANA 专属：** 对来自数据库数据的繁重字符串组装，考虑用 SQL 中的 `CONCAT` 或 `STRING_AGG`（通过 CDS/AMDP）完成。
 
 ---
 
-## Authorization Checks
+## 授权检查
 
-- Check authority **before** expensive data retrieval:
+- 在昂贵的数据检索**之前**检查权限：
   ```abap
   AUTHORITY-CHECK OBJECT 'M_MATE_WRK' ID 'WERKS' FIELD plant.
   IF sy-subrc <> 0. RAISE EXCEPTION NEW zcx_no_auth( ). ENDIF.
-  SELECT ... " now fetch
+  SELECT ... " 现在才取数
   ```
 
-- On S/4HANA, consider CDS access control (DCL) for row-level authorization built into the data model.
+- S/4HANA 上考虑用 CDS 访问控制（DCL）把行级授权构建到数据模型中。
 
 ---
 
-## ALV / UI Performance
+## ALV / UI 性能
 
-- Pass data by reference.
-- Use `CL_SALV_TABLE` for read-only display.
-- For very large result sets, consider pagination.
-- On S/4HANA: consider Fiori/RAP for UI instead of classical ALV.
-
----
-
-## Parallel Processing
-
-- `aRFC` for independent parallel tasks.
-- `SPTA` framework for parallelized mass processing.
-- Background jobs for very long tasks.
-- **HANA-specific:** Before parallelizing in ABAP, check if the work can be pushed to HANA — a single efficient SQL may outperform parallel ABAP tasks.
+- 按引用传递数据。
+- 只读显示用 `CL_SALV_TABLE`。
+- 非常大的结果集考虑分页。
+- S/4HANA 上：UI 考虑 Fiori/RAP 而不是经典 ALV。
 
 ---
 
-## HANA Anti-Patterns
+## 并行处理
 
-| Anti-Pattern | Fix |
+- 独立并行任务用 `aRFC`。
+- 并行化批量处理用 `SPTA` 框架。
+- 非常长的任务用后台作业。
+- **HANA 专属：** 在 ABAP 中并行化之前，检查工作能否下推到 HANA——一条高效的 SQL 可能胜过并行的 ABAP 任务。
+
+---
+
+## HANA 反模式
+
+| 反模式 | 修复 |
 |---|---|
-| `SELECT *` | Select only needed fields |
-| SELECT in a LOOP | JOINs (HANA handles complex JOINs well) |
-| Aggregating in ABAP loops | SUM/COUNT/AVG in SQL with GROUP BY |
-| Filtering in ABAP what SQL can filter | Push WHERE to SQL |
-| Multiple SELECTs that could be one JOIN | Combine into single JOIN statement |
-| Nested LOOPs on STANDARD tables | HASHED lookup for inner data |
-| Complex ABAP transformations on large data | CDS view or AMDP |
-| String concat in loops with `&&` | Build string table, or push to SQL |
-| Ignoring CDS views | Use CDS for reusable data models |
-| `UP TO 1 ROWS` on buffered table | `SELECT SINGLE` to use buffer |
-| Authority check after data retrieval | Check before SELECT, or use CDS DCL |
-| Writing ABAP for what SQL can express | Push to database — always ask "can SQL do this?" |
+| `SELECT *` | 只选择需要的字段 |
+| 循环内 SELECT | JOIN（HANA 擅长处理复杂 JOIN） |
+| 在 ABAP 循环中聚合 | SQL 中用 SUM/COUNT/AVG + GROUP BY |
+| SQL 能过滤却在 ABAP 过滤 | 把 WHERE 下推到 SQL |
+| 本可合并的多次 SELECT | 合并为单条 JOIN 语句 |
+| STANDARD 表上的嵌套 LOOP | 内部数据用 HASHED 查找 |
+| 大数据上的复杂 ABAP 转换 | CDS 视图或 AMDP |
+| 循环内用 `&&` 拼接字符串 | 构建字符串表，或下推到 SQL |
+| 忽略 CDS 视图 | 可复用数据模型用 CDS |
+| 缓冲表上 `UP TO 1 ROWS` | `SELECT SINGLE` 使用缓冲 |
+| 取数后做授权检查 | SELECT 前检查，或用 CDS DCL |
+| 用 ABAP 写 SQL 能表达的逻辑 | 下推到数据库——始终问“SQL 能做这个吗？” |
