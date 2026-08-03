@@ -1,14 +1,14 @@
 /**
- * ABAP FS Execute Command Tool
+ * ABAP FS 执行命令工具
  *
- * Thin wrapper around vscode.commands.executeCommand that lets Copilot trigger
- * a curated allow-list of ABAP FS commands (comm log, debug recording, ...).
- * The allow-list lives in the tool's package.json enum — the model literally
- * cannot invoke anything outside it.
+ * 围绕 vscode.commands.executeCommand 的薄包装器，让 Copilot 触发
+ * 精选的 ABAP FS 命令白名单（通信日志、调试录制等）。
+ * 白名单位于工具的 package.json 枚举中 — 模型实际上
+ * 无法调用其外的任何内容。
  *
- * Fire-and-forget only: return value is discarded, tool reports "triggered".
- * Commands that need meaningful args or return structured data should get
- * their own dedicated LM tool.
+ * 只支持即发即忘：返回值被丢弃，工具报告“已触发”。
+ * 需要有意义参数或返回结构化数据的命令应
+ * 拥有自己的专用 LM 工具。
  */
 
 import * as vscode from "vscode"
@@ -21,10 +21,10 @@ export interface IExecuteCommandParameters {
 }
 
 /**
- * Commands the tool should await before returning. Anything not in this set is
- * fired and forgotten — the tool reports "triggered" immediately. Add a command
- * here when the model needs to know it finished before deciding what to do next
- * (e.g. a setup / bootstrap command).
+ * 工具在返回前应等待的命令。不在此集合中的任何命令
+ * 都是即发即忘 — 工具立即报告“已触发”。当模型需要
+ * 在决定下一步之前知道命令已完成时（例如设置/引导命令），
+ * 把命令加到这里。
  */
 const AWAIT_COMMANDS = new Set<string>(["abapfs.activateCommLog"])
 
