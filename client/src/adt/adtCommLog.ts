@@ -20,7 +20,7 @@ import { pickAdtRoot } from "../config"
 import { ADTSCHEME } from "./conections"
 import { logTelemetry } from "../services/telemetry"
 
-// ── In-memory log store ──────────────────────────────────────────────
+// ── 内存日志存储 ──────────────────────────────────────────────
 
 export interface AdtLogEntry {
   id: number
@@ -135,7 +135,7 @@ export class CallLogger {
   }
 }
 
-/** Cap payload size for comm log to avoid memory issues */
+/** 限制通信日志的负载大小以避免内存问题 */
 const MAX_COMM_LOG_PAYLOAD = 2 * 1024 * 1024
 function capPayload(body: string | undefined): string | undefined {
   if (!body || body.length <= MAX_COMM_LOG_PAYLOAD) return body
@@ -174,7 +174,7 @@ function subscribe(fn: () => void): () => void {
   return () => listeners.delete(fn)
 }
 
-// ── Panel (WebviewViewProvider) ──────────────────────────────────────
+// ── 面板（WebviewViewProvider）──────────────────────────────────────
 
 export class CommLogPanel implements WebviewViewProvider {
   public static readonly viewType = "abapfs.views.commLog"
@@ -203,7 +203,7 @@ export class CommLogPanel implements WebviewViewProvider {
       localResourceRoots: []
     }
 
-    // Load HTML from media file
+    // 从媒体文件加载 HTML
     const htmlPath = path.join(context.extensionPath, "client", "dist", "media", "commLog.html")
     try {
       panel.webview.html = fs.readFileSync(htmlPath, "utf8")
@@ -218,7 +218,7 @@ export class CommLogPanel implements WebviewViewProvider {
       try {
         this.view.webview.postMessage({ type: "snapshot", entries })
       } catch {
-        /* panel not ready */
+        /* 面板未就绪 */
       }
     }
 
@@ -230,7 +230,7 @@ export class CommLogPanel implements WebviewViewProvider {
           active: CallLogger.getActiveConnIds()
         })
       } catch {
-        /* panel not ready */
+        /* 面板未就绪 */
       }
     }
 
@@ -246,7 +246,7 @@ export class CommLogPanel implements WebviewViewProvider {
         case "clear":
           entries.length = 0
           nextId = 1
-          sendSnapshot() // send empty snapshot to win any race with in-flight entries
+          sendSnapshot() // 发送空快照，在与进行中条目的竞态中获胜
           break
         case "toggle":
           if (CallLogger.getActiveConnIds().length > 0)
@@ -285,8 +285,8 @@ export class CommLogPanel implements WebviewViewProvider {
             }
             if (text) {
               env.clipboard.writeText(text).then(() => {
-                // Auto-dismissing toast: withProgress notifications close when the
-                // inner promise resolves. showInformationMessage has no auto-dismiss.
+                // 自动关闭的提示：withProgress 通知在内部
+                // Promise 解析时关闭。showInformationMessage 没有自动关闭。
                 window.withProgress(
                   { location: ProgressLocation.Notification, title: message },
                   () => new Promise<void>(resolve => setTimeout(resolve, 2000))
