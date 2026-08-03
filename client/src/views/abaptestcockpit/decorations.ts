@@ -20,9 +20,9 @@ const toDecoration = (m: AtcFind): DecorationOptions => ({
 const fileFindings = new Map<string, AtcFind[]>()
 
 /**
- * Get current decoration state for Copilot/AI analysis
- * @param fileUri Optional specific file URI to get decorations for
- * @returns Decoration data for the file(s)
+ * 获取当前装饰状态供 Copilot/AI 分析
+ * @param fileUri 可选：要获取装饰的特定文件 URI
+ * @returns 文件的装饰数据
  */
 export function getATCDecorations(fileUri?: string) {
   if (fileUri) {
@@ -30,7 +30,7 @@ export function getATCDecorations(fileUri?: string) {
     return {
       fileUri,
       decorations: findings.map(finding => ({
-        line: finding.start.line + 1, // Convert to 1-based for display
+        line: finding.start.line + 1, // 转换为从 1 开始以便显示
         character: finding.start.character + 1,
         priority: finding.finding.priority,
         priorityText:
@@ -53,7 +53,7 @@ export function getATCDecorations(fileUri?: string) {
     }
   }
 
-  // Return all files with decorations
+  // 返回所有带装饰的文件
   const allDecorations: Record<string, any> = {}
   for (const [uri, findings] of fileFindings.entries()) {
     allDecorations[uri] = findings.map(finding => ({
