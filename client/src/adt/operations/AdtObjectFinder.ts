@@ -141,11 +141,11 @@ export class AdtObjectFinder {
       const frag = await this.fragCache(`${u.path}_${u.type}_${u.name}`, getFrag, !useFragCache)
       const uf = await this.vscodeUriWithFile(frag.uri)
       rval.uri = uf.uri
-      if (isAbapFile(uf.file)) rval.file = uf.file // should always be an abapfile at this point
+      if (isAbapFile(uf.file)) rval.file = uf.file // 此时应该始终是 abapfile
       rval.start = vscPosition(frag.line + (u.start?.line || 0), frag.column)
     } else {
       const uf = await this.vscodeUriWithFile(u.path)
-      if (isAbapFile(uf.file)) rval.file = uf.file // should always be an abapfile at this point
+      if (isAbapFile(uf.file)) rval.file = uf.file // 此时应该始终是 abapfile
       rval.uri = uf.uri
     }
     return rval
@@ -207,7 +207,7 @@ export class AdtObjectFinder {
     "adtcore:description": "<NONE>"
   }
   /**
-   * Enhanced search with type selection UI (for manual search command)
+   * 带类型选择界面的增强搜索（用于手动搜索命令）
    */
   public async findObjectWithTypeFilter(
     prompt: string = "Search an ABAP object",
@@ -220,18 +220,18 @@ export class AdtObjectFinder {
 
     let selectedTypes: string[] | undefined
 
-    // Check if we should skip type selection (unless forced to show it)
+    // 检查是否应跳过类型选择（除非强制显示）
     if (!forceTypeSelection && skipTypeSelection === true && savedTypes !== undefined) {
-      // Use saved types directly, skip type selection
+      // 直接使用保存的类型，跳过类型选择
       selectedTypes = savedTypes
     } else {
-      // Show type selector
+      // 显示类型选择器
       selectedTypes = await this.selectObjectTypes()
       if (selectedTypes === undefined) {
-        return undefined // User cancelled
+        return undefined // 用户已取消
       }
 
-      // Ask if user wants to skip type selection in future (only if preference not set yet, or if forced)
+      // 询问用户是否想在未来跳过类型选择（只在偏好未设置或被强制时）
       if (skipTypeSelection === undefined || forceTypeSelection) {
         const answer = await window.showQuickPick(
           [
@@ -257,22 +257,22 @@ export class AdtObjectFinder {
         }
       }
     }
-    // Note: selectedTypes can be [] (empty array) if all types are selected - this is intentional
+    // 注意：如果选择了所有类型，selectedTypes 可以是 []（空数组）- 这是有意的
 
-    // Step 2: Search with selected types
+    // 第 2 步：用选中的类型搜索
     return this.findObject(prompt, "", undefined, selectedTypes)
   }
 
   /**
-   * Select object types to filter search
+   * 选择对象类型以过滤搜索
    */
   private async selectObjectTypes(): Promise<string[] | undefined> {
     const storageKey = "abapfs.searchTypeFilter"
     const previousSelection = context.globalState.get<string[]>(storageKey) || []
 
-    // All SAP object types supported by ADT search
+    // ADT 搜索支持的所有 SAP 对象类型
     const objectTypes = [
-      // Programs & Code
+      // 程序与代码
       { type: "PROG/P", label: "Programs (Reports)", picked: previousSelection.includes("PROG/P") },
       { type: "PROG/I", label: "Includes", picked: previousSelection.includes("PROG/I") },
       { type: "CLAS/OC", label: "Classes", picked: previousSelection.includes("CLAS/OC") },
@@ -281,7 +281,7 @@ export class AdtObjectFinder {
       { type: "FUGR/FF", label: "Function Modules", picked: previousSelection.includes("FUGR/FF") },
       { type: "TYPE/TY", label: "Type Groups", picked: previousSelection.includes("TYPE/TY") },
 
-      // Dictionary Objects
+      // 字典对象
       { type: "TABL/DT", label: "Database Tables", picked: previousSelection.includes("TABL/DT") },
       { type: "TABL/DS", label: "Structures", picked: previousSelection.includes("TABL/DS") },
       { type: "DTEL/DE", label: "Data Elements", picked: previousSelection.includes("DTEL/DE") },
@@ -310,12 +310,12 @@ export class AdtObjectFinder {
         picked: previousSelection.includes("VIEW/DV")
       },
 
-      // Other Objects
+      // 其他对象
       { type: "MSAG/N", label: "Message Classes", picked: previousSelection.includes("MSAG/N") },
       { type: "TRAN/T", label: "Transactions", picked: previousSelection.includes("TRAN/T") },
       { type: "DEVC/K", label: "Packages", picked: previousSelection.includes("DEVC/K") },
 
-      // Enhancements & BAdIs
+      // 增强与 BAdI
       {
         type: "ENHO/XHB",
         label: "Enhancement Implementations",
@@ -338,7 +338,7 @@ export class AdtObjectFinder {
         picked: previousSelection.includes("SXCI/XI")
       },
 
-      // Transformations
+      // 转换
       { type: "XSLT/XT", label: "XSLT Programs", picked: previousSelection.includes("XSLT/XT") },
       {
         type: "STOB/ST",
@@ -346,7 +346,7 @@ export class AdtObjectFinder {
         picked: previousSelection.includes("STOB/ST")
       },
 
-      // Authorization & Security
+      // 授权与安全
       {
         type: "SUSO/SO",
         label: "Authorization Objects",
@@ -363,7 +363,7 @@ export class AdtObjectFinder {
         picked: previousSelection.includes("SUSC/SC")
       },
 
-      // Advanced Objects
+      // 高级对象
       {
         type: "PINF/PI",
         label: "Package Interfaces",
@@ -413,11 +413,11 @@ export class AdtObjectFinder {
 
     const selectedTypeStrings = selected.map(s => (s as any).type)
 
-    // Save selection for next time
+    // 保存选择供下次使用
     await context.globalState.update(storageKey, selectedTypeStrings)
 
-    // If all types are selected, return empty array to search all types
-    // This ensures we don't miss any object types that might not be in our list
+    // 如果选择了所有类型，返回空数组以搜索所有类型
+    // 这确保我们不会遗漏列表之外的对象类型
     if (selectedTypeStrings.length === objectTypes.length) {
       return [] // Empty array will be treated as "search all types"
     }
@@ -452,7 +452,7 @@ export class AdtObjectFinder {
       let initialItems: MySearchResult[] =
         forType === PACKAGE ? [new MySearchResult(this.EPMTYPACKAGE), ...recentItems] : recentItems
 
-      // Add button to change type filter (show always when no specific type is requested)
+      // 添加更改类型过滤的按钮（未请求特定类型时始终显示）
       if (!objType && !forType) {
         const filterButton = {
           iconPath: new ThemeIcon("filter"),
@@ -468,7 +468,7 @@ export class AdtObjectFinder {
         qp.onDidTriggerButton(async button => {
           if (button === filterButton) {
             qp.hide()
-            // Re-run the full flow (force type selection and ask preference again)
+            // 重新运行完整流程（强制类型选择并再次询问偏好）
             const result = await this.findObjectWithTypeFilter(prompt, true)
             if (result) {
               resolve(result)
@@ -481,7 +481,7 @@ export class AdtObjectFinder {
           }
         })
 
-        // Update placeholder to mention the filter button
+        // 更新占位符以提及过滤按钮
         prompt = prompt + " (Use filter button on the top right to change types)"
       }
 
@@ -524,12 +524,12 @@ export class AdtObjectFinder {
     const query = prefix.toUpperCase() + "*"
     const raw = await client.searchObject(query, objType)
 
-    // Apply type filter if provided
+    // 提供了类型过滤则应用
     let filtered = raw
     if (typeFilter && typeFilter.length > 0) {
       filtered = raw.filter(r => typeFilter.includes(r["adtcore:type"]))
     } else if (objType) {
-      // Fallback to original objType filtering
+      // 回退到原始 objType 过滤
       filtered = raw.filter(r => objType === r["adtcore:type"])
     }
 
@@ -564,7 +564,7 @@ export const uriAbapFile = (uri?: Uri): AbapStat | undefined => {
   try {
     if (!uri) return
 
-    // Only process adt:// URIs - reject output, file, etc.
+    // 只处理 adt:// URI - 拒绝 output、file 等
     if (uri.scheme !== "adt") {
       return undefined
     }
@@ -573,8 +573,8 @@ export const uriAbapFile = (uri?: Uri): AbapStat | undefined => {
     const file = root.getNode(uri.path)
     if (isAbapStat(file)) return file
   } catch (error) {
-    // Log the actual error instead of swallowing it with stack trace
-    throw error // Re-throw so caller can handle it
+    // 记录实际错误而不是用堆栈吞掉
+    throw error // 重新抛出，让调用方处理
   }
 }
 
@@ -593,7 +593,7 @@ export const pathSequence = (root: Root, uri: Uri | undefined): FileStat[] => {
       }
       return nodes
     } catch (e) {
-      // ignore
+      // 忽略
     }
   return []
 }
