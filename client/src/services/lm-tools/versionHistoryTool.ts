@@ -1,6 +1,6 @@
 /**
- * ABAP Object Version History Tool
- * Get revision history, retrieve code at specific versions, compare versions
+ * ABAP 对象版本历史工具
+ * 获取修订历史、检索特定版本的代码、比较版本
  */
 
 import * as vscode from "vscode"
@@ -14,31 +14,31 @@ import { isAbapClassInclude } from "abapobject"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// INTERFACES
+// 接口
 // ============================================================================
 
 export interface IVersionHistoryParameters {
   objectName: string
   objectType?: string
   connectionId: string
-  /** Action to perform: list_versions (default), get_version_source, compare_versions */
+  /** 要执行的操作：list_versions（默认）、get_version_source、compare_versions */
   action?: "list_versions" | "get_version_source" | "compare_versions"
-  /** For get_version_source: version number (1 = most recent, 2 = second most recent, etc.) */
+  /** 对 get_version_source：版本号（1 = 最近、2 = 次近等） */
   versionNumber?: number
-  /** For compare_versions: first version to compare (1 = most recent) */
+  /** 对 compare_versions：要比较的第一个版本（1 = 最近） */
   version1?: number
-  /** For compare_versions: second version to compare */
+  /** 对 compare_versions：要比较的第二个版本 */
   version2?: number
-  /** Max versions to show in list_versions (default 20) */
+  /** list_versions 中显示的最大版本数（默认 20） */
   maxVersions?: number
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 📜 VERSION HISTORY TOOL
+ * 📜 版本历史工具
  */
 export class VersionHistoryTool implements vscode.LanguageModelTool<IVersionHistoryParameters> {
   async prepareInvocation(
@@ -106,7 +106,7 @@ export class VersionHistoryTool implements vscode.LanguageModelTool<IVersionHist
     logTelemetry("tool_version_history_called", { connectionId })
 
     try {
-      // Find the object and get revisions
+      // 查找对象并获取修订
       const { revisions, objectInfo, client } = await this.getRevisions(
         objectName,
         objectType,
@@ -153,7 +153,7 @@ export class VersionHistoryTool implements vscode.LanguageModelTool<IVersionHist
   }
 
   /**
-   * Get revisions for an object
+   * 获取对象的修订
    */
   private async getRevisions(
     objectName: string,
@@ -212,7 +212,7 @@ export class VersionHistoryTool implements vscode.LanguageModelTool<IVersionHist
   }
 
   /**
-   * Get source code at a specific version
+   * 获取特定版本的源代码
    */
   private async getVersionSource(
     revisions: Revision[],
@@ -227,7 +227,7 @@ export class VersionHistoryTool implements vscode.LanguageModelTool<IVersionHist
       )
     }
 
-    const revision = revisions[versionNumber - 1] // 1-based to 0-based
+    const revision = revisions[versionNumber - 1] // 从 1 开始转为从 0 开始
 
     if (!revision.uri) {
       throw new Error(`No source URI available for version ${versionNumber}`)
@@ -248,7 +248,7 @@ export class VersionHistoryTool implements vscode.LanguageModelTool<IVersionHist
   }
 
   /**
-   * Compare two versions and show differences
+   * 比较两个版本并显示差异
    */
   private async compareVersions(
     revisions: Revision[],
@@ -275,7 +275,7 @@ export class VersionHistoryTool implements vscode.LanguageModelTool<IVersionHist
       throw new Error(`Source URIs not available for comparison`)
     }
 
-    // Fetch both versions
+    // 获取两个版本
     const [source1, source2] = await Promise.all([
       client.getObjectSource(rev1.uri),
       client.getObjectSource(rev2.uri)
@@ -284,7 +284,7 @@ export class VersionHistoryTool implements vscode.LanguageModelTool<IVersionHist
     const lines1 = source1.split("\n")
     const lines2 = source2.split("\n")
 
-    // Simple diff - find added, removed, changed lines
+    // 简单 diff - 查找新增、移除、更改的行
     const diff = this.computeSimpleDiff(lines1, lines2)
 
     let output = `Version Comparison for ${objectName} (${objectType})\n`
@@ -333,7 +333,7 @@ export class VersionHistoryTool implements vscode.LanguageModelTool<IVersionHist
   }
 
   /**
-   * Simple line-based diff
+   * 基于行的简单 diff
    */
   private computeSimpleDiff(
     lines1: string[],
@@ -345,14 +345,14 @@ export class VersionHistoryTool implements vscode.LanguageModelTool<IVersionHist
     const added: string[] = []
     const removed: string[] = []
 
-    // Lines in version1 but not in version2 = added
+    // 版本 1 中有但版本 2 中没有的行 = 新增
     for (const line of set1) {
       if (!set2.has(line)) {
         added.push(line)
       }
     }
 
-    // Lines in version2 but not in version1 = removed
+    // 版本 2 中有但版本 1 中没有的行 = 移除
     for (const line of set2) {
       if (!set1.has(line)) {
         removed.push(line)
@@ -439,7 +439,7 @@ export class VersionHistoryTool implements vscode.LanguageModelTool<IVersionHist
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerVersionHistoryTool(context: vscode.ExtensionContext): void {
