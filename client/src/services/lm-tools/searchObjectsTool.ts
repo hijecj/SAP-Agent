@@ -1,7 +1,7 @@
 /**
- * ABAP Search Objects Tool - VSCode AI Integration
+ * ABAP 搜索对象工具 - VSCode AI 集成
  *
- * Provides object search capabilities using the ABAP object searcher
+ * 使用 ABAP 对象搜索器提供对象搜索能力
  */
 
 import * as vscode from "vscode"
@@ -12,7 +12,7 @@ import { abapUri } from "../../adt/conections"
 import { logTelemetry } from "../telemetry"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
-// Tool parameter interface
+// 工具参数接口
 export interface ISearchABAPObjectsParameters {
   pattern: string
   connectionId?: string
@@ -59,7 +59,7 @@ export interface ISearchABAPObjectsParameters {
 }
 
 /**
- * 🔍 SEARCH ABAP OBJECTS TOOL
+ * 🔍 搜索 ABAP 对象工具
  */
 export class SearchABAPObjectsTool implements vscode.LanguageModelTool<ISearchABAPObjectsParameters> {
   async prepareInvocation(
@@ -92,7 +92,7 @@ export class SearchABAPObjectsTool implements vscode.LanguageModelTool<ISearchAB
     let { pattern, types, maxResults = 20, connectionId } = options.input
     logTelemetry("tool_search_abap_objects_called", { connectionId })
 
-    // Ensure connectionId is lowercase for consistency
+    // 确保 connectionId 为小写以保持一致
     if (connectionId) {
       connectionId = connectionId.toLowerCase()
     }
@@ -100,7 +100,7 @@ export class SearchABAPObjectsTool implements vscode.LanguageModelTool<ISearchAB
     try {
       let actualConnectionId = connectionId
 
-      // If no connectionId provided, try to get from active editor
+      // 未提供 connectionId 时，尝试从活动编辑器获取
       if (!actualConnectionId) {
         const activeEditor = window.activeTextEditor
         if (!activeEditor || !abapUri(activeEditor.document.uri)) {
@@ -113,7 +113,7 @@ export class SearchABAPObjectsTool implements vscode.LanguageModelTool<ISearchAB
 
       const searcher = getSearchService(actualConnectionId)
 
-      // Search for objects
+      // 搜索对象
       const objects = await searcher.searchObjects(pattern, types, maxResults)
 
       if (!objects || objects.length === 0) {
@@ -122,7 +122,7 @@ export class SearchABAPObjectsTool implements vscode.LanguageModelTool<ISearchAB
         ])
       }
 
-      // Format results for LLM with URI paths
+      // 用 URI 路径为 LLM 格式化结果
       const results = objects.map(obj => ({
         name: obj.name,
         type: obj.type,
@@ -152,7 +152,7 @@ export class SearchABAPObjectsTool implements vscode.LanguageModelTool<ISearchAB
 }
 
 /**
- * Register the Search Objects tool
+ * 注册搜索对象工具
  */
 export function registerSearchObjectsTool(context: vscode.ExtensionContext) {
   context.subscriptions.push(
