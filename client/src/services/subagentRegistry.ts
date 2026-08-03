@@ -1,24 +1,24 @@
 /**
- * Subagent Registry
+ * 子代理注册表
  *
- * Contains agent metadata, types, and the registry of all available subagents.
+ * 包含代理元数据、类型和所有可用子代理的注册表。
  */
 
 import * as vscode from "vscode"
 
 // ============================================================================
-// TYPES
+// 类型
 // ============================================================================
 
-/** Agent metadata (templates loaded from files) */
+/** 代理元数据（模板从文件加载） */
 export interface AgentMeta {
   id: string
   name: string
   description: string
   tier: 1 | 2 | 3
   defaultModel: string
-  tools: string[] | null // null means all tools (no restriction)
-  templateFile: string // filename in subagent-templates folder
+  tools: string[] | null // null 表示所有工具（无限制）
+  templateFile: string // subagent-templates 文件夹中的文件名
 }
 
 export interface EnableResult {
@@ -40,13 +40,13 @@ export interface SubagentSettings {
 }
 
 // ============================================================================
-// AGENT REGISTRY
+// 代理注册表
 // ============================================================================
 
 /**
- * Agent metadata registry - templates are in separate files
- * NOTE: defaultModel is empty - Copilot must specify model when calling the LM tool
- * Tool names use toolReferenceName from package.json (e.g., 'abap-search' not 'search_abap_objects')
+ * 代理元数据注册表 - 模板在单独的文件中
+ * 注意：defaultModel 为空 - Copilot 在调用 LM 工具时必须指定模型
+ * 工具名使用 package.json 中的 toolReferenceName（例如 'abap-search' 而不是 'search_abap_objects'）
  */
 export const AGENT_REGISTRY: AgentMeta[] = [
   {
@@ -207,13 +207,13 @@ export const AGENT_REGISTRY: AgentMeta[] = [
 ]
 
 // ============================================================================
-// UTILITY FUNCTIONS
+// 工具函数
 // ============================================================================
 
 /**
- * Get subagent settings. `enabled` is read from workspace scope only so a
- * user-level `true` doesn't auto-trigger validation in unrelated workspaces.
- * `models` uses normal scope merging so user-level defaults still apply.
+ * 获取子代理设置。`enabled` 只从工作区作用域读取，这样
+ * 用户级别的 `true` 不会在无关工作区自动触发校验。
+ * `models` 使用正常作用域合并，因此用户级默认值仍然生效。
  */
 export function getSubagentSettings(): SubagentSettings {
   const config = vscode.workspace.getConfiguration("abapfs.subagents")
@@ -226,14 +226,14 @@ export function getSubagentSettings(): SubagentSettings {
 }
 
 /**
- * Get the workspace folder for agent files (first non-ADT folder)
+ * 获取代理文件的工作区文件夹（第一个非 ADT 文件夹）
  */
 export function getWorkspaceFolder(): vscode.Uri | undefined {
   const workspaceFolders = vscode.workspace.workspaceFolders
   if (!workspaceFolders || workspaceFolders.length === 0) {
     return undefined
   }
-  // Find first non-ADT workspace folder
+  // 查找第一个非 ADT 工作区文件夹
   for (const folder of workspaceFolders) {
     if (!folder.uri.scheme.startsWith("adt")) {
       return folder.uri
@@ -243,7 +243,7 @@ export function getWorkspaceFolder(): vscode.Uri | undefined {
 }
 
 /**
- * Get available language models from VS Code
+ * 从 VS Code 获取可用的语言模型
  */
 export async function getAvailableModels(): Promise<
   Array<{ id: string; name: string; vendor: string; family: string }>
@@ -262,21 +262,21 @@ export async function getAvailableModels(): Promise<
 }
 
 /**
- * Get current extension ID dynamically
+ * 动态获取当前扩展 ID
  */
 export function getExtensionId(context: vscode.ExtensionContext): string {
   return context.extension.id
 }
 
 /**
- * Build full tool name with extension prefix
+ * 构建带扩展前缀的完整工具名
  */
 export function buildFullToolName(extensionId: string, toolName: string): string {
   return `${extensionId}/${toolName}`
 }
 
 /**
- * Validate that configured models are still available
+ * 校验配置的模型是否仍然可用
  */
 export async function validateModelConfiguration(): Promise<
   Array<{ agentId: string; configuredModel: string; available: boolean }>
