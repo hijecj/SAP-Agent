@@ -1,9 +1,9 @@
 /**
- * Connected Systems Tool
- * LM tool to list all currently connected SAP systems in VS Code
+ * 已连接系统工具
+ * 列出 VS Code 中当前所有已连接 SAP 系统的 LM 工具
  *
- * This is especially useful for MCP clients (Cursor, Claude Code, etc.) that
- * cannot see VS Code's workspace and need to discover available connection IDs.
+ * 这对无法看到 VS Code 工作区、需要发现可用连接 ID 的
+ * MCP 客户端（Cursor、Claude Code 等）尤其有用。
  */
 
 import * as vscode from "vscode"
@@ -13,22 +13,22 @@ import { logTelemetry } from "../telemetry"
 import { connectedRoots } from "../../config"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
-// No input parameters needed - this tool just lists what's connected
+// 不需要输入参数 - 此工具只列出已连接的内容
 export interface IConnectedSystemsParameters {
-  // Empty - no parameters required
+  // 空 - 不需要参数
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 🔗 CONNECTED SYSTEMS TOOL
- * Lists all SAP systems currently connected in VS Code.
- * Returns connection IDs that can be used with other ABAP FS tools.
+ * 🔗 已连接系统工具
+ * 列出 VS Code 中当前已连接的所有 SAP 系统。
+ * 返回可与其他 ABAP FS 工具一起使用的连接 ID。
  */
 export class ConnectedSystemsTool implements vscode.LanguageModelTool<IConnectedSystemsParameters> {
   async prepareInvocation(
@@ -69,7 +69,7 @@ export class ConnectedSystemsTool implements vscode.LanguageModelTool<IConnected
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerConnectedSystemsTool(context: vscode.ExtensionContext): void {
