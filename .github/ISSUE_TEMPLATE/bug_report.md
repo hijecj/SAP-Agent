@@ -1,35 +1,35 @@
 ---
-name: Bug report
-about: Create a bug report to help us improve
+name: Bug 报告
+about: 创建 bug 报告帮助我们改进
 title: ''
 labels: ''
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**描述 Bug**
+清晰简洁地描述这个 bug 是什么。
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+**复现步骤**
+复现行为的步骤：
+1. 进入 '...'
+2. 点击 '....'
+3. 滚动到 '....'
+4. 看到错误
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**预期行为**
+清晰简洁地描述你期望发生什么。
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**截图**
+如果适用，添加截图帮助解释你的问题。
 
-**Versions (please complete the following information):**
- - OS: [e.g. Windows, Mac, etc]
- - ABAP FS Version [e.g. 2.4.8]
- - IDE [e.g. VS Code, Cursor, etc]
- - IDE version [e.g. 1.112.0]
- - SAP system type [ECC/HANA, etc]
- - SAP system version [e.g. 741, 751, etc]
+**版本（请填写以下信息）：**
+ - 操作系统：[例如 Windows、Mac 等]
+ - ABAP FS 版本 [例如 2.4.8]
+ - IDE [例如 VS Code、Cursor 等]
+ - IDE 版本 [例如 1.112.0]
+ - SAP 系统类型 [ECC/HANA 等]
+ - SAP 系统版本 [例如 741、751 等]
 
-**Additional context**
-Add any other context about the problem here.
+**其他上下文**
+在此添加关于问题的任何其他上下文。
