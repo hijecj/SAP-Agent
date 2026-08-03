@@ -1,6 +1,6 @@
 /**
- * Get ABAP SQL Syntax Tool
- * Returns ABAP SQL syntax documentation from a markdown file
+ * 获取 ABAP SQL 语法工具
+ * 从 markdown 文件返回 ABAP SQL 语法文档
  */
 
 import * as vscode from "vscode"
@@ -13,13 +13,13 @@ import { context } from "../../extension"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 📘 GET ABAP SQL SYNTAX DOCUMENTATION TOOL
- * Returns ABAP SQL syntax documentation from a markdown file
- * No parameters needed - just returns the full syntax guide
+ * 📘 获取 ABAP SQL 语法文档工具
+ * 从 markdown 文件返回 ABAP SQL 语法文档
+ * 不需要参数 - 只返回完整语法指南
  */
 export class GetABAPSQLSyntaxTool implements vscode.LanguageModelTool<{}> {
   async prepareInvocation(
@@ -78,7 +78,7 @@ export class GetABAPSQLSyntaxTool implements vscode.LanguageModelTool<{}> {
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerSqlSyntaxTool(context: vscode.ExtensionContext): void {
