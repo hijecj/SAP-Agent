@@ -7,13 +7,13 @@ import { runInSapGui } from "../../adt/sapgui/sapgui"
 import { getObjectTypeConfig } from "abapobject"
 
 /**
- * Manages embedded SAP GUI webview panels for ABAP execution
- * This provides Eclipse ADT-like functionality where you can run reports
- * and see the output directly in VS Code without external GUI windows
+ * 管理用于 ABAP 执行的嵌入式 SAP GUI Webview 面板
+ * 这提供类似 Eclipse ADT 的功能：可以运行报表
+ * 并直接在 VS Code 中查看输出，无需外部 GUI 窗口
  */
 export class SapGuiPanel {
   /**
-   * Track the currently panel. Allow multiple panels for different reports
+   * 跟踪当前面板。允许为不同报表打开多个面板
    */
   private static currentPanels: Map<string, SapGuiPanel> = new Map()
 
@@ -28,11 +28,11 @@ export class SapGuiPanel {
   private _objectName: string
   private _objectType: string
 
-  // Flag to prevent duplicate execution when authenticated URL is already loaded
+  // 标志：已加载认证 URL 时防止重复执行
   private _authenticatedUrlLoaded: boolean = false
 
   /**
-   * Creates or shows an embedded SAP GUI panel for executing ABAP objects
+   * 创建或显示用于执行 ABAP 对象的嵌入式 SAP GUI 面板
    */
   public static createOrShow(
     extensionUri: vscode.Uri,
@@ -45,23 +45,23 @@ export class SapGuiPanel {
 
     const panelKey = `${connectionId}-${objectName}`
 
-    // If we already have a panel for this object, show it
+    // 如果已有此对象的面板，显示它
     if (SapGuiPanel.currentPanels.has(panelKey)) {
       const panel = SapGuiPanel.currentPanels.get(panelKey)!
       panel._panel.reveal(column)
       return panel
     }
 
-    // Otherwise, create a new panel
+    // 否则，创建新面板
     const panel = window.createWebviewPanel(
       SapGuiPanel.viewType,
       `SAP GUI - ${objectName}`,
-      column || vscode.ViewColumn.Beside, // Open beside current editor
+      column || vscode.ViewColumn.Beside, // 在当前编辑器旁边打开
       {
         enableScripts: true,
         enableForms: true,
         enableCommandUris: true,
-        retainContextWhenHidden: true, // Keep state when hidden
+        retainContextWhenHidden: true, // 隐藏时保留状态
         localResourceRoots: [extensionUri]
       }
     )
@@ -93,19 +93,19 @@ export class SapGuiPanel {
     this._objectName = objectName
     this._objectType = objectType
 
-    // Set the webview's initial html content
+    // 设置 Webview 的初始 HTML 内容
     this._update()
 
-    // Listen for when the panel is disposed
-    // This happens when the user closes the panel or when the panel is closed programmatically
+    // 监听面板销毁
+    // 这发生在用户关闭面板或面板被程序化关闭时
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables)
 
-    // Handle messages from the webview
+    // 处理来自 Webview 的消息
     this._panel.webview.onDidReceiveMessage(
       message => {
         switch (message.command) {
           case "execute":
-            // If we already have an authenticated URL loaded, don't re-execute
+            // 如果已加载认证 URL，不重新执行
             if (this._authenticatedUrlLoaded) {
               return
             }
@@ -148,8 +148,8 @@ export class SapGuiPanel {
   }
 
   /**
-   * � Build WebGUI URL using existing infrastructure
-   * Made public for the new get_abap_object_url language tool
+   * 使用现有基础设施构建 WebGUI URL
+   * 对新的 get_abap_object_url 语言工具设为公共方法
    */
   public async buildWebGuiUrl(): Promise<string> {
     const transactionInfo = SapGuiPanel.getTransactionInfo(this._objectType, this._objectName)
@@ -159,15 +159,15 @@ export class SapGuiPanel {
       throw new Error("Connection configuration not found")
     }
 
-    // Build base URL — honour the scheme the user configured. Only default
-    // to https when no scheme is present. Fixes GitHub issue #446: previously
-    // http:// was silently rewritten to https://, breaking HTTP-only systems.
+    // 构建基础 URL — 尊重用户配置的协议。仅在无协议时
+    // 默认使用 https。修复 GitHub issue #446：之前
+    // http:// 被静默改写为 https://，破坏了仅 HTTP 的系统。
     let baseUrl = config.url.replace(/\/sap\/bc\/adt.*$/, "")
     if (!baseUrl.startsWith("https://") && !baseUrl.startsWith("http://")) {
       baseUrl = "https://" + baseUrl
     }
 
-    // Generate WebGUI URL
+    // 生成 WebGUI URL
     const cleanedObjectName = transactionInfo.sapGuiCommand.parameters[0].value
     const webguiUrl =
       `${baseUrl}/sap/bc/gui/sap/its/webgui?` +
@@ -180,15 +180,15 @@ export class SapGuiPanel {
   }
 
   /**
-   * Execute ABAP object in embedded GUI (regular mode - no automation)
-   * This is called when users manually trigger the embedded GUI
+   * 在嵌入式 GUI 中执行 ABAP 对象（常规模式 - 无自动化）
+   * 用户手动触发嵌入式 GUI 时调用
    */
   private async executeObject(parameters: any = {}) {
     try {
       this.showProgress("Loading SAP GUI for HTML...")
 
-      // Reuse existing SAP GUI infrastructure
-      // runInSapGui and RemoteManager are statically imported above
+      // 复用现有 SAP GUI 基础设施
+      // runInSapGui 和 RemoteManager 已在上面静态导入
 
       const originalConfig = RemoteManager.get().byId(this._connectionId)
       if (!originalConfig) {
@@ -196,13 +196,13 @@ export class SapGuiPanel {
         return
       }
 
-      // Create a mutable copy of the configuration to avoid read-only property errors
+      // 创建配置的可变副本，避免只读属性错误
       const config = JSON.parse(JSON.stringify(originalConfig))
 
-      // Force embedded mode for our panel
+      // 为我们的面板强制嵌入式模式
       const originalGuiType = config.sapGui?.guiType
 
-      // Ensure sapGui config exists with required properties for embedded mode
+      // 确保 sapGui 配置包含嵌入式模式所需的属性
       if (!config.sapGui) {
         config.sapGui = {
           disabled: false,
@@ -215,11 +215,11 @@ export class SapGuiPanel {
           guiType: "WEBGUI_UNSAFE_EMBEDDED"
         }
       } else {
-        // Now we can safely modify the copy
+        // 现在可以安全修改副本
         config.sapGui.guiType = "WEBGUI_UNSAFE_EMBEDDED"
       }
 
-      // Use existing runInSapGui logic but capture the URL instead of opening external browser
+      // 使用现有 runInSapGui 逻辑，但捕获 URL 而不是打开外部浏览器
       const url = await this.generateSapGuiUrl(config)
       if (url) {
         this.showEmbeddedSapGui(url)
@@ -235,11 +235,11 @@ export class SapGuiPanel {
   }
 
   /**
-   * Load direct WebGUI URL (simple approach - no SSO ticket)
-   * Uses the same authentication cookies that ADT client already has
+   * 加载直接 WebGUI URL（简单方式 - 无 SSO ticket）
+   * 使用 ADT 客户端已有的相同认证 cookie
    */
   public loadDirectWebGuiUrl(webguiUrl: string) {
-    // Check if user prefers VS Code's integrated browser over embedded webview
+    // 检查用户是否偏好 VS Code 的集成浏览器而不是嵌入式 Webview
     const useIntegratedBrowser = vscode.workspace
       .getConfiguration("abapfs.sapGui")
       .get<boolean>("useIntegratedBrowser", true)
@@ -252,20 +252,20 @@ export class SapGuiPanel {
       return
     }
 
-    // Set flag to prevent duplicate executions
+    // 设置标志防止重复执行
     this._authenticatedUrlLoaded = true
 
     this.showDirectWebGui(webguiUrl)
   }
 
   /**
-   * Sanitize URL to prevent injection attacks
+   * 清理 URL 以防止注入攻击
    */
   private sanitizeUrl(url: string): string {
     try {
-      // Parse URL to validate structure and prevent injection
+      // 解析 URL 以校验结构并防止注入
       const parsedUrl = new URL(url)
-      // Only allow https and http protocols
+      // 只允许 https 和 http 协议
       if (!["https:", "http:"].includes(parsedUrl.protocol)) {
         throw new Error("Invalid protocol")
       }
@@ -276,10 +276,10 @@ export class SapGuiPanel {
   }
 
   /**
-   * Show direct WebGUI using simple URL (no SSO ticket complexity)
+   * 使用简单 URL 显示直接 WebGUI（无 SSO ticket 复杂性）
    */
   private showDirectWebGui(webguiUrl: string) {
-    // Sanitize URL to prevent injection
+    // 清理 URL 以防止注入
     const sanitizedUrl = this.sanitizeUrl(webguiUrl)
 
     const html = `
@@ -373,7 +373,7 @@ export class SapGuiPanel {
   }
 
   /**
-   * Show authenticated SAP GUI using WebView with proper cookie handling
+   * 使用带正确 cookie 处理的 WebView 显示已认证的 SAP GUI
    */
   private showAuthenticatedSapGui(authenticatedUrl: string) {
     const html = `
@@ -459,33 +459,33 @@ export class SapGuiPanel {
   }
 
   /**
-   * Refresh authentication by regenerating SSO ticket and reloading
+   * 通过重新生成 SSO ticket 并重新加载来刷新认证
    */
   /**
-   * Refresh the transaction - regenerate the same WebGUI URL and reload it
+   * 刷新事务 - 重新生成相同的 WebGUI URL 并重新加载
    */
   private async refreshTransaction() {
     try {
       //log('🔄 Refreshing transaction for object: ' + this._objectName + ' (type: ' + this._objectType + ')')
 
-      // Get config for URL building
+      // 获取配置用于构建 URL
       const config = RemoteManager.get().byId(this._connectionId)
       if (!config) {
         //log('❌ No config found for connection: ' + this._connectionId)
         return
       }
 
-      // Build base URL — honour the scheme the user configured. Only default
-      // to https when no scheme is present. Fixes GitHub issue #446.
+      // 构建基础 URL — 尊重用户配置的协议。仅在无协议时
+      // 默认使用 https。修复 GitHub issue #446。
       let baseUrl = config.url.replace(/\/sap\/bc\/adt.*$/, "")
       if (!baseUrl.startsWith("https://") && !baseUrl.startsWith("http://")) {
         baseUrl = "https://" + baseUrl
       }
 
-      // 🎯 USE CENTRALIZED transaction mapping
+      // 🎯 使用集中式事务映射
       const transactionInfo = SapGuiPanel.getTransactionInfo(this._objectType, this._objectName)
 
-      // Rebuild the WebGUI URL using the cleaned object name from the transaction info
+      // 使用事务信息中的清理后对象名重建 WebGUI URL
       const cleanedObjectName = transactionInfo.sapGuiCommand.parameters[0].value
       const webguiUrl =
         `${baseUrl}/sap/bc/gui/sap/its/webgui?` +
@@ -496,7 +496,7 @@ export class SapGuiPanel {
 
       //log('🔄 Refreshing with URL: ' + webguiUrl)
 
-      // Send message to WebView to reload iframe instead of recreating HTML
+      // 发送消息让 WebView 重新加载 iframe，而不是重建 HTML
       this._panel.webview.postMessage({
         command: "reloadIframe",
         url: webguiUrl
@@ -512,13 +512,13 @@ export class SapGuiPanel {
       //log('🔄 Refreshing SAP GUI authentication...')
       this.showProgress("Refreshing authentication...")
 
-      // Get fresh configuration and regenerate authenticated URL
+      // 获取最新配置并重新生成认证 URL
       const config = RemoteManager.get().byId(this._connectionId)
       if (!config) {
         throw new Error("Connection configuration not found")
       }
 
-      // Generate new authenticated URL
+      // 生成新的认证 URL
       const url = await this.generateSapGuiUrl(config)
       if (url) {
         this.showAuthenticatedSapGui(url)
@@ -533,21 +533,21 @@ export class SapGuiPanel {
   }
 
   /**
-   * Generate SAP GUI URL using centralized transaction logic (no more duplication!)
+   * 使用集中式事务逻辑生成 SAP GUI URL（不再重复！）
    */
   private async generateSapGuiUrl(config: any): Promise<string | null> {
     try {
-      // 🎯 USE CENTRALIZED transaction mapping - NO MORE DUPLICATION!
+      // 🎯 使用集中式事务映射 - 不再重复！
       const transactionInfo = SapGuiPanel.getTransactionInfo(this._objectType, this._objectName)
 
-      // Build base URL — honour the scheme the user configured. Only default
-      // to https when no scheme is present. Fixes GitHub issue #446.
+      // 构建基础 URL — 尊重用户配置的协议。仅在无协议时
+      // 默认使用 https。修复 GitHub issue #446。
       let baseUrl = config.url.replace(/\/sap\/bc\/adt.*$/, "")
       if (!baseUrl.startsWith("https://") && !baseUrl.startsWith("http://")) {
         baseUrl = "https://" + baseUrl
       }
 
-      // Use centralized transaction info (same as working WebView)
+      // 使用集中式事务信息（与可用的 WebView 相同）
       const cleanedObjectName = transactionInfo.sapGuiCommand.parameters[0].value
       const webguiUrl =
         `${baseUrl}/sap/bc/gui/sap/its/webgui?` +
@@ -564,10 +564,10 @@ export class SapGuiPanel {
   }
 
   /**
-   * 🎯 CENTRALIZED transaction mapping utility - used by ALL methods
-   * This eliminates code duplication and ensures consistency
+   * 🎯 集中式事务映射工具 - 所有方法都使用
+   * 这消除了代码重复并确保一致性
    *
-   * ✅ Made PUBLIC STATIC so it can be used from commands.ts
+   * ✅ 设为 PUBLIC STATIC，以便从 commands.ts 使用
    */
   public static getTransactionInfo(
     objectType: string,
@@ -578,7 +578,7 @@ export class SapGuiPanel {
     okcode: string
     sapGuiCommand: any
   } {
-    // Clean up object name for classes - remove .main/.inc/.etc suffixes
+    // 清理类名 - 移除 .main/.inc/.etc 后缀
     let cleanObjectName = objectName
     if (objectType === "CLAS/OC" || objectType === "CLAS/I") {
       cleanObjectName = objectName.split(".")[0] // ZCL_DEMO_ABAP.main → ZCL_DEMO_ABAP
@@ -612,7 +612,7 @@ export class SapGuiPanel {
   }
 
   /**
-   * Show embedded SAP GUI using iframe
+   * 使用 iframe 显示嵌入式 SAP GUI
    */
   private showEmbeddedSapGui(url: string) {
     const html = `
@@ -637,7 +637,7 @@ export class SapGuiPanel {
   }
 
   /**
-   * Show execution progress
+   * 显示执行进度
    */
   private showProgress(message: string) {
     const html = `
@@ -652,14 +652,14 @@ export class SapGuiPanel {
   }
 
   /**
-   * Show execution result
+   * 显示执行结果
    */
   private showResult(resultHtml: string) {
     this._panel.webview.html = this.getFullHtml(resultHtml)
   }
 
   /**
-   * Show error message
+   * 显示错误消息
    */
   private showError(errorMessage: string) {
     const html = `
@@ -675,14 +675,14 @@ export class SapGuiPanel {
   }
 
   /**
-   * Refresh the current execution
+   * 刷新当前执行
    */
   private refreshExecution() {
     this.executeObject()
   }
 
   /**
-   * Get simple HTML for WebView - no DOM manipulation
+   * 获取 WebView 的简单 HTML - 无 DOM 操作
    */
   private getFullHtml(content: string): string {
     return `
@@ -751,10 +751,10 @@ export class SapGuiPanel {
     const panelKey = `${this._connectionId}-${this._objectName}`
     SapGuiPanel.currentPanels.delete(panelKey)
 
-    // Clean up panel resources
+    // 清理面板资源
     this._panel.dispose()
 
-    // Clean up other disposables
+    // 清理其他可释放资源
     while (this._disposables.length) {
       const x = this._disposables.pop()
       if (x) {
