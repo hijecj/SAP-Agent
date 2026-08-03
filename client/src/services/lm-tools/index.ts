@@ -1,6 +1,6 @@
 /**
- * Language Model Tools Index
- * Central registration point for all ABAP FS LM tools
+ * 语言模型工具索引
+ * 所有 ABAP FS LM 工具的中心注册点
  */
 
 import * as vscode from "vscode"
@@ -46,21 +46,21 @@ import { registerHeartbeatTool, initializeHeartbeatService } from "../heartbeat"
 import { registerAdtDiscoveryTool } from "./adtDiscoveryTool"
 
 /**
- * Register all language model tools
+ * 注册所有语言模型工具
  */
 export async function registerAllTools(context: vscode.ExtensionContext): Promise<void> {
-  // Shared utilities (no registration needed - just exports)
-  // Already available via: import { ... } from './lm-tools/shared'
+  // 共享工具（无需注册 - 只是导出）
+  // 已经可以通过：import { ... } from './lm-tools/shared' 使用
 
-  // 1. Mermaid Tools (4 tools)
+  // 1. Mermaid 工具（4 个工具）
   registerMermaidTools(context)
 
-  // 2. Analysis Tools
+  // 2. 分析工具
   registerDumpAnalysisTool(context)
   registerTraceAnalysisTool(context)
   registerWhereUsedTool(context)
 
-  // 3. Core Object Tools
+  // 3. 核心对象工具
   registerSearchObjectsTool(context)
   registerGetObjectLinesTool(context)
   registerSearchObjectLinesTool(context)
@@ -74,39 +74,39 @@ export async function registerAllTools(context: vscode.ExtensionContext): Promis
   registerGetWorkspaceUriTool(context)
   registerGetObjectUrlTool(context)
 
-  // 4. Documentation Tool
+  // 4. 文档工具
   registerDocumentationTool(context)
 
-  // 5. Unit Test Tools
+  // 5. 单元测试工具
   registerUnitTestTools(context)
 
-  // 6. ATC Tools
+  // 6. ATC 工具
   registerAtcTools(context)
 
-  // 7. Transport Tool
+  // 7. 传输工具
   registerTransportTool(context)
 
-  // 8. Data Query Tool
+  // 8. 数据查询工具
   registerDataQueryTool(context)
 
-  // 9. SQL Syntax Tool
+  // 9. SQL 语法工具
   registerSqlSyntaxTool(context)
 
-  // 10. Test Documentation Tool
+  // 10. 测试文档工具
   registerTestDocumentationTool(context)
 
-  // 11. Text Elements
+  // 11. 文本元素
   context.subscriptions.push(
     registerToolWithRegistry("manage_text_elements", new ManageTextElementsTool())
   )
 
-  // 12. SAP System Info Tool
+  // 12. SAP 系统信息工具
   registerSAPSystemInfoTool(context)
 
-  // 13. Connected Systems Tool (for MCP clients to discover available connections)
+  // 13. 已连接系统工具（供 MCP 客户端发现可用连接）
   registerConnectedSystemsTool(context)
 
-  // 14. Debugger Tools (6 tools)
+  // 14. 调试器工具（6 个工具）
   context.subscriptions.push(
     registerToolWithRegistry("abap_debug_session", new ABAPDebugSessionTool())
   )
@@ -122,24 +122,24 @@ export async function registerAllTools(context: vscode.ExtensionContext): Promis
     registerToolWithRegistry("abap_debug_status", new ABAPDebugStatusTool())
   )
 
-  // 15. Version History Tool
+  // 15. 版本历史工具
   registerVersionHistoryTool(context)
 
-  // 16. Subagent Configuration Tool
+  // 16. 子代理配置工具
   registerSubagentConfigTool(context)
 
-  // 17. Heartbeat Tool (OpenClaw-style periodic LLM monitoring)
+  // 17. 心跳工具（OpenClaw 风格周期性 LLM 监控）
   registerHeartbeatTool(context)
 
-  // 18. ADT Discovery Tool
+  // 18. ADT 发现工具
   registerAdtDiscoveryTool(context)
 
-  // Initialize heartbeat service (will auto-start if enabled in config)
+  // 初始化心跳服务（配置中启用时会自动启动）
   const heartbeatService = initializeHeartbeatService(context)
   const heartbeatConfig = vscode.workspace.getConfiguration("abapfs.heartbeat")
   if (heartbeatConfig.get("enabled", false)) {
     heartbeatService.start()
   }
-  // Initialize WebviewManager singleton (required for data query tool)
+  // 初始化 WebviewManager 单例（数据查询工具需要）
   WebviewManager.getInstance(context)
 }
