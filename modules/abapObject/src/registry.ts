@@ -26,7 +26,7 @@ export interface ObjectTypeConfig {
 }
 
 const REGISTRY: ObjectTypeConfig[] = [
-  // --- Source Code / VS Code Native Objects ---
+  // --- 源代码 / VS Code 原生对象 ---
   {
     type: "CLAS/OC",
     label: "Class",
@@ -172,7 +172,7 @@ const REGISTRY: ObjectTypeConfig[] = [
     creatorClass: "AbapCds"
   },
 
-  // --- XML / Metadata Objects (GUI or Code) ---
+  // --- XML / 元数据对象（GUI 或代码） ---
   {
     type: "MSAG/N",
     label: "Message Class",
@@ -337,7 +337,7 @@ const REGISTRY: ObjectTypeConfig[] = [
     filterLabel: "Number Range Objects"
   },
 
-  // --- GUI Only Objects ---
+  // --- 仅 GUI 对象 ---
   {
     type: "TABL/DT",
     label: "Database Table",
@@ -378,11 +378,11 @@ const REGISTRY: ObjectTypeConfig[] = [
     gui_objects: "yes"
   },
 
-  // --- Enhancement / BAdI Objects ---
-  // Bare ENHO/XH: ECC reports the parent type instead of the XHB/XHH subtype.
-  // Without this entry, ADT-marked EXPANDABLE=true wraps it in AbapFolder,
-  // refresh() calls childComponents(), isNodeParent("ENHO/XH") returns false,
-  // and the open throws "Operation not supported".
+  // --- 增强 / BAdI 对象 ---
+  // 裸 ENHO/XH：ECC 报告父类型而不是 XHB/XHH 子类型。
+  // 没有此条目，ADT 标记的 EXPANDABLE=true 会把它包装在 AbapFolder 中，
+  // refresh() 调用 childComponents()，isNodeParent("ENHO/XH") 返回 false，
+  // 打开时抛出 "Operation not supported"。
   {
     type: "ENHO/XH",
     label: "Enhancement Implementation",
@@ -421,7 +421,7 @@ const REGISTRY: ObjectTypeConfig[] = [
     filterLabel: "BAdI Implementations"
   },
 
-  // --- Additional types to prevent helper hardcoding ---
+  // --- 防止辅助硬编码的附加类型 ---
   {
     type: "TABL/TA",
     label: "Table",
