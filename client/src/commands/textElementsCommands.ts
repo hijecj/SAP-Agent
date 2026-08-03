@@ -15,18 +15,17 @@ import { SapGuiPanel } from "../views/sapgui/SapGuiPanel"
 import { RemoteManager } from "../config"
 
 /**
- * Map an ABAP object type (e.g. "PROG/P") to the pseudo-filename suffix that
- * downstream `parseObjectName` uses to discriminate between programs, classes,
- * function groups and function modules.
+ * 把 ABAP 对象类型（例如 "PROG/P"）映射为下游 `parseObjectName`
+ * 用来区分程序、类、函数组和函数模块的伪文件名后缀。
  *
- * Using `file.object.type` here (rather than parsing the URI path) keeps the
- * command working for any SAP logon language: the URI path contains localized
- * category labels (e.g. "Programs" / "Programme" / "Zdrojové programy"), but
- * the ADT object type is a stable, language-independent identifier.
+ * 这里使用 `file.object.type`（而不是解析 URI 路径）可以让命令
+ * 在任何 SAP 登录语言下正常工作：URI 路径包含本地化类别标签
+ * （例如 "Programs" / "Programme" / "Zdrojové programy"），
+ * 而 ADT 对象类型是稳定、与语言无关的标识符。
  *
- * Note: both `FUGR/F` (group) and `FUGR/FF` (module) share the `.fugr.abap`
- * extension in `abapObject`, so we synthesize `.func.abap` for individual
- * function modules to keep them distinguishable downstream.
+ * 注意：`FUGR/F`（组）和 `FUGR/FF`（模块）在 `abapObject` 中都使用
+ * `.fugr.abap` 扩展名，所以我们为单个函数模块合成 `.func.abap`，
+ * 以便下游区分它们。
  */
 function objectNameForType(name: string, type: string): string | undefined {
   switch (type) {
@@ -44,18 +43,18 @@ function objectNameForType(name: string, type: string): string | undefined {
 }
 
 /**
- * Manage Text Elements Command
- * Opens a webview for managing text elements (read/create/edit/delete)
- * Can be called from command palette, context menu, or active editor
+ * 管理文本元素命令
+ * 打开用于管理文本元素（读取/创建/编辑/删除）的 Webview
+ * 可以从命令面板、右键菜单或活动编辑器调用
  */
 export async function manageTextElementsCommand(uri?: vscode.Uri): Promise<void> {
   try {
-    // Determine program name from context - ONLY from open ABAP files
+    // 从上下文确定程序名 - 只从打开的 ABAP 文件
     let objectName: string | undefined
     let sourceUri: vscode.Uri | undefined
 
     if (uri) {
-      // Called from context menu or specific file
+      // 从右键菜单或特定文件调用
       if (uri.scheme !== "adt") {
         window.showErrorMessage(
           "Text Elements Manager only works with ABAP files. Please open an ABAP file first."
@@ -64,7 +63,7 @@ export async function manageTextElementsCommand(uri?: vscode.Uri): Promise<void>
       }
       sourceUri = uri
     } else {
-      // Called from command palette - get from active editor
+      // 从命令面板调用 - 从活动编辑器获取
       const activeEditor = window.activeTextEditor
       if (!activeEditor || activeEditor.document.uri.scheme !== "adt") {
         window.showErrorMessage(
@@ -80,11 +79,11 @@ export async function manageTextElementsCommand(uri?: vscode.Uri): Promise<void>
       return
     }
 
-    // Resolve the ABAP object via the abapfs API. `file.object.type` and
-    // `file.object.name` come straight from ADT (`adtcore:type` / `adtcore:name`)
-    // and are language-independent — unlike the URI path, which contains
-    // localized category labels ("Programs" / "Programme" / "Zdrojové programy").
-    // See GitHub issue #445 for the original localization bug.
+    // 通过 abapfs API 解析 ABAP 对象。`file.object.type` 和
+    // `file.object.name` 直接来自 ADT（`adtcore:type` / `adtcore:name`），
+    // 且与语言无关——不像 URI 路径包含本地化类别标签
+    // （"Programs" / "Programme" / "Zdrojové programy"）。
+    // 原始本地化 bug 见 GitHub issue #445。
     try {
       const root = getRoot(sourceUri.authority)
       const file = await root.getNodeAsync(sourceUri.path)
@@ -96,15 +95,15 @@ export async function manageTextElementsCommand(uri?: vscode.Uri): Promise<void>
 
       const obj = file.object
       if (obj.type === "PROG/I") {
-        // Include — resolve to its main program(s) and use the first one.
+        // Include — 解析到它的主程序并取第一个。
         const mainPrograms = await obj.mainPrograms()
         const mainProgName = mainPrograms?.[0]?.["adtcore:name"]
         if (mainProgName) {
           objectName = mainProgName + ".prog.abap"
         }
       } else if (obj.type === "FUGR/FF" && obj.parent?.type === "FUGR/F") {
-        // Function module — text elements live at the function group level,
-        // there is no per-module text pool. Resolve to the parent group.
+        // 函数模块 — 文本元素位于函数组级别，
+        // 没有按模块划分的文本池。解析到父组。
         objectName = obj.parent.name + ".fugr.abap"
       } else {
         objectName = objectNameForType(obj.name, obj.type)
@@ -128,10 +127,10 @@ export async function manageTextElementsCommand(uri?: vscode.Uri): Promise<void>
 }
 
 /**
- * Show text elements manager for a program
+ * 为程序显示文本元素管理器
  */
 async function showTextElementsEditor(programName: string, sourceUri: vscode.Uri): Promise<void> {
-  // Get ADT connection - get active connection or ask user
+  // 获取 ADT 连接 - 获取活动连接或询问用户
   const activeEditor = window.activeTextEditor
   let connectionId: string
 
@@ -148,7 +147,7 @@ async function showTextElementsEditor(programName: string, sourceUri: vscode.Uri
     return
   }
 
-  // Show progress while loading
+  // 加载时显示进度
   await window.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
@@ -163,15 +162,15 @@ async function showTextElementsEditor(programName: string, sourceUri: vscode.Uri
 
         progress.report({ increment: 70, message: "Opening editor..." })
 
-        // Create and show text elements manager webview
+        // 创建并显示文本元素管理器 Webview
         await createTextElementsWebview(programName, result.textElements, connectionId, sourceUri)
       } catch (error) {
-        // Check if it's a "Resource does not exist" error - fallback to SAP GUI for old systems
+        // 检查是否为 "Resource does not exist" 错误 - 旧系统回退到 SAP GUI
         const errorMessage = String(error)
         if (errorMessage.includes("Resource") && errorMessage.includes("does not exist")) {
           progress.report({ increment: 50, message: "Falling back to SAP GUI..." })
 
-          // Use existing logic to determine object type and build SAP GUI URL for text elements
+          // 使用现有逻辑确定对象类型并为文本元素构建 SAP GUI URL
           await openTextElementsInSapGui(programName, connectionId)
 
           window.showInformationMessage(
@@ -186,21 +185,21 @@ async function showTextElementsEditor(programName: string, sourceUri: vscode.Uri
 }
 
 /**
- * Open text elements editor in SAP GUI as fallback for old systems
- * Reuses existing SAP GUI infrastructure
+ * 在 SAP GUI 中打开文本元素编辑器，作为旧系统的回退
+ * 复用现有 SAP GUI 基础设施
  */
 export async function openTextElementsInSapGui(
   programName: string,
   connectionId: string
 ): Promise<void> {
   try {
-    // Parse object name to determine type
+    // 解析对象名以确定类型
     const objectInfo = parseObjectName(programName)
 
-    // Get ADT client
+    // 获取 ADT 客户端
     const client = getClient(connectionId)
 
-    // Map to SAP GUI object types
+    // 映射到 SAP GUI 对象类型
     let sapGuiObjectType: string
     switch (objectInfo.type) {
       case "CLASS":
@@ -210,7 +209,7 @@ export async function openTextElementsInSapGui(
         sapGuiObjectType = "FUGR/FF"
         break
       case "FUNCTION_MODULE":
-        // Individual function modules use SE37 with the FM name directly
+        // 单个函数模块直接用 SE37 和 FM 名
         sapGuiObjectType = "FUNC/FM"
         break
       case "PROGRAM":
@@ -219,7 +218,7 @@ export async function openTextElementsInSapGui(
         break
     }
 
-    // Get extension URI (same as working embedded GUI)
+    // 获取扩展 URI（与可用的嵌入式 GUI 相同）
     let extensionUri: vscode.Uri
     try {
       const extension = vscode.extensions.getExtension("murbani.vscode-abap-remote-fs")
@@ -237,7 +236,7 @@ export async function openTextElementsInSapGui(
       extensionUri = vscode.Uri.file(__dirname)
     }
 
-    // Create panel using the exact same working logic
+    // 使用完全相同的工作逻辑创建面板
     const panel = SapGuiPanel.createOrShow(
       extensionUri,
       client,
@@ -246,14 +245,14 @@ export async function openTextElementsInSapGui(
       sapGuiObjectType
     )
 
-    // Build text elements URL
+    // 构建文本元素 URL
     const baseUrl = await panel.buildWebGuiUrl()
 
-    // For text elements, we need different approaches for different object types
+    // 对文本元素，不同对象类型需要不同方法
     let textElementsUrl: string
 
     if (sapGuiObjectType === "CLAS/OC") {
-      // For classes: Use SE24 (Class Builder) with class name prefilled
+      // 对类：使用预填类名的 SE24（类构建器）
       const config = RemoteManager.get().byId(connectionId)
       if (!config) {
         throw new Error(`Connection configuration not found for ${connectionId}`)
@@ -266,7 +265,7 @@ export async function openTextElementsInSapGui(
         baseUrlForSE24 = baseUrlForSE24.replace("http://", "https://")
       }
 
-      // Use SE24 (Class Builder) with class name prefilled
+      // 使用预填类名的 SE24（类构建器）
       textElementsUrl =
         `${baseUrlForSE24}/sap/bc/gui/sap/its/webgui?` +
         `~transaction=SE24 SEOCLASS-CLSNAME=${objectInfo.cleanName}` +
@@ -274,14 +273,14 @@ export async function openTextElementsInSapGui(
         `&sap-language=${config.language || "EN"}` +
         `&saml2=disabled`
     } else if (sapGuiObjectType === "FUGR/FF" || sapGuiObjectType === "FUNC/FM") {
-      // For function modules and function groups: SE37 with TEXT okcode
+      // 对函数模块和函数组：带 TEXT okcode 的 SE37
       textElementsUrl = baseUrl.replace("DYNP_OKCODE%3dWB_EXEC", "DYNP_OKCODE%3dTEXT")
     } else {
-      // For programs: SE38 with TEXT okcode works fine
+      // 对程序：带 TEXT okcode 的 SE38 可以正常工作
       textElementsUrl = baseUrl.replace("DYNP_OKCODE%3dSTRT", "DYNP_OKCODE%3dTEXT")
     }
 
-    // Load the text elements URL directly
+    // 直接加载文本元素 URL
     panel.loadDirectWebGuiUrl(textElementsUrl)
   } catch (error) {
     logCommands.error(`❌ Error opening SAP GUI text elements: ${error}`)
@@ -290,7 +289,7 @@ export async function openTextElementsInSapGui(
 }
 
 /**
- * Create and show text elements manager webview
+ * 创建并显示文本元素管理器 Webview
  */
 async function createTextElementsWebview(
   programName: string,
@@ -309,13 +308,13 @@ async function createTextElementsWebview(
     }
   )
 
-  // Set webview HTML content
+  // 设置 Webview HTML 内容
   panel.webview.html = getTextElementsWebviewContent(programName, textElements)
 
-  // Handle messages from webview
+  // 处理来自 Webview 的消息
   panel.webview.onDidReceiveMessage(async message => {
     switch (message.command) {
-      // 🚫 DISABLED: Save functionality disabled due to lock handle issues
+      // 🚫 已禁用：保存功能因锁句柄问题被禁用
 
       case "save":
         await handleSaveTextElements(
@@ -330,24 +329,24 @@ async function createTextElementsWebview(
       case "refresh":
         await handleRefreshTextElements(programName, panel, connectionId)
         break
-      // 🚫 DISABLED: Add/Delete functionality disabled
+      // 🚫 已禁用：添加/删除功能被禁用
 
       case "add":
-        // Add empty row - handled in webview
+        // 添加空行 - 在 Webview 中处理
         break
       case "delete":
-        // Delete row - handled in webview
+        // 删除行 - 在 Webview 中处理
         break
     }
   })
 
-  // Show the panel
+  // 显示面板
   panel.reveal()
 }
 
 /**
- * Handle saving text elements from webview
- * 🚫 DISABLED: Save functionality disabled due to lock handle issues
+ * 处理来自 Webview 的文本元素保存
+ * 🚫 已禁用：保存功能因锁句柄问题被禁用
  */
 
 async function handleSaveTextElements(
@@ -358,8 +357,8 @@ async function handleSaveTextElements(
   sourceUri: vscode.Uri
 ): Promise<void> {
   try {
-    // Get client using the connectionId from the original context - get original client, not clone
-    const client = getClient(connectionId, false) // false = don't clone, get original client
+    // 用原始上下文中的 connectionId 获取客户端 - 获取原始客户端而不是克隆
+    const client = getClient(connectionId, false) // false = 不克隆，获取原始客户端
     if (!client) {
       window.showErrorMessage(`No ADT connection available for ${connectionId}.`)
       return
@@ -375,7 +374,7 @@ async function handleSaveTextElements(
       async progress => {
         progress.report({ increment: 30, message: "Validating..." })
 
-        // Filter out empty text elements
+        // 过滤掉空的文本元素
         const validTextElements = textElements.filter(te => te.id && te.text)
 
         if (validTextElements.length === 0) {
@@ -383,7 +382,7 @@ async function handleSaveTextElements(
         }
 
         progress.report({ increment: 60, message: "Saving to SAP system..." })
-        //changed below line to not use lock manager version of function
+        // 修改下面这行，不使用锁管理器版本的函数
         await updateTextElementsWithTransport(
           client,
           programName,
@@ -397,19 +396,19 @@ async function handleSaveTextElements(
 
     window.showInformationMessage(`Text elements saved successfully for ${programName}`)
 
-    // Send success message to webview
+    // 向 Webview 发送成功消息
     panel.webview.postMessage({ command: "saveSuccess" })
   } catch (error) {
     logCommands.error(`Error saving text elements: ${error}`)
     window.showErrorMessage(`Failed to save text elements: ${error}`)
 
-    // Send error message to webview
+    // 向 Webview 发送错误消息
     panel.webview.postMessage({ command: "saveError", error: String(error) })
   }
 }
 
 /**
- * Handle refreshing text elements from webview
+ * 处理来自 Webview 的文本元素刷新
  */
 async function handleRefreshTextElements(
   programName: string,
@@ -417,7 +416,7 @@ async function handleRefreshTextElements(
   connectionId: string
 ): Promise<void> {
   try {
-    // Get client using the connectionId from the original context
+    // 用原始上下文中的 connectionId 获取客户端
     const client = getClient(connectionId)
     if (!client) {
       window.showErrorMessage(`No ADT connection available for ${connectionId}.`)
@@ -428,10 +427,10 @@ async function handleRefreshTextElements(
       return
     }
 
-    // Reload text elements from SAP
+    // 从 SAP 重新加载文本元素
     const result = await getTextElementsSafe(client, programName)
 
-    // Send updated data to webview
+    // 向 Webview 发送更新后的数据
     panel.webview.postMessage({
       command: "refresh",
       textElements: result.textElements
@@ -440,7 +439,7 @@ async function handleRefreshTextElements(
     logCommands.error(`Error refreshing text elements: ${error}`)
     window.showErrorMessage(`Failed to refresh text elements: ${error.message}`)
 
-    // Send error message to webview
+    // 向 Webview 发送错误消息
     panel.webview.postMessage({
       command: "refreshError",
       error: error.message || String(error)
@@ -449,7 +448,7 @@ async function handleRefreshTextElements(
 }
 
 /**
- * Generate HTML content for text elements webview
+ * 生成文本元素 Webview 的 HTML 内容
  */
 function getTextElementsWebviewContent(programName: string, textElements: TextElement[]): string {
   const textElementsJson = JSON.stringify(textElements)
