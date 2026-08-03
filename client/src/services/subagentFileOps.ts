@@ -1,11 +1,11 @@
 /**
- * Subagent File Operations
+ * 子代理文件操作
  *
- * Handles all file system operations for subagent configuration:
- * - Loading templates
- * - Writing/updating agent files
- * - Disabling/restoring agent folders
- * - Validating agent files
+ * 处理子代理配置的所有文件系统操作：
+ * - 加载模板
+ * - 写入/更新代理文件
+ * - 禁用/恢复代理文件夹
+ * - 校验代理文件
  */
 
 import * as vscode from "vscode"
@@ -23,25 +23,25 @@ import {
 import { funWindow as window } from "./funMessenger"
 
 // ============================================================================
-// TEMPLATE OPERATIONS
+// 模板操作
 // ============================================================================
 
 /**
- * Get the templates directory path
+ * 获取模板目录路径
  */
 function getTemplatesDir(context: vscode.ExtensionContext): string {
   return path.join(context.extensionPath, "client", "media", "subagent-templates")
 }
 
 /**
- * Get the dist templates directory path (for webpack bundled version)
+ * 获取 dist 模板目录路径（用于 webpack 打包版本）
  */
 function getDistTemplatesDir(context: vscode.ExtensionContext): string {
   return path.join(context.extensionPath, "client", "dist", "media", "subagent-templates")
 }
 
 /**
- * Load template content from file
+ * 从文件加载模板内容
  */
 export async function loadTemplate(
   context: vscode.ExtensionContext,
@@ -66,7 +66,7 @@ export async function loadTemplate(
 }
 
 /**
- * Process template content - replace placeholders with actual values
+ * 处理模板内容 - 用实际值替换占位符
  */
 export function processTemplate(
   templateContent: string,
@@ -76,14 +76,14 @@ export function processTemplate(
 ): string {
   let content = templateContent
 
-  // Replace model placeholder
+  // 替换模型占位符
   if (model) {
     content = content.replace(/\{\{MODEL\}\}/g, model)
   } else {
     content = content.replace(/^model:\s*['"]?\{\{MODEL\}\}['"]?\n?/m, "")
   }
 
-  // Replace tools placeholder if present
+  // 存在时替换工具占位符
   if (tools) {
     const fullToolNames = tools.map(t => `'${buildFullToolName(extensionId, t)}'`)
     content = content.replace(/\{\{TOOLS\}\}/g, fullToolNames.join(", "))
@@ -95,14 +95,14 @@ export function processTemplate(
 }
 
 // ============================================================================
-// MIGRATION
+// 迁移
 // ============================================================================
 
 /**
- * Fix deprecated "user-invokable" frontmatter key in agent files.
- * VS Code corrected the spelling to "user-invocable" and deprecated the old form.
- * For users who already have agent files with the old spelling, this replaces it
- * so that validation does not reject the files.
+ * 修复代理文件中已弃用的 "user-invokable" frontmatter 键。
+ * VS Code 已把拼写修正为 "user-invocable" 并弃用旧形式。
+ * 对已使用旧拼写代理文件的用户，这会替换它，
+ * 使校验不会拒绝这些文件。
  */
 async function migrateInvokableSpelling(workspaceUri: vscode.Uri): Promise<number> {
   let fixed = 0
@@ -130,7 +130,7 @@ async function migrateInvokableSpelling(workspaceUri: vscode.Uri): Promise<numbe
           fixed++
         }
       } catch {
-        // skip unreadable files
+        // 跳过不可读的文件
       }
     }
   }
@@ -138,23 +138,23 @@ async function migrateInvokableSpelling(workspaceUri: vscode.Uri): Promise<numbe
 }
 
 // ============================================================================
-// FILE OPERATIONS
+// 文件操作
 // ============================================================================
 
 /**
- * Refresh the file explorer to show folder changes
+ * 刷新文件资源管理器以显示文件夹变化
  */
 export async function refreshExplorer(): Promise<void> {
   try {
     await new Promise(resolve => setTimeout(resolve, 500))
     await vscode.commands.executeCommand("workbench.files.action.refreshFilesExplorer")
   } catch {
-    // Command might not be available
+    // 命令可能不可用
   }
 }
 
 /**
- * Close any open editors for agent files to prevent ghost references
+ * 关闭代理文件的任何打开的编辑器，防止幽灵引用
  */
 export async function closeAgentEditors(workspaceUri: vscode.Uri): Promise<void> {
   for (const tabGroup of window.tabGroups.all) {
@@ -171,7 +171,7 @@ export async function closeAgentEditors(workspaceUri: vscode.Uri): Promise<void>
           try {
             await window.tabGroups.close(tab)
           } catch {
-            // Tab might already be closed
+            // 标签页可能已关闭
           }
         }
       }
@@ -180,8 +180,8 @@ export async function closeAgentEditors(workspaceUri: vscode.Uri): Promise<void>
 }
 
 /**
- * Write or update agent file, preserving user customizations (like tools)
- * Only updates the model line, leaves everything else intact
+ * 写入或更新代理文件，保留用户自定义（如工具）
+ * 只更新模型行，其他内容保持不变
  */
 export async function writeAgentFile(
   context: vscode.ExtensionContext,
@@ -196,7 +196,7 @@ export async function writeAgentFile(
   try {
     await vscode.workspace.fs.createDirectory(agentsDir)
   } catch {
-    // Directory might already exist
+    // 目录可能已存在
   }
 
   let created = false
@@ -206,7 +206,7 @@ export async function writeAgentFile(
     const existingContent = await vscode.workspace.fs.readFile(filePath)
     const existingText = Buffer.from(existingContent).toString("utf8")
 
-    // Only update model line (preserve user's tool customizations)
+    // 只更新模型行（保留用户的工具自定义）
     let newContent = existingText
     const modelRegex = /^model:\s*['"]?[^'"}\n]+['"]?$/m
     if (modelRegex.test(newContent)) {
@@ -218,7 +218,7 @@ export async function writeAgentFile(
       updated = true
     }
   } catch {
-    // File doesn't exist - create from template
+    // 文件不存在 - 从模板创建
     const templateContent = await loadTemplate(context, agent.templateFile)
     const content = processTemplate(templateContent, model, agent.tools, extensionId)
     await vscode.workspace.fs.writeFile(filePath, Buffer.from(content, "utf8"))
@@ -229,7 +229,7 @@ export async function writeAgentFile(
 }
 
 /**
- * Disable agent files by renaming agents folder to agents_disabled
+ * 通过把 agents 文件夹重命名为 agents_disabled 来禁用代理文件
  */
 export async function disableAgentFiles(workspaceUri: vscode.Uri): Promise<boolean> {
   const agentsDir = vscode.Uri.joinPath(workspaceUri, ".github", "agents")
@@ -242,7 +242,7 @@ export async function disableAgentFiles(workspaceUri: vscode.Uri): Promise<boole
     try {
       await vscode.workspace.fs.delete(disabledDir, { recursive: true })
     } catch {
-      // Doesn't exist, that's fine
+      // 不存在，没关系
     }
 
     await vscode.workspace.fs.rename(agentsDir, disabledDir)
@@ -254,7 +254,7 @@ export async function disableAgentFiles(workspaceUri: vscode.Uri): Promise<boole
 }
 
 /**
- * Check if disabled agents folder exists
+ * 检查禁用的 agents 文件夹是否存在
  */
 export async function hasDisabledAgentFiles(workspaceUri: vscode.Uri): Promise<boolean> {
   const disabledDir = vscode.Uri.joinPath(workspaceUri, ".github", "agents_disabled")
@@ -267,7 +267,7 @@ export async function hasDisabledAgentFiles(workspaceUri: vscode.Uri): Promise<b
 }
 
 /**
- * Restore agent files from agents_disabled folder and update model names
+ * 从 agents_disabled 文件夹恢复代理文件并更新模型名
  */
 export async function restoreAgentFiles(
   context: vscode.ExtensionContext,
@@ -292,7 +292,7 @@ export async function restoreAgentFiles(
         try {
           await writeAgentFile(context, workspaceUri, agent, model, extensionId)
         } catch {
-          // File might be corrupted
+          // 文件可能已损坏
         }
       }
     }
@@ -304,7 +304,7 @@ export async function restoreAgentFiles(
           const result = await writeAgentFile(context, workspaceUri, agent, model, extensionId)
           if (result.created) created++
         } catch {
-          // Template might not be available
+          // 模板可能不可用
         }
       }
     }
@@ -315,7 +315,7 @@ export async function restoreAgentFiles(
 }
 
 /**
- * Validate agent .md files for errors (e.g., unknown model)
+ * 校验代理 .md 文件的错误（例如未知模型）
  */
 export async function validateAgentFiles(
   workspaceUri: vscode.Uri
@@ -329,7 +329,7 @@ export async function validateAgentFiles(
       await vscode.workspace.fs.stat(filePath)
       await vscode.workspace.openTextDocument(filePath)
     } catch {
-      // File doesn't exist
+      // 文件不存在
     }
   }
 
@@ -357,11 +357,11 @@ export async function validateAgentFiles(
 }
 
 // ============================================================================
-// CORE ENABLE/DISABLE LOGIC
+// 核心启用/禁用逻辑
 // ============================================================================
 
 /**
- * Core logic for enabling subagents
+ * 启用子代理的核心逻辑
  */
 export async function enableSubagentsCore(context: vscode.ExtensionContext): Promise<EnableResult> {
   const workspaceFolder = getWorkspaceFolder()
@@ -395,11 +395,11 @@ export async function enableSubagentsCore(context: vscode.ExtensionContext): Pro
     fileStatus = `Created ${restoreResult.created} new agent files.`
   }
 
-  // Fix deprecated "user-invokable" → "user-invocable" before validation
+  // 校验前修复已弃用的 "user-invokable" → "user-invocable"
   try {
     await migrateInvokableSpelling(workspaceFolder)
   } catch {
-    // Non-critical
+    // 非关键
   }
 
   await new Promise(resolve => setTimeout(resolve, 500))
@@ -411,7 +411,7 @@ export async function enableSubagentsCore(context: vscode.ExtensionContext): Pro
     return { success: false, error: "validation_failed", fileErrors }
   }
 
-  // Check if customAgentInSubagent is enabled
+  // 检查 customAgentInSubagent 是否启用
   const chatConfig = vscode.workspace.getConfiguration("chat")
   const customAgentEnabled = chatConfig.get<boolean>("customAgentInSubagent.enabled", false)
 
@@ -439,7 +439,7 @@ export async function enableSubagentsCore(context: vscode.ExtensionContext): Pro
 }
 
 /**
- * Core logic for disabling subagents
+ * 禁用子代理的核心逻辑
  */
 export async function disableSubagentsCore(): Promise<DisableResult> {
   const workspaceFolder = getWorkspaceFolder()
