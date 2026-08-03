@@ -1,52 +1,52 @@
-# SAP Connection Manager
+# SAP 连接管理器
 
-> **Important:** ABAP FS has 40+ AI tools for Copilot, but they are only available once you connect to a SAP system. Use the Connection Manager to add your first system.
+> **重要：** ABAP FS 为 Copilot 提供了 40+ 个 AI 工具，但只有连接 SAP 系统后才能使用。使用连接管理器添加你的第一个系统。
 
-The Connection Manager is a visual interface for adding, editing, and organizing your SAP system connections. Open it from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) by typing **ABAP FS: Connection Manager**.
+连接管理器是一个用于添加、编辑和组织 SAP 系统连接的可视化界面。从命令面板（`Ctrl+Shift+P` / `Cmd+Shift+P`）输入 **ABAP FS: Connection Manager** 打开它。
 
-## Adding a Connection
+## 添加连接
 
-1. Open the Command Palette (`Ctrl+Shift+P`) and run **ABAP FS: Connection Manager**.
-2. Click **Add Connection**.
-3. Fill in the required fields (see [Configuration Fields](#configuration-fields) below).
-4. Choose where to save: **User Settings** (available in all workspaces) or **Workspace Settings** (this project only).
-5. Click **Save**. You will be prompted for your password on the first connect — it is stored securely in the OS credential manager, never in settings files.
+1. 打开命令面板（`Ctrl+Shift+P`）并运行 **ABAP FS: Connection Manager**。
+2. 点击**添加连接**。
+3. 填写必填字段（见下方[配置字段](#配置字段)）。
+4. 选择保存位置：**用户设置**（在所有工作区可用）或**工作区设置**（仅当前工程）。
+5. 点击**保存**。首次连接时会提示输入密码——密码安全存储在操作系统凭据管理器中，绝不在设置文件中。
 
-## Configuration Fields
+## 配置字段
 
-| Section | Fields |
+| 部分 | 字段 |
 |---|---|
-| **Basic** | ADT URL, username, SAP client, language |
-| **SSL** | Allow self-signed certificates, custom CA certificate |
-| **SAP GUI** | Server, system number, router string, message server, GUI type (Desktop / Embedded WebGUI / Browser) |
-| **OAuth** | Client ID, secret, login URL |
-| **Advanced** | ATC approver, ATC check variant, max debug threads, diff formatter |
+| **基本** | ADT URL、用户名、SAP client、语言 |
+| **SSL** | 允许自签名证书、自定义 CA 证书 |
+| **SAP GUI** | 服务器、系统编号、路由字符串、消息服务器、GUI 类型（桌面 / 嵌入式 WebGUI / 浏览器） |
+| **OAuth** | Client ID、密钥、登录 URL |
+| **高级** | ATC 审批人、ATC 检查变式、最大调试线程数、diff 格式化器 |
 
-## Import / Export
+## 导入 / 导出
 
-- **Export** — saves all connections to a JSON file (passwords excluded) for backup or sharing with colleagues.
-- **Import** — merges connections from a previously exported JSON file.
-- **BTP Service Key** — create a connection from a BTP Service Key JSON file.
-- **BTP Endpoint** — create a connection via an interactive Cloud Foundry login flow.
+- **导出** — 将所有连接保存为 JSON 文件（不含密码），用于备份或与同事共享。
+- **导入** — 合并来自之前导出的 JSON 文件的连接。
+- **BTP Service Key** — 从 BTP Service Key JSON 文件创建连接。
+- **BTP Endpoint** — 通过交互式 Cloud Foundry 登录流程创建连接。
 
-## Bulk Operations
+## 批量操作
 
-Select multiple connections using the checkboxes to:
+使用复选框选择多个连接，可以：
 
-- **Bulk delete** — remove several connections at once.
-- **Bulk username edit** — update the username across multiple connections simultaneously.
+- **批量删除** — 一次移除多个连接。
+- **批量修改用户名** — 同时更新多个连接的用户名。
 
-A confirmation dialog appears before any bulk action is applied.
+任何批量操作执行前都会出现确认对话框。
 
-## Password Management
+## 密码管理
 
-Passwords are stored securely in the OS credential manager (never in settings files).
+密码安全存储在操作系统凭据管理器中（绝不在设置文件中）。
 
-| Command | What it does |
+| 命令 | 作用 |
 |---|---|
-| **ABAP FS: Change Connection Password** | Select a system and enter a new password |
-| **ABAP FS: Forget connection password** | Removes the stored password; you'll be prompted on next connect |
+| **ABAP FS: Change Connection Password** | 选择一个系统并输入新密码 |
+| **ABAP FS: Forget connection password** | 删除已存储的密码，下次连接时重新提示 |
 
-## User vs. Workspace Settings
+## 用户设置 vs 工作区设置
 
-Connections saved to **User Settings** are global — they appear in every VS Code workspace on your machine. Connections saved to **Workspace Settings** are stored in the `.vscode/settings.json` of the current project folder, making them easy to commit or share per project.
+保存到**用户设置**的连接是全局的——会出现在你机器上的每个 VS Code 工作区中。保存到**工作区设置**的连接存储在工程目录的 `.vscode/settings.json` 中，方便按工程提交或共享。
