@@ -23,7 +23,7 @@ interface ReplayLaunchConfig {
 }
 
 /**
- * Provides debug configuration for the abap-replay adapter type.
+ * 为 abap-replay 适配器类型提供调试配置。
  */
 export class ReplayConfigurationProvider implements DebugConfigurationProvider {
   provideDebugConfigurations(): ReplayLaunchConfig[] {
@@ -51,8 +51,8 @@ export class ReplayConfigurationProvider implements DebugConfigurationProvider {
 }
 
 /**
- * Factory that creates ReplayDebugSession instances.
- * Loads the recording from a file and passes it to the session.
+ * 创建 ReplayDebugSession 实例的工厂。
+ * 从文件加载录制并传递给会话。
  */
 export class ReplayAdapterFactory implements DebugAdapterDescriptorFactory {
   private static _instance: ReplayAdapterFactory
@@ -60,12 +60,12 @@ export class ReplayAdapterFactory implements DebugAdapterDescriptorFactory {
 
   private constructor() {}
 
-  /** Set a recording for the next factory call. Overwrites any previous. */
+  /** 为下一次工厂调用设置录制。覆盖任何先前的。 */
   setPendingRecording(recording: DebugRecording) {
     this.pendingRecording = recording
   }
 
-  /** Clear any pending recording (e.g., if session launch failed) */
+  /** 清除任何待处理的录制（例如会话启动失败时） */
   clearPendingRecording() {
     this.pendingRecording = undefined
   }
