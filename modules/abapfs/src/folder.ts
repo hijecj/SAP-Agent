@@ -42,10 +42,10 @@ export class Folder implements Iterable<FolderItem>, FileStat {
   get mtime() {
     return refTime
   }
-  /** adds/replaces a child
-   *  returns this to allow chaining
+  /** 添加/替换子节点
+   *  返回 this 以支持链式调用
    *
-   *  manual is used for things not actually found in the fs which beong there
+   *  manual 用于文件系统中实际不存在但应属于这里的内容
    */
   set(name: string, file: FileStat, manual = true) {
     this._children.set(name, { file, manual })
@@ -61,8 +61,8 @@ export class Folder implements Iterable<FolderItem>, FileStat {
     for (const [_, child] of this._children) if (isFolder(child) && child.hasManual()) return true
   }
 
-  /** finds a file/folder given a path
-   *   Only works with nodes already seen
+  /** 按路径查找文件/文件夹
+   *  只对已见过的节点有效
    */
   getNode(path: string): FileStat | undefined {
     const parts = path.split("/").filter(x => x)
@@ -70,8 +70,8 @@ export class Folder implements Iterable<FolderItem>, FileStat {
     return nodePath[0]?.file
   }
 
-  /** finds a file/folder given a path
-   *   expanding nodes as needed
+  /** 按路径查找文件/文件夹
+   *  按需展开节点
    */
   async getNodeAsync(path: string) {
     const parts = path.split("/").filter(x => x)
@@ -79,16 +79,16 @@ export class Folder implements Iterable<FolderItem>, FileStat {
     return item[0]?.file
   }
 
-  /** finds a file/folder and all predecessos given a path
-   *   Only works with nodes already seen
+  /** 按路径查找文件/文件夹及其所有前驱
+   *  只对已见过的节点有效
    */
   getNodePath(path: string) {
     const parts = path.split("/").filter(x => x)
     return this.getNodePathInt(parts, "")
   }
 
-  /** finds a file/folder and all predecessos given a path
-   *   expanding nodes as needed
+  /** 按路径查找文件/文件夹及其所有前驱
+   *  按需展开节点
    */
   getNodePathAsync(path: string) {
     const parts = path.split("/").filter(x => x)
@@ -99,16 +99,16 @@ export class Folder implements Iterable<FolderItem>, FileStat {
     return this._children.size
   }
 
-  /** Merges a folder structure
-   *  We should never replace a node with a new one, only add/remove
+  /** 合并文件夹结构
+   *  我们绝不应把节点替换为新节点，只能添加/移除
    *
-   * - entries missing are removed unless manually added
-   * - new entries are added
-   * - folders matching old ones are merged recursively
-   * - leaves matching old ones are left alone
+   * - 缺失的条目被移除，除非是手动添加的
+   * - 新条目被添加
+   * - 与旧条目匹配的文件夹递归合并
+   * - 与旧条目匹配的叶子保持不变
    */
   public merge(items: FolderItem[]) {
-    // clean missing
+    // 清理缺失项
     for (const [name, child] of this._children.entries()) {
       if (child.manual || items.find(i => i.name === name)) continue
       if (isFolder(child.file) && child.file.hasManual()) child.file.merge([])
@@ -118,11 +118,11 @@ export class Folder implements Iterable<FolderItem>, FileStat {
     for (const item of items) {
       const { name, file } = item
       const old = this._children.get(name)
-      // new file
+      // 新文件
       if (!old) this.set(name, file, false)
-      // merge children
+      // 合并子节点
       else if (isFolder(old?.file) && isFolder(file)) old?.file.merge([...file])
-      // do something when I get a new leaf? or a leaf is replaced by a folder> Probably best to ignore
+      // 得到新叶子或叶子被文件夹替换时要做点什么吗？可能最好忽略
     }
   }
 
