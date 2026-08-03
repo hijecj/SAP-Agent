@@ -1,39 +1,39 @@
-# ABAP Dumps Analysis
+# ABAP Dump 分析
 
-Analyze ST22 runtime dumps directly in VS Code — no SAP GUI required.
+直接在 VS Code 中分析 ST22 运行时 Dump——无需 SAP GUI。
 
-## What This Replaces
+## 这替代了什么
 
-In SAP GUI, you'd use **transaction ST22** to find and read dumps. Here, the same data is available in VS Code with AI-powered root cause analysis and fix suggestions.
+在 SAP GUI 中，你用**事务 ST22** 查找和阅读 Dump。在这里，相同的数据在 VS Code 中即可获得，并带 AI 驱动的根因分析和修复建议。
 
-## Opening the Dumps Panel
+## 打开 Dump 面板
 
-**Activity Bar → ABAP FS icon → Dumps**
+**活动栏 → ABAP FS 图标 → Dumps**
 
-Or ask Copilot directly (see [Using Copilot](#using-copilot) below).
+或直接让 Copilot 执行（见下文[使用 Copilot](#使用-copilot)）。
 
-## Step-by-Step Workflow
+## 分步工作流
 
-1. **Open the Dumps panel** — the list shows each dump's ID, error type, timestamp, and size.
-2. **Click a dump** to open the detailed view.
-3. **Review the structured analysis** — the extension parses the raw HTML dump content and presents it in a readable format.
-4. **Ask Copilot for help** — Copilot can identify the root cause and suggest a fix based on the dump data.
+1. **打开 Dump 面板** — 列表显示每个 Dump 的 ID、错误类型、时间戳和大小。
+2. **点击 Dump** 打开详细视图。
+3. **查看结构化分析** — 扩展解析原始 HTML Dump 内容，以可读格式呈现。
+4. **请 Copilot 帮忙** — Copilot 可以基于 Dump 数据识别根因并建议修复。
 
-## Using Copilot
+## 使用 Copilot
 
-Type any of these in the Copilot chat:
+在 Copilot 聊天中输入以下任一内容：
 
-| Prompt | What it does |
+| 提示 | 作用 |
 |---|---|
-| `Analyze the latest dumps` | Lists recent dumps and analyzes the most recent one |
-| `Show me dumps from today` | Filters to today's dumps |
-| `What caused the RABAX error?` | AI root cause analysis on the current dump |
-| `Analyze dump with ID xyz123` | Analyzes a specific dump by ID |
+| `Analyze the latest dumps` | 列出最近的 Dump 并分析最新一个 |
+| `Show me dumps from today` | 过滤为今天的 Dump |
+| `What caused the RABAX error?` | 对当前 Dump 做 AI 根因分析 |
+| `Analyze dump with ID xyz123` | 按 ID 分析特定 Dump |
 
-## Compared to ST22
+## 与 ST22 对比
 
-| ST22 (SAP GUI) | VS Code Dumps panel |
+| ST22（SAP GUI） | VS Code Dump 面板 |
 |---|---|
-| Manual navigation through raw HTML | Structured, parsed output |
-| No AI assistance | Copilot explains cause and suggests fix |
-| Separate tool from your editor | Inline with your code |
+| 手动浏览原始 HTML | 结构化、解析后的输出 |
+| 无 AI 辅助 | Copilot 解释原因并建议修复 |
+| 与编辑器分离的工具 | 与你的代码内联 |

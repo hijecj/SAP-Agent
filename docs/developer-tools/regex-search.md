@@ -1,72 +1,72 @@
-# Regex Search in Code
+# 代码正则搜索
 
-Search ABAP source code using plain text or regular expressions (regex). Regex is a pattern language that lets you match variable text — for example, finding any method name that starts with "get", or any word boundary match.
+使用纯文本或正则表达式（regex）搜索 ABAP 源代码。正则表达式是一种模式语言，可以匹配变化的文本——例如查找任何以 “get” 开头的方法名，或任何词边界匹配。
 
-> **Note:** This searches **committed code only**. Unsaved local edits are not visible — use the standard VS Code search (`Ctrl+Shift+F`) for those.
-
----
-
-## How to Search
-
-Just ask Copilot in plain language:
-
-- *"Find all usages of COMMIT WORK in ZCL_MY_CLASS"*
-- *"Search for methods matching 'get_\*' in ZREPORT_ORDERS"*
-- *"List all methods in CL_SALV_TABLE"*
-
-Copilot determines whether to use literal or regex matching automatically.
+> **注意：** 只搜索**已提交的代码**。未保存的本地修改不可见——这些请使用标准 VS Code 搜索（`Ctrl+Shift+F`）。
 
 ---
 
-## Literal vs. Regex Mode
+## 如何搜索
 
-| Mode | When to use | Example |
+直接用自然语言让 Copilot 执行：
+
+- *“查找 ZCL_MY_CLASS 中所有 COMMIT WORK 的用法”*
+- *“在 ZREPORT_ORDERS 中搜索匹配 'get_\*' 的方法”*
+- *“列出 CL_SALV_TABLE 中的所有方法”*
+
+Copilot 自动决定使用字面匹配还是正则匹配。
+
+---
+
+## 字面模式 vs 正则模式
+
+| 模式 | 何时使用 | 示例 |
 |------|-------------|---------|
-| **Literal** (default) | Exact text match, fast | `COMMIT WORK` |
-| **Regex** | Patterns, wildcards, boundaries | `METHOD.*get` |
+| **字面**（默认） | 精确文本匹配，快速 | `COMMIT WORK` |
+| **正则** | 模式、通配符、边界 | `METHOD.*get` |
 
-### Common Regex Patterns
+### 常用正则模式
 
-| Pattern | What it matches | Example |
+| 模式 | 匹配内容 | 示例 |
 |---------|-----------------|---------|
-| `\bICT\b` | Whole word `ICT` only (not `DICT`) | Word boundary |
-| `METHOD.*restrict` | `METHOD` followed by anything then `restrict` | Pattern match |
-| `[A-Z]+` | One or more uppercase letters | Character class |
-| `^\s*(CLASS-)?METHODS?\s+\w+` | Any method declaration | Class structure |
+| `\bICT\b` | 只匹配完整单词 `ICT`（不匹配 `DICT`） | 词边界 |
+| `METHOD.*restrict` | `METHOD` 后面跟任意内容再跟 `restrict` | 模式匹配 |
+| `[A-Z]+` | 一个或多个大写字母 | 字符类 |
+| `^\s*(CLASS-)?METHODS?\s+\w+` | 任意方法声明 | 类结构 |
 
 ---
 
-## Searching Multiple Objects
+## 搜索多个对象
 
-Use wildcard patterns to search across several objects at once:
+使用通配符模式一次跨多个对象搜索：
 
-- *"Find SELECT \* in all Z\* reports"* — searches up to 10 matching objects
-- Copilot limits the scope automatically (1–10 objects) to keep results manageable
-
----
-
-## Viewing Class Structure
-
-To list all methods in a class with their line numbers:
-
-- *"List all methods in ZCL_MY_CLASS"*
-
-Copilot returns each method name and the line where it's declared — useful for navigating large classes.
+- *“在所有 Z\* 报表中查找 SELECT \*”* — 最多搜索 10 个匹配对象
+- Copilot 自动限制范围（1–10 个对象），让结果可控
 
 ---
 
-## Extracting a Single Method
+## 查看类结构
 
-To see the complete code of one method:
+列出类中所有方法及其行号：
 
-- *"Show me the FACTORY method in CL_SALV_TABLE"*
+- *“列出 ZCL_MY_CLASS 中的所有方法”*
 
-Returns everything from `METHOD FACTORY.` to `ENDMETHOD.`, including interface method syntax like `IF_SALV_TABLE~FACTORY`.
+Copilot 返回每个方法名及其声明所在行——对浏览大型类很有用。
 
 ---
 
-## Context Lines
+## 提取单个方法
 
-By default, Copilot shows 3 lines before and after each match. Ask for more or fewer:
+查看一个方法的完整代码：
 
-- *"Find RAISE EXCEPTION in ZCL_ORDERS, show 5 lines of context"*
+- *“显示 CL_SALV_TABLE 中的 FACTORY 方法”*
+
+返回从 `METHOD FACTORY.` 到 `ENDMETHOD.` 的所有内容，包括 `IF_SALV_TABLE~FACTORY` 这类接口方法语法。
+
+---
+
+## 上下文行
+
+默认情况下，Copilot 显示每个匹配前后 3 行。可以要求更多或更少：
+
+- *“在 ZCL_ORDERS 中查找 RAISE EXCEPTION，显示 5 行上下文”*

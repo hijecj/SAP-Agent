@@ -1,5 +1,5 @@
-# Order of files for concatenation into DOCUMENTATION.md
-# Nested structure mirrors the site navigation
+# 文件顺序，用于拼接成 DOCUMENTATION.md
+# 嵌套结构镜像站点导航
 
 - index.md
 - getting-started/installation.md

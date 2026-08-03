@@ -1,38 +1,38 @@
-# Virtual Tool Grouping Fix
+# 虚拟工具分组修复
 
-VS Code has an experimental setting (`github.copilot.chat.virtualTools.threshold`) that collapses extension tools into virtual groups when their count exceeds a threshold. When active, Copilot often fails to discover these groups — making all 39 ABAP FS AI tools invisible and unusable.
+VS Code 有一个实验性设置（`github.copilot.chat.virtualTools.threshold`），当扩展工具数量超过阈值时会把它们折叠成虚拟分组。该功能生效时，Copilot 常常无法发现这些分组——导致全部 39 个 ABAP FS AI 工具不可见、不可用。
 
-ABAP FS detects this condition after your first SAP connection and prompts you to fix it.
+ABAP FS 会在你首次连接 SAP 后检测此状况，并提示你修复。
 
-## When the Prompt Appears
+## 提示何时出现
 
-The check runs after you first connect to a SAP system (not at extension activation). It only fires when:
+检查在你首次连接 SAP 系统后运行（不是扩展激活时）。只在以下条件满足时触发：
 
-- The virtual tools threshold is greater than `0`
-- AI models are available (GitHub Copilot is signed in and active)
-- You haven't previously dismissed the prompt
+- 虚拟工具阈值大于 `0`
+- AI 模型可用（GitHub Copilot 已登录且激活）
+- 你之前没有关闭过该提示
 
-A non-modal notification appears with three options:
+会出现一个非模态通知，带三个选项：
 
-| Option | Effect |
+| 选项 | 效果 |
 |---|---|
-| **Disable & Reload** | Sets the threshold to `0` globally and in your workspace, then reloads VS Code |
-| **Later** | Skips the prompt this session; asks again on next connection |
-| **Don't Ask Again** | Permanently suppresses the prompt |
+| **禁用并重新加载** | 把阈值全局和工作区都设为 `0`，然后重新加载 VS Code |
+| **稍后** | 本次会话跳过提示；下次连接时再次询问 |
+| **不再询问** | 永久抑制该提示 |
 
-Choose **Disable & Reload** unless you have a specific reason to keep grouping enabled.
+除非你有特殊原因要保留分组，否则选择**禁用并重新加载**。
 
-## Fixing It Manually
+## 手动修复
 
-If you dismissed the prompt and AI tools are still not working:
+如果你关闭了提示且 AI 工具仍然不可用：
 
-1. Open Settings (`Ctrl+,`)
-2. Search for `virtualTools.threshold`
-3. Set `github.copilot.chat.virtualTools.threshold` to `0`
-4. Reload VS Code (`Ctrl+Shift+P` → **Developer: Reload Window**)
+1. 打开设置（`Ctrl+,`）
+2. 搜索 `virtualTools.threshold`
+3. 把 `github.copilot.chat.virtualTools.threshold` 设为 `0`
+4. 重新加载 VS Code（`Ctrl+Shift+P` → **开发者：重新加载窗口**）
 
-## Why This Matters
+## 为什么重要
 
-ABAP FS registers 39 specialized tools covering object search, code reading, unit tests, SQL queries, transport management, and more. If Copilot cannot see these tools, all AI-powered features stop working. Setting the threshold to `0` disables grouping entirely and keeps all tools available.
+ABAP FS 注册了 39 个专用工具，涵盖对象搜索、代码读取、单元测试、SQL 查询、传输管理等。如果 Copilot 看不到这些工具，所有 AI 功能都会停止工作。把阈值设为 `0` 会完全禁用分组，保持所有工具可用。
 
-> **Note:** This prompt only appears if the experimental grouping feature is active. Most users will never see it.
+> **注意：** 只有当实验性分组功能激活时才会出现此提示。大多数用户永远不会看到它。

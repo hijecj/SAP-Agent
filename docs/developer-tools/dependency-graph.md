@@ -1,60 +1,60 @@
-# Dependency Graph Visualizer
+# 依赖关系图可视化
 
-Visualize where any ABAP object is used across the system as an interactive, expandable graph.
+把任意 ABAP 对象在整个系统中的使用情况可视化为交互式、可展开的图。
 
-## Opening the Graph
+## 打开图表
 
-1. Open an ABAP file in the editor
-2. *(Optional)* Place your cursor on a specific method or variable for symbol-level analysis
-3. Right-click → **Visualize Dependency Graph**
+1. 在编辑器中打开 ABAP 文件
+2. *（可选）* 把光标放在特定方法或变量上进行符号级分析
+3. 右键 → **可视化依赖关系图**
 
-For graphs with fewer than 100 nodes, the graph renders immediately. For larger graphs, adjust the filters first, then click **Build Graph**.
+少于 100 个节点的图会立即渲染。更大的图先调整过滤器，再点击**构建图**。
 
-## Reading the Graph
+## 阅读图表
 
-| Color | Meaning |
+| 颜色 | 含义 |
 |---|---|
-| Red | Root object (your starting point) |
-| Purple | Nodes you have expanded |
-| Other colors | Auto-assigned per object type |
+| 红色 | 根对象（你的起点） |
+| 紫色 | 你已展开的节点 |
+| 其他颜色 | 按对象类型自动分配 |
 
-A **double border** on a node means it has more dependencies available to explore.
+节点上的**双边框**表示它有更多可探索的依赖。
 
-## Exploring Dependencies
+## 探索依赖
 
-- **Double-click a node** — opens the object in the editor at the exact usage location
-- **Right-click a node** — shows a context menu with Open / Expand / Focus options
-- **Right-click → Expand Dependencies** — fetches where that object is used and merges results into the graph
-- **Hover** — shows object details: type, package, responsible developer, parent class (for methods)
+- **双击节点** — 在编辑器中打开对象，精确定位到使用位置
+- **右键节点** — 显示包含打开/展开/聚焦选项的上下文菜单
+- **右键 → 展开依赖** — 获取该对象的使用位置并把结果合并到图中
+- **悬停** — 显示对象详情：类型、包、负责人、父类（方法）
 
-You can expand nodes as many levels deep as needed. Use **Reset to Root** to restore the original graph and clear all expansions.
+你可以按需展开任意层级。使用**重置到根**恢复原始图并清除所有展开。
 
-## Filtering
+## 过滤
 
-Use the filter panel to reduce large graphs to what matters:
+使用过滤面板把大图缩小到关键内容：
 
-- **Custom/Standard toggle** — show only Z\*/Y\* objects or only SAP standard objects
-- **Object type** — show only CLAS, PROG, FUNC, etc.
-- **Name pattern** — wildcards supported (e.g., `Z*MD*`)
-- **Usage type** — filter by edge relationship type
+- **自定义/标准切换** — 只显示 Z\*/Y\* 对象或只显示 SAP 标准对象
+- **对象类型** — 只显示 CLAS、PROG、FUNC 等
+- **名称模式** — 支持通配符（例如 `Z*MD*`）
+- **使用类型** — 按边的关系类型过滤
 
-Real-time counts show how many objects match each filter. Click **Reset Filters** to clear all.
+实时计数显示每个过滤器匹配多少对象。点击**重置过滤器**清除全部。
 
-## Layout Options
+## 布局选项
 
-| Layout | Best for |
+| 布局 | 最适合 |
 |---|---|
-| **Cose** *(default)* | General use — physics-based clustering |
-| **Concentric** | Seeing distance from root object |
-| **Breadthfirst** | Tree-shaped dependency chains |
-| **Circle** | Compact overview |
-| **Grid** | Ordered comparison |
+| **Cose** *（默认）* | 一般用途——基于物理的聚类 |
+| **Concentric** | 查看与根对象的距离 |
+| **Breadthfirst** | 树形依赖链 |
+| **Circle** | 紧凑概览 |
+| **Grid** | 有序比较 |
 
-## Exporting
+## 导出
 
-Click **Export SVG** to save the current graph as a static image file.
+点击**导出 SVG** 把当前图保存为静态图片文件。
 
-## Requirements
+## 要求
 
-- An ABAP file open in the editor
-- An active SAP connection
+- 编辑器中打开 ABAP 文件
+- 活动的 SAP 连接

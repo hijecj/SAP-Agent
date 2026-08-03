@@ -1,25 +1,25 @@
-# S/4HANA Readiness Dashboard
+# S/4HANA 就绪仪表盘
 
-Visualize custom code compatibility with S/4HANA using data from SAP's Custom Code Migration tool (transaction SYCM).
+使用 SAP 自定义代码迁移工具（事务 SYCM）的数据，可视化自定义代码与 S/4HANA 的兼容性。
 
-## Prerequisites
+## 前置条件
 
-- Run transaction **SYCM** on your SAP system first — the dashboard reads the analysis tables it populates (`sycm_sitem`, `sycm_cust_refs`, and related tables)
-- Works on ECC systems being analyzed for S/4HANA migration
+- 先在 SAP 系统上运行事务 **SYCM**——仪表盘读取它填充的分析表（`sycm_sitem`、`sycm_cust_refs` 及相关表）
+- 适用于正在评估 S/4HANA 迁移的 ECC 系统
 
-## Opening the Dashboard
+## 打开仪表盘
 
-Three ways to load it:
+三种加载方式：
 
-| Method | Steps |
+| 方法 | 步骤 |
 |--------|-------|
-| Activity Bar | **ABAP FS** panel → **S/4HANA Readiness** section → click **Load Dashboard** |
-| Command Palette | `Ctrl+Shift+P` → `ABAP FS: S/4HANA Readiness - Load` |
-| Copilot Chat | Ask: *"Load the S/4HANA readiness dashboard"* |
+| 活动栏 | **ABAP FS** 面板 → **S/4HANA 就绪**部分 → 点击**加载仪表盘** |
+| 命令面板 | `Ctrl+Shift+P` → `ABAP FS: S/4HANA Readiness - Load` |
+| Copilot 聊天 | 提问：*“加载 S/4HANA 就绪仪表盘”* |
 
-## Reading the Results
+## 阅读结果
 
-The dashboard shows a tree grouped by **simplification item** (SAP Note):
+仪表盘显示按**简化项**（SAP Note）分组的树：
 
 ```
 DRS310 — 156 references in 42 items
@@ -32,38 +32,38 @@ DRS310 — 156 references in 42 items
 └── Unlinked References
 ```
 
-- **Root node** — your connection ID with a total count
-- **Simplification Item nodes** — each SAP Note that affects your code, with reference count
-- **Custom object nodes** — your Z/Y objects that need to be changed
-- **Unlinked References** — references that couldn't be matched to a simplification item
+- **根节点** — 你的连接 ID，带总数
+- **简化项节点** — 影响你代码的每个 SAP Note，带引用数
+- **自定义对象节点** — 需要修改的 Z/Y 对象
+- **未链接引用** — 无法匹配到简化项的引用
 
-## Working with Results
+## 处理结果
 
-**Open an object for editing**
-Click any custom object node — it opens directly in the editor.
+**打开对象进行编辑**
+点击任意自定义对象节点——它直接在编辑器中打开。
 
-**Run ATC analysis on an object**
-Right-click a reference → **Run ATC** — runs ATC checks scoped to that object.
+**对对象运行 ATC 分析**
+右键引用 → **运行 ATC** — 运行限定到该对象的 ATC 检查。
 
-**Get a Copilot fix suggestion**
-Right-click a reference → **Ask Copilot to Fix** — opens a Copilot prompt pre-loaded with the compatibility issue details.
+**获取 Copilot 修复建议**
+右键引用 → **让 Copilot 修复** — 打开预填了兼容性问题详情的 Copilot 提示。
 
-**Open the linked SAP Note**
-Right-click a simplification item → **Open SAP Note** — opens the note in your browser.
+**打开链接的 SAP Note**
+右键简化项 → **打开 SAP Note** — 在浏览器中打开该 Note。
 
-**Filter by name pattern**
-Use the filter icon and enter a wildcard pattern, e.g. `Z*PRICING*` or `Y*`, to narrow the list.
+**按名称模式过滤**
+使用过滤图标并输入通配符模式，例如 `Z*PRICING*` 或 `Y*`，缩小列表范围。
 
-**Refresh / Clear**
-Use the **Refresh** button to reload from SAP, or **Clear** to remove the dashboard data.
+**刷新 / 清空**
+使用**刷新**按钮从 SAP 重新加载，或**清空**移除仪表盘数据。
 
-**Multiple systems**
-Load dashboards from several connected systems simultaneously — each appears under its own root node.
+**多个系统**
+可以同时加载多个已连接系统的仪表盘——每个系统显示在自己的根节点下。
 
-## ATC Integration
+## ATC 集成
 
-For full readiness analysis, combine the dashboard with ATC:
+要获得完整的就绪分析，把仪表盘与 ATC 结合：
 
-1. Set your ATC check variant to an S/4HANA readiness variant (e.g. `S4HANA_READINESS`)
-2. In your connection settings, set the `atcVariant` property to run this variant by default
-3. Use the dashboard to spot affected objects, then right-click → **Run ATC** for detailed per-object findings
+1. 把你的 ATC 检查变式设置为 S/4HANA 就绪变式（例如 `S4HANA_READINESS`）
+2. 在连接设置中设置 `atcVariant` 属性，默认运行此变式
+3. 用仪表盘定位受影响的对象，然后右键 → **运行 ATC** 获取每个对象的详细结果

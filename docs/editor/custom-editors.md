@@ -1,25 +1,25 @@
-# Custom Editors
+# 自定义编辑器
 
-ABAP FS provides custom visual editors for certain SAP object types. Instead of editing raw XML, you get a purpose-built UI tailored to that object.
+ABAP FS 为某些 SAP 对象类型提供自定义的可视化编辑器。无需编辑原始 XML，你会得到一个为该对象量身定制的专用界面。
 
-Custom editors open automatically when you navigate to a supported object type. You can also open them manually via **Open With** (right-click the file in the Explorer).
+导航到支持的对象类型时，自定义编辑器会自动打开。你也可以通过**打开方式**（在资源管理器中右键文件）手动打开。
 
-## Supported Editors
+## 支持的编辑器
 
-### Message Class Editor (`*.msagn.xml`)
+### 消息类编辑器（`*.msagn.xml`）
 
-A table-based editor for SAP message classes (MSAG). Lets you add, edit, and delete messages without touching XML.
+用于 SAP 消息类（MSAG）的基于表格的编辑器。无需接触 XML 即可添加、编辑和删除消息。
 
-See [Message Class Editor](message-class-editor.md) for full details.
+完整详情见[消息类编辑器](message-class-editor.md)。
 
-### HTTP Service Editor (`*.http.xml`)
+### HTTP 服务编辑器（`*.http.xml`）
 
-A form-based editor for configuring SAP HTTP services (SICF nodes).
+用于配置 SAP HTTP 服务（SICF 节点）的基于表单的编辑器。
 
-## Common Actions
+## 常用操作
 
-| Action | How |
+| 操作 | 方式 |
 |--------|-----|
-| Save changes | `Ctrl+S` |
-| Switch to raw XML | Right-click file → **Open With** → **Text Editor** |
-| Revert unsaved changes | `File` → **Revert File** |
+| 保存修改 | `Ctrl+S` |
+| 切换到原始 XML | 右键文件 → **打开方式** → **文本编辑器** |
+| 还原未保存的修改 | **文件** → **还原文件** |

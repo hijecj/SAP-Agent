@@ -1,42 +1,42 @@
-# Enhanced Views & Panels
+# 增强的视图与面板
 
-ABAP FS adds several views and panels to the VS Code interface. Here's a quick orientation to VS Code's layout:
+ABAP FS 为 VS Code 界面添加了多个视图和面板。先快速了解一下 VS Code 的布局：
 
-- **Activity Bar** — the vertical strip of icons on the far left. Click an icon to open the corresponding view in the sidebar.
-- **Explorer** — the file/folder tree, opened via the top Activity Bar icon. ABAP FS adds extra sections here.
-- **Panel** — the area at the bottom of the editor (same area as the Terminal). ABAP FS adds a documentation panel here.
+- **活动栏** — 最左侧的垂直图标条。点击图标在侧边栏中打开对应视图。
+- **资源管理器** — 文件/文件夹树，通过顶部活动栏图标打开。ABAP FS 在这里添加了额外部分。
+- **面板** — 编辑器底部区域（与终端同一区域）。ABAP FS 在这里添加了文档面板。
 
 ---
 
-## Activity Bar Views
+## 活动栏视图
 
-These appear as icons in the Activity Bar. Click them to open the view in the sidebar.
+它们以图标形式出现在活动栏中。点击即可在侧边栏中打开视图。
 
-| View | Purpose |
+| 视图 | 用途 |
 |------|---------|
-| **Object Search** | Search ABAP objects by name, type, or package with filters |
-| **Transports** | Browse and manage transport requests |
-| **Dumps** | View and analyze runtime errors (ST22) |
-| **ATC Finds** | Review results from ABAP Test Cockpit code quality checks |
-| **Traces** | Analyze performance traces |
-| **S/4HANA Readiness** | Dashboard showing S/4HANA compatibility findings for your code |
-| **abapGit** | Manage abapGit repositories linked to the system |
-| **Feed Inbox** | Subscribe to and view ADT feed notifications |
-| **RAP Generator** | Generate RAP (RESTful ABAP Programming) services from a database table, similar to Eclipse |
-| **Object Property** | Shows properties, assigned transport, and revision history for the currently open ABAP object |
+| **对象搜索** | 按名称、类型或包搜索 ABAP 对象，支持过滤 |
+| **传输** | 浏览和管理传输请求 |
+| **Dump** | 查看和分析运行时错误（ST22） |
+| **ATC 结果** | 查看 ABAP Test Cockpit 代码质量检查的结果 |
+| **跟踪** | 分析性能跟踪 |
+| **S/4HANA 就绪** | 显示代码 S/4HANA 兼容性发现的仪表盘 |
+| **abapGit** | 管理与系统链接的 abapGit 仓库 |
+| **Feed 收件箱** | 订阅并查看 ADT feed 通知 |
+| **RAP 生成器** | 从数据库表生成 RAP（RESTful ABAP 编程）服务，类似 Eclipse |
+| **对象属性** | 显示当前打开的 ABAP 对象的属性、分配的传输和修订历史 |
 
-## Explorer Views
+## 资源管理器视图
 
-These appear as collapsible sections inside the Explorer sidebar (the file tree).
+它们以可折叠部分的形式出现在资源管理器侧边栏（文件树）中。
 
-| View | Purpose |
+| 视图 | 用途 |
 |------|---------|
-| **Favorites** | Pin frequently accessed objects for quick access |
+| **收藏夹** | 固定常用对象以便快速访问 |
 
-## Panel Views
+## 面板视图
 
-These appear in the bottom panel area, alongside the Terminal.
+它们出现在底部面板区域，与终端并列。
 
-| View | Purpose |
+| 视图 | 用途 |
 |------|---------|
-| **ATC Documentation** | Displays the detailed SAP documentation for the ATC finding selected in the ATC Finds view |
+| **ATC 文档** | 显示在 ATC 结果视图中选中的 ATC 检查结果的详细 SAP 文档 |

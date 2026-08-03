@@ -1,47 +1,47 @@
-# ADT Communication Log
+# ADT 通信日志
 
-Captures and displays every HTTP request and response between VS Code and SAP ADT in real time. Use it to diagnose slow operations, trace connection errors, or understand which ADT APIs the extension calls.
+实时捕获并显示 VS Code 与 SAP ADT 之间的每个 HTTP 请求和响应。用于诊断慢操作、追踪连接错误，或了解扩展调用了哪些 ADT API。
 
-## Start Logging
+## 开始记录
 
-1. Open the Command Palette (`Ctrl+Shift+P`)
-2. Run **ABAP FS: Activate Communication Log**
-3. Select the SAP connection to monitor
+1. 打开命令面板（`Ctrl+Shift+P`）
+2. 运行 **ABAP FS: Activate Communication Log**
+3. 选择要监控的 SAP 连接
 
-The **Communication Log** panel opens at the bottom of the screen and immediately begins capturing traffic.
+**通信日志**面板在屏幕底部打开，并立即开始捕获流量。
 
-## Stop Logging
+## 停止记录
 
-Run **ABAP FS: Deactivate Communication Log** from the Command Palette.
+从命令面板运行 **ABAP FS: Deactivate Communication Log**。
 
-> **Note:** The log is held in memory only (up to 2000 entries). Entries are lost when you deactivate logging or close VS Code.
+> **注意：** 日志只保存在内存中（最多 2000 条）。停用记录或关闭 VS Code 后条目会丢失。
 
-## Reading the Log
+## 阅读日志
 
-Click any entry to expand it and see:
+点击任意条目展开查看：
 
-- Query parameters
-- Request and response headers
-- Request and response bodies (XML and JSON are syntax-highlighted)
-- Duration in milliseconds
+- 查询参数
+- 请求和响应头
+- 请求和响应体（XML 和 JSON 有语法高亮）
+- 耗时（毫秒）
 
-## Filtering Entries
+## 过滤条目
 
-| Filter | How |
+| 过滤 | 方式 |
 |--------|-----|
-| By SAP system | Dropdown — select from all logged connections |
-| By HTTP status | Buttons: **Success** (2xx), **Errors** (4xx/5xx), **Pending** |
-| By URL | Text search field (200ms debounce) |
+| 按 SAP 系统 | 下拉框——从所有已记录的连接中选择 |
+| 按 HTTP 状态 | 按钮：**成功**（2xx）、**错误**（4xx/5xx）、**进行中** |
+| 按 URL | 文本搜索框（200ms 防抖） |
 
-## Other Controls
+## 其他控件
 
-- **Auto-scroll** — Toggle to keep the view pinned to the latest entry
-- **Export** — Save all visible entries or a single entry as JSON (useful for bug reports)
-- **Clear** — Remove all entries from the current view
+- **自动滚动** — 切换视图是否固定在最新条目
+- **导出** — 把所有可见条目或单个条目保存为 JSON（对 bug 报告很有用）
+- **清空** — 从当前视图移除所有条目
 
-## Common Use Cases
+## 常见用途
 
-- **Slow operations** — Check which API calls take the longest
-- **Connection errors** — See the exact HTTP status code and error body returned by SAP
-- **Bug reports** — Export the log as JSON and attach it to a GitHub issue
-- **Learning the API** — See exactly which ADT endpoints are called for any extension action
+- **慢操作** — 检查哪些 API 调用耗时最长
+- **连接错误** — 查看 SAP 返回的确切 HTTP 状态码和错误体
+- **Bug 报告** — 把日志导出为 JSON 并附加到 GitHub issue
+- **学习 API** — 查看扩展的每个操作实际调用了哪些 ADT 端点

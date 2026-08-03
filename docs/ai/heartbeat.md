@@ -1,34 +1,34 @@
-# Heartbeat - Background Monitoring & Reminders
+# 心跳服务 — 后台监控与提醒
 
-> ⚠️ **BETA FEATURE** - Please report any issues.
+> ⚠️ **测试版功能** — 如有问题请报告。
 
-Heartbeat is a background service that runs an AI agent at a set interval to monitor your SAP systems and send you reminders. You configure what to watch; the agent checks it quietly in the background and only notifies you when something happens.
+心跳是一个后台服务，按设定间隔运行 AI 代理来监控你的 SAP 系统并发送提醒。你配置要监控的内容；代理在后台安静地检查，只在有事发生时通知你。
 
-**Common uses:**
+**常见用途：**
 
-- "Alert me when new ST22 dumps appear in DEV"
-- "Watch transport DEVK900001 until it's released"
-- "Remind me tomorrow at 10am to review the batch job"
+- “DEV 中出现新的 ST22 Dump 时提醒我”
+- “盯着传输 DEVK900001，直到它被释放”
+- “明天上午 10 点提醒我审查批处理作业”
 
 ---
 
-## Setup
+## 设置
 
-Heartbeat settings are stored at the **workspace level** (`.vscode/settings.json`), not globally. Each project can have its own configuration.
+心跳设置存储在工作区级别（`.vscode/settings.json`），不是全局的。每个工程可以有独立配置。
 
-### Step 1: Configure with Copilot (recommended)
+### 第 1 步：用 Copilot 配置（推荐）
 
-You do not need to edit settings manually in most cases. Ask Copilot:
+大多数情况下你不需要手动编辑设置。让 Copilot 执行：
 
 ```
 Set up heartbeat with model GPT-4o mini, every 5 minutes, and start it
 ```
 
-Copilot uses the heartbeat tools to configure and start the service for you.
+Copilot 会用心跳工具为你配置并启动服务。
 
-### Step 2: Manual settings (optional)
+### 第 2 步：手动设置（可选）
 
-Open VS Code Settings (`Ctrl+,`) and add:
+打开 VS Code 设置（`Ctrl+,`）并添加：
 
 ```json
 {
@@ -38,29 +38,29 @@ Open VS Code Settings (`Ctrl+,`) and add:
 }
 ```
 
-| Setting | Description | Default |
+| 设置 | 描述 | 默认 |
 |---------|-------------|---------|
-| `abapfs.heartbeat.enabled` | Enable/disable the service | `false` |
-| `abapfs.heartbeat.model` | AI model for background checks — use a cheap model | Required |
-| `abapfs.heartbeat.every` | Check interval (`"5m"`, `"1h"`, `"30s"`) | `"5m"` |
-| `abapfs.heartbeat.activeHours` | Only run during these hours | `"08:00-18:00"` |
-| `abapfs.heartbeat.maxConsecutiveErrors` | Auto-pause after N errors | `20` |
+| `abapfs.heartbeat.enabled` | 启用/禁用服务 | `false` |
+| `abapfs.heartbeat.model` | 后台检查用的 AI 模型——用便宜模型 | 必填 |
+| `abapfs.heartbeat.every` | 检查间隔（`"5m"`、`"1h"`、`"30s"`） | `"5m"` |
+| `abapfs.heartbeat.activeHours` | 只在这些时段运行 | `"08:00-18:00"` |
+| `abapfs.heartbeat.maxConsecutiveErrors` | 连续 N 次错误后自动暂停 | `20` |
 
-**Recommended models (cost-effective):**
+**推荐模型（经济高效）：**
 
-- `GPT-4o mini` ⭐ most reliable for background tasks
+- `GPT-4o mini` ⭐ 后台任务最可靠
 - `Claude Haiku 4`
 - `GPT-4o`
 
-### Step 3: Start the service
+### 第 3 步：启动服务
 
-Ask Copilot: `"Start the heartbeat service"`
+让 Copilot：`"Start the heartbeat service"`
 
-Or set `abapfs.heartbeat.enabled` to `true` in settings — the service starts automatically.
+或在设置中把 `abapfs.heartbeat.enabled` 设为 `true`——服务自动启动。
 
-### Step 3: Add tasks
+### 第 4 步：添加任务
 
-Ask Copilot in plain language:
+用自然语言让 Copilot 执行：
 
 ```
 "Remind me tomorrow at 10am to review transport K900123"
@@ -68,76 +68,76 @@ Ask Copilot in plain language:
 "Watch transport DEVK900001 until it's released"
 ```
 
-Copilot creates the task definitions and saves them to `heartbeat.json` in your workspace root.
+Copilot 创建任务定义并保存到工作区根目录的 `heartbeat.json`。
 
 ---
 
-## Status Bar
+## 状态栏
 
-When heartbeat is running, a heart ❤️ appears in the VS Code status bar.
+心跳运行时，VS Code 状态栏会出现一颗心 ❤️。
 
-| Status | Meaning |
+| 状态 | 含义 |
 |--------|---------|
-| ❤️ (pulsing) | Active, waiting for next check |
-| ❤️ beat... | Running a check now |
-| ❤️ zzz | Paused (errors or outside active hours) |
-| (hidden) | Stopped |
+| ❤️（脉冲） | 运行中，等待下次检查 |
+| ❤️ beat... | 正在执行检查 |
+| ❤️ zzz | 已暂停（出错或在非活跃时段） |
+| （隐藏） | 已停止 |
 
-**Click the heart** to open `heartbeat.json` directly.
+**点击这颗心**直接打开 `heartbeat.json`。
 
 ---
 
-## Task Types
+## 任务类型
 
-### Reminders (one-time)
+### 提醒（一次性）
 
-Notifies you once at the scheduled time, then removes itself.
+在预定时间通知一次，然后自动移除。
 
 ```
 "Remind me in 2 hours to check the batch job"
 "Remind me tomorrow at 9am about the deployment"
 ```
 
-Uses `reminderOnly: true` and a `startAt` timestamp. The heartbeat agent ignores the task until `startAt` passes.
+使用 `reminderOnly: true` 和 `startAt` 时间戳。心跳代理在 `startAt` 之前忽略该任务。
 
-### Monitoring Tasks (recurring)
+### 监控任务（循环）
 
-Checks a condition every interval and alerts only when something **new** is found.
+每个间隔检查一次条件，只在发现**新**内容时提醒。
 
 ```
 "Monitor for new ST22 dumps in QA100"
 "Alert me when transport K900123 is released"
 ```
 
-The agent stores what it already reported in `lastNotifiedFindings` and only triggers a new alert for changes.
+代理把已报告的内容存储在 `lastNotifiedFindings` 中，只对变化触发新提醒。
 
 ---
 
-## Task Properties Reference
+## 任务属性参考
 
-| Property | Description |
+| 属性 | 描述 |
 |----------|-------------|
-| `id` | Unique identifier |
-| `description` | What this task monitors or reminds |
-| `connectionId` | SAP system ID (e.g. `"dev100"`) |
-| `enabled` | Whether the task is active |
-| `category` | `transport`, `dump`, `job`, `reminder`, `custom` |
-| `priority` | `high`, `medium`, `low` |
-| `sampleQuery` | SQL query for the agent to run |
-| `checkInstructions` | Step-by-step instructions for the agent |
-| `startAt` | ISO timestamp — don't check before this time |
-| `reminderOnly` | Notify once and auto-remove |
-| `removeWhenDone` | Auto-remove when the condition is met |
-| `cooldownMinutes` | Don't re-notify within this period |
-| `alertThreshold` | Only alert if count exceeds this value |
+| `id` | 唯一标识 |
+| `description` | 此任务监控或提醒的内容 |
+| `connectionId` | SAP 系统 ID（例如 `"dev100"`） |
+| `enabled` | 任务是否激活 |
+| `category` | `transport`、`dump`、`job`、`reminder`、`custom` |
+| `priority` | `high`、`medium`、`low` |
+| `sampleQuery` | 代理要运行的 SQL 查询 |
+| `checkInstructions` | 给代理的分步指令 |
+| `startAt` | ISO 时间戳——此时间之前不检查 |
+| `reminderOnly` | 通知一次后自动移除 |
+| `removeWhenDone` | 条件满足时自动移除 |
+| `cooldownMinutes` | 此时间段内不重复通知 |
+| `alertThreshold` | 只有计数超过此值才提醒 |
 
 ---
 
-## Example Task Definitions
+## 示例任务定义
 
-These are the JSON entries stored in `heartbeat.json`. You can let Copilot generate them, or write them manually.
+这些是存储在 `heartbeat.json` 中的 JSON 条目。可以让 Copilot 生成，也可以手动编写。
 
-### Monitor ST22 dumps
+### 监控 ST22 Dump
 
 ```json
 {
@@ -156,7 +156,7 @@ These are the JSON entries stored in `heartbeat.json`. You can let Copilot gener
 }
 ```
 
-### Watch a transport until released
+### 盯传输直到释放
 
 ```json
 {
@@ -174,7 +174,7 @@ These are the JSON entries stored in `heartbeat.json`. You can let Copilot gener
 }
 ```
 
-### Scheduled reminder
+### 定时提醒
 
 ```json
 {
@@ -188,68 +188,68 @@ These are the JSON entries stored in `heartbeat.json`. You can let Copilot gener
 
 ---
 
-## Managing Heartbeat via Copilot
+## 通过 Copilot 管理心跳
 
-| What you want | Ask Copilot |
+| 你想做什么 | 让 Copilot |
 |---------------|-------------|
-| Check status | `"What's the heartbeat status?"` |
-| List tasks | `"Show me the heartbeat watchlist"` |
-| Add a task | `"Monitor DEV for stuck jobs"` |
-| Remove a task | `"Remove the transport monitoring task"` |
-| Run check now | `"Trigger a heartbeat check now"` |
-| Stop service | `"Stop the heartbeat service"` |
+| 查看状态 | `"What's the heartbeat status?"` |
+| 列出任务 | `"Show me the heartbeat watchlist"` |
+| 添加任务 | `"Monitor DEV for stuck jobs"` |
+| 移除任务 | `"Remove the transport monitoring task"` |
+| 立即运行检查 | `"Trigger a heartbeat check now"` |
+| 停止服务 | `"Stop the heartbeat service"` |
 
 ---
 
-## Timezone Handling
+## 时区处理
 
-When you say something like "remind me tomorrow at 10am", Copilot:
+当你说“明天上午 10 点提醒我”时，Copilot：
 
-1. Queries the SAP system's timezone using `get_sap_system_info`
-2. Converts your local time to the correct UTC timestamp
-3. Stores the result in `startAt` (e.g. `"2026-02-05T08:00:00.000Z"` for UTC+2)
+1. 用 `get_sap_system_info` 查询 SAP 系统的时区
+2. 把你的本地时间转换为正确的 UTC 时间戳
+3. 把结果存储在 `startAt`（例如 UTC+2 对应 `"2026-02-05T08:00:00.000Z"`）
 
-This ensures reminders fire at the right time relative to your SAP system.
-
----
-
-## Deduplication
-
-The agent tracks what it has already alerted on to avoid repeated notifications:
-
-- `cooldownMinutes` — minimum gap between re-alerts for the same task
-- `lastNotifiedFindings` — IDs or summaries of what was already reported
-
-**Example flow for dump monitoring:**
-
-- Check 1: 5 dumps → Alert: "5 new dumps found"
-- Check 2: Same 5 dumps → No alert (already reported)
-- Check 3: 7 dumps → Alert: "2 new dumps found"
+这确保提醒相对于你的 SAP 系统在正确时间触发。
 
 ---
 
-## Troubleshooting
+## 去重
 
-**Service won't start**
+代理会跟踪已提醒过的内容，避免重复通知：
 
-- Confirm `abapfs.heartbeat.model` is set in workspace settings
-- Confirm `abapfs.heartbeat.enabled` is `true`
-- Check VS Code Output panel → "ABAP FS" for errors
+- `cooldownMinutes` — 同一任务两次提醒之间的最小间隔
+- `lastNotifiedFindings` — 已报告的 ID 或摘要
 
-**Tasks not being checked**
+**Dump 监控示例流程：**
 
-- Confirm `heartbeat.json` exists in the workspace root (created automatically when you add your first task)
-- Confirm the task has `"enabled": true`
-- Check whether `startAt` is in the future
-- Check whether current time is within `activeHours`
+- 检查 1：5 个 Dump → 提醒：“发现 5 个新 Dump”
+- 检查 2：同样 5 个 → 不提醒（已报告）
+- 检查 3：7 个 Dump → 提醒：“发现 2 个新 Dump”
 
-**Too many alerts**
+---
 
-- Increase `cooldownMinutes` on the task
-- Set `alertThreshold` to filter low-count issues
-- Add more specific conditions in `checkInstructions`
+## 故障排查
 
-**Model errors**
+**服务无法启动**
 
-- Try `GPT-4o mini` — most reliable for background tasks
-- Some models handle tool calls inconsistently in background mode
+- 确认工作区设置中已设置 `abapfs.heartbeat.model`
+- 确认 `abapfs.heartbeat.enabled` 为 `true`
+- 检查 VS Code 输出面板 → “ABAP FS”查看错误
+
+**任务未被检查**
+
+- 确认工作区根目录存在 `heartbeat.json`（添加第一个任务时自动创建）
+- 确认任务 `"enabled": true`
+- 检查 `startAt` 是否在未来
+- 检查当前时间是否在 `activeHours` 内
+
+**提醒太多**
+
+- 增加任务的 `cooldownMinutes`
+- 设置 `alertThreshold` 过滤低数量问题
+- 在 `checkInstructions` 中添加更具体的条件
+
+**模型错误**
+
+- 试试 `GPT-4o mini`——后台任务最可靠
+- 某些模型在后台模式下调用工具不稳定

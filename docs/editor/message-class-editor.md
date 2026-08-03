@@ -1,25 +1,25 @@
-# Message Class Editor
+# 消息类编辑器
 
-Message classes (transaction SE91) open in a custom table editor instead of raw XML, making it easy to view and maintain messages directly in VS Code.
+消息类（事务 SE91）在自定义表格编辑器中打开，而不是原始 XML，让你可以直接在 VS Code 中轻松查看和维护消息。
 
-## Opening a Message Class
+## 打开消息类
 
-Search for your message class (e.g. `ZMY_MESSAGES`) using the ABAP FS file explorer — it opens automatically in the table editor. You can also open any `.msagn.xml` file directly.
+使用 ABAP FS 文件资源管理器搜索你的消息类（例如 `ZMY_MESSAGES`）——它会自动在表格编辑器中打开。你也可以直接打开任意 `.msagn.xml` 文件。
 
-## Working with Messages
+## 处理消息
 
-| Action | How |
+| 操作 | 方式 |
 |--------|-----|
-| **Add** | Click the ➕ button — the next available number is suggested automatically |
-| **Edit** | Double-click the message text, or click ✏️ |
-| **Delete** | Click 🗑️ next to the message |
-| **Save** | **Ctrl+S** — all pending adds, edits, and deletes are sent to SAP together |
+| **添加** | 点击 ➕ 按钮——自动建议下一个可用编号 |
+| **编辑** | 双击消息文本，或点击 ✏️ |
+| **删除** | 点击消息旁的 🗑️ |
+| **保存** | **Ctrl+S**——所有待处理的添加、编辑和删除一起发送到 SAP |
 
-Validation runs as you type: message text is limited to **72 characters** and the number field is required.
+输入时会实时校验：消息文本限制为 **72 个字符**，编号字段必填。
 
-## Notes
+## 注意事项
 
-- Message numbers are zero-padded (`001`, `002`, …).
-- Deleted messages are flagged and removed on save; skipped numbers are not reused when suggesting the next number.
-- **Long text editing is not supported** — use SE91 for long texts.
-- Only applies to message class objects (`MSAG/N` type).
+- 消息编号零填充（`001`、`002`……）。
+- 删除的消息会在保存时标记并移除；建议下一个编号时不会重用跳过的编号。
+- **不支持长文本编辑**——长文本请使用 SE91。
+- 仅适用于消息类对象（`MSAG/N` 类型）。

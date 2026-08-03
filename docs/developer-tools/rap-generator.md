@@ -1,46 +1,46 @@
-# RAP Generator
+# RAP 生成器
 
-RAP (RESTful ABAP Programming model) is SAP's modern framework for building OData services on S/4HANA. Building a RAP service manually requires creating many interdependent objects — CDS views, behavior definitions, service definitions, and bindings. The RAP Generator creates the entire stack from a single database table in one step.
+RAP（RESTful ABAP 编程模型）是 SAP 在 S/4HANA 上构建 OData 服务的现代框架。手动构建 RAP 服务需要创建许多相互依赖的对象——CDS 视图、行为定义、服务定义和绑定。RAP 生成器可以一步从单个数据库表创建完整的技术栈。
 
-## Requirements
+## 要求
 
-- S/4HANA or BTP system with ADT RAP Generator API support
-- The source database table must already exist on the system
+- 支持 ADT RAP Generator API 的 S/4HANA 或 BTP 系统
+- 源数据库表必须已存在于系统上
 
-## Open the RAP Generator
+## 打开 RAP 生成器
 
-Three ways to open it:
+三种打开方式：
 
-- **Activity Bar** → ABAP FS icon → **RAP Generator** panel
-- **Right-click** a database table in the editor → **Generate RAP Service**
-- **Command Palette** (`Ctrl+Shift+P`) → `ABAP FS: Generate RAP Service`
+- **活动栏** → ABAP FS 图标 → **RAP 生成器**面板
+- **右键**编辑器中的数据库表 → **生成 RAP 服务**
+- **命令面板**（`Ctrl+Shift+P`）→ `ABAP FS: Generate RAP Service`
 
-## Generate a Service
+## 生成服务
 
-1. Select your SAP system from the dropdown
-2. Enter the source **database table name** — default artifact names are fetched automatically from SAP
-3. Review and adjust the generated names (CDS view, behavior definition, service binding, etc.)
-4. Set the **package** (leave `$TMP` for local objects; a transport request will be prompted for other packages)
-5. Click **Preview** to see the full list of objects that will be created
-6. Click **Generate** — all artifacts are created on the server in a single operation
+1. 从下拉框选择你的 SAP 系统
+2. 输入源**数据库表名**——默认工件名称会自动从 SAP 获取
+3. 查看并调整生成的名称（CDS 视图、行为定义、服务绑定等）
+4. 设置**包**（本地对象留 `$TMP`；其他包会提示传输请求）
+5. 点击**预览**查看将创建的对象完整列表
+6. 点击**生成**——所有工件在服务器上一次操作创建
 
-After generation, the service binding opens automatically in the editor.
+生成后，服务绑定会自动在编辑器中打开。
 
-## Generated Artifacts
+## 生成的工件
 
-| Artifact | Purpose |
+| 工件 | 用途 |
 |----------|---------|
-| CDS Interface View | Data model layer |
-| CDS Projection View | Service projection / field selection |
-| Behavior Definition | CRUD operations and validations |
-| Behavior Implementation Class | ABAP class implementing the behavior |
-| Service Definition | Exposes the CDS view as a service |
-| Service Binding | Binds to OData V2 or V4 protocol |
-| Draft Table | Created for managed scenarios with draft enabled |
+| CDS 接口视图 | 数据模型层 |
+| CDS 投影视图 | 服务投影 / 字段选择 |
+| 行为定义 | CRUD 操作和校验 |
+| 行为实现类 | 实现行为的 ABAP 类 |
+| 服务定义 | 把 CDS 视图作为服务暴露 |
+| 服务绑定 | 绑定到 OData V2 或 V4 协议 |
+| 草稿表 | 为启用草稿的托管场景创建 |
 
-## Publish and Test
+## 发布和测试
 
-After generating, the service must be **published** before it can be consumed.
+生成后，服务必须先**发布**才能被消费。
 
-- **Publish**: Click **Publish Service** in the panel, or use `ABAP FS: Publish Service Binding`
-- **Test**: Click **Test Service** to open the OData URL in the browser — the extension detects whether the service is published and offers to publish it if not, then builds the correct V2/V4 URL with authentication parameters. Or use `ABAP FS: Test Service Binding`
+- **发布：** 点击面板中的**发布服务**，或使用 `ABAP FS: Publish Service Binding`
+- **测试：** 点击**测试服务**在浏览器中打开 OData URL——扩展会检测服务是否已发布，未发布则提供发布选项，然后构建带认证参数的正确 V2/V4 URL。或使用 `ABAP FS: Test Service Binding`

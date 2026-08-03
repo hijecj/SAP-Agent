@@ -1,53 +1,53 @@
-# MCP Server for External AI Tools
+# 面向外部 AI 工具的 MCP 服务器
 
-> **Prerequisites:** Complete the [Installation Steps](getting-started/installation.md) first. You need VS Code with ABAP FS installed and configured with at least one SAP system connection.
+> **前置条件：** 先完成[安装步骤](getting-started/installation.md)。你需要安装并配置了 ABAP FS、且至少有一个 SAP 系统连接的 VS Code。
 
-> **Note:** ABAP FS has 40+ AI tools. When using GitHub Copilot in VS Code, all tools are available natively once a SAP system is connected — no MCP server needed. The MCP server is only for external AI clients.
+> **注意：** ABAP FS 有 40+ 个 AI 工具。使用 VS Code 中的 GitHub Copilot 时，连接 SAP 系统后所有工具都可原生使用——不需要 MCP 服务器。MCP 服务器只用于外部 AI 客户端。
 
-## What Is This and Why Would You Need It?
+## 这是什么，为什么需要它？
 
-**MCP (Model Context Protocol)** is an open standard that lets AI tools call external services. ABAP FS exposes its 39 SAP tools (search, read code, run tests, query data, etc.) via a local MCP server so that AI assistants outside of VS Code can use them.
+**MCP（模型上下文协议）** 是一个开放标准，让 AI 工具可以调用外部服务。ABAP FS 通过本地 MCP 服务器暴露其 39 个 SAP 工具（搜索、读代码、跑测试、查询数据等），让 VS Code 之外的 AI 助手也能使用。
 
-> **Note:** MCP now supports both reading and writing ABAP code. See [Write Support](#write-support) for details.
+> **注意：** MCP 现在同时支持读取和写入 ABAP 代码。详见[写支持](#写支持)。
 
-**Use this if** you work with AI tools like Cursor, Claude Desktop, Claude Code, or Windsurf and want them to have the same SAP access that GitHub Copilot has inside VS Code.
-Also applies to AI agents plugins for vscode like Cline/Continue/Roo code/... unless they support the [virtual filesystem API](https://code.visualstudio.com/api/extension-guides/virtual-workspaces) AFAIK only copilot does at the moment
+**如果你使用** Cursor、Claude Desktop、Claude Code 或 Windsurf 等 AI 工具，并希望它们拥有与 VS Code 内 GitHub Copilot 相同的 SAP 访问权限，请使用此功能。
+也适用于 Cline/Continue/Roo code 等 VS Code AI 代理插件……除非它们支持[虚拟文件系统 API](https://code.visualstudio.com/api/extension-guides/virtual-workspaces)——据我所知目前只有 Copilot 支持。
 
-**Don't need this if** you only use GitHub Copilot in VS Code — tools are already available there natively.
+**如果你只用 VS Code 中的 GitHub Copilot，则不需要** ——工具已原生可用。
 
 ```text
-┌─────────────────┐     MCP Protocol      ┌──────────────────┐     VS Code API     ┌─────────────┐
-│  Cursor/Claude  │ ◄───────────────────► │  MCP Server      │ ◄─────────────────► │  ABAP FS    │
-│  Desktop/etc.   │    localhost:4847     │  (in VS Code)    │                     │  Tools      │
-└─────────────────┘                       └──────────────────┘                     └─────────────┘
+┌─────────────────┐     MCP 协议      ┌──────────────────┐     VS Code API     ┌─────────────┐
+│  Cursor/Claude  │ ◄───────────────► │  MCP 服务器      │ ◄─────────────────► │  ABAP FS    │
+│  桌面端等       │   localhost:4847  │  （在 VS Code 中）│                     │  工具       │
+└─────────────────┘                   └──────────────────┘                     └─────────────┘
 ```
 
-**VS Code must remain open.** The MCP server runs inside VS Code — closing VS Code stops the server.
+**VS Code 必须保持打开。** MCP 服务器在 VS Code 内运行——关闭 VS Code 会停止服务器。
 
-## Setup
+## 设置
 
-### 1. Start the MCP Server
+### 1. 启动 MCP 服务器
 
-Press `Ctrl+Shift+P` and run: **ABAP FS: Start MCP Server**
+按 `Ctrl+Shift+P` 并运行：**ABAP FS: Start MCP Server**
 
-That's it — the server starts immediately on the default port (4847). A notification confirms it's running.
+就这样——服务器在默认端口（4847）上立即启动。通知会确认它正在运行。
 
-> If you have GitHub Copilot installed, ABAP FS will ask whether you actually need the MCP server (Copilot already has native access to all tools). You can choose to start anyway or cancel.
+> 如果你安装了 GitHub Copilot，ABAP FS 会询问你是否真的需要 MCP 服务器（Copilot 已原生拥有所有工具）。你可以选择照常启动或取消。
 
-### 2. (Optional) Change Port or Add API Key
+### 2.（可选）更改端口或添加 API 密钥
 
-Running the command automatically enables `autoStart` — VS Code will start the MCP server on every launch going forward. You don't need to touch settings for that.
+运行该命令会自动启用 `autoStart`——以后每次启动 VS Code 都会启动 MCP 服务器。你不需要为此修改设置。
 
-If you need to change the port or secure the server with an API key:
+如果需要更改端口或用 API 密钥保护服务器：
 
-Open VS Code Settings (`Ctrl+,`) and search for `abapfs.mcpServer`:
+打开 VS Code 设置（`Ctrl+,`）并搜索 `abapfs.mcpServer`：
 
-| Setting                      | Description                                                                 |
+| 设置 | 描述 |
 | ---------------------------- | --------------------------------------------------------------------------- |
-| `abapfs.mcpServer.port`      | Default `4847` — change if there's a port conflict                          |
-| `abapfs.mcpServer.apiKey`    | Optional. Recommended on shared machines to prevent unauthorized SAP access |
+| `abapfs.mcpServer.port` | 默认 `4847`——端口冲突时更改 |
+| `abapfs.mcpServer.apiKey` | 可选。共享机器上建议设置，防止未授权的 SAP 访问 |
 
-Or add directly to your `settings.json`:
+或直接添加到 `settings.json`：
 
 ```json
 {
@@ -56,15 +56,15 @@ Or add directly to your `settings.json`:
 }
 ```
 
-### 2. Connect to Your SAP System
+### 2. 连接你的 SAP 系统
 
-Use the command `ABAP FS: Connect to an SAP system` (`Ctrl+Shift+P` to open the Command Palette). The MCP server needs an active SAP connection to serve tool requests.
+使用命令 `ABAP FS: Connect to an SAP system`（`Ctrl+Shift+P` 打开命令面板）。MCP 服务器需要活动的 SAP 连接才能服务工具请求。
 
-### 3. Configure Your AI Tool
+### 3. 配置你的 AI 工具
 
-Add the following to your AI tool's MCP configuration. The URL is the same for all clients:
+在 AI 工具的 MCP 配置中添加以下内容。所有客户端的 URL 相同：
 
-**Cursor** — `~/.cursor/mcp.json` or project `.cursor/mcp.json`:
+**Cursor** — `~/.cursor/mcp.json` 或工程 `.cursor/mcp.json`：
 
 ```json
 {
@@ -76,13 +76,13 @@ Add the following to your AI tool's MCP configuration. The URL is the same for a
 }
 ```
 
-**Claude Desktop** — see Claude's documentation for the config file location, then add the same block.
+**Claude Desktop** — 参见 Claude 文档了解配置文件位置，然后添加同样的配置块。
 
-**Other MCP clients** — use the Streamable HTTP endpoint: `http://localhost:4847/mcp`
+**其他 MCP 客户端** — 使用 Streamable HTTP 端点：`http://localhost:4847/mcp`
 
-#### With API Key Authentication
+#### 使用 API 密钥认证
 
-If you set `abapfs.mcpServer.apiKey`, clients must send it as a Bearer token:
+如果你设置了 `abapfs.mcpServer.apiKey`，客户端必须将其作为 Bearer token 发送：
 
 ```json
 {
@@ -97,69 +97,68 @@ If you set `abapfs.mcpServer.apiKey`, clients must send it as a Bearer token:
 }
 ```
 
-Without a matching key, requests return `401 Unauthorized`. The `/health` endpoint is always accessible without authentication.
+没有匹配的密钥时请求返回 `401 Unauthorized`。`/health` 端点始终无需认证即可访问。
 
-### 4. Verify
+### 4. 验证
 
-In your AI tool, ask something SAP-related, for example:
+在 AI 工具中问一些 SAP 相关的问题，例如：
 
-- _"Search for classes containing 'USER'"_
-- _"Show me the code for CL_ABAP_TYPEDESCR"_
-- _"Run unit tests for ZCL_MY_CLASS"_
+- _“搜索包含 'USER' 的类”_
+- _“显示 CL_ABAP_TYPEDESCR 的代码”_
+- _“为 ZCL_MY_CLASS 运行单元测试”_
 
-## Available Tools
+## 可用工具
 
-All 40 ABAP FS tools are exposed, including:
+暴露全部 40 个 ABAP FS 工具，包括：
 
-| Tool                        | What It Does                       |
+| 工具 | 作用 |
 | --------------------------- | ---------------------------------- |
-| `search_abap_objects`       | Search for objects by name pattern |
-| `get_abap_object_lines`     | Read source code                   |
-| `find_where_used`           | Where-used analysis                |
-| `run_unit_tests`            | Execute ABAP unit tests            |
-| `run_atc_analysis`          | Run ATC code checks                |
-| `execute_data_query`        | Run SQL queries against SAP tables |
-| `manage_transport_requests` | Read transport data                |
-| `abap_activate`             | Activate ABAP objects              |
-| `replace_string_in_abap_object` | Edit ABAP source code (find & replace) |
-| `get_abap_diagnostics`      | Get syntax errors/warnings for a file  |
+| `search_abap_objects` | 按名称模式搜索对象 |
+| `get_abap_object_lines` | 读取源代码 |
+| `find_where_used` | Where-used 分析 |
+| `run_unit_tests` | 执行 ABAP 单元测试 |
+| `run_atc_analysis` | 运行 ATC 代码检查 |
+| `execute_data_query` | 对 SAP 表运行 SQL 查询 |
+| `manage_transport_requests` | 读取传输数据 |
+| `abap_activate` | 激活 ABAP 对象 |
+| `replace_string_in_abap_object` | 编辑 ABAP 源代码（查找并替换） |
+| `get_abap_diagnostics` | 获取文件的语法错误/警告 |
 
-## Write Support
+## 写支持
 
-MCP clients can now edit ABAP source code directly. The workflow:
+MCP 客户端现在可以直接编辑 ABAP 源代码。工作流：
 
-1. **Get the file URI** — call `get_abap_object_workspace_uri` with object name/type/connection
-2. **Read current code** — call `get_abap_object_lines` or `search_abap_object_lines`
-3. **Edit** — call `replace_string_in_abap_object` with the URI, old text, and new text
-4. **Verify** — call `get_abap_diagnostics` with the same URI to check for syntax errors
+1. **获取文件 URI** — 用对象名称/类型/连接调用 `get_abap_object_workspace_uri`
+2. **读取当前代码** — 调用 `get_abap_object_lines` 或 `search_abap_object_lines`
+3. **编辑** — 用 URI、旧文本和新文本调用 `replace_string_in_abap_object`
+4. **验证** — 用相同 URI 调用 `get_abap_diagnostics` 检查语法错误
 
-Edits are immediately synced to SAP (ABAP FS handles locking, saving, and unlocking automatically). There is no keep/undo UI — changes are applied directly.
+编辑会立即同步到 SAP（ABAP FS 自动处理锁定、保存和解锁）。没有 keep/undo 界面——变更直接生效。
 
+## 限制
 
-## Limitations
+- **VS Code 必须保持打开** — 服务器在 VS Code 内运行
+- **需要活动 SAP 连接** — 工具需要已连接的系统
+- **WebView 输出出现在 VS Code 中** — 数据查询或 Mermaid 图表等工具的结果作为 VS Code 面板打开，而不是在外部工具中
+- **无导航功能** — 转到定义、查找引用和悬停文档需要 VS Code ABAP FS 集成
+- **调试需要 VS Code** — ABAP 调试器是 VS Code 专属功能
 
-- **VS Code must stay open** — the server runs inside VS Code
-- **Active SAP connection required** — tools need a connected system
-- **Webview outputs appear in VS Code** — results from tools like data queries or Mermaid diagrams open as VS Code panels, not in the external tool
-- **No navigation features** — Go to Definition, Find References, and hover documentation require the VS Code ABAP FS integration
-- **Debugging requires VS Code** — the ABAP debugger is VS Code-specific
+## 故障排查
 
-## Troubleshooting
+### 服务器无法启动
 
-### Server not starting
+- 从命令面板运行 `ABAP FS: Start MCP Server` 手动启动
+- 如果你之前选择了“禁用 MCP”，重新运行该命令——它会启动并重新启用自动启动
+- 打开 VS Code 输出面板（`Ctrl+Shift+U`）并选择“ABAP FS”查看错误消息
+- 如果 4847 已被占用，换一个端口（设置中的 `abapfs.mcpServer.port`）
 
-- Run `ABAP FS: Start MCP Server` from the Command Palette to start it manually
-- If you previously chose "Disable MCP", re-run the command — it will start and re-enable auto-start
-- Open the VS Code Output panel (`Ctrl+Shift+U`) and select "ABAP FS" for error messages
-- Try a different port if 4847 is already in use (`abapfs.mcpServer.port` in settings)
+### 工具不工作
 
-### Tools not working
+- 确认 VS Code 已连接 SAP 系统
+- 检查 VS Code 启动时是否出现了启动通知
+- 确认 AI 工具配置中的 URL 与配置的端口匹配
 
-- Confirm VS Code is connected to an SAP system
-- Check that the startup notification appeared when VS Code launched
-- Verify the URL in your AI tool's config matches the configured port
+### 401 未授权
 
-### 401 Unauthorized
-
-- Check that `Authorization: Bearer <key>` is configured in your MCP client
-- Confirm the key in the client exactly matches `abapfs.mcpServer.apiKey` in VS Code settings
+- 检查 MCP 客户端是否配置了 `Authorization: Bearer <key>`
+- 确认客户端中的密钥与 VS Code 设置中的 `abapfs.mcpServer.apiKey` 完全一致

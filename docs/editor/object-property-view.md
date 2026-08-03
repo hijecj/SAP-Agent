@@ -1,25 +1,25 @@
-# Object Property View
+# 对象属性视图
 
-The Object Property View shows metadata and history for whichever ABAP object is currently open in the editor — similar to the Properties view in ABAP Development Tools (Eclipse).
+对象属性视图显示当前在编辑器中打开的 ABAP 对象的元数据和历史——类似 ABAP Development Tools（Eclipse）中的属性视图。
 
-## Opening the View
+## 打开视图
 
-Click the ABAP FS icon in the **Activity Bar** (left sidebar), then select the **Object Property** panel. The view updates automatically as you switch between ABAP files.
+点击**活动栏**（左侧边栏）中的 ABAP FS 图标，然后选择**对象属性**面板。切换 ABAP 文件时视图会自动更新。
 
-## What It Shows
+## 显示什么
 
-| Section | Details |
+| 部分 | 详情 |
 |---|---|
-| **Object metadata** | Type, package, responsible user, creation date, object URI |
-| **Lock status** | Whether the object is locked and by whom |
-| **Transport history** | All transport requests that contain this object |
-| **Revision history** | Each saved version — author, date, and transport number |
+| **对象元数据** | 类型、包、负责人、创建日期、对象 URI |
+| **锁定状态** | 对象是否被锁定，被谁锁定 |
+| **传输历史** | 包含此对象的所有传输请求 |
+| **修订历史** | 每个已保存的版本——作者、日期和传输编号 |
 
-## Comparing Revisions
+## 比较修订
 
-1. In the **Revision history** section, tick the checkboxes next to any two versions.
-2. A side-by-side diff opens in the editor, showing exactly what changed between them.
+1. 在**修订历史**部分勾选任意两个版本旁的复选框。
+2. 编辑器中打开并排 diff，精确显示两者之间的变化。
 
-## Performance Note
+## 性能说明
 
-Property data is cached after the first load. If you switch back to an object you already viewed, the extension reuses the cached data instead of querying SAP again.
+属性数据在首次加载后缓存。如果切回已查看过的对象，扩展会复用缓存数据而不是再次查询 SAP。

@@ -1,47 +1,47 @@
-# Performance Traces
+# 性能跟踪
 
-Analyze ABAP runtime performance directly in VS Code — the equivalent of **SAT** (ABAP Trace) and **ST05** (SQL Trace) in the SAP GUI, but without leaving your editor.
+直接在 VS Code 中分析 ABAP 运行时性能——相当于 SAP GUI 中的 **SAT**（ABAP 跟踪）和 **ST05**（SQL 跟踪），但无需离开编辑器。
 
-## Opening the Traces Panel
+## 打开跟踪面板
 
-**Activity Bar → ABAP FS icon → Traces**
+**活动栏 → ABAP FS 图标 → Traces**
 
-Or ask Copilot (Ctrl+Alt+I): *"Show me recent trace runs"*
+或让 Copilot（Ctrl+Alt+I）：*“显示最近的跟踪运行”*
 
-## Workflow
+## 工作流
 
-1. **Record a trace** in the SAP system first (via SAT or ST05 as usual).
-2. In VS Code, open the **Traces** panel to see your recorded runs.
-3. Click a trace run to open it, then choose an analysis action.
-4. Ask Copilot to interpret results: *"Analyze this trace for bottlenecks"*
+1. 先在 SAP 系统中**记录跟踪**（照常用 SAT 或 ST05）。
+2. 在 VS Code 中打开**跟踪**面板查看你记录的执行。
+3. 点击跟踪运行打开，然后选择分析操作。
+4. 让 Copilot 解读结果：*“分析这个跟踪的瓶颈”*
 
-## Analysis Actions
+## 分析操作
 
-| Action | What it shows | Equivalent in SAP GUI |
+| 操作 | 显示内容 | SAP GUI 等价 |
 |---|---|---|
-| **List runs** | Recent trace executions with summary | SAT / ST05 hit list |
-| **Analyze run** | Automatic bottleneck detection | SAT summary screen |
-| **Get statements** | Statement-level timing (non-aggregated traces) | ST05 statement list |
-| **Get hitlist** | Hit counts and total timing (aggregated traces) | SAT aggregated view |
-| **List configurations** | Available trace configs on the system | SAT configuration |
+| **列出运行** | 最近的跟踪执行及摘要 | SAT / ST05 命中列表 |
+| **分析运行** | 自动瓶颈检测 | SAT 摘要界面 |
+| **获取语句** | 语句级耗时（非聚合跟踪） | ST05 语句列表 |
+| **获取命中列表** | 命中次数和总耗时（聚合跟踪） | SAT 聚合视图 |
+| **列出配置** | 系统上可用的跟踪配置 | SAT 配置 |
 
-> **Note:** For aggregated traces, *Get statements* automatically falls back to the hitlist.
+> **注意：** 对于聚合跟踪，*获取语句*会自动回退到命中列表。
 
-## What Copilot Can Do
+## Copilot 能做什么
 
-Ask Copilot directly instead of navigating the panel:
+无需浏览面板，直接让 Copilot 执行：
 
-- *"Show me trace runs from today"*
-- *"Analyze trace [name] for bottlenecks"*
-- *"What are the slowest SQL statements in the last trace?"*
-- *"Is there a database bottleneck in trace [name]?"*
+- *“显示今天的跟踪运行”*
+- *“分析跟踪 [name] 的瓶颈”*
+- *“最后一次跟踪中最慢的 SQL 语句是什么？”*
+- *“跟踪 [name] 中有数据库瓶颈吗？”*
 
-Copilot automatically identifies:
+Copilot 自动识别：
 
-- **Database bottlenecks** — expensive or repeated SELECT statements
-- **ABAP processing hotspots** — slow internal table operations or loops
-- **Performance outliers** — statements disproportionate to total runtime
+- **数据库瓶颈** — 昂贵或重复的 SELECT 语句
+- **ABAP 处理热点** — 慢的内部表操作或循环
+- **性能异常** — 与总运行时间不成比例的语句
 
-## When to Use This vs. SAT/ST05
+## 何时用这个 vs SAT/ST05
 
-Use the VS Code Traces panel when you are already working in VS Code and want to stay in context, or when you want Copilot to interpret results for you. Use SAT/ST05 in the SAP GUI when you need to configure detailed trace settings or record a new trace interactively.
+当你已经在 VS Code 中工作、想保持上下文，或想让 Copilot 为你解读结果时，使用 VS Code 跟踪面板。需要配置详细的跟踪设置或以交互方式记录新跟踪时，在 SAP GUI 中使用 SAT/ST05。

@@ -1,24 +1,24 @@
-# Enhanced Hover Information
+# 增强的悬停信息
 
-When you move your mouse cursor over ABAP code in the editor and pause, a popup appears with information about the symbol under the cursor. This is called a **hover**.
+当你在编辑器中将鼠标光标移到 ABAP 代码上并停留时，会弹出一个显示光标下符号信息的弹窗。这叫做**悬停**。
 
-## How to trigger a hover
+## 如何触发悬停
 
-Move your mouse over any ABAP keyword, variable, system field, or object name and wait about 700ms (just under a second). The popup appears automatically — no click needed.
+把鼠标移到任意 ABAP 关键字、变量、系统字段或对象名称上，等待约 700 毫秒（不到一秒）。弹窗自动出现——无需点击。
 
-## What the hover shows
+## 悬停显示什么
 
-Depending on what you hover over, you may see:
+取决于你悬停的内容，你可能会看到：
 
-| Symbol type | Information shown |
+| 符号类型 | 显示的信息 |
 |---|---|
-| System fields (`sy-subrc`, `sy-tabix`, etc.) | Plain-language explanation of the field's purpose |
-| Built-in types | Type description and length |
-| Variables and data objects | Type, length, and declaration context |
-| Function modules | Parameter list (importing, exporting, exceptions) |
-| Classes and methods | Signature and visibility |
-| Other objects | Metadata from the SAP system |
+| 系统字段（`sy-subrc`、`sy-tabix` 等） | 字段用途的通俗解释 |
+| 内置类型 | 类型描述和长度 |
+| 变量和数据对象 | 类型、长度和声明上下文 |
+| 函数模块 | 参数列表（导入、导出、异常） |
+| 类和方法 | 签名和可见性 |
+| 其他对象 | 来自 SAP 系统的元数据 |
 
-## Configuration
+## 配置
 
-The hover delay is configurable. If the popup appears too quickly or too slowly, search for `abapfs hover` in VS Code settings (`File → Preferences → Settings`) to adjust the delay.
+悬停延迟可配置。如果弹窗出现得太快或太慢，在 VS Code 设置（**文件 → 首选项 → 设置**）中搜索 `abapfs hover` 调整延迟。

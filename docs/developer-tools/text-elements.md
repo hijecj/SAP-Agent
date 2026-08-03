@@ -1,60 +1,60 @@
-# Text Elements Management
+# 文本元素管理
 
-Manage translatable text elements (symbols) in ABAP programs, classes, and function groups — the VS Code equivalent of the **Text Elements** tab in SE38/SE24.
+管理 ABAP 程序、类和函数组中可翻译的文本元素（符号）——这是 SE38/SE24 中**文本元素**选项卡的 VS Code 等价功能。
 
-**Supported object types:** Programs · Classes · Function Groups
+**支持的对象类型：** 程序 · 类 · 函数组
 
 ---
 
-## Opening the Text Elements Manager
+## 打开文本元素管理器
 
-Three ways to open it for the active file:
+为当前文件打开它有三种方式：
 
-| Method | Steps |
+| 方法 | 步骤 |
 |--------|-------|
-| Command Palette | `Ctrl+Shift+P` → **ABAP FS: Text Elements Manager** |
-| Context menu | Right-click an ABAP file in Explorer → **Text Elements Manager** |
-| Copilot | Ask: *"Show me text elements for ZTEST_PROGRAM"* |
+| 命令面板 | `Ctrl+Shift+P` → **ABAP FS: Text Elements Manager** |
+| 右键菜单 | 在资源管理器中右键 ABAP 文件 → **文本元素管理器** |
+| Copilot | 提问：*“显示 ZTEST_PROGRAM 的文本元素”* |
 
 ---
 
-## What You Can Do
+## 你能做什么
 
-### Read text elements
-Works on **all SAP systems**. Displays existing text element IDs and their translations in an interactive webview.
+### 读取文本元素
+适用于**所有 SAP 系统**。在交互式 WebView 中显示现有文本元素 ID 及其翻译。
 
-### Create / Update text elements
-Available on **newer systems** with ADT text elements API support. Lets you add new symbols or change existing text directly in VS Code — no SAP GUI needed.
+### 创建 / 更新文本元素
+适用于支持 ADT 文本元素 API 的**新版系统**。可以直接在 VS Code 中添加新符号或修改现有文本——无需 SAP GUI。
 
-> **Older systems fallback:** If the ADT API is not available, the extension automatically opens the text element editor in SAP GUI instead.
-
----
-
-## Step-by-Step: Editing Text Elements
-
-1. Open an ABAP program, class, or function group in the editor.
-2. Press `Ctrl+Shift+P` and run **ABAP FS: Text Elements Manager**.
-3. The webview shows all existing text elements for the object.
-4. To **add** a new element, enter the ID (e.g. `001`) and text value, then confirm.
-5. To **change** an existing element, edit the text inline and save.
-6. Changes are applied to the active object on the server.
+> **旧系统降级：** 如果 ADT API 不可用，扩展会自动在 SAP GUI 中打开文本元素编辑器。
 
 ---
 
-## Compared to SE38 Text Elements
+## 分步：编辑文本元素
 
-| SE38 / SE24 | VS Code (ABAP FS) |
+1. 在编辑器中打开 ABAP 程序、类或函数组。
+2. 按 `Ctrl+Shift+P` 运行 **ABAP FS: Text Elements Manager**。
+3. WebView 显示该对象的所有现有文本元素。
+4. **添加**新元素：输入 ID（例如 `001`）和文本值，然后确认。
+5. **修改**现有元素：内联编辑文本并保存。
+6. 变更应用到服务器上的活动对象。
+
+---
+
+## 与 SE38 文本元素对比
+
+| SE38 / SE24 | VS Code（ABAP FS） |
 |-------------|-------------------|
-| Navigate to program → Goto → Text Elements | Command Palette or right-click |
-| Edit in ABAP editor screen | Interactive webview |
-| Save with `Ctrl+S` | Save within the webview |
-| Requires SAP GUI | Works directly in VS Code (newer systems) |
+| 导航到程序 → 转到 → 文本元素 | 命令面板或右键 |
+| 在 ABAP 编辑器界面中编辑 | 交互式 WebView |
+| 用 `Ctrl+S` 保存 | 在 WebView 内保存 |
+| 需要 SAP GUI | 直接在 VS Code 中操作（新版系统） |
 
 ---
 
-## System Compatibility
+## 系统兼容性
 
-| Operation | Older systems | Newer systems (ADT API) |
+| 操作 | 旧系统 | 新版系统（ADT API） |
 |-----------|--------------|------------------------|
-| Read | Yes | Yes |
-| Create / Update | Opens SAP GUI fallback | Yes, in VS Code |
+| 读取 | 支持 | 支持 |
+| 创建 / 更新 | 打开 SAP GUI 降级 | 支持，在 VS Code 中 |

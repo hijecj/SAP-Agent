@@ -1,39 +1,39 @@
-# ADT Feed Reader
+# ADT Feed 阅读器
 
-Monitor SAP system events in real-time directly within VS Code — without opening SAP GUI or checking ST22 manually.
+直接在 VS Code 内实时监控 SAP 系统事件——无需打开 SAP GUI 或手动检查 ST22。
 
-## Setup
+## 设置
 
-1. Open the Command Palette (`Ctrl+Shift+P`)
-2. Run **ABAP FS: Configure ADT Feeds**
-3. Select the system and choose which feeds to subscribe to
-4. Open the **Feed Inbox** view in the Activity Bar sidebar
+1. 打开命令面板（`Ctrl+Shift+P`）
+2. 运行 **ABAP FS: Configure ADT Feeds**
+3. 选择系统并选择要订阅的 feed
+4. 在活动栏侧边栏中打开 **Feed 收件箱**视图
 
-## Supported Feeds
+## 支持的 Feed
 
-| Feed | Description |
+| Feed | 描述 |
 |------|-------------|
-| ABAP Runtime Errors | Dumps (equivalent to ST22) |
-| ATC Findings | Code quality check results |
-| System Messages | Broadcasts sent via SM02 |
-| URI Creation Errors | ADT object resolution failures |
+| ABAP 运行时错误 | Dump（相当于 ST22） |
+| ATC 检查结果 | 代码质量检查结果 |
+| 系统消息 | 通过 SM02 发送的广播 |
+| URI 创建错误 | ADT 对象解析失败 |
 
-> **Note:** Available feeds depend on the SAP system version. Older systems may not support all types.
+> **注意：** 可用的 feed 取决于 SAP 系统版本。旧系统可能不支持所有类型。
 
-## Configuration
+## 配置
 
-Each feed can be configured independently per connected system:
+每个 feed 都可以按已连接系统独立配置：
 
-- **Polling interval** — how often VS Code checks for new entries (default: 120 seconds; ATC: 24 hours)
-- **Notifications** — enable/disable VS Code pop-up alerts for new entries
-- **Query filter** — use a built-in template or write a custom OData filter to narrow results
+- **轮询间隔** — VS Code 检查新条目的频率（默认：120 秒；ATC：24 小时）
+- **通知** — 为新条目启用/禁用 VS Code 弹窗提醒
+- **查询过滤** — 使用内置模板或编写自定义 OData 过滤器缩小结果范围
 
-## Working with Entries
+## 处理条目
 
-- Click an entry to open its details in a WebView panel
-- Mark entries as **read** or **unread** to track what you've reviewed
-- All feeds appear in a unified **Feed Inbox** — no need to switch between views
+- 点击条目在 WebView 面板中打开详情
+- 把条目标记为**已读**或**未读**，跟踪你已查看的内容
+- 所有 feed 显示在统一的 **Feed 收件箱**中——无需在视图之间切换
 
-## Requirements
+## 要求
 
-The target SAP system must support the ADT Feeds API. Check with your Basis team if feeds are unavailable.
+目标 SAP 系统必须支持 ADT Feeds API。如果 feed 不可用，请咨询你的 Basis 团队。
