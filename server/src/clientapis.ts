@@ -10,7 +10,7 @@ import {
 import { connection } from "./clientManager"
 
 /**
- * Request the client-side configuration for a given ADT connection key.
+ * 为给定 ADT 连接键请求客户端配置。
  */
 export async function readConfiguration(key: string) {
   const c = (await connection.sendRequest(Methods.readConfiguration, key)) as
@@ -20,7 +20,7 @@ export async function readConfiguration(key: string) {
 }
 
 /**
- * Retrieve object metadata for the provided ADT URI from the client extension.
+ * 从客户端扩展检索所提供 ADT URI 的对象元数据。
  */
 export async function getObjectDetails(uri: string) {
   const object = (await connection.sendRequest(Methods.objectDetails, uri)) as
@@ -30,7 +30,7 @@ export async function getObjectDetails(uri: string) {
 }
 
 /**
- * Read the current editor source for the object identified by the given URI.
+ * 读取给定 URI 标识对象的当前编辑器源码。
  */
 export async function getEditorObjectSource(uri: string) {
   const source = (await connection.sendRequest(
@@ -41,7 +41,7 @@ export async function getEditorObjectSource(uri: string) {
 }
 
 /**
- * Read the source for an object, falling back to the main program when needed.
+ * 读取对象源码，需要时回退到主程序。
  */
 export async function getObjectSource(uri: string) {
   const source = (await connection.sendRequest(
@@ -52,7 +52,7 @@ export async function getObjectSource(uri: string) {
 }
 
 /**
- * Translate an ADT URI into the editor URI that VS Code can open.
+ * 把 ADT URI 转换为 VS Code 可以打开的编辑器 URI。
  */
 export async function getVSCodeUri(confKey: string, uri: string, mainInclude: boolean) {
   const req: UriRequest = { confKey, uri, mainInclude }
@@ -61,7 +61,7 @@ export async function getVSCodeUri(confKey: string, uri: string, mainInclude: bo
 }
 
 /**
- * Report progress updates for the current reference search operation.
+ * 报告当前引用搜索操作的进度更新。
  */
 export async function setSearchProgress(progress: SearchProgress) {
   connection.sendRequest(Methods.setSearchProgress, progress)
