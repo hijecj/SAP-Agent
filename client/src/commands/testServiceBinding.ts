@@ -1,7 +1,7 @@
 /**
- * Test OData Service command
+ * 测试 OData 服务命令
  *
- * Opens the published OData service URL in the browser for quick testing.
+ * 在浏览器中打开已发布的 OData 服务 URL 以快速测试。
  */
 
 import { env, Uri, window, commands } from "vscode"
@@ -17,7 +17,7 @@ export async function testServiceBindingCommand() {
     let defaultName = ""
     let connId = ""
 
-    // Try to detect from active editor
+    // 尝试从活动编辑器检测
     if (editor?.document.uri.scheme === ADTSCHEME) {
       const uri = editor.document.uri
       connId = uri.authority
@@ -28,7 +28,7 @@ export async function testServiceBindingCommand() {
           defaultName = file.object.name
         }
       } catch {
-        /* ignore */
+        /* 忽略 */
       }
     }
 
@@ -56,7 +56,7 @@ export async function testServiceBindingCommand() {
         title: `Loading service binding ${srvbName}...`
       },
       async () => {
-        // Read binding XML and parse using abap-adt-api
+        // 读取绑定 XML 并使用 abap-adt-api 解析
         const bindingUrl = `/sap/bc/adt/businessservices/bindings/${encodeURIComponent(srvbName.toLowerCase())}`
         const resp = await client.httpClient.request(bindingUrl, {
           method: "GET",
@@ -83,7 +83,7 @@ export async function testServiceBindingCommand() {
           return
         }
 
-        // Get binding details (service URLs, collections)
+        // 获取绑定详情（服务 URL、集合）
         const details = await client.bindingDetails(binding)
 
         if (details.services.length === 0) {
@@ -91,7 +91,7 @@ export async function testServiceBindingCommand() {
           return
         }
 
-        // Pick service if multiple
+        // 多个时选择服务
         let service = details.services[0]
         if (details.services.length > 1) {
           const pick = await window.showQuickPick(
@@ -106,7 +106,7 @@ export async function testServiceBindingCommand() {
           service = pick.service
         }
 
-        // Build the service URL
+        // 构建服务 URL
         const config = RemoteManager.get().byId(connId)
         if (!config) {
           window.showErrorMessage(`Connection config not found for ${connId}`)
@@ -117,7 +117,7 @@ export async function testServiceBindingCommand() {
 
         let serviceUrl = service.serviceInformation?.url || service.serviceUrl
         if (!serviceUrl) {
-          // Standard SAP URL convention fallback
+          // 标准 SAP URL 约定回退
           const isV4 = binding.binding.version === "V4"
           serviceUrl = isV4
             ? `${baseUrl}/sap/opu/odata4/sap/${service.serviceId.toLowerCase()}/0001/`
@@ -126,19 +126,19 @@ export async function testServiceBindingCommand() {
           serviceUrl = `${baseUrl}${serviceUrl}`
         }
 
-        // Auth params
+        // 认证参数
         const authParams = `sap-client=${config.client}&sap-language=${config.language || "EN"}&saml2=disabled`
         const metadataUrl = `${serviceUrl}$metadata?${authParams}`
         const sep = serviceUrl.includes("?") ? "&" : "?"
         serviceUrl += `${sep}${authParams}`
 
-        // Build Fiori preview URL if collections and URL available
+        // 有集合和 URL 时构建 Fiori 预览 URL
         const previewUrl =
           service.serviceInformation?.url && service.serviceInformation?.collection?.length
             ? servicePreviewUrl(service, service.serviceInformation.collection[0].name)
             : undefined
 
-        // Show options
+        // 显示选项
         const options: Array<{ label: string; description: string; action: string }> = [
           { label: "$(globe) Open Service Document", description: serviceUrl, action: "open" },
           { label: "$(json) Open $metadata", description: metadataUrl, action: "metadata" },
