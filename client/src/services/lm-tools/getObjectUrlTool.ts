@@ -1,6 +1,6 @@
 /**
- * ABAP Get Object URL Tool
- * Generate SAP GUI URLs for browser automation
+ * ABAP 获取对象 URL 工具
+ * 为浏览器自动化生成 SAP GUI URL
  */
 
 import * as vscode from "vscode"
@@ -13,7 +13,7 @@ import { ADTClient } from "abap-adt-api"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface IGetAbapObjectUrlParameters {
@@ -23,11 +23,11 @@ export interface IGetAbapObjectUrlParameters {
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 🔗 GET ABAP OBJECT URL TOOL - Generate SAP GUI URLs for browser automation
+ * 🔗 获取 ABAP 对象 URL 工具 - 为浏览器自动化生成 SAP GUI URL
  */
 export class GetAbapObjectUrlTool implements vscode.LanguageModelTool<IGetAbapObjectUrlParameters> {
   async prepareInvocation(
@@ -123,7 +123,7 @@ export class GetAbapObjectUrlTool implements vscode.LanguageModelTool<IGetAbapOb
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerGetObjectUrlTool(context: vscode.ExtensionContext): void {
