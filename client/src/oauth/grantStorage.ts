@@ -29,16 +29,16 @@ export async function storeTokens() {
     const vault = PasswordVault.get()
     const tokenEntries = [...tokens.entries()]
 
-    // Store each token securely using VSCode secrets API
+    // 使用 VSCode secrets API 安全存储每个 token
     for (const [connId, token] of tokenEntries) {
       await vault.setPassword("oauth-tokens", connId, JSON.stringify(strip(token)))
     }
 
-    // Clear from global state (legacy cleanup)
+    // 从全局状态清除（旧版清理）
     await context.globalState.update(KEY, undefined)
   } catch (error) {
     log(`❌ Failed to store OAuth tokens securely: ${error}`)
-    // Fallback to old method to maintain functionality
+    // 回退到旧方法以保持功能
     const t = [...tokens.entries()]
     return context.globalState.update(KEY, t)
   }
@@ -49,19 +49,19 @@ export async function clearTokens() {
     const vault = PasswordVault.get()
     const tokenEntries = [...tokens.entries()]
 
-    // Clear from secure storage
+    // 从安全存储清除
     for (const [connId] of tokenEntries) {
       await vault.deletePassword("oauth-tokens", connId)
     }
 
-    // Clear from memory
+    // 从内存清除
     tokens.clear()
 
-    // Clear from global state (legacy cleanup)
+    // 从全局状态清除（旧版清理）
     await context.globalState.update(KEY, undefined)
   } catch (error) {
     log(`❌ Failed to clear OAuth tokens securely: ${error}`)
-    // Fallback to old method
+    // 回退到旧方法
     context.globalState.update(KEY, undefined)
   }
 }
@@ -70,23 +70,23 @@ export async function loadTokens() {
   try {
     const vault = PasswordVault.get()
 
-    // First try to load from secure storage
-    // Note: We can't enumerate secrets, so we'll migrate from global state if needed
+    // 先尝试从安全存储加载
+    // 注意：我们无法枚举 secrets，所以需要时从全局状态迁移
     const legacyEntries: [string, Token][] = context.globalState.get(KEY, [])
 
     if (legacyEntries.length > 0) {
-      // Migrate legacy tokens to secure storage
+      // 把旧版 token 迁移到安全存储
       for (const [connId, token] of legacyEntries) {
         tokens.set(connId, strip(token))
         await vault.setPassword("oauth-tokens", connId, JSON.stringify(strip(token)))
       }
 
-      // Clear legacy storage after migration
+      // 迁移后清除旧版存储
       await context.globalState.update(KEY, undefined)
     }
   } catch (error) {
     log(`❌ Failed to load OAuth tokens securely, falling back: ${error}`)
-    // Fallback to legacy method
+    // 回退到旧版方法
     const entries: [string, Token][] = context.globalState.get(KEY, [])
     entries.forEach(e => tokens.set(...e))
   }
