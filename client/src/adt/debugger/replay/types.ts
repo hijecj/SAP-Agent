@@ -1,6 +1,6 @@
 import { DebugMetaType } from "abap-adt-api"
 
-/** A single captured variable value */
+/** 单个捕获的变量值 */
 export interface CapturedVariable {
   id: string
   name: string
@@ -9,29 +9,29 @@ export interface CapturedVariable {
   metaType: DebugMetaType
   tableLines?: number
   children?: CapturedVariable[]
-  /** true when table was too large and user chose to skip */
+  /** 表太大且用户选择跳过时为 true */
   skipped?: boolean
-  /** message explaining why capture was incomplete */
+  /** 解释捕获为何不完整的消息 */
   skipReason?: string
 }
 
-/** A named scope with its captured variables */
+/** 带捕获变量的命名作用域 */
 export interface CapturedScope {
   name: string
   variables: CapturedVariable[]
 }
 
-/** A single stack frame in a snapshot */
+/** 快照中的单个栈帧 */
 export interface CapturedStackFrame {
   name: string
   sourcePath: string
-  /** Original ADT URI for source caching */
+  /** 用于源码缓存的原始 ADT URI */
   adtUri: string
   line: number
   stackPosition: number
 }
 
-/** One recorded debug stop point */
+/** 一个录制的调试停止点 */
 export interface DebugSnapshot {
   stepNumber: number
   timestamp: number
@@ -41,7 +41,7 @@ export interface DebugSnapshot {
   changedVars: string[]
 }
 
-/** The full recording file */
+/** 完整录制文件 */
 export interface DebugRecording {
   version: 1
   recordedAt: string
@@ -51,17 +51,17 @@ export interface DebugRecording {
   totalSteps: number
   duration: number
   snapshots: DebugSnapshot[]
-  /** uri -> full source text for offline replay */
+  /** uri -> 供离线回放的完整源码文本 */
   sources?: Record<string, string>
 }
 
-/** Options controlling how variables are captured */
+/** 控制变量捕获方式的选项 */
 export interface CaptureOptions {
-  /** Max table rows to auto-capture without prompting (default 10000) */
+  /** 无需提示自动捕获的最大表行数（默认 10000） */
   tableRowThreshold: number
-  /** Max steps before recording stops (default 5000) */
+  /** 录制停止前的最大步数（默认 5000） */
   maxSteps: number
-  /** Max expansion depth for structures/tables (default 4) */
+  /** 结构/表的最大展开深度（默认 4） */
   maxDepth: number
 }
 
