@@ -13,18 +13,18 @@ let currentPanel: WebviewPanel | undefined
 
 export async function configureFeedsCommand() {
   logTelemetry("command_configure_feeds_called")
-  // If panel already exists and not disposed, reveal it
+  // 如果面板已存在且未销毁，显示它
   if (currentPanel) {
     try {
       currentPanel.reveal(ViewColumn.Active)
       return
     } catch {
-      // Panel was disposed, create new one
+      // 面板已销毁，创建新的
       currentPanel = undefined
     }
   }
 
-  // Create webview panel
+  // 创建 Webview 面板
   currentPanel = window.createWebviewPanel(
     "feedConfiguration",
     "📡 Feed Configuration",
@@ -36,7 +36,7 @@ export async function configureFeedsCommand() {
     }
   )
 
-  // Load HTML content from extension dist folder
+  // 从扩展 dist 文件夹加载 HTML 内容
   const htmlPath = path.join(
     context.extensionPath,
     "client",
@@ -48,7 +48,7 @@ export async function configureFeedsCommand() {
 
   currentPanel.webview.html = htmlContent
 
-  // Handle messages from webview
+  // 处理来自 Webview 的消息
   currentPanel.webview.onDidReceiveMessage(
     async message => {
       switch (message.command) {
@@ -65,7 +65,7 @@ export async function configureFeedsCommand() {
           break
 
         case "bulkAction":
-          // Bulk actions are handled in webview
+          // 批量操作在 Webview 中处理
           break
       }
     },
@@ -73,7 +73,7 @@ export async function configureFeedsCommand() {
     []
   )
 
-  // Clean up when panel is disposed
+  // 面板销毁时清理
   currentPanel.onDidDispose(
     () => {
       currentPanel = undefined
@@ -84,7 +84,7 @@ export async function configureFeedsCommand() {
 }
 
 /**
- * Handle load systems request
+ * 处理加载系统请求
  */
 async function handleLoadSystems(): Promise<void> {
   try {
@@ -107,18 +107,18 @@ async function handleLoadSystems(): Promise<void> {
 }
 
 /**
- * Handle load feeds request
+ * 处理加载 feed 请求
  */
 async function handleLoadFeeds(systemId: string): Promise<void> {
   try {
-    // Get client for this system
+    // 获取此系统的客户端
     const client = await getOrCreateClient(systemId)
 
-    // Fetch available feeds
+    // 获取可用的 feed
     const feeds = await client.feeds()
     const feedMetadata = feeds.map(toFeedMetadata)
 
-    // Get existing configuration from settings
+    // 从设置获取现有配置
     const config = workspace.getConfiguration()
     const subscriptions = config.get<FeedSubscriptions>("abapfs.feedSubscriptions", {})
     const systemConfig = subscriptions[systemId] || {}
@@ -143,18 +143,18 @@ async function handleLoadFeeds(systemId: string): Promise<void> {
 }
 
 /**
- * Handle save config request
+ * 处理保存配置请求
  */
 async function handleSaveConfig(systemId: string, systemConfig: SystemFeedConfig): Promise<void> {
   try {
-    // Get existing subscriptions
+    // 获取现有订阅
     const config = workspace.getConfiguration()
     const subscriptions = config.get<FeedSubscriptions>("abapfs.feedSubscriptions", {})
 
-    // Update this system's configuration
+    // 更新此系统的配置
     subscriptions[systemId] = systemConfig
 
-    // Save to workspace configuration
+    // 保存到工作区配置
     await config.update("abapfs.feedSubscriptions", subscriptions, true)
 
     if (currentPanel) {
