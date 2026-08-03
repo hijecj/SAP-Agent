@@ -1,11 +1,11 @@
 /**
- * ABAP Object Search Service
+ * ABAP 对象搜索服务
  */
 
 import { getClient } from "../adt/conections"
 import { logSearch } from "./abapCopilotLogger"
 
-// Export interfaces for compatibility (simplified for line-based access)
+// 为兼容性导出接口（为基于行的访问简化）
 export interface ABAPObjectInfo {
   name: string
   type: string
@@ -25,7 +25,7 @@ export class searchService {
   }
 
   /**
-   * Search for ABAP objects by pattern - Direct ADT search
+   * 按模式搜索 ABAP 对象 - 直接 ADT 搜索
    */
   async searchObjects(
     pattern: string,
@@ -37,49 +37,49 @@ export class searchService {
       const searchPattern = pattern.toUpperCase()
       const results: ABAPObjectInfo[] = []
 
-      // Determine which types to search
+      // 确定要搜索的类型
       const searchTypes =
         types && types.length > 0
           ? types
           : [
-              "FUNC", // Function Modules
-              "CLAS", // Classes
-              "TABL", // Database Tables
-              "PROG", // Reports/Programs
-              "INTF", // Interfaces
-              "DTEL", // Data Elements
-              "DDLS", // CDS Views
-              "DOMA", // Domains
-              "TTYP", // Table Types
-              "ENQU", // Lock Objects
-              "MSAG", // Message Classes
-              "FUGR", // Function Groups
-              "DEVC", // Packages
-              "TRAN", // Transactions
-              "VIEW", // Views
-              "SICF", // ICF Services
-              "WDYN", // Web Dynpro Components
-              "SPRX", // Proxies
-              "XSLT", // XSLT Programs
-              "TRANSFORMATIONS", // Simple Transformations
-              "SUSH", // Authorization Objects
-              "SUSC", // Authorization Object Classes
-              "PINF", // Package Interfaces
-              "ENHC", // Enhancement Implementations
-              "ENHO", // Enhancement Implementations
-              "ENHS", // Enhancement Spots
-              "BADI", // BAdI Definitions
-              "BADII", // BAdI Implementations
-              "SAMC", // AMC Classes
-              "SAPC", // APC Classes
-              "SFSW", // Switch Framework
-              "SFBF", // Business Functions
-              "SFBS", // Business Function Sets
-              "JOBD", // Job Definitions
-              "NROB", // Number Range Objects
-              "SUSO", // Authorization Object Sets
-              "BDEF", // Behavior Definitions
-              "SRVB" // Service Bindings
+              "FUNC", // 函数模块
+              "CLAS", // 类
+              "TABL", // 数据库表
+              "PROG", // 报表/程序
+              "INTF", // 接口
+              "DTEL", // 数据元素
+              "DDLS", // CDS 视图
+              "DOMA", // 域
+              "TTYP", // 表类型
+              "ENQU", // 锁对象
+              "MSAG", // 消息类
+              "FUGR", // 函数组
+              "DEVC", // 包
+              "TRAN", // 事务
+              "VIEW", // 视图
+              "SICF", // ICF 服务
+              "WDYN", // Web Dynpro 组件
+              "SPRX", // 代理
+              "XSLT", // XSLT 程序
+              "TRANSFORMATIONS", // 简单转换
+              "SUSH", // 授权对象
+              "SUSC", // 授权对象类
+              "PINF", // 包接口
+              "ENHC", // 增强实现
+              "ENHO", // 增强实现
+              "ENHS", // 增强点
+              "BADI", // BAdI 定义
+              "BADII", // BAdI 实现
+              "SAMC", // AMC 类
+              "SAPC", // APC 类
+              "SFSW", // 开关框架
+              "SFBF", // 业务功能
+              "SFBS", // 业务功能集
+              "JOBD", // 作业定义
+              "NROB", // 编号范围对象
+              "SUSO", // 授权对象集
+              "BDEF", // 行为定义
+              "SRVB" // 服务绑定
             ]
 
       for (const type of searchTypes) {
@@ -106,7 +106,7 @@ export class searchService {
 
           if (results.length >= maxResults) break
         } catch (error) {
-          // Skip types that fail
+          // 跳过失败的类型
         }
       }
 
@@ -118,14 +118,14 @@ export class searchService {
   }
 
   /**
-   * Determine if object is standard or custom
+   * 确定对象是标准还是自定义
    */
   private determineSystemType(name: string): "STANDARD" | "CUSTOM" {
     return name.startsWith("Z") || name.startsWith("Y") ? "CUSTOM" : "STANDARD"
   }
 }
 
-// Global search instances
+// 全局搜索实例
 const search = new Map<string, searchService>()
 
 export function getSearchService(connectionId: string): searchService {
