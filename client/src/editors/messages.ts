@@ -35,16 +35,16 @@ const xmlArray = (xml: any, ...xmlpath: string[]) => {
 }
 
 /**
- * Extract the message class name from the XML source
+ * 从 XML 源码提取消息类名
  */
 const getMessageClassName = (source: string): string => {
   const raw = parser.parse(source)
   const messageClass = xmlNode(raw, "mc:messageClass")
-  // Try adtcore:name attribute first, then fall back to parsing from links
+  // 先尝试 adtcore:name 属性，然后回退到从链接解析
   const name = messageClass?.["@_adtcore:name"]
   if (name) return name
 
-  // Fallback: try to extract from existing message links
+  // 回退：尝试从现有消息链接提取
   const linkMatch = source.match(/\/messageclass\/([^/]+)\/messages/i)
   if (linkMatch) return linkMatch[1]
 
@@ -59,7 +59,7 @@ const parseMessages = (source: string) => {
       l => l["@_rel"] === "http://www.sap.com/adt/relations/messageclasses/messages/longtext"
     )?.[" @_href"]
 
-    // Ensure message number is always 3 digits (zero-padded)
+    // 确保消息编号始终是 3 位数字（零填充）
     const msgno = String(m["@_mc:msgno"]).padStart(3, "0")
 
     return {
@@ -84,22 +84,22 @@ export class MessagesProvider implements CustomTextEditorProvider {
   resolveCustomTextEditor(document: TextDocument, panel: WebviewPanel, token: CancellationToken) {
     panel.webview.options = { enableScripts: true, enableCommandUris: true }
 
-    // Function to update webview content
+    // 更新 Webview 内容的函数
     const updateWebview = () => {
       panel.webview.html = this.toHtml(panel.webview, document.getText())
     }
 
-    // Initial render
+    // 初始渲染
     updateWebview()
 
-    // Listen for document changes
+    // 监听文档变化
     const changeDocumentSubscription = workspace.onDidChangeTextDocument(e => {
       if (e.document.uri.toString() === document.uri.toString()) {
         updateWebview()
       }
     })
 
-    // Handle messages from webview
+    // 处理来自 Webview 的消息
     panel.webview.onDidReceiveMessage(async message => {
       switch (message?.type) {
         case "doc":
@@ -115,7 +115,7 @@ export class MessagesProvider implements CustomTextEditorProvider {
           break
 
         case "requestEdit":
-          // Request from webview to show edit dialog
+          // 来自 Webview 的显示编辑对话框请求
           if (typeof message.number !== "undefined" && typeof message.currentText !== "undefined") {
             const newText = await window.showInputBox({
               prompt: `Edit message ${message.number}`,
@@ -138,48 +138,48 @@ export class MessagesProvider implements CustomTextEditorProvider {
           break
 
         case "edit":
-          // Handle message text edit (direct from webview - deprecated)
+          // 处理消息文本编辑（直接来自 Webview - 已弃用）
           if (typeof message.number !== "undefined" && typeof message.text !== "undefined") {
             this.updateMessageText(document, message.number, message.text)
           }
           break
 
         case "add":
-          // Handle adding new message
+          // 处理添加新消息
           this.addNewMessage(document)
           break
 
         case "delete":
-          // Handle deleting a message
+          // 处理删除消息
           if (typeof message.number !== "undefined") {
             this.deleteMessage(document, message.number)
           }
           break
 
         case "openXml":
-          // Open raw XML editor beside the table view
+          // 在表格视图旁边打开原始 XML 编辑器
           window.showTextDocument(document, ViewColumn.Beside)
           break
       }
     })
 
-    // Clean up on dispose
+    // 销毁时清理
     panel.onDidDispose(() => {
       changeDocumentSubscription.dispose()
     })
   }
 
   /**
-   * Add a new message to the XML document
+   * 向 XML 文档添加新消息
    */
   private async addNewMessage(document: TextDocument) {
     const docText = document.getText()
 
-    // Get existing messages to find the next available number
+    // 获取现有消息以找到下一个可用编号
     const messages = parseMessages(docText)
     const existingNumbers = messages.map(m => parseInt(m.number)).filter(n => !isNaN(n))
 
-    // Check if there are any deleted messages - if so, find the first gap or next number after all messages
+    // 检查是否有已删除的消息 - 如果有，找到第一个空档或所有消息之后的下一个编号
     const deletedMessagesPattern = /<mc:deletedmessages[^>]*mc:msgno="(\d+)"/g
     const deletedNumbers = new Set<number>()
     let match
@@ -187,7 +187,7 @@ export class MessagesProvider implements CustomTextEditorProvider {
       deletedNumbers.add(parseInt(match[1]))
     }
 
-    // Find next available number that's not in existing messages or deleted messages
+    // 查找不在现有消息或已删除消息中的下一个可用编号
     let nextNumber = 1
     while (existingNumbers.includes(nextNumber) || deletedNumbers.has(nextNumber)) {
       nextNumber++
@@ -195,7 +195,7 @@ export class MessagesProvider implements CustomTextEditorProvider {
 
     const paddedNumber = String(nextNumber).padStart(3, "0")
 
-    // Ask user for message text
+    // 询问用户消息文本
     const messageText = await window.showInputBox({
       prompt: `Enter text for message ${paddedNumber}`,
       placeHolder: "Message text",
@@ -211,17 +211,17 @@ export class MessagesProvider implements CustomTextEditorProvider {
     })
 
     if (!messageText) {
-      return // User cancelled
+      return // 用户已取消
     }
 
     const text = document.getText()
 
-    // Get the message class name dynamically from the document
+    // 从文档动态获取消息类名
     const messageClassName = getMessageClassName(text)
     const messageClassNameUpper = messageClassName.toUpperCase()
     const messageClassNameLower = messageClassName.toLowerCase()
 
-    // Create the new message XML entry (matching SAP's format with all attributes)
+    // 创建新消息 XML 条目（匹配 SAP 带所有属性的格式）
     const newMessageXml =
       `<mc:messages mc:msgno="${paddedNumber}" mc:msgtext="${messageText}" mc:selfexplainatory="false" mc:documented="false" mc:lastchangedby="" mc:lastmodified="" adtcore:name="">\n` +
       `  <atom:link href="/sap/bc/adt/vit/docu/object_type/NA/object_name/${messageClassNameUpper}${paddedNumber}" rel="http://www.sap.com/adt/relations/longtext" xmlns:atom="http://www.w3.org/2005/Atom"/>\n` +
@@ -230,17 +230,17 @@ export class MessagesProvider implements CustomTextEditorProvider {
 
     let insertPosition: number
 
-    // IMPORTANT: New messages must come BEFORE any deletedmessages!
-    // SAP expects: <mc:messages>...</mc:messages> then <mc:deletedmessages>...</mc:deletedmessages>
+    // 重要：新消息必须放在任何 deletedmessages 之前！
+    // SAP 期望：先 <mc:messages>...</mc:messages>，然后 <mc:deletedmessages>...</mc:deletedmessages>
 
-    // First, try to find the FIRST <mc:deletedmessages> tag
+    // 首先，尝试找到第一个 <mc:deletedmessages> 标签
     const firstDeletedMatch = text.match(/<mc:deletedmessages/)
 
     if (firstDeletedMatch && firstDeletedMatch.index !== undefined) {
-      // Insert BEFORE the first deletedmessages tag
+      // 在第一个 deletedmessages 标签之前插入
       insertPosition = firstDeletedMatch.index
     } else {
-      // No deleted messages - try to find the LAST closing </mc:messages> tag
+      // 没有已删除消息 - 尝试找到最后一个 </mc:messages> 闭合标签
       const messagesPattern = /<\/mc:messages>/g
       let lastMatch
       let match
@@ -249,10 +249,10 @@ export class MessagesProvider implements CustomTextEditorProvider {
       }
 
       if (lastMatch && lastMatch.index !== undefined) {
-        // Insert AFTER the last normal message closing tag
+        // 在最后一个普通消息闭合标签之后插入
         insertPosition = lastMatch.index + lastMatch[0].length
       } else {
-        // No messages exist - insert before </mc:messageClass>
+        // 没有消息 - 在 </mc:messageClass> 之前插入
         const messageClassClosing = text.indexOf("</mc:messageClass>")
         if (messageClassClosing === -1) {
           window.showErrorMessage("Could not find valid location to insert message in XML")
@@ -265,7 +265,7 @@ export class MessagesProvider implements CustomTextEditorProvider {
     const updatedText =
       text.substring(0, insertPosition) + newMessageXml + text.substring(insertPosition)
 
-    // Apply the edit
+    // 应用编辑
     const fullRange = new Range(document.positionAt(0), document.positionAt(text.length))
 
     const workspaceEdit = new WorkspaceEdit()
@@ -276,7 +276,7 @@ export class MessagesProvider implements CustomTextEditorProvider {
   }
 
   /**
-   * Update message text in the XML document
+   * 更新 XML 文档中的消息文本
    */
   private async updateMessageText(
     document: TextDocument,
@@ -285,16 +285,16 @@ export class MessagesProvider implements CustomTextEditorProvider {
   ) {
     const text = document.getText()
 
-    // Find the message in the XML text using regex
-    // Match: mc:msgtext="..." where the message has mc:msgno="XXX" nearby
+    // 用正则查找 XML 文本中的消息
+    // 匹配：mc:msgtext="..."，其中消息附近有 mc:msgno="XXX"
     const msgPattern = /(mc:msgtext=")([^"]*)(")/g
 
     let replacementCount = 0
     const updatedText = text.replace(msgPattern, (match, prefix, oldText, suffix, offset) => {
-      // Get the context before this match to find the message number
+      // 获取此匹配之前的上下文以找到消息编号
       const contextBefore = text.substring(Math.max(0, offset - 200), offset)
 
-      // Check if this is the right message number
+      // 检查这是否是正确的消息编号
       if (contextBefore.includes(`mc:msgno="${msgNumber}"`)) {
         replacementCount++
         return `${prefix}${newMessageText}${suffix}`
@@ -307,7 +307,7 @@ export class MessagesProvider implements CustomTextEditorProvider {
       return
     }
 
-    // Apply the edit
+    // 应用编辑
     const fullRange = new Range(document.positionAt(0), document.positionAt(text.length))
 
     const workspaceEdit = new WorkspaceEdit()
@@ -318,10 +318,10 @@ export class MessagesProvider implements CustomTextEditorProvider {
   }
 
   /**
-   * Delete a message from the XML document
+   * 从 XML 文档删除消息
    */
   private async deleteMessage(document: TextDocument, msgNumber: string) {
-    // Confirm deletion
+    // 确认删除
     const confirmation = await window.showWarningMessage(
       `Delete message ${msgNumber}?`,
       { modal: true },
@@ -329,13 +329,13 @@ export class MessagesProvider implements CustomTextEditorProvider {
     )
 
     if (confirmation !== "Delete") {
-      return // User cancelled
+      return // 用户已取消
     }
 
     const text = document.getText()
 
-    // Transform <mc:messages> to <mc:deletedmessages> for SAP deletion
-    // Step 1: Replace opening tag
+    // 为 SAP 删除把 <mc:messages> 转换为 <mc:deletedmessages>
+    // 第 1 步：替换开始标签
     const openingTagPattern = new RegExp(`<mc:messages([^>]*mc:msgno="${msgNumber}"[^>]*)>`, "g")
 
     let updatedText = text.replace(openingTagPattern, "<mc:deletedmessages$1>")
@@ -345,8 +345,8 @@ export class MessagesProvider implements CustomTextEditorProvider {
       return
     }
 
-    // Step 2: Replace the closing tag for this specific message
-    // Find the first </mc:messages> after our transformed opening tag
+    // 第 2 步：替换此特定消息的闭合标签
+    // 在我们转换后的开始标签之后找到第一个 </mc:messages>
     const openingIndex = updatedText.indexOf("<mc:deletedmessages")
     if (openingIndex !== -1) {
       const afterOpening = updatedText.substring(openingIndex)
@@ -361,7 +361,7 @@ export class MessagesProvider implements CustomTextEditorProvider {
       }
     }
 
-    // Apply the edit
+    // 应用编辑
     const fullRange = new Range(document.positionAt(0), document.positionAt(text.length))
 
     const workspaceEdit = new WorkspaceEdit()
