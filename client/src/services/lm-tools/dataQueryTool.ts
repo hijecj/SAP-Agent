@@ -1,6 +1,6 @@
 /**
- * Execute Data Query Tool
- * Jarvis-like SAP Data Access with Dynamic Webviews
+ * 执行数据查询工具
+ * 类似 Jarvis 的 SAP 数据访问，带动态 Webview
  */
 
 import * as vscode from "vscode"
@@ -14,7 +14,7 @@ import { funWindow as window } from "../funMessenger"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface IExecuteDataQueryParameters {
@@ -32,9 +32,9 @@ export interface IExecuteDataQueryParameters {
   connectionId?: string
   title?: string
   maxRows?: number
-  /** Required when displayMode = 'download_to_file'. Absolute local path (e.g. 'C:/tmp/mara.xlsx') */
+  /** displayMode = 'download_to_file' 时必填。绝对本地路径（例如 'C:/tmp/mara.xlsx'） */
   filePath?: string
-  /** Required when displayMode = 'download_to_file'. 'xlsx' or 'csv'. */
+  /** displayMode = 'download_to_file' 时必填。'xlsx' 或 'csv'。 */
   fileType?: "xlsx" | "csv"
   rowRange?: {
     start: number
@@ -53,11 +53,11 @@ export interface IExecuteDataQueryParameters {
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 🔍 EXECUTE DATA QUERY TOOL - Jarvis-like SAP Data Access with Dynamic Webviews
+ * 🔍 执行数据查询工具 - 类似 Jarvis 的 SAP 数据访问，带动态 Webview
  */
 export class ExecuteDataQueryTool implements vscode.LanguageModelTool<IExecuteDataQueryParameters> {
   async prepareInvocation(
@@ -83,7 +83,7 @@ export class ExecuteDataQueryTool implements vscode.LanguageModelTool<IExecuteDa
       throw new Error('displayMode must be "internal", "ui", or "download_to_file"')
     }
 
-    // Internal mode validations
+    // 内部模式校验
     if (displayMode === "internal") {
       if (!sql) {
         throw new Error(
@@ -102,12 +102,12 @@ export class ExecuteDataQueryTool implements vscode.LanguageModelTool<IExecuteDa
       }
     }
 
-    // UI mode validations
+    // UI 模式校验
     if (displayMode === "ui" && !webviewId && !sql && !data) {
       throw new Error("UI mode requires SQL query, direct data, or existing webviewId")
     }
 
-    // download_to_file mode validations
+    // download_to_file 模式校验
     if (displayMode === "download_to_file") {
       if (!options.input.filePath) {
         throw new Error('download_to_file mode requires "filePath" (absolute path or file:// URI)')
@@ -266,9 +266,9 @@ export class ExecuteDataQueryTool implements vscode.LanguageModelTool<IExecuteDa
       }
 
       // ========================================================================
-      // PRODUCTION SYSTEM GUARD
-      // Only check in internal mode - that's when data is sent back to Copilot
-      // UI mode is fine - user sees data directly, not sent to Copilot
+      // 生产系统防护
+      // 只在内部模式检查 - 那是数据发送回 Copilot 的时候
+      // UI 模式没问题 - 用户直接看到数据，不发送给 Copilot
       // ========================================================================
       let switchedToUiMode = false
       if (sql && connectionId && displayMode === "internal") {
@@ -283,10 +283,10 @@ export class ExecuteDataQueryTool implements vscode.LanguageModelTool<IExecuteDa
         if (guardResult.action === "ui_only") {
           displayMode = "ui"
           switchedToUiMode = true
-          // Adjust rowRange since UI mode doesn't require it
+          // 调整 rowRange，因为 UI 模式不要求它
           rowRange = undefined
         }
-        // action === 'proceed' means continue as normal
+        // action === 'proceed' 表示照常继续
       }
 
       const isNewData = !webviewId || !!sql || !!data
@@ -305,12 +305,12 @@ export class ExecuteDataQueryTool implements vscode.LanguageModelTool<IExecuteDa
 
       if (displayMode === "internal") {
         // ====================================================================
-        // INTERNAL MODE: Direct SQL execution WITHOUT webview
-        // No UI involved - execute query and return results to Copilot
+        // 内部模式：不带 Webview 的直接 SQL 执行
+        // 不涉及 UI - 执行查询并把结果返回给 Copilot
         // ====================================================================
         return await this.executeQueryDirectly(sql!, connectionId, rowRange, maxRows)
       } else {
-        // UI MODE
+        // UI 模式
         const webviewManager = WebviewManager.getInstance()
 
         let result
@@ -378,7 +378,7 @@ export class ExecuteDataQueryTool implements vscode.LanguageModelTool<IExecuteDa
           }
         }
 
-        // If user chose "UI only" due to production guard, inform Copilot
+        // 如果用户因生产防护选择“仅 UI”，告知 Copilot
         const guardNote = switchedToUiMode
           ? `\n\n PRODUCTION SYSTEM: User chose to view results in UI only. Data was NOT sent back to you for security reasons. The user can see the results in the webview.`
           : ""
@@ -407,28 +407,28 @@ export class ExecuteDataQueryTool implements vscode.LanguageModelTool<IExecuteDa
   }
 
   /**
-   * Check if running SQL on a production system and prompt user for action
-   * Only called for internal mode (when data is sent back to Copilot)
-   * Returns: 'proceed' | 'ui_only' | 'cancel'
+   * 检查是否在生产系统上运行 SQL，并提示用户选择操作
+   * 只在内部模式调用（数据发送回 Copilot 时）
+   * 返回：'proceed' | 'ui_only' | 'cancel'
    */
   private async checkProductionGuard(
     sql: string,
     connectionId: string
   ): Promise<{ action: "proceed" | "ui_only" | "cancel" }> {
     try {
-      // Get system info (cached, so fast)
+      // 获取系统信息（已缓存，所以很快）
       const systemInfo = await getSAPSystemInfo(connectionId)
 
-      // Check if production (category 'P' or contains 'Production')
+      // 检查是否为生产系统（类别 'P' 或包含 'Production'）
       const isProduction =
         systemInfo.currentClient?.category === "Production" ||
         systemInfo.currentClient?.category?.startsWith("P")
 
       if (!isProduction) {
-        return { action: "proceed" } // Not production, allow
+        return { action: "proceed" } // 非生产系统，允许
       }
 
-      // Production system detected - show dialog
+      // 检测到生产系统 - 显示对话框
       const clientInfo = systemInfo.currentClient
         ? `${connectionId.toUpperCase()} (Client ${systemInfo.currentClient.clientNumber}: ${systemInfo.currentClient.clientName})`
         : connectionId.toUpperCase()
@@ -451,15 +451,15 @@ export class ExecuteDataQueryTool implements vscode.LanguageModelTool<IExecuteDa
 
       return { action: choice.action as "proceed" | "ui_only" }
     } catch (error) {
-      // If check fails, block query execution (fail-closed for security)
+      // 如果检查失败，阻止查询执行（安全起见故障关闭）
       console.warn("Production guard check failed:", error)
       return { action: "cancel" }
     }
   }
 
   /**
-   * download_to_file mode: execute SQL (or take supplied data), write results
-   * to a local xlsx or csv file. Cross-platform: uses vscode.workspace.fs.
+   * download_to_file 模式：执行 SQL（或使用提供的数据），把结果
+   * 写入本地 xlsx 或 csv 文件。跨平台：使用 vscode.workspace.fs。
    */
   private async downloadToFile(
     sql: string | undefined,
@@ -491,7 +491,7 @@ export class ExecuteDataQueryTool implements vscode.LanguageModelTool<IExecuteDa
       values = result.values ?? []
     }
 
-    // Apply rowRange AFTER fetch (same semantics as internal/ui modes).
+    // 获取后应用 rowRange（与内部/UI 模式语义相同）。
     if (rowRange) {
       values = values.slice(rowRange.start, rowRange.end)
     }
@@ -519,7 +519,7 @@ export class ExecuteDataQueryTool implements vscode.LanguageModelTool<IExecuteDa
   }
 
   /**
-   * Execute SQL query directly without webview - for internal mode
+   * 不带 Webview 直接执行 SQL 查询 - 用于内部模式
    */
   private async executeQueryDirectly(
     sql: string,
@@ -534,11 +534,11 @@ export class ExecuteDataQueryTool implements vscode.LanguageModelTool<IExecuteDa
       throw new Error(`No client found for connection: ${targetConnectionId}`)
     }
 
-    // Calculate limit based on rowRange
+    // 基于 rowRange 计算限制
     const limit = rowRange ? rowRange.end + 1 : maxRows || 100
 
     try {
-      // Execute query directly
+      // 直接执行查询
       const result = await client.runQuery(sql, limit, true)
 
       if (!result || !result.columns) {
@@ -547,7 +547,7 @@ export class ExecuteDataQueryTool implements vscode.LanguageModelTool<IExecuteDa
         ])
       }
 
-      // Apply row range if specified
+      // 指定时应用行范围
       let values = result.values || []
       const totalRows = values.length
 
@@ -574,7 +574,7 @@ export class ExecuteDataQueryTool implements vscode.LanguageModelTool<IExecuteDa
         new vscode.LanguageModelTextPart(JSON.stringify(response, null, 2))
       ])
     } catch (error: any) {
-      // Return SQL error to Copilot so it can fix and retry
+      // 把 SQL 错误返回给 Copilot，让它修复并重试
       const errorMessage = error?.message || String(error)
       return new vscode.LanguageModelToolResult([
         new vscode.LanguageModelTextPart(` SQL Error: ${errorMessage}`)
@@ -584,7 +584,7 @@ export class ExecuteDataQueryTool implements vscode.LanguageModelTool<IExecuteDa
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerDataQueryTool(context: vscode.ExtensionContext): void {
@@ -594,25 +594,25 @@ export function registerDataQueryTool(context: vscode.ExtensionContext): void {
 }
 
 // ============================================================================
-// FILE WRITERS (cross-platform: return bytes, caller writes via workspace.fs)
+// 文件写入器（跨平台：返回字节，调用方通过 workspace.fs 写入）
 // ============================================================================
 
 const ISO_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?Z?$/
-const SAP_DATE_RE = /^(\d{4})(\d{2})(\d{2})$/ // YYYYMMDD (SAP raw DATS)
-const SAP_TIME_RE = /^(\d{2})(\d{2})(\d{2})$/ // HHMMSS   (SAP raw TIMS)
+const SAP_DATE_RE = /^(\d{4})(\d{2})(\d{2})$/ // YYYYMMDD（SAP 原始 DATS）
+const SAP_TIME_RE = /^(\d{2})(\d{2})(\d{2})$/ // HHMMSS（SAP 原始 TIMS）
 
 /**
- * Format one raw cell value the same way the UI does, defensively.
+ * 以防御方式格式化单个原始单元格值，与 UI 相同。
  *
- * The ADT client has been observed to return date/time columns as:
- *   - a Date object,
- *   - an ISO string "2024-12-05T00:00:00.000Z",
- *   - a Date.prototype.toString() output "Thu Dec 05 2024 05:30:00 GMT+0530 (…)",
- *   - the raw SAP form ("20241205" / "141859"),
- *   - empty string / null for missing values.
+ * 观察到 ADT 客户端返回的日期/时间列可能是：
+ *   - Date 对象，
+ *   - ISO 字符串 "2024-12-05T00:00:00.000Z"，
+ *   - Date.prototype.toString() 输出 "Thu Dec 05 2024 05:30:00 GMT+0530 (…)"，
+ *   - 原始 SAP 形式（"20241205" / "141859"），
+ *   - 缺失值为空字符串 / null。
  *
- * We do NOT call `new Date(anyString)` speculatively — SAP "141859" would be
- * parsed as year 141859, producing garbage.
+ * 我们不会投机性地调用 `new Date(anyString)` — SAP 的 "141859" 会被
+ * 解析为年份 141859，产生垃圾数据。
  */
 function formatCell(value: any, type: string | undefined): string {
   if (value == null) return ""
@@ -631,15 +631,15 @@ function formatCell(value: any, type: string | undefined): string {
   const s = String(value).trim()
   if (!s || s === "Invalid Date") return ""
 
-  // 1. ISO string
+  // 1. ISO 字符串
   const iso = ISO_RE.exec(s)
   if (iso) {
     return formatFromParts(+iso[1], +iso[2], +iso[3], +iso[4], +iso[5], +iso[6], type)
   }
 
-  // 2. Date.prototype.toString() output — parse defensively, only when it
-  //    starts with a weekday abbreviation. Handled before SAP raw so a stringified
-  //    Date in a D/T column isn't dropped as junk.
+  // 2. Date.prototype.toString() 输出 — 防御性解析，仅当它以
+  //    星期缩写开头时。在 SAP 原始形式之前处理，这样 D/T 列中的
+  //    字符串化 Date 不会被当作垃圾丢弃。
   if (/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) /.test(s)) {
     const d = new Date(s)
     if (!isNaN(d.getTime())) {
@@ -656,21 +656,21 @@ function formatCell(value: any, type: string | undefined): string {
     return ""
   }
 
-  // 3. Raw SAP forms — trust the column type over the shape
+  // 3. 原始 SAP 形式 — 相信列类型而不是形状
   if (type === "D") {
-    if (s === "00000000") return "" // SAP null-date marker
+    if (s === "00000000") return "" // SAP 空日期标记
     const m = SAP_DATE_RE.exec(s)
     if (m) return `${m[3]}-${m[2]}-${m[1]}`
-    return "" // unknown junk in a date column: drop it
+    return "" // 日期列中的未知垃圾：丢弃
   }
   if (type === "T") {
-    if (s === "000000") return "" // SAP null-time marker
+    if (s === "000000") return "" // SAP 空时间标记
     const m = SAP_TIME_RE.exec(s)
     if (m) return `${m[1]}:${m[2]}:${m[3]}`
     return ""
   }
 
-  // 4. Anything else: pass through untouched (numbers, text, material numbers, etc.)
+  // 4. 其他任何内容：原样通过（数字、文本、物料号等）
   return s
 }
 
@@ -689,7 +689,7 @@ function formatFromParts(
 ): string {
   if (type === "D") return `${pad2(d)}-${pad2(mo)}-${y}`
   if (type === "T") return `${pad2(h)}:${pad2(mi)}:${pad2(se)}`
-  // TIMESTAMP or unknown — keep an unambiguous, locale-free ISO-ish form.
+  // TIMESTAMP 或未知 — 保持明确、与区域设置无关的 ISO 风格形式。
   return `${y}-${pad2(mo)}-${pad2(d)} ${pad2(h)}:${pad2(mi)}:${pad2(se)}`
 }
 
@@ -701,8 +701,8 @@ async function buildXlsx(
   const ws = wb.addWorksheet("Data")
   const names = columns.map(c => c.name)
   ws.addRow(names)
-  // Every cell as text (numFmt '@') so Excel does not reinterpret SAP values —
-  // leading-zero material numbers stay intact, dates keep their dd-mm-yyyy form.
+  // 所有单元格按文本（numFmt '@'）处理，这样 Excel 不会重新解释 SAP 值 —
+  // 前导零的物料号保持不变，日期保持 dd-mm-yyyy 形式。
   for (const row of values) {
     const r = ws.addRow(columns.map(c => formatCell(row[c.name], c.type)))
     r.eachCell({ includeEmpty: true }, cell => {
@@ -723,6 +723,6 @@ function buildCsv(
   for (const row of values) {
     lines.push(columns.map(c => esc(formatCell(row[c.name], c.type))).join(","))
   }
-  // BOM for Excel compatibility, LF line endings
+  // 为 Excel 兼容性加 BOM，使用 LF 行尾
   return new TextEncoder().encode("\uFEFF" + lines.join("\n"))
 }
