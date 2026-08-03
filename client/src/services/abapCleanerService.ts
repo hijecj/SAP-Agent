@@ -1,7 +1,7 @@
 /**
- * ABAP Cleaner Service
+ * ABAP Cleaner 服务
  *
- * Integration with SAP's ABAP Cleaner tool for automatic code formatting
+ * 与 SAP 的 ABAP Cleaner 工具集成，用于自动代码格式化
  * https://github.com/SAP/abap-cleaner
  */
 
@@ -48,7 +48,7 @@ export class ABAPCleanerService {
   private constructor() {
     this.config = this.loadConfiguration()
 
-    // Watch configuration changes
+    // 监听配置变化
     vscode.workspace.onDidChangeConfiguration(e => {
       if (e.affectsConfiguration("abapfs.cleaner")) {
         this.config = this.loadConfiguration()
@@ -105,14 +105,14 @@ export class ABAPCleanerService {
   }
 
   /**
-   * Validate and sanitize file paths to prevent command injection
+   * 校验并清理文件路径，防止命令注入
    */
   private validatePath(filePath: string, description: string): void {
     if (!filePath || typeof filePath !== "string") {
       throw new Error(`${description} path is required`)
     }
 
-    // Prevent path traversal and command injection
+    // 防止路径遍历和命令注入
     if (
       filePath.includes("..") ||
       filePath.includes(";") ||
@@ -124,14 +124,14 @@ export class ABAPCleanerService {
       throw new Error(`${description} path contains invalid characters`)
     }
 
-    // Ensure path is absolute to prevent relative path attacks
+    // 确保路径是绝对的，防止相对路径攻击
     if (!path.isAbsolute(filePath)) {
       throw new Error(`${description} path must be absolute`)
     }
   }
 
   /**
-   * Clean ABAP code using the configured cleaner
+   * 使用已配置的清理器清理 ABAP 代码
    */
   public async cleanCode(
     code: string,
@@ -149,7 +149,7 @@ export class ABAPCleanerService {
       }
     }
 
-    // Validate executable path before use
+    // 使用前校验可执行文件路径
     try {
       this.validatePath(this.config.executablePath, "Executable")
       if (this.config.profilePath) {
@@ -166,25 +166,25 @@ export class ABAPCleanerService {
     try {
       log("🧹 Starting ABAP code cleaning...")
 
-      // Create temporary files
+      // 创建临时文件
       const tempInputFile = await this.createTempFile(code, "input.abap")
       const tempOutputFile = await this.createTempFile("", "output.abap")
 
-      // Validate temp file paths
+      // 校验临时文件路径
       this.validatePath(tempInputFile, "Temporary input file")
       this.validatePath(tempOutputFile, "Temporary output file")
 
       try {
-        // Build command
+        // 构建命令
         const command = await this.buildCleanCommand(tempInputFile, tempOutputFile, options)
 
-        // Execute cleaner
+        // 执行清理器
         const { stdout, stderr } = await execAsync(command, {
           timeout: this.config.timeout,
           cwd: path.dirname(this.config.executablePath)
         })
 
-        // Read cleaned code
+        // 读取清理后的代码
         const cleanedCode = await this.readTempFile(tempOutputFile)
         const changed = cleanedCode !== code
 
@@ -207,7 +207,7 @@ export class ABAPCleanerService {
 
         return result
       } finally {
-        // Cleanup temp files
+        // 清理临时文件
         await this.deleteTempFile(tempInputFile)
         await this.deleteTempFile(tempOutputFile)
       }
@@ -222,7 +222,7 @@ export class ABAPCleanerService {
   }
 
   /**
-   * Clean the current active editor
+   * 清理当前活动编辑器
    */
   public async cleanActiveEditor(): Promise<boolean> {
     const editor = window.activeTextEditor
@@ -241,21 +241,21 @@ export class ABAPCleanerService {
     const document = editor.document
     const selection = editor.selection
 
-    // Determine what to clean
+    // 确定要清理的内容
     let textToClean: string
     let startLine: number | undefined
     let endLine: number | undefined
     let range: vscode.Range
 
     if (!selection.isEmpty && this.config.lineRange?.enabled) {
-      // Clean selection
+      // 清理选区
       range = new vscode.Range(selection.start, selection.end)
       textToClean = document.getText(range)
-      startLine = selection.start.line + 1 // Convert to 1-based
+      startLine = selection.start.line + 1 // 转换为从 1 开始
       endLine = selection.end.line + 1
       log(`🎯 Cleaning selected lines ${startLine}-${endLine}`)
     } else {
-      // Clean entire document
+      // 清理整个文档
       range = new vscode.Range(
         document.positionAt(0),
         document.positionAt(document.getText().length)
@@ -263,7 +263,7 @@ export class ABAPCleanerService {
       textToClean = document.getText()
     }
 
-    // Show progress
+    // 显示进度
     return window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
@@ -290,14 +290,14 @@ export class ABAPCleanerService {
         }
 
         if (result.cleanedCode) {
-          // Apply changes
+          // 应用更改
           const edit = new vscode.WorkspaceEdit()
           edit.replace(document.uri, range, result.cleanedCode)
 
           const applied = await vscode.workspace.applyEdit(edit)
 
           if (applied) {
-            // Show statistics if available
+            // 可用时显示统计
             let message = "✨ ABAP code cleaned successfully"
             if (result.statistics) {
               message += `\n${result.statistics}`
@@ -324,12 +324,12 @@ export class ABAPCleanerService {
   }
 
   /**
-   * Setup wizard for ABAP Cleaner configuration
+   * ABAP Cleaner 配置的设置向导
    */
   public async setupWizard(): Promise<void> {
-    logTelemetry("command_setup_abap_cleaner_integration_called") // No context available
+    logTelemetry("command_setup_abap_cleaner_integration_called") // 无可用上下文
     try {
-      // Step 1: Check if already configured
+      // 第 1 步：检查是否已配置
       if (this.isAvailable()) {
         const reconfigure = await window.showQuickPick(
           ["Keep current configuration", "Reconfigure ABAP Cleaner"],
@@ -344,13 +344,13 @@ export class ABAPCleanerService {
         }
       }
 
-      // Step 2: Select executable
+      // 第 2 步：选择可执行文件
       const executablePath = await this.selectExecutable()
       if (!executablePath) {
         return
       }
 
-      // Step 3: Test executable with the newly selected path
+      // 第 3 步：用新选择的路径测试可执行文件
       const testResult = await window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
@@ -368,22 +368,22 @@ export class ABAPCleanerService {
         return
       }
 
-      // Step 4: Optional profile selection
+      // 第 4 步：可选配置文件选择
       const profilePath = await this.selectProfile()
 
-      // Step 5: Target release selection
+      // 第 5 步：目标版本选择
       const targetRelease = await this.selectTargetRelease()
       if (!targetRelease) {
         return
       }
 
-      // Step 6: Additional options
+      // 第 6 步：附加选项
       const options = await this.selectOptions()
       if (!options) {
         return
       }
 
-      // Step 7: Save configuration
+      // 第 7 步：保存配置
       await this.saveConfiguration({
         enabled: true,
         executablePath,
@@ -432,8 +432,8 @@ export class ABAPCleanerService {
       return undefined
     }
 
-    // Browse for file - Force local filesystem by using file:// URI
-    // Get user's home directory as default starting point
+    // 浏览文件 - 用 file:// URI 强制本地文件系统
+    // 把用户主目录作为默认起点
     const os = require("os")
     const homeDir = os.homedir()
     const defaultUri = vscode.Uri.file(homeDir)
@@ -454,7 +454,7 @@ export class ABAPCleanerService {
     if (result && result[0]) {
       const selectedPath = result[0].fsPath
 
-      // Validate it's a local file (not from ABAP filesystem)
+      // 校验它是本地文件（不是来自 ABAP 文件系统）
       if (selectedPath.includes("adt://")) {
         window.showErrorMessage(
           "Please select the ABAP Cleaner executable from your local computer, not from the ABAP system."
@@ -462,7 +462,7 @@ export class ABAPCleanerService {
         return undefined
       }
 
-      // Validate it's the right executable
+      // 校验它是正确的可执行文件
       if (!selectedPath.toLowerCase().includes("cleaner")) {
         const proceed = await window.showWarningMessage(
           "The selected file does not appear to be ABAP Cleaner. Continue anyway?",
@@ -485,23 +485,23 @@ export class ABAPCleanerService {
     executablePath: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      // Test with a simple ABAP code snippet
+      // 用简单的 ABAP 代码片段测试
       const testCode = "DATA: lv_test TYPE string.\nlv_test = 'Hello World'."
       const tempFile = await this.createTempFile(testCode, "test.abap")
 
       try {
         const command = `"${executablePath}" --sourcefile "${tempFile}" --overwrite`
 
-        // Retry mechanism for the first test failure issue
+        // 针对首次测试失败问题的重试机制
         let lastError: any
         for (let attempt = 1; attempt <= 3; attempt++) {
           try {
             log(`🔄 Test attempt ${attempt}/3`)
 
-            // Ensure file is fully written and accessible
-            await new Promise(resolve => setTimeout(resolve, 100)) // Small delay
+            // 确保文件已完全写入且可访问
+            await new Promise(resolve => setTimeout(resolve, 100)) // 短暂延迟
 
-            // Verify temp file exists and is readable
+            // 验证临时文件存在且可读
             if (!fs.existsSync(tempFile)) {
               throw new Error(`Temp file ${tempFile} does not exist`)
             }
@@ -518,13 +518,13 @@ export class ABAPCleanerService {
             log(`⚠️ Test attempt ${attempt} failed: ${error}`)
 
             if (attempt < 3) {
-              // Wait before retry
+              // 重试前等待
               await new Promise(resolve => setTimeout(resolve, 1000))
             }
           }
         }
 
-        // All attempts failed
+        // 所有尝试都失败
         throw lastError
       } finally {
         await this.deleteTempFile(tempFile)
@@ -545,7 +545,7 @@ export class ABAPCleanerService {
     )
 
     if (useProfile === "Select custom profile") {
-      // Force local filesystem by starting from home directory
+      // 从主目录开始强制本地文件系统
       const os = require("os")
       const homeDir = os.homedir()
       const defaultUri = vscode.Uri.file(homeDir)
@@ -566,7 +566,7 @@ export class ABAPCleanerService {
       if (result && result[0]) {
         const selectedPath = result[0].fsPath
 
-        // Validate it's a local file (not from ABAP filesystem)
+        // 校验它是本地文件（不是来自 ABAP 文件系统）
         if (selectedPath.includes("adt://")) {
           window.showErrorMessage(
             "Please select the profile file from your local computer, not from the ABAP system."
@@ -632,20 +632,20 @@ export class ABAPCleanerService {
 
   private async saveConfiguration(config: Partial<CleanerConfig>): Promise<void> {
     try {
-      // Get current cleaner configuration
+      // 获取当前清理器配置
       const currentConfig = vscode.workspace.getConfiguration("abapfs").get("cleaner", {})
 
-      // Merge with new configuration
+      // 与新配置合并
       const updatedConfig = { ...currentConfig, ...config }
 
-      // Save the entire cleaner configuration object at once
+      // 一次保存整个清理器配置对象
       await vscode.workspace
         .getConfiguration("abapfs")
         .update("cleaner", updatedConfig, vscode.ConfigurationTarget.Global)
 
       log(`✅ Saved ABAP Cleaner configuration successfully`)
 
-      // Force reload configuration after saving
+      // 保存后强制重新加载配置
       this.config = this.loadConfiguration()
       this.updateContext()
       log(`🔄 Configuration reloaded and context updated`)
@@ -662,27 +662,27 @@ export class ABAPCleanerService {
   ): Promise<string> {
     let command = `"${this.config.executablePath}" --sourcefile "${inputFile}" --targetfile "${outputFile}" --overwrite`
 
-    // Add profile if configured
+    // 配置了则添加配置文件
     if (this.config.profilePath) {
       command += ` --profile "${this.config.profilePath}"`
     }
 
-    // Add target release
+    // 添加目标版本
     if (this.config.targetRelease && this.config.targetRelease !== "latest") {
       command += ` --release ${this.config.targetRelease}`
     }
 
-    // Add line range if specified
+    // 指定时添加行范围
     if (options?.startLine && options?.endLine && this.config.lineRange?.enabled) {
       command += ` --linerange ${options.startLine}-${options.endLine}`
     }
 
-    // Add statistics flag
+    // 添加统计标志
     if (this.config.showStatistics) {
       command += ` --stats`
     }
 
-    // Add used rules flag
+    // 添加已应用规则标志
     if (this.config.showAppliedRules) {
       command += ` --usedrules`
     }
@@ -697,11 +697,11 @@ export class ABAPCleanerService {
       `abap-cleaner-${Date.now()}-${this.tempFileCounter++}-${suffix}`
     )
 
-    // Write file with explicit sync to ensure it's flushed to disk
+    // 用显式同步写入文件，确保刷新到磁盘
     await promisify(fs.writeFile)(tempFile, content, { encoding: "utf8", flag: "w" })
 
-    // Performance optimization: Only verify file exists, not content
-    // Content verification was causing unnecessary I/O overhead
+    // 性能优化：只验证文件存在，不验证内容
+    // 内容验证造成了不必要的 I/O 开销
     try {
       await promisify(fs.access)(tempFile, fs.constants.F_OK)
     } catch (error) {
@@ -720,13 +720,13 @@ export class ABAPCleanerService {
     try {
       await promisify(fs.unlink)(filePath)
     } catch (error) {
-      // Ignore cleanup errors
+      // 忽略清理错误
       log(`⚠️ Failed to delete temp file ${filePath}: ${error}`)
     }
   }
 
   private extractStatistics(output: string): string | undefined {
-    // Extract statistics from cleaner output
+    // 从清理器输出提取统计
     const lines = output.split("\n")
     const statsLine = lines.find(
       line => line.includes("changed") || line.includes("rule") || line.includes("statement")
@@ -735,7 +735,7 @@ export class ABAPCleanerService {
   }
 
   private extractAppliedRules(output: string): string[] | undefined {
-    // Extract applied rules from cleaner output
+    // 从清理器输出提取已应用规则
     const lines = output.split("\n")
     const rules: string[] = []
 
@@ -759,7 +759,7 @@ export class ABAPCleanerService {
   }
 
   /**
-   * Get configuration for auto-clean on save
+   * 获取保存时自动清理的配置
    */
   public shouldCleanOnSave(): boolean {
     return this.config.cleanOnSave && this.isAvailable()
