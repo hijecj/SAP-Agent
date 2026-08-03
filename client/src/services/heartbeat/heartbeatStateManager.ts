@@ -1,7 +1,7 @@
 /**
- * 💓 Heartbeat State Manager
+ * 💓 心跳状态管理器
  *
- * Handles persistence of heartbeat state and history.
+ * 处理心跳状态和历史记录的持久化。
  */
 
 import * as vscode from "vscode"
@@ -20,7 +20,7 @@ const HEARTBEAT_HISTORY_FILENAME = "heartbeatHistory.json"
 const STORAGE_VERSION = 1
 
 /**
- * Manages persistent state for heartbeat service
+ * 管理心跳服务的持久状态
  */
 export class HeartbeatStateManager {
   private context: vscode.ExtensionContext
@@ -41,7 +41,7 @@ export class HeartbeatStateManager {
   }
 
   /**
-   * Ensure storage directory exists
+   * 确保存储目录存在
    */
   private ensureStorageExists(): void {
     const storagePath = this.storageUri.fsPath
@@ -51,14 +51,14 @@ export class HeartbeatStateManager {
   }
 
   /**
-   * Get file path for history storage
+   * 获取历史记录存储的文件路径
    */
   private getHistoryFilePath(): string {
     return path.join(this.storageUri.fsPath, HEARTBEAT_HISTORY_FILENAME)
   }
 
   /**
-   * Load state from storage
+   * 从存储加载状态
    */
   private loadState(): void {
     try {
@@ -68,9 +68,9 @@ export class HeartbeatStateManager {
         const data = fs.readFileSync(filePath, "utf8")
         const stored = JSON.parse(data) as HeartbeatStorageData
 
-        // Convert stored data to runtime state
+        // 把存储数据转换为运行时状态
         this.state = {
-          isRunning: false, // Always start stopped
+          isRunning: false, // 始终以停止状态启动
           isPaused: false,
           lastRunTime: stored.lastRunTime ? new Date(stored.lastRunTime) : undefined,
           runHistory: stored.runHistory.map(r => ({
@@ -84,18 +84,18 @@ export class HeartbeatStateManager {
       }
     } catch (error) {
       log(`💓 Error loading heartbeat state: ${error}`)
-      // Start with fresh state
+      // 以全新状态启动
     }
   }
 
   /**
-   * Save state to storage
+   * 把状态保存到存储
    */
   async saveState(): Promise<void> {
     try {
       const config = this.getConfig()
 
-      // Trim history to max size
+      // 把历史记录裁剪到最大大小
       while (this.state.runHistory.length > config.maxHistory) {
         this.state.runHistory.shift()
       }
@@ -118,7 +118,7 @@ export class HeartbeatStateManager {
   }
 
   /**
-   * Get current heartbeat configuration from settings
+   * 从设置获取当前心跳配置
    */
   getConfig(): HeartbeatConfig {
     const config = vscode.workspace.getConfiguration("abapfs.heartbeat")
@@ -141,41 +141,41 @@ export class HeartbeatStateManager {
   }
 
   /**
-   * Get current state
+   * 获取当前状态
    */
   getState(): HeartbeatServiceState {
     return { ...this.state }
   }
 
   /**
-   * Update running state
+   * 更新运行状态
    */
   setRunning(isRunning: boolean): void {
     this.state.isRunning = isRunning
   }
 
   /**
-   * Update paused state
+   * 更新暂停状态
    */
   setPaused(isPaused: boolean): void {
     this.state.isPaused = isPaused
   }
 
   /**
-   * Set next run time
+   * 设置下次运行时间
    */
   setNextRunTime(time: Date | undefined): void {
     this.state.nextRunTime = time
   }
 
   /**
-   * Record a heartbeat run
+   * 记录一次心跳运行
    */
   async recordRun(record: HeartbeatRunRecord): Promise<void> {
     this.state.lastRunTime = record.timestamp
     this.state.runHistory.push(record)
 
-    // Track consecutive errors
+    // 跟踪连续错误
     if (record.status === "error") {
       this.state.consecutiveErrors++
     } else {
@@ -186,21 +186,21 @@ export class HeartbeatStateManager {
   }
 
   /**
-   * Reset consecutive error count
+   * 重置连续错误计数
    */
   resetErrors(): void {
     this.state.consecutiveErrors = 0
   }
 
   /**
-   * Get recent history
+   * 获取最近的历史记录
    */
   getRecentHistory(count: number = 10): HeartbeatRunRecord[] {
     return this.state.runHistory.slice(-count)
   }
 
   /**
-   * Clear all history
+   * 清除所有历史记录
    */
   async clearHistory(): Promise<void> {
     this.state.runHistory = []
@@ -209,7 +209,7 @@ export class HeartbeatStateManager {
   }
 
   /**
-   * Get statistics
+   * 获取统计
    */
   getStats(): {
     totalRuns: number
