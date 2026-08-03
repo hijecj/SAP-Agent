@@ -35,13 +35,13 @@ const openInGui = (uri: Uri, object: AbapObject) => {
 
   if (shouldOpen) {
     if (autoOpen) {
-      // Automatically trigger runInGui command
-      // Use setTimeout to ensure the document is opened first so URI context is available
+      // 自动触发 runInGui 命令
+      // 使用 setTimeout 确保文档先打开，这样 URI 上下文可用
       setTimeout(() => {
         commands.executeCommand("abapfs.runInGui")
       }, 1000)
     } else {
-      // Show message with action buttons
+      // 显示带操作按钮的消息
       setTimeout(async () => {
         const choice = await window.showInformationMessage(
           "This object type is best viewed in SAP GUI.",
@@ -63,7 +63,7 @@ const handleTelemetry = (uri: Uri) => {
   try {
     const uriString = uri.toString()
 
-    // Check if this save was triggered by a non-manual operation
+    // 检查此保存是否由非手动操作触发
     const saveReason = getSaveReason(uriString)
     if (saveReason === undefined || saveReason !== TextDocumentSaveReason.Manual) {
       clearSaveReason(uriString)
@@ -78,19 +78,19 @@ export class FsProvider implements FileSystemProvider {
   private static instance: FsProvider
   // private editorContentCache = new Map<string, string>() // Track editor content to prevent server overwrites
   private localProvider: LocalFsProvider
-  // Throttles refresh() of SAP standard folders during focus storms.
+  // 在焦点风暴期间节流 SAP 标准文件夹的 refresh()。
   private lastFolderRefresh = new Map<string, number>()
   private static readonly STANDARD_REFRESH_TTL_MS = 5 * 60_000
   private constructor(private context: ExtensionContext) {
     this.localProvider = new LocalFsProvider(context)
-    // forward local provider file changes to this provider so that the extension
-    // gets notified about changes from the local storage
+    // 把本地提供器的文件变化转发到此提供器，让扩展
+    // 收到来自本地存储的变化通知
     this.context.subscriptions.push(
       this.localProvider.onDidChangeFile(changes => this.pEventEmitter.fire(changes))
     )
-    // Fire the "best viewed in SAP GUI" prompt only when the user actually
-    // opens the object in an editor, not on every programmatic readFile
-    // (which happens during downloads and background LM tool reads).
+    // 只在用户实际在编辑器中打开对象时触发“最好在 SAP GUI 中查看”提示，
+    // 不在每次程序化 readFile 时触发
+    // （下载和后台 LM 工具读取时会发生）。
     this.context.subscriptions.push(
       workspace.onDidOpenTextDocument(async doc => {
         const uri = doc.uri
@@ -100,7 +100,7 @@ export class FsProvider implements FileSystemProvider {
           const node = await root.getNodeAsync(uri.path)
           if (isAbapFile(node)) openInGui(uri, node.object)
         } catch {
-          // ignore — resolution failures are already logged elsewhere
+          // 忽略 — 解析失败已在其他地方记录
         }
       })
     )
@@ -136,9 +136,9 @@ export class FsProvider implements FileSystemProvider {
     )
   }
 
-  // VS Code ADT re-stats every expanded folder on window focus. Custom folders
-  // refresh always; SAP standard refresh only if empty or stale
-  // (see STANDARD_REFRESH_TTL_MS).
+  // VS Code ADT 在窗口聚焦时重新 stat 每个展开的文件夹。自定义文件夹
+  // 始终刷新；SAP 标准只在为空或过期时刷新
+  // （见 STANDARD_REFRESH_TTL_MS）。
   private async refreshAbapFolder(node: AbapFolder) {
     const isCustom = /^[ZY$/]/i.test(node.object.name)
     if (isCustom) {
@@ -153,8 +153,8 @@ export class FsProvider implements FileSystemProvider {
     }
   }
 
-  // Bypass STANDARD_REFRESH_TTL_MS and refetch immediately: backup for cases
-  // where SAP standard changed and the user cannot wait for the TTL to expire.
+  // 绕过 STANDARD_REFRESH_TTL_MS 并立即重新获取：用于 SAP 标准
+  // 已变化且用户无法等待 TTL 过期的备份方案。
   public async refreshFilesystem(uri?: Uri) {
     this.lastFolderRefresh.clear()
     if (!uri || LocalFsProvider.useLocalStorage(uri)) return
@@ -164,7 +164,7 @@ export class FsProvider implements FileSystemProvider {
       if (isAbapFolder(node)) {
         await node.refresh()
       } else {
-        // File or non-abap folder: walk up to the closest AbapFolder.
+        // 文件或非 ABAP 文件夹：向上走到最近的 AbapFolder。
         for (const step of root.getNodePath(uri.path)) {
           if (isAbapFolder(step.file)) {
             await step.file.refresh()
@@ -180,7 +180,7 @@ export class FsProvider implements FileSystemProvider {
   }
 
   public async stat(uri: Uri): Promise<FileStat> {
-    // Local storage for .* files and template files
+    // .* 文件和模板文件的本地存储
     if (LocalFsProvider.useLocalStorage(uri)) return this.localProvider.stat(uri)
     try {
       const root = await getOrCreateRoot(uri.authority)
@@ -190,7 +190,7 @@ export class FsProvider implements FileSystemProvider {
       if (isAbapFolder(node)) await this.refreshAbapFolder(node)
       return node
     } catch (e) {
-      // Don't log FileNotFound errors for method names/debug artifacts to reduce noise
+      // 不对方法名/调试工件记录 FileNotFound 错误以减少噪音
       if (!(e instanceof FileSystemError && e.name === "FileNotFound (FileSystemError)"))
         log.debug(`Error in stat of ${uri?.toString()}\n${caughtToString(e)}`)
       throw this.wrapHttpError(e, uri)
@@ -314,7 +314,7 @@ export class FsProvider implements FileSystemProvider {
       const node = await root.getNodeAsync(uri.path)
       if (isAbapFile(node)) {
         handleTelemetry(uri)
-        // Always request lock to add claim - prevents deferred unlock race condition
+        // 始终请求锁以添加声明 - 防止延迟解锁竞态条件
         const oldlock = (await root.lockManager.finalStatus(uri.path)).status
         await root.lockManager.requestLock(uri.path)
         needUnlocking = oldlock === "unlocked"
@@ -325,7 +325,7 @@ export class FsProvider implements FileSystemProvider {
       } else throw FileSystemError.FileNotFound(uri)
     } catch (e) {
       log(`Error writing file ${uri.toString()}\n${caughtToString(e)}`)
-      // Clean up lock if we acquired it and write failed
+      // 如果我们获取了锁但写入失败，清理锁
       if (needUnlocking)
         await getOrCreateRoot(uri.authority)
           .then(r => r.lockManager.requestUnlock(uri.path, true))
