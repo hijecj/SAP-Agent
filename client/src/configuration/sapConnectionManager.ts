@@ -1,12 +1,12 @@
 /**
- * SAP Connection Manager
- * Modern webview-based connection management UI
+ * SAP 连接管理器
+ * 基于 Webview 的现代化连接管理界面
  *
- * Features:
- * - Add/Edit/Delete SAP system connections
- * - Export connections for sharing
- * - Save to user or workspace settings
- * - Handle all RemoteConfig fields including sapGui, atcapprover, etc.
+ * 功能：
+ * - 添加/编辑/删除 SAP 系统连接
+ * - 导出连接用于共享
+ * - 保存到用户或工作区设置
+ * - 处理所有 RemoteConfig 字段，包括 sapGui、atcapprover 等
  */
 
 import * as vscode from "vscode"
@@ -167,9 +167,9 @@ interface AbapUserInfo {
 }
 
 /**
- * Best-effort decode of a JWT payload (no signature verification — we already
- * trust the token because the OAuth grant just succeeded). Returns undefined
- * if the input is not a well-formed JWT.
+ * 尽力解码 JWT 负载（无签名验证 — 我们已经信任该 token，
+ * 因为 OAuth 授权刚刚成功）。如果输入不是格式良好的 JWT，
+ * 返回 undefined。
  */
 function decodeJwtPayload(token: string): Record<string, unknown> | undefined {
   if (typeof token !== "string") return undefined
@@ -198,8 +198,8 @@ function usernameFromJwt(token: string): string | undefined {
 }
 
 /**
- * Return only the path + query of a URL — never the host, port, or credentials.
- * Used for diagnostic logging so we do not leak tenant-specific Steampunk hosts.
+ * 只返回 URL 的路径 + 查询部分 — 绝不返回主机、端口或凭证。
+ * 用于诊断日志，避免泄露租户专属的 Steampunk 主机。
  */
 function pathOf(url: string | undefined): string {
   if (!url) return "(none)"
@@ -212,10 +212,10 @@ function pathOf(url: string | undefined): string {
 }
 
 /**
- * Build a compact diagnostic summary of an error suitable for the output log.
- * Extracts HTTP status codes from `got` (`response.statusCode`) and `axios`
- * (`response.status`) shaped errors. Never includes URLs, request bodies, or
- * response bodies — those may contain tokens or tenant data.
+ * 构建适合输出日志的紧凑错误诊断摘要。
+ * 从 `got`（`response.statusCode`）和 `axios`（`response.status`）
+ * 形状的错误中提取 HTTP 状态码。绝不包含 URL、请求体或响应体 —
+ * 那些可能包含 token 或租户数据。
  */
 function summarizeError(e: unknown): string {
   if (!e || typeof e !== "object") return String(e)
@@ -298,13 +298,13 @@ export class SapConnectionManager {
     this.panel = panel
     this.extensionUri = extensionUri
 
-    // Set the webview's initial html content
+    // 设置 Webview 的初始 HTML 内容
     this.update()
 
-    // Listen for when the panel is disposed
+    // 监听面板销毁
     this.panel.onDidDispose(() => this.dispose(), null, this.disposables)
 
-    // Handle messages from the webview
+    // 处理来自 Webview 的消息
     this.panel.webview.onDidReceiveMessage(
       (message: ConnectionManagerMessage) => {
         this.handleMessage(message)
@@ -317,13 +317,13 @@ export class SapConnectionManager {
   public static createOrShow(extensionUri: vscode.Uri) {
     const column = vscode.ViewColumn.One
 
-    // If we already have a panel, show it
+    // 如果已有面板，显示它
     if (SapConnectionManager.currentPanel) {
       SapConnectionManager.currentPanel.panel.reveal(column)
       return
     }
 
-    // Otherwise, create a new panel
+    // 否则，创建新面板
     const panel = window.createWebviewPanel(
       "sapConnectionManager",
       "SAP Connection Manager",
@@ -349,7 +349,7 @@ export class SapConnectionManager {
   private async handleMessage(message: ConnectionManagerMessage) {
     switch (message.type) {
       case "ready":
-        // Webview is ready, send initial data
+        // Webview 已就绪，发送初始数据
         await this.sendConnectionsToWebview()
         break
 
@@ -430,7 +430,7 @@ export class SapConnectionManager {
   ) {
     let backupRemotes: StoredRemotes | undefined
 
-    // Guard against non-string connectionId (would corrupt settings.json).
+    // 防止非字符串 connectionId（会损坏 settings.json）。
     if (typeof connectionId !== "string" || connectionId.length === 0) {
       const detail = `expected non-empty string, got ${typeof connectionId}`
       logCommands.error(`[save] invalid connectionId (${detail}) — refusing to save`)
@@ -448,10 +448,10 @@ export class SapConnectionManager {
       const config = vscode.workspace.getConfiguration("abapfs")
       const currentRemotes = readStoredRemotes(config, target)
 
-      // Backup current state for rollback
+      // 备份当前状态以便回滚
       backupRemotes = { ...currentRemotes }
 
-      // Validate connection ID for new connections
+      // 校验新连接的连接 ID
       if (!isEdit) {
         const validator = validateNewConfigId(configTarget)
         const validation = validator(connectionId)
@@ -464,16 +464,16 @@ export class SapConnectionManager {
         }
       }
 
-      // Clean up connection object - remove empty values
+      // 清理连接对象 - 移除空值
       const cleanConnection = this.cleanConnectionObject(connection)
 
-      // Build updated remotes
+      // 构建更新后的 remotes
       const updatedRemotes = {
         ...currentRemotes,
         [connectionId]: cleanConnection
       }
 
-      // Validate JSON syntax by attempting to stringify/parse
+      // 通过尝试 stringify/parse 校验 JSON 语法
       try {
         const jsonString = JSON.stringify(updatedRemotes)
         JSON.parse(jsonString) // Verify it's valid JSON
@@ -481,10 +481,10 @@ export class SapConnectionManager {
         throw new Error(`Invalid JSON structure: ${jsonError}`)
       }
 
-      // Save connection
+      // 保存连接
       await config.update("remote", updatedRemotes, configTarget)
 
-      // Verify the save was successful by reading it back
+      // 读回验证保存是否成功
       const verifyConfig = vscode.workspace.getConfiguration("abapfs")
       const savedRemotes = readStoredRemotes(verifyConfig, target)
 
@@ -492,10 +492,10 @@ export class SapConnectionManager {
         throw new Error("Verification failed: Connection not found after save")
       }
 
-      // Note: Password is NOT stored in settings for security
-      // It will be requested on first connection and stored in OS credential manager
+      // 注意：出于安全，密码不存储在设置中
+      // 首次连接时请求密码，并存储在操作系统凭据管理器中
 
-      // Store OAuth on-premise client secret in vault (not in settings.json)
+      // 把 OAuth 本地客户端密钥存储在保险库中（不在 settings.json）
       if (getAuthMethod(connection) === "oauth_onprem" && connection.oauthOnPrem?.clientSecret) {
         const vault = PasswordVault.get()
         await vault.setPassword(
@@ -512,12 +512,12 @@ export class SapConnectionManager {
 
       logTelemetry("command_connection_manager_save_called")
 
-      // Refresh connections in webview
+      // 刷新 Webview 中的连接
       await this.sendConnectionsToWebview()
     } catch (error) {
       logCommands.error(`Error saving connection: ${error}`)
 
-      // Rollback changes if backup exists
+      // 存在备份时回滚更改
       if (backupRemotes) {
         try {
           const configTarget =
@@ -544,25 +544,25 @@ export class SapConnectionManager {
     const cleaned: StoredConnection = {
       url: connection.url,
       username: connection.username,
-      password: "", // Empty string - actual password stored in OS credential manager only
+      password: "", // 空字符串 - 实际密码只存储在操作系统凭据管理器中
       client: connection.client,
       language: connection.language || "en",
       allowSelfSigned: connection.allowSelfSigned || false,
       diff_formatter: connection.diff_formatter || "ADT formatter"
     }
 
-    // Save auth method (omit if basic for backward compatibility)
+    // 保存认证方式（为向后兼容，basic 时省略）
     if (authMethod !== "basic") {
       cleaned.authMethod = authMethod
     }
 
-    // Add optional fields only if they have values
+    // 只在有值时添加可选字段
     if (connection.atcapprover) cleaned.atcapprover = connection.atcapprover
     if (connection.atcVariant) cleaned.atcVariant = connection.atcVariant
     if (connection.maxDebugThreads) cleaned.maxDebugThreads = connection.maxDebugThreads
     if (connection.customCA) cleaned.customCA = connection.customCA
 
-    // Certificate auth config (paths only — passphrase in OS vault)
+    // 证书认证配置（仅路径 — 口令在操作系统保险库中）
     if (authMethod === "cert" && connection.certAuth) {
       const cert = connection.certAuth
       if (cert.certPath || cert.keyPath) {
@@ -574,7 +574,7 @@ export class SapConnectionManager {
       }
     }
 
-    // Kerberos auth config (all fields optional)
+    // Kerberos 认证配置（所有字段可选）
     if (authMethod === "kerberos") {
       const kerb = connection.kerberosAuth
       if (kerb && (kerb.sapHostname || kerb.realm || kerb.spn)) {
@@ -586,19 +586,19 @@ export class SapConnectionManager {
       }
     }
 
-    // OAuth on-premise config
+    // OAuth 本地配置
     if (authMethod === "oauth_onprem" && connection.oauthOnPrem) {
       const oa = connection.oauthOnPrem
       if (oa.clientId) {
         cleaned.oauthOnPrem = {
           clientId: oa.clientId,
           ...(oa.scope && oa.scope !== "SAP_ADT" ? { scope: oa.scope } : {})
-          // clientSecret is NOT stored in settings.json — stored in OS credential manager
+          // clientSecret 不存储在 settings.json — 存储在操作系统凭据管理器中
         }
       }
     }
 
-    // Handle sapGui configuration
+    // 处理 sapGui 配置
     if (connection.sapGui && this.hasSapGuiValues(connection.sapGui)) {
       cleaned.sapGui = {
         disabled: connection.sapGui.disabled || false,
@@ -617,7 +617,7 @@ export class SapConnectionManager {
       if (connection.sapGui.group) cleaned.sapGui.group = connection.sapGui.group
     }
 
-    // Handle OAuth if present
+    // 存在 OAuth 时处理
     if (connection.oauth) {
       cleaned.oauth = connection.oauth
     }
@@ -651,13 +651,13 @@ export class SapConnectionManager {
       const config = vscode.workspace.getConfiguration("abapfs")
       const currentRemotes = readStoredRemotes(config, target)
 
-      // Backup current state for rollback
+      // 备份当前状态以便回滚
       backupRemotes = { ...currentRemotes }
 
-      // Remove the connection
+      // 移除连接
       const { [connectionId]: removed, ...remaining } = currentRemotes
 
-      // Validate JSON syntax
+      // 校验 JSON 语法
       try {
         const jsonString = JSON.stringify(remaining)
         JSON.parse(jsonString)
@@ -667,7 +667,7 @@ export class SapConnectionManager {
 
       await config.update("remote", remaining, configTarget)
 
-      // Verify deletion
+      // 验证删除
       const verifyConfig = vscode.workspace.getConfiguration("abapfs")
       const savedRemotes = readStoredRemotes(verifyConfig, target)
 
@@ -675,11 +675,11 @@ export class SapConnectionManager {
         throw new Error("Verification failed: Connection still exists after deletion")
       }
 
-      // Clear password from secure storage
+      // 从安全存储清除密码
       const vault = PasswordVault.get()
       if (removed) {
         await vault.deletePassword(`vscode.abapfs.${formatKey(connectionId)}`, removed.username)
-        // Clear auth-method-specific secrets
+        // 清除认证方式专属的密钥
         const connKey = formatKey(connectionId)
         await clearCertPassphrase(connKey).catch(() => {})
         await clearKerberosCookies(connKey).catch(() => {})
@@ -697,12 +697,12 @@ export class SapConnectionManager {
 
       logTelemetry("command_connection_manager_delete_called")
 
-      // Refresh connections in webview
+      // 刷新 Webview 中的连接
       await this.sendConnectionsToWebview()
     } catch (error) {
       logCommands.error(`Error deleting connection: ${error}`)
 
-      // Rollback changes if backup exists
+      // 存在备份时回滚更改
       if (backupRemotes) {
         try {
           const configTarget =
@@ -730,17 +730,17 @@ export class SapConnectionManager {
   ) {
     logCommands.debug(`[cloud-svckey] started (target=${target})`)
     try {
-      // Parse service key
+      // 解析服务密钥
       const serviceKey = JSON.parse(serviceKeyJson) as unknown
 
-      // Validate it's an ABAP service key
+      // 校验它是 ABAP 服务密钥
       if (!isAbapServiceKey(serviceKey)) {
         throw new Error("Invalid ABAP service key format")
       }
 
       const parsedServiceKey = serviceKey as AbapCloudServiceKey
 
-      // Extract connection details from service key
+      // 从服务密钥提取连接详情
       const {
         url,
         uaa: { clientid, clientsecret, url: loginUrl }
@@ -752,7 +752,7 @@ export class SapConnectionManager {
           `has clientsecret: ${!!clientsecret}, has systemid: ${!!parsedServiceKey.systemid})`
       )
 
-      // Get system info to determine name
+      // 获取系统信息以确定名称
       logCommands.debug("[cloud-svckey] starting OAuth code grant")
       const server = loginServer()
       const grant = await cfCodeGrant(loginUrl, clientid, clientsecret, server)
@@ -761,8 +761,8 @@ export class SapConnectionManager {
           `(has accessToken: ${!!grant?.accessToken}, has refreshToken: ${!!grant?.refreshToken})`
       )
 
-      // a4c_api_session is only available on trial / A4C-enabled systems.
-      // Best-effort: on failure, fall back to service key fields + JWT claims.
+      // a4c_api_session 只对试用版 / 启用 A4C 的系统可用。
+      // 尽力而为：失败时回退到服务密钥字段 + JWT 声明。
       let user: AbapUserInfo | undefined
       let info: AbapSystemInfo | undefined
       let infoLookupError: unknown
@@ -796,22 +796,22 @@ export class SapConnectionManager {
           `resolved name present: ${!!resolvedName})`
       )
       if (!resolvedName) {
-        // Without a system id we cannot generate a meaningful default name.
-        // Surface the original error so the user knows what to fix.
+        // 没有系统 ID 就无法生成有意义的默认名称。
+        // 暴露原始错误，让用户知道要修复什么。
         throw infoLookupError || new Error("Could not determine system id")
       }
       const availableLanguages = info
         ? info.INSTALLED_LANGUAGES.map(l => l.ISOLANG?.toLowerCase() || "en")
         : ["en"]
 
-      // Create connection configuration (password not included - stored in credential manager only)
+      // 创建连接配置（不含密码 - 只存储在凭据管理器中）
       const connection: ConnectionData = {
         name: resolvedName,
         url,
         username: user?.UNAME || fallbackUsername,
         password: "",
         language: "en",
-        // Steampunk defaults to client 100; user can edit in the review form.
+        // Steampunk 默认为 client 100；用户可以在审查表单中编辑。
         client: user?.MANDT || "100",
         allowSelfSigned: false,
         diff_formatter: "ADT formatter",
@@ -829,7 +829,7 @@ export class SapConnectionManager {
           `client=${connection.client}, language=${connection.language}, oauth: yes)`
       )
 
-      // Send to webview for user to review/edit before saving
+      // 发送到 Webview 供用户在保存前审查/编辑
       this.panel.webview.postMessage({
         type: "cloudConnectionCreated",
         connection: connection,
@@ -863,12 +863,12 @@ export class SapConnectionManager {
       `[cloud-endpoint] started (target=${target}, endpoint path=${pathOf(endpoint)})`
     )
     try {
-      // This will guide the user through the Cloud Foundry login flow
-      // vscode is already statically imported above
+      // 这将引导用户完成 Cloud Foundry 登录流程
+      // vscode 已在上面静态导入
 
-      // Import cloud platform utilities (static imports above)
+      // 导入云平台工具（静态导入在上面）
 
-      // Get CF info
+      // 获取 CF 信息
       logCommands.debug("[cloud-endpoint] fetching CF info (GET /)")
       const info = await cfInfo(endpoint)
       const loginUrl = info.links.login?.href
@@ -877,7 +877,7 @@ export class SapConnectionManager {
         throw new Error("Could not determine login URL from endpoint")
       }
 
-      // Get username and password from user
+      // 从用户获取用户名和密码
       logCommands.debug("[cloud-endpoint] prompting user for CF credentials")
       const username = await window.showInputBox({
         prompt: "Enter Cloud Foundry username",
@@ -898,14 +898,14 @@ export class SapConnectionManager {
         return
       }
 
-      // Login
+      // 登录
       logCommands.debug("[cloud-endpoint] requesting CF password grant")
       const grant = await cfPasswordGrant(loginUrl, username, password)
       logCommands.debug(
         `[cloud-endpoint] CF password grant completed (has accessToken: ${!!grant?.accessToken})`
       )
 
-      // Get org
+      // 获取组织
       logCommands.debug("[cloud-endpoint] fetching organizations (GET /v2/organizations)")
       const orgs = await cfOrganizations(endpoint, grant.accessToken)
       logCommands.debug(`[cloud-endpoint] organizations response: count=${orgs.length}`)
@@ -922,7 +922,7 @@ export class SapConnectionManager {
         return
       }
 
-      // Get space
+      // 获取空间
       logCommands.debug(
         `[cloud-endpoint] fetching spaces (GET ${pathOf(
           `${endpoint}${selectedOrg.org.entity.spaces_url}`
@@ -943,7 +943,7 @@ export class SapConnectionManager {
         return
       }
 
-      // Get services and instances to find ABAP service
+      // 获取服务和实例以查找 ABAP 服务
       logCommands.debug("[cloud-endpoint] fetching services (GET /v2/services)")
       const services = await cfServices(endpoint, grant.accessToken)
       logCommands.debug(`[cloud-endpoint] services response: count=${services.length}`)
@@ -955,7 +955,7 @@ export class SapConnectionManager {
       )
       logCommands.debug(`[cloud-endpoint] service instances response: count=${instances.length}`)
 
-      // Find ABAP service by tag
+      // 按标签查找 ABAP 服务
       const abapService = services.find(s => s.entity.tags && s.entity.tags.includes("abapcp"))
       logCommands.debug(
         `[cloud-endpoint] looking for ABAP service (tag=abapcp): found=${!!abapService}`
@@ -964,14 +964,14 @@ export class SapConnectionManager {
         throw new Error("No ABAP service found in this space")
       }
 
-      // Find instance matching ABAP service
+      // 查找匹配 ABAP 服务的实例
       const abapInstance = instances.find(i => i.entity.service_guid === abapService.metadata.guid)
       logCommands.debug(`[cloud-endpoint] matching ABAP service instance: found=${!!abapInstance}`)
       if (!abapInstance) {
         throw new Error("No ABAP service instance found")
       }
 
-      // Get service keys
+      // 获取服务密钥
       logCommands.debug("[cloud-endpoint] fetching service keys (GET .../service_keys)")
       const keys = await cfInstanceServiceKeys(endpoint, abapInstance.entity, grant.accessToken)
       logCommands.debug(`[cloud-endpoint] service keys response: count=${keys.length}`)
@@ -979,7 +979,7 @@ export class SapConnectionManager {
         throw new Error("No service keys found for this instance")
       }
 
-      // Filter for keys with valid names and credentials
+      // 过滤具有有效名称和凭证的密钥
       const validKeys = keys.filter(hasNamedEntity)
       logCommands.debug(
         `[cloud-endpoint] service keys with valid name+credentials: count=${validKeys.length}`
@@ -1000,7 +1000,7 @@ export class SapConnectionManager {
         return
       }
 
-      // Extract credentials from the selected key
+      // 从选中的密钥提取凭证
       if (!hasCredentialsEntity(selectedKey.key)) {
         throw new Error("Selected key has no credentials")
       }
@@ -1011,7 +1011,7 @@ export class SapConnectionManager {
       }
 
       logCommands.debug("[cloud-endpoint] handing off credentials to service-key flow")
-      // Now use the credentials to create connection
+      // 现在用凭证创建连接
       await this.createCloudConnectionFromServiceKey(JSON.stringify(credentials), target)
     } catch (error) {
       logCommands.error(`[cloud-endpoint] failed: ${summarizeError(error)}`, error)
@@ -1027,19 +1027,19 @@ export class SapConnectionManager {
       const config = vscode.workspace.getConfiguration("abapfs")
       const rawConnections = readStoredRemotes(config, target)
 
-      // Sanitize connections for export - clear username and password values but keep fields.
+      // 清理导出用连接 - 清除用户名和密码值但保留字段。
       const sanitizedConnections: StoredRemotes = {}
       for (const [name, conn] of Object.entries(rawConnections)) {
         const sanitized: StoredConnection = {
           ...conn,
-          username: "", // Clear value but keep field for import compatibility
-          password: "" // Clear value but keep field for import compatibility
+          username: "", // 清除值但保留字段，以兼容导入
+          password: "" // 清除值但保留字段，以兼容导入
         }
-        // Remove OAuth secrets from export
+        // 从导出中移除 OAuth 密钥
         if (sanitized.oauth) {
           sanitized.oauth = { ...sanitized.oauth, clientSecret: "" }
         }
-        // Strip cert file paths (may reveal internal infrastructure)
+        // 剥离证书文件路径（可能泄露内部基础设施）
         if (sanitized.certAuth) {
           sanitized.certAuth = { certPath: "", keyPath: "" }
         }
@@ -1048,7 +1048,7 @@ export class SapConnectionManager {
 
       const json = JSON.stringify(sanitizedConnections, null, 2)
 
-      // Prompt user to save file
+      // 提示用户保存文件
       const uri = await window.showSaveDialog({
         defaultUri: vscode.Uri.file(`abap-connections-${target}.json`),
         filters: {
@@ -1058,10 +1058,10 @@ export class SapConnectionManager {
       })
 
       if (!uri) {
-        return // User cancelled
+        return // 用户已取消
       }
 
-      // Write to file
+      // 写入文件
       await vscode.workspace.fs.writeFile(uri, Buffer.from(json, "utf8"))
 
       this.panel.webview.postMessage({
@@ -1083,13 +1083,13 @@ export class SapConnectionManager {
     try {
       const rawParsed = JSON.parse(jsonContent) as unknown
 
-      // Validate and sanitize: only accept plain objects as connection maps
+      // 校验并清理：只接受普通对象作为连接映射
       if (!isRecord(rawParsed) || Array.isArray(rawParsed)) {
         throw new Error("Invalid format: expected an object mapping connection names to configs")
       }
 
-      // Run each imported connection through cleanConnectionObject to strip
-      // unknown fields and validate structure
+      // 让每个导入的连接经过 cleanConnectionObject，剥离
+      // 未知字段并校验结构
       const sanitized: StoredRemotes = {}
       for (const [name, rawConn] of Object.entries(rawParsed)) {
         if (!isConnectionInput(rawConn)) {
@@ -1097,7 +1097,7 @@ export class SapConnectionManager {
           continue
         }
         const conn = rawConn
-        // Validate URL format before saving
+        // 保存前校验 URL 格式
         if (typeof conn.url === "string") {
           try {
             const u = new URL(conn.url)
@@ -1116,7 +1116,7 @@ export class SapConnectionManager {
       const config = vscode.workspace.getConfiguration("abapfs")
       const currentRemotes = readStoredRemotes(config, target)
 
-      // Merge sanitized connections with existing
+      // 把清理后的连接与现有连接合并
       const merged = { ...currentRemotes, ...sanitized }
 
       await config.update("remote", merged, configTarget)
@@ -1128,7 +1128,7 @@ export class SapConnectionManager {
 
       logTelemetry("command_connection_manager_import_json_called")
 
-      // Refresh connections in webview
+      // 刷新 Webview 中的连接
       await this.sendConnectionsToWebview()
     } catch (error) {
       logCommands.error(`Error importing JSON: ${error}`)
@@ -1190,7 +1190,7 @@ export class SapConnectionManager {
           ? (config.inspect("remote")?.globalValue as Record<string, RemoteConfig>) || {}
           : (config.inspect("remote")?.workspaceValue as Record<string, RemoteConfig>) || {}
 
-      // Update usernames for selected connections
+      // 更新所选连接的用户名
       const updatedRemotes = { ...currentRemotes }
       connectionNames.forEach(name => {
         if (updatedRemotes[name]) {
@@ -1208,7 +1208,7 @@ export class SapConnectionManager {
         message: `Updated username for ${connectionNames.length} connection(s)`
       })
 
-      // Refresh connections in webview
+      // 刷新 Webview 中的连接
       await this.sendConnectionsToWebview()
     } catch (error) {
       logCommands.error(`Error in bulk edit username: ${error}`)
@@ -1230,7 +1230,7 @@ export class SapConnectionManager {
           ? (config.inspect("remote")?.globalValue as Record<string, RemoteConfig>) || {}
           : (config.inspect("remote")?.workspaceValue as Record<string, RemoteConfig>) || {}
 
-      // Remove selected connections
+      // 移除所选连接
       const updatedRemotes = { ...currentRemotes }
       connectionNames.forEach(name => {
         delete updatedRemotes[name]
@@ -1238,7 +1238,7 @@ export class SapConnectionManager {
 
       await config.update("remote", updatedRemotes, configTarget)
 
-      // Clear passwords and auth-specific secrets from secure storage
+      // 从安全存储清除密码和认证专属密钥
       const vault = PasswordVault.get()
       for (const name of connectionNames) {
         const conn = currentRemotes[name]
@@ -1260,7 +1260,7 @@ export class SapConnectionManager {
         message: `Deleted ${connectionNames.length} connection(s)`
       })
 
-      // Refresh connections in webview
+      // 刷新 Webview 中的连接
       await this.sendConnectionsToWebview()
     } catch (error) {
       logCommands.error(`Error in bulk delete: ${error}`)
@@ -2890,7 +2890,7 @@ function getNonce() {
 }
 
 /**
- * Command handler for Connection Wizard
+ * 连接向导的命令处理程序
  */
 export async function openConnectionManager(context: vscode.ExtensionContext) {
   try {
