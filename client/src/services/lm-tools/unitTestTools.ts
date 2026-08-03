@@ -1,6 +1,6 @@
 /**
- * ABAP Unit Test Tools
- * Create test includes and run unit tests
+ * ABAP 单元测试工具
+ * 创建测试 include 并运行单元测试
  */
 
 import * as vscode from "vscode"
@@ -17,7 +17,7 @@ import { assertToolInvocationAuthorized } from "./toolGuard"
 import { showHideActivate } from "../../listeners"
 
 // ============================================================================
-// INTERFACES
+// 接口
 // ============================================================================
 
 export interface ICreateTestIncludeParameters {
@@ -31,11 +31,11 @@ export interface IRunUnitTestsParameters {
 }
 
 // ============================================================================
-// TOOL CLASSES
+// 工具类
 // ============================================================================
 
 /**
- * 🧪 CREATE TEST INCLUDE TOOL
+ * 🧪 创建测试 include 工具
  */
 export class CreateTestIncludeTool implements vscode.LanguageModelTool<ICreateTestIncludeParameters> {
   async prepareInvocation(
@@ -124,7 +124,7 @@ export class CreateTestIncludeTool implements vscode.LanguageModelTool<ICreateTe
 }
 
 /**
- * 🧪 RUN UNIT TESTS TOOL
+ * 🧪 运行单元测试工具
  */
 export class RunUnitTestsTool implements vscode.LanguageModelTool<IRunUnitTestsParameters> {
   async prepareInvocation(
@@ -193,14 +193,14 @@ export class RunUnitTestsTool implements vscode.LanguageModelTool<IRunUnitTestsP
 
       const workspaceUri = vscode.Uri.parse(`adt://${connectionId.toLowerCase()}${result.path}`)
 
-      await this.activate(result, connectionId) // if was saved recently we need to activate first. Activation errors will bubble up
+      await this.activate(result, connectionId) // 如果最近保存过，需要先激活。激活错误会向上冒泡
 
-      // Use the new method that returns results
+      // 使用返回结果的新方法
       const testResults = await UnitTestRunner.get(connectionId.toLowerCase()).addResultsWithReturn(
         workspaceUri
       )
 
-      // Format results for Copilot
+      // 为 Copilot 格式化结果
       const resultText = this.formatTestResults(testResults)
 
       return new vscode.LanguageModelToolResult([new vscode.LanguageModelTextPart(resultText)])
@@ -230,19 +230,19 @@ export class RunUnitTestsTool implements vscode.LanguageModelTool<IRunUnitTestsP
         const classStatus = testClass.passed ? "PASS" : "FAIL"
         output += `\n[${classStatus}] ${testClass.name}\n`
 
-        // Show class-level alerts if any
+        // 有类级告警时显示
         if (testClass.alerts.length > 0) {
           for (const alert of testClass.alerts) {
             output += `   ${alert.title}\n`
           }
         }
 
-        // Show methods
+        // 显示方法
         for (const method of testClass.methods) {
           const methodStatus = method.passed ? "PASS" : "FAIL"
           output += `  [${methodStatus}] ${method.name} (${method.executionTime.toFixed(3)}s)\n`
 
-          // Show method alerts (failures)
+          // 显示方法告警（失败）
           if (!method.passed && method.alerts.length > 0) {
             for (const alert of method.alerts) {
               output += `      ${alert.title}\n`
@@ -264,7 +264,7 @@ export class RunUnitTestsTool implements vscode.LanguageModelTool<IRunUnitTestsP
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerUnitTestTools(context: vscode.ExtensionContext): void {
