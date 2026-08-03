@@ -1,6 +1,6 @@
 /**
- * Create Test Documentation Tool
- * Generate Word documents with test scenarios and screenshots
+ * 创建测试文档工具
+ * 生成带测试场景和截图的 Word 文档
  */
 
 import * as vscode from "vscode"
@@ -11,7 +11,7 @@ import { TestDocumentCreator } from "../testDocumentCreator"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface ICreateTestDocumentationParameters {
@@ -29,11 +29,11 @@ export interface ICreateTestDocumentationParameters {
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 📝 CREATE TEST DOCUMENTATION TOOL
+ * 📝 创建测试文档工具
  */
 export class CreateTestDocumentationTool implements vscode.LanguageModelTool<ICreateTestDocumentationParameters> {
   async prepareInvocation(
@@ -135,7 +135,7 @@ export class CreateTestDocumentationTool implements vscode.LanguageModelTool<ICr
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerTestDocumentationTool(context: vscode.ExtensionContext): void {
