@@ -1,6 +1,6 @@
 /**
- * ABAP Trace Analysis Tool
- * Performance analysis and optimization insights
+ * ABAP 跟踪分析工具
+ * 性能分析和优化洞察
  */
 
 import * as vscode from "vscode"
@@ -11,23 +11,23 @@ import { getClient } from "../../adt/conections"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface ITraceAnalysisParameters {
   action: "list_runs" | "list_configurations" | "analyze_run" | "get_statements" | "get_hitlist"
-  connectionId: string // Mandatory - need SAP system connection
-  traceId?: string // Required for analyze_run, get_statements, get_hitlist
-  maxResults?: number // For listing actions (default: 20)
-  includeDetails?: boolean // Include detailed performance data
+  connectionId: string // 必填 - 需要 SAP 系统连接
+  traceId?: string // analyze_run、get_statements、get_hitlist 需要
+  maxResults?: number // 用于列出操作（默认：20）
+  includeDetails?: boolean // 包含详细性能数据
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 📈 ABAP TRACE ANALYSIS TOOL - Performance analysis and optimization insights
+ * 📈 ABAP 跟踪分析工具 - 性能分析和优化洞察
  */
 export class ABAPTraceAnalysisTool implements vscode.LanguageModelTool<ITraceAnalysisParameters> {
   async prepareInvocation(
@@ -79,12 +79,12 @@ export class ABAPTraceAnalysisTool implements vscode.LanguageModelTool<ITraceAna
     logTelemetry("tool_analyze_abap_traces_called", { connectionId })
 
     try {
-      // connectionId is now mandatory
+      // connectionId 现在是必填的
       const actualConnectionId = connectionId.toLowerCase()
 
       const client = getClient(actualConnectionId)
 
-      // Validate required parameters based on action
+      // 按操作校验必填参数
       const traceActions = ["analyze_run", "get_statements", "get_hitlist"]
       if (traceActions.includes(action) && !traceId) {
         throw new Error(`traceId parameter is required for ${action} action`)
@@ -130,7 +130,7 @@ export class ABAPTraceAnalysisTool implements vscode.LanguageModelTool<ITraceAna
         ])
       }
 
-      // Sort by published date (newest first) and limit results
+      // 按发布日期排序（新的在前）并限制结果
       const sortedRuns = runs.sort(
         (a: any, b: any) => b.published.getTime() - a.published.getTime()
       )
@@ -271,7 +271,7 @@ export class ABAPTraceAnalysisTool implements vscode.LanguageModelTool<ITraceAna
       result += `• State: ${state.text} (${state.value})\n`
       result += `• Data Type: ${isAggregated ? "Aggregated Summary" : "Detailed Statements"}\n\n`
 
-      // Performance analysis
+      // 性能分析
       if (state.value === "E") {
         result += `ERROR STATE — trace execution failed\n`
       }
@@ -299,7 +299,7 @@ export class ABAPTraceAnalysisTool implements vscode.LanguageModelTool<ITraceAna
     try {
       logCommands.info(`Getting trace statements for trace ${traceId} on ${connectionId}`)
 
-      // First, check if the trace is aggregated
+      // 首先，检查跟踪是否已聚合
       const { runs } = await client.tracesList()
       const run = runs?.find((r: any) => r.id === traceId)
 
@@ -313,7 +313,7 @@ export class ABAPTraceAnalysisTool implements vscode.LanguageModelTool<ITraceAna
 
       const isAggregated = run.extendedData?.isAggregated
 
-      // If trace is aggregated, automatically use hitlist instead of statements
+      // 如果跟踪已聚合，自动使用命中列表而不是语句
       if (isAggregated) {
         logCommands.info(
           `Trace ${traceId} is aggregated - automatically using hit list instead of statements`
@@ -370,12 +370,12 @@ export class ABAPTraceAnalysisTool implements vscode.LanguageModelTool<ITraceAna
       result += `Trace ID: ${traceId}\n`
       result += `Total Statements: ${stmts.length}\n\n`
 
-      // Sort by net time (descending) to show performance hotspots first
+      // 按净时间排序（降序）以先显示性能热点
       const sortedStmts = stmts.sort(
         (a: any, b: any) => (b.traceEventNetTime?.time || 0) - (a.traceEventNetTime?.time || 0)
       )
 
-      // Show top 20 performance hotspots
+      // 显示前 20 个性能热点
       const topStatements = sortedStmts.slice(0, 20)
 
       result += `Top Performance Hotspots (Top 20):\n`
@@ -398,7 +398,7 @@ export class ABAPTraceAnalysisTool implements vscode.LanguageModelTool<ITraceAna
         result += `\n`
       }
 
-      // Performance statistics
+      // 性能统计
       const totalNetTime = stmts.reduce(
         (sum: number, stmt: any) => sum + (stmt.traceEventNetTime?.time || 0),
         0
@@ -413,7 +413,7 @@ export class ABAPTraceAnalysisTool implements vscode.LanguageModelTool<ITraceAna
       result += `• Avg Time/Statement: ${Math.round(totalNetTime / stmts.length)}ms\n`
       result += `• Avg Hits/Statement: ${Math.round(totalHits / stmts.length)}\n`
 
-      // Performance insights
+      // 性能洞察
       const highHitStmts = stmts.filter((stmt: any) => (stmt.hitCount || 0) > 100)
       const slowStmts = stmts.filter((stmt: any) => {
         const netTime = stmt.traceEventNetTime?.time || 0
@@ -465,12 +465,12 @@ export class ABAPTraceAnalysisTool implements vscode.LanguageModelTool<ITraceAna
       result += `Trace ID: ${traceId}\n`
       result += `Total Entries: ${entries.length}\n\n`
 
-      // Sort by net time (descending) to show performance hotspots first
+      // 按净时间排序（降序）以先显示性能热点
       const sortedEntries = entries.sort(
         (a: any, b: any) => (b.traceEventNetTime?.time || 0) - (a.traceEventNetTime?.time || 0)
       )
 
-      // Show top 15 performance hotspots
+      // 显示前 15 个性能热点
       const topEntries = sortedEntries.slice(0, 15)
 
       result += `Top Performance Hotspots (Top 15):\n`
@@ -496,7 +496,7 @@ export class ABAPTraceAnalysisTool implements vscode.LanguageModelTool<ITraceAna
         result += `\n`
       }
 
-      // Hit list statistics
+      // 命中列表统计
       const totalNetTime = entries.reduce(
         (sum: number, entry: any) => sum + (entry.traceEventNetTime?.time || 0),
         0
@@ -513,7 +513,7 @@ export class ABAPTraceAnalysisTool implements vscode.LanguageModelTool<ITraceAna
       result += `• Avg Time/Entry: ${Math.round(totalNetTime / entries.length)}ms\n`
       result += `• Avg Hits/Entry: ${Math.round(totalHits / entries.length)}\n`
 
-      // Hit list analysis
+      // 命中列表分析
       const highHitEntries = entries.filter((entry: any) => (entry.hitCount || 0) > 50)
       const inefficientEntries = entries.filter((entry: any) => {
         const netTime = entry.traceEventNetTime?.time || 0
@@ -531,7 +531,7 @@ export class ABAPTraceAnalysisTool implements vscode.LanguageModelTool<ITraceAna
         }
       }
 
-      // Program distribution
+      // 程序分布
       const programHits = new Map<string, number>()
       entries.forEach((entry: any) => {
         const program = entry.callingProgram?.name
@@ -560,7 +560,7 @@ export class ABAPTraceAnalysisTool implements vscode.LanguageModelTool<ITraceAna
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerTraceAnalysisTool(context: vscode.ExtensionContext): void {
