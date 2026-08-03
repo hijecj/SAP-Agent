@@ -1,11 +1,11 @@
 /**
- * 💓 Heartbeat LM Client
+ * 💓 心跳 LM 客户端
  *
- * Handles Language Model API calls for heartbeat runs.
- * Uses vscode.lm API to call the model with all registered tools.
+ * 处理心跳运行的语言模型 API 调用。
+ * 使用 vscode.lm API 调用带所有已注册工具的模型。
  *
- * Reads tasks from heartbeat.json and instructs the LLM to check each one.
- * The LLM can also update task status and add/remove tasks.
+ * 从 heartbeat.json 读取任务，并指示 LLM 检查每个任务。
+ * LLM 还可以更新任务状态和添加/移除任务。
  */
 
 import * as vscode from "vscode"
@@ -14,7 +14,7 @@ import { HeartbeatWatchlist } from "./heartbeatWatchlist"
 import { log } from "../../lib"
 
 /**
- * Result from running a single heartbeat
+ * 运行单次心跳的结果
  */
 export interface HeartbeatLMResult {
   status: "ok" | "alert" | "error"
@@ -25,15 +25,15 @@ export interface HeartbeatLMResult {
 }
 
 /**
- * Build the heartbeat prompt from config and watchlist
+ * 从配置和监控列表构建心跳提示
  */
 function buildHeartbeatPrompt(config: HeartbeatConfig): string {
-  // If custom prompt is configured, use it directly
+  // 配置了自定义提示则直接使用
   if (config.prompt) {
     return config.prompt
   }
 
-  // Get tasks from watchlist (only due tasks, not future-scheduled ones)
+  // 从监控列表获取任务（只取到期的，不取未来调度的）
   const watchlistPrompt = HeartbeatWatchlist.formatForPrompt()
   const dueTasks = HeartbeatWatchlist.getDueTasks()
   const hasAnyDueTasks = dueTasks.length > 0
@@ -104,18 +104,18 @@ function buildHeartbeatPrompt(config: HeartbeatConfig): string {
   return lines.join("\n")
 }
 
-// Tag used to identify ABAP FS tools
+// 用于识别 ABAP FS 工具的标签
 const ABAP_FS_TAG = "abap-fs"
 
 /**
- * Get the configured language model
- * REQUIRES model to be set in settings - does not auto-select
+ * 获取已配置的语言模型
+ * 需要在设置中设置 model - 不自动选择
  */
 async function getLanguageModel(
   configuredModel?: string
 ): Promise<vscode.LanguageModelChat | null> {
   try {
-    // Model must be configured in settings
+    // 必须在设置中配置模型
     if (!configuredModel || configuredModel.trim().length === 0) {
       log("💓 No model configured. Set abapfs.heartbeat.model in settings.")
       return null
@@ -130,12 +130,12 @@ async function getLanguageModel(
 
     const searchTerm = configuredModel.trim().toLowerCase()
 
-    // Find the configured model - try exact match first, then partial
+    // 查找配置的模型 - 先尝试精确匹配，然后部分匹配
     let model = models.find(
       m => m.name.toLowerCase() === searchTerm || m.id.toLowerCase() === searchTerm
     )
 
-    // If no exact match, try partial match on name only
+    // 无精确匹配时，只按名称尝试部分匹配
     if (!model) {
       model = models.find(m => m.name.toLowerCase().includes(searchTerm))
     }
@@ -154,7 +154,7 @@ async function getLanguageModel(
 }
 
 /**
- * Get ABAP FS tools only (filtered by tag)
+ * 只获取 ABAP FS 工具（按标签过滤）
  */
 function getAbapFsTools(): vscode.LanguageModelToolInformation[] {
   try {
@@ -168,7 +168,7 @@ function getAbapFsTools(): vscode.LanguageModelToolInformation[] {
 }
 
 /**
- * Run a single heartbeat using the Language Model API
+ * 使用语言模型 API 运行单次心跳
  */
 export async function runHeartbeatLM(
   config: HeartbeatConfig,
@@ -178,7 +178,7 @@ export async function runHeartbeatLM(
   const toolsUsed: string[] = []
 
   try {
-    // Get language model
+    // 获取语言模型
     const model = await getLanguageModel(config.model)
     if (!model) {
       const errorMsg = config.model
@@ -193,27 +193,27 @@ export async function runHeartbeatLM(
       }
     }
 
-    // Build the prompt
+    // 构建提示
     const prompt = buildHeartbeatPrompt(config)
 
-    // Get ABAP FS tools only (filtered by tag)
+    // 只获取 ABAP FS 工具（按标签过滤）
     const tools = getAbapFsTools()
 
-    // Create the message
+    // 创建消息
     const messages = [vscode.LanguageModelChatMessage.User(prompt)]
 
-    // Prepare request options with tools
+    // 准备带工具请求选项
     const requestOptions: vscode.LanguageModelChatRequestOptions = {
       tools: tools.length > 0 ? tools : undefined
     }
 
-    // Send request and collect response
+    // 发送请求并收集响应
     let fullResponse = ""
     const token = cancellationToken || new vscode.CancellationTokenSource().token
 
-    // Handle tool calls in a loop
+    // 在循环中处理工具调用
     let currentMessages = [...messages]
-    let maxIterations = 10 // Prevent infinite loops
+    let maxIterations = 10 // 防止无限循环
 
     while (maxIterations > 0) {
       maxIterations--
@@ -223,7 +223,7 @@ export async function runHeartbeatLM(
       let hasToolCalls = false
       let textParts: string[] = []
 
-      // Process the response stream
+      // 处理响应流
       for await (const part of response.stream) {
         if (part instanceof vscode.LanguageModelTextPart) {
           textParts.push(part.value)
@@ -233,7 +233,7 @@ export async function runHeartbeatLM(
           toolsUsed.push(toolName)
 
           try {
-            // Execute the tool
+            // 执行工具
             const toolResult = await vscode.lm.invokeTool(
               toolName,
               {
@@ -243,10 +243,10 @@ export async function runHeartbeatLM(
               token
             )
 
-            // Add assistant message with tool call
+            // 添加带工具调用的助手消息
             currentMessages.push(vscode.LanguageModelChatMessage.Assistant([part]))
 
-            // Extract text from tool result
+            // 从工具结果提取文本
             let resultText = ""
             if (toolResult && typeof toolResult === "object" && "content" in toolResult) {
               const content = (toolResult as { content: unknown }).content
@@ -278,7 +278,7 @@ export async function runHeartbeatLM(
           } catch (toolError) {
             log(`💓 Tool error (${toolName}): ${toolError}`)
 
-            // Add error result
+            // 添加错误结果
             currentMessages.push(vscode.LanguageModelChatMessage.Assistant([part]))
             currentMessages.push(
               vscode.LanguageModelChatMessage.User([
@@ -291,12 +291,12 @@ export async function runHeartbeatLM(
         }
       }
 
-      // Collect text response
+      // 收集文本响应
       if (textParts.length > 0) {
         fullResponse += textParts.join("")
       }
 
-      // If no tool calls, we're done
+      // 如果没有工具调用，完成
       if (!hasToolCalls) {
         break
       }
@@ -304,7 +304,7 @@ export async function runHeartbeatLM(
 
     const durationMs = Date.now() - startTime
 
-    // Parse the response
+    // 解析响应
     const parsed = parseHeartbeatResponse(fullResponse, config.ackMaxChars)
 
     if (parsed.isAck) {
