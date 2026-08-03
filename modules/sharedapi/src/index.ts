@@ -23,43 +23,43 @@ export interface AbapObjectDetail {
   name: string
 }
 
-/** Supported authentication methods for SAP connections. */
+/** SAP 连接支持的认证方法。 */
 export type AuthMethod = "basic" | "cert" | "kerberos" | "browser_sso" | "oauth_onprem"
 export type NonBasicAuthMethod = Exclude<AuthMethod, "basic">
 
-/** X.509 client certificate configuration (paths only — passphrase in vault). */
+/** X.509 客户端证书配置（仅路径 — 口令在保险库中）。 */
 export interface CertAuthConfig {
   certPath: string
   keyPath: string
   caPath?: string
 }
 
-/** Kerberos/SPNEGO configuration (all fields optional — PowerShell SSPI uses UseDefaultCredentials). */
+/** Kerberos/SPNEGO 配置（所有字段可选 — PowerShell SSPI 使用 UseDefaultCredentials）。 */
 export interface KerberosAuthConfig {
   sapHostname?: string
   realm?: string
   spn?: string
 }
 
-/** On-premise SAP OAuth 2.0 configuration (SOAUTH2). */
+/** 本地 SAP OAuth 2.0 配置（SOAUTH2）。 */
 export interface OAuthOnPremConfig {
-  /** OAuth client ID registered in SOAUTH2. */
+  /** 在 SOAUTH2 中注册的 OAuth 客户端 ID。 */
   clientId: string
-  /** OAuth client secret (optional if PKCE is used). */
+  /** OAuth 客户端密钥（使用 PKCE 时可省略）。 */
   clientSecret?: string
-  /** OAuth scope (default: SAP_ADT). */
+  /** OAuth 作用域（默认：SAP_ADT）。 */
   scope?: string
 }
 
-/** HTTP headers forwarded from the extension host to the language server. */
+/** 从扩展主机转发到语言服务器的 HTTP 头。 */
 export type AuthHttpHeaders = Readonly<Record<string, string>>
 
-/** Certificate material sent to the language server to reconstruct an https.Agent. */
+/** 发送到语言服务器以重建 https.Agent 的证书材料。 */
 export interface CertAuthTransport extends CertAuthConfig {
   passphrase?: string
 }
 
-/** Auth metadata returned by the extension host for non-basic authentication methods. */
+/** 扩展主机为非 basic 认证方法返回的认证元数据。 */
 export interface AuthHeadersResponse {
   httpHeaders?: AuthHttpHeaders
   certAuth?: CertAuthTransport
@@ -75,13 +75,13 @@ export interface ClientConfiguration {
   allowSelfSigned: boolean
   customCA?: string
   diff_formatter: "ADT formatter" | "AbapLint" | "Simple"
-  /** Authentication method. Defaults to "basic" when omitted (backward compatible). */
+  /** 认证方法。省略时默认为 "basic"（向后兼容）。 */
   authMethod?: AuthMethod
-  /** Certificate auth config (only when authMethod === "cert"). */
+  /** 证书认证配置（只在 authMethod === "cert" 时）。 */
   certAuth?: CertAuthConfig
-  /** Kerberos auth config (only when authMethod === "kerberos"). */
+  /** Kerberos 认证配置（只在 authMethod === "kerberos" 时）。 */
   kerberosAuth?: KerberosAuthConfig
-  /** On-premise OAuth config (only when authMethod === "oauth_onprem"). */
+  /** 本地 OAuth 配置（只在 authMethod === "oauth_onprem" 时）。 */
   oauthOnPrem?: OAuthOnPremConfig
   oauth?: {
     clientId: string
@@ -154,7 +154,7 @@ export function objectIsValid(obj?: AbapObjectDetail) {
 
 export const stripExtension = (u: string) => u.replace(/\.abap/, "")
 
-/** Comm log entry forwarded from server to client */
+/** 从服务器转发到客户端的通信日志条目 */
 export interface CommLogEntryData {
   connId: string
   logData: LogData
