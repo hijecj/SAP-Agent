@@ -1,21 +1,21 @@
 /**
- * Browser SSO Authentication
+ * 浏览器 SSO 认证
  *
- * For SAP systems using SAML 2.0 or Kerberos SSO where direct protocol
- * integration isn't feasible. Opens a local helper page in the browser,
- * lets the user authenticate against the SAP system in a separate tab,
- * then captures pasted session cookies via a local HTTP callback server.
+ * 用于使用 SAML 2.0 或 Kerberos SSO 且无法直接协议集成的 SAP 系统。
+ * 在浏览器中打开本地辅助页面，让用户在单独标签页中
+ * 对 SAP 系统进行认证，然后通过本地 HTTP 回调服务器
+ * 捕获粘贴的会话 cookie。
  *
- * Flow:
- *  1. Extension starts a local HTTP server on a random port
- *  2. Opens the local helper page in the user's default browser
- *  3. User opens the SAP system from the helper page and authenticates via IdP
- *  4. User pastes the resulting cookies into the helper page, which POSTs
- *     them back to the localhost callback
- *  5. Extension captures MYSAPSSO2 / SAP_SESSIONID cookies
- *  6. Subsequent ADT requests use those cookies
+ * 流程：
+ *  1. 扩展在随机端口启动本地 HTTP 服务器
+ *  2. 在用户默认浏览器中打开本地辅助页面
+ *  3. 用户从辅助页面打开 SAP 系统并通过 IdP 认证
+ *  4. 用户把结果 cookie 粘贴到辅助页面，它把 cookie POST
+ *     回 localhost 回调
+ *  5. 扩展捕获 MYSAPSSO2 / SAP_SESSIONID cookie
+ *  6. 后续 ADT 请求使用这些 cookie
  *
- * Cookie storage: PasswordVault (OS credential store)
+ * Cookie 存储：PasswordVault（操作系统凭据存储）
  */
 
 import * as http from "http"
@@ -29,7 +29,7 @@ import { buildCookieHeaders, sanitizeCookie, toStringArray } from "./utils"
 
 const VAULT_SERVICE = "vscode.abapfs.browsersso"
 
-const SSO_COOKIE_TTL_MS = 30 * 60 * 1000 // 30 minutes — SAP session cookies typically expire in 30-60 min
+const SSO_COOKIE_TTL_MS = 30 * 60 * 1000 // 30 分钟 — SAP 会话 cookie 通常在 30-60 分钟内过期
 const VAULT_TS_SERVICE = "vscode.abapfs.browsersso.ts"
 const captureLocks = new Map<string, Promise<string[]>>()
 
@@ -59,7 +59,7 @@ function captureCookiesOnce(connId: string, loginUrl: string): Promise<string[]>
   return pending
 }
 
-/** Store SSO cookies securely (with timestamp). */
+/** 安全存储 SSO cookie（带时间戳）。 */
 export async function storeSsoCookies(connId: string, cookies: string[]): Promise<void> {
   const vault = PasswordVault.get()
   await vault.setPassword(VAULT_SERVICE, formatKey(connId), JSON.stringify(cookies))
@@ -67,7 +67,7 @@ export async function storeSsoCookies(connId: string, cookies: string[]): Promis
   log.debug(`[browser-sso] Stored ${cookies.length} cookies for ${connId}`)
 }
 
-/** Retrieve stored SSO cookies (returns empty if expired). */
+/** 检索存储的 SSO cookie（过期时返回空）。 */
 export async function getSsoCookies(connId: string): Promise<string[]> {
   const vault = PasswordVault.get()
   const raw = await vault.getPassword(VAULT_SERVICE, formatKey(connId))
@@ -75,7 +75,7 @@ export async function getSsoCookies(connId: string): Promise<string[]> {
     log.debug(`[browser-sso] No cached cookies for ${connId}`)
     return []
   }
-  // Check timestamp — consider expired after TTL
+  // 检查时间戳 — TTL 之后视为过期
   const tsRaw = await vault.getPassword(VAULT_TS_SERVICE, formatKey(connId))
   if (tsRaw) {
     const storedAt = parseInt(tsRaw, 10)
@@ -99,7 +99,7 @@ export async function getSsoCookies(connId: string): Promise<string[]> {
   }
 }
 
-/** Clear stored SSO cookies. */
+/** 清除存储的 SSO cookie。 */
 export async function clearSsoCookies(connId: string): Promise<void> {
   const vault = PasswordVault.get()
   await vault.deletePassword(VAULT_SERVICE, formatKey(connId))
@@ -108,31 +108,31 @@ export async function clearSsoCookies(connId: string): Promise<void> {
 }
 
 /**
- * Start a temporary local HTTP server that serves a helper page and
- * receives cookies POSTed from the browser. Returns captured cookies.
+ * 启动提供辅助页面并接收浏览器 POST 回来的 cookie 的临时本地 HTTP 服务器。
+ * 返回捕获的 cookie。
  *
- * Security notes:
- *  - Binds to 127.0.0.1 loopback only (not accessible from network)
- *  - Uses a random one-time token in the URL to prevent cross-origin
- *    requests from other browser tabs injecting fake cookies
- *  - No CORS headers — the helper page is served from the same origin
- *    so cross-origin restrictions apply naturally
+ * 安全说明：
+ *  - 只绑定 127.0.0.1 回环地址（网络不可访问）
+ *  - 在 URL 中使用随机一次性 token，防止其他浏览器标签页的
+ *    跨源请求注入伪造 cookie
+ *  - 无 CORS 头 — 辅助页面从同一源提供，
+ *    因此跨源限制自然生效
  *
- * @param sapUrl     The SAP URL to open in the browser for SSO
- * @param timeoutMs  Max wait time (default 120 seconds)
- * @param notifyUser Optional callback to show the helper URL to the user if browser launch fails
+ * @param sapUrl     要在浏览器中为 SSO 打开的 SAP URL
+ * @param timeoutMs  最大等待时间（默认 120 秒）
+ * @param notifyUser 浏览器启动失败时向用户显示辅助 URL 的可选回调
  */
 export function startCookieCaptureServer(
   sapUrl: string,
   timeoutMs = 120_000,
   notifyUser?: (helperUrl: string) => void
 ): Promise<string[]> {
-  // Random token that must be present in POST to prevent cross-origin cookie injection
+  // 必须出现在 POST 中的随机 token，防止跨源 cookie 注入
   const token = randomBytes(24).toString("hex")
 
   return new Promise((resolve, reject) => {
     const server = http.createServer((req, res) => {
-      // Only serve the helper page at the token URL
+      // 只在 token URL 提供辅助页面
       if (req.method === "GET" && req.url === `/${token}`) {
         res.writeHead(200, { "Content-Type": "text/html" })
         res.end(getHelperPageHtml(sapUrl, token))
@@ -144,7 +144,7 @@ export function startCookieCaptureServer(
         let rejected = false
         req.on("data", (chunk: Buffer) => {
           const chunkText = chunk.toString("utf8")
-          // Check before appending to reliably enforce the limit
+          // 追加前检查，可靠地执行限制
           if (rejected || body.length + chunkText.length > 8192) {
             if (!rejected) {
               rejected = true
@@ -160,7 +160,7 @@ export function startCookieCaptureServer(
           if (rejected) return
           try {
             const data = JSON.parse(body) as CookieCaptureRequest
-            // Sanitize cookies: strip CR/LF to prevent HTTP header injection
+            // 清理 cookie：剥离 CR/LF 以防止 HTTP 头注入
             const cookieString = typeof data.cookies === "string" ? data.cookies : ""
             const cookies = cookieString
               .split(";")
@@ -202,11 +202,11 @@ export function startCookieCaptureServer(
       res.end("Not found")
     })
 
-    // Listen on a random available port on loopback only
+    // 只在回环地址的随机可用端口上监听
     server.listen(0, "127.0.0.1", () => {
       const helperUrl = `http://127.0.0.1:${getListeningPort(server)}/${token}`
 
-      // Open in the user's default browser; only show notification as fallback
+      // 在用户默认浏览器中打开；只在回退时显示通知
       open(helperUrl)
         .then(() => {
           log.debug(`[browser-sso] Browser opened successfully for: ${helperUrl}`)
@@ -229,7 +229,7 @@ export function startCookieCaptureServer(
   })
 }
 
-/** Default VS Code notification callback for browser SSO. */
+/** 浏览器 SSO 的默认 VS Code 通知回调。 */
 function vscodeSsoNotify(helperUrl: string) {
   vscode.window
     .showInformationMessage(
@@ -244,7 +244,7 @@ function vscodeSsoNotify(helperUrl: string) {
 }
 
 /**
- * Build an AuthResult using stored or freshly captured SSO cookies.
+ * 使用存储或新捕获的 SSO cookie 构建 AuthResult。
  */
 export async function buildBrowserSsoAuth(
   connId: string,
@@ -269,7 +269,7 @@ export async function buildBrowserSsoAuth(
 }
 
 /**
- * Re-authenticate browser SSO (clear cookies and re-capture).
+ * 重新认证浏览器 SSO（清除 cookie 并重新捕获）。
  */
 export async function refreshBrowserSsoAuth(
   connId: string,
@@ -291,13 +291,13 @@ export async function refreshBrowserSsoAuth(
   }
 }
 
-/** Generate the helper HTML page for cookie capture. */
+/** 生成用于 cookie 捕获的辅助 HTML 页面。 */
 function getHelperPageHtml(sapUrl: string, token: string): string {
-  // Validate URL protocol before embedding — reject javascript: or data: URIs
+  // 嵌入前校验 URL 协议 — 拒绝 javascript: 或 data: URI
   if (!/^https?:\/\//i.test(sapUrl)) {
-    sapUrl = "about:blank" // Safe fallback; should never reach here in normal operation
+    sapUrl = "about:blank" // 安全回退；正常操作中不应到达这里
   }
-  // Escape the SAP URL for safe embedding in HTML
+  // 转义 SAP URL 以安全嵌入 HTML
   const escapedUrl = sapUrl
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
