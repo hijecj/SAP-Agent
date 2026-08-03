@@ -16,7 +16,7 @@ export interface LockResult {
   }
 }
 
-/** Map from AdtLock to the LockResult shape used throughout this module. */
+/** 把 AdtLock 映射到本模块使用的 LockResult 形状。 */
 function adtLockToLockResult(lock: AdtLock): LockResult {
   const corrNr = lock.CORRNR?.toString()
   const corrText = lock.CORRTEXT?.toString()
@@ -31,7 +31,7 @@ function adtLockToLockResult(lock: AdtLock): LockResult {
 }
 
 /**
- * Object type detection and URL utilities for text elements
+ * 文本元素的对象类型检测和 URL 工具
  */
 
 export enum ObjectType {
@@ -44,35 +44,35 @@ export enum ObjectType {
 export interface ObjectInfo {
   name: string
   type: ObjectType
-  cleanName: string // Name without extension
+  cleanName: string // 不带扩展名的名称
 }
 
 /**
- * Parse object name and determine type
- * Automatically handles URL encoding for namespace objects
- * Handles both regular forward slash (/) and division slash (∕) characters
+ * 解析对象名并确定类型
+ * 自动处理命名空间对象的 URL 编码
+ * 同时处理常规正斜杠（/）和除法斜杠（∕）字符
  */
 export function parseObjectName(objectName: string, explicitType?: string): ObjectInfo {
-  // Clean the object name - handle URL encoding and file extensions
+  // 清理对象名 - 处理 URL 编码和文件扩展名
   let cleanName = objectName
 
-  // URL-decode if it contains URL-encoded characters (for namespace objects)
+  // 如果包含 URL 编码字符则 URL 解码（用于命名空间对象）
   if (cleanName.includes("%")) {
     try {
       cleanName = decodeURIComponent(cleanName)
     } catch (error) {
       log(`[TextElements] Failed to URL decode '${objectName}': ${error}`)
-      // Continue with original name if decoding fails
+      // 解码失败时继续使用原始名称
     }
   }
 
-  // Normalize division slash (∕) to forward slash (/) for consistent processing
+  // 把除法斜杠（∕）规范化为正斜杠（/）以保持一致处理
   if (cleanName.includes("∕")) {
     const originalName = cleanName
     cleanName = cleanName.replace(/∕/g, "/")
   }
 
-  // Always use explicit type when provided (Copilot knows the object type)
+  // 提供显式类型时始终使用它（Copilot 知道对象类型）
   if (explicitType) {
     const type = explicitType.toUpperCase()
     if (type === "CLASS" || type.includes("CLAS")) {
@@ -87,7 +87,7 @@ export function parseObjectName(objectName: string, explicitType?: string): Obje
     }
   }
 
-  // Fallback: detect from file extension only (no name-based guessing)
+  // 回退：只从文件扩展名检测（不做基于名称的猜测）
   const name = cleanName.toLowerCase()
   if (name.endsWith(".clas.abap")) {
     const finalCleanName = name.replace(".clas.abap", "")
@@ -96,20 +96,20 @@ export function parseObjectName(objectName: string, explicitType?: string): Obje
     const finalCleanName = name.replace(".fugr.abap", "")
     return { name: objectName, type: ObjectType.FUNCTION_GROUP, cleanName: finalCleanName }
   } else if (name.endsWith(".func.abap")) {
-    // Function module (individual function, not function group)
+    // 函数模块（单个函数，不是函数组）
     const finalCleanName = name.replace(".func.abap", "")
     return { name: objectName, type: ObjectType.FUNCTION_MODULE, cleanName: finalCleanName }
   } else if (name.endsWith(".prog.abap")) {
     const finalCleanName = name.replace(".prog.abap", "")
     return { name: objectName, type: ObjectType.PROGRAM, cleanName: finalCleanName }
   } else {
-    // Default to program for plain names (no smart guessing)
+    // 对普通名称默认为程序（不做智能猜测）
     return { name: objectName, type: ObjectType.PROGRAM, cleanName: cleanName }
   }
 }
 
 /**
- * Determine the ADT type prefix for use with apiTextElementsUrl from ObjectInfo.
+ * 确定与 ObjectInfo 的 apiTextElementsUrl 一起使用的 ADT 类型前缀。
  */
 function objectInfoToAdtType(type: ObjectType): string {
   switch (type) {
@@ -123,28 +123,28 @@ function objectInfoToAdtType(type: ObjectType): string {
 }
 
 /**
- * Get text elements base URL based on object info using the abap-adt-api helper.
+ * 使用 abap-adt-api 辅助基于对象信息获取文本元素基础 URL。
  */
 export function getTextElementsUrlFromObjectInfo(objectInfo: ObjectInfo): string {
   return ADTClient.textElementsUrl(objectInfoToAdtType(objectInfo.type), objectInfo.cleanName)
 }
 
 /**
- * Get lock URL based on object info (same as the base text elements URL).
+ * 基于对象信息获取锁定 URL（与文本元素基础 URL 相同）。
  */
 export function getTextElementsLockUrlFromObjectInfo(objectInfo: ObjectInfo): string {
   return getTextElementsUrlFromObjectInfo(objectInfo)
 }
 
 /**
- * Get transport object path based on object info.
+ * 基于对象信息获取传输对象路径。
  */
 export function getTransportObjectPathFromObjectInfo(objectInfo: ObjectInfo): string {
   return getTextElementsUrlFromObjectInfo(objectInfo)
 }
 
 /**
- * Determine the text elements base URL based on object name/type.
+ * 基于对象名/类型确定文本元素基础 URL。
  */
 function getTextElementsBaseUrl(objectName: string, objectType?: string): string {
   const objectInfo = parseObjectName(objectName, objectType)
@@ -152,7 +152,7 @@ function getTextElementsBaseUrl(objectName: string, objectType?: string): string
 }
 
 /**
- * Get text elements for an ABAP object using the ADT client.
+ * 使用 ADT 客户端获取 ABAP 对象的文本元素。
  */
 export async function getTextElements(
   connection: ADTClient,
@@ -171,7 +171,7 @@ export async function getTextElements(
 }
 
 /**
- * Lock text elements for modification via the standard ADT lock API.
+ * 通过标准 ADT 锁定 API 锁定文本元素以进行修改。
  */
 export async function lockTextElements(
   connection: ADTClient,
@@ -188,8 +188,8 @@ export async function lockTextElements(
 }
 
 /**
- * Set text elements for an ABAP object.
- * Writes elements via the ADT client, then unlocks and activates.
+ * 设置 ABAP 对象的文本元素。
+ * 通过 ADT 客户端写入元素，然后解锁并激活。
  */
 export async function setTextElements(
   connection: ADTClient,
@@ -210,7 +210,7 @@ export async function setTextElements(
 }
 
 /**
- * Simple validation for object names
+ * 对象名的简单校验
  */
 function validateObjectName(objectName: string): void {
   if (!objectName || typeof objectName !== "string" || objectName.trim().length === 0) {
@@ -219,7 +219,7 @@ function validateObjectName(objectName: string): void {
 }
 
 /**
- * Validate text elements array
+ * 校验文本元素数组
  */
 function validateTextElements(textElements: TextElement[]): void {
   if (!Array.isArray(textElements)) {
@@ -248,9 +248,9 @@ function validateTextElements(textElements: TextElement[]): void {
     }
     usedIds.add(id)
 
-    // Auto-calculate maxLength if not provided or invalid
+    // 未提供或无效时自动计算 maxLength
     if (element.maxLength === undefined || element.maxLength === null || isNaN(element.maxLength)) {
-      element.maxLength = Math.max(element.text.length, 10) // At least 10, or text length
+      element.maxLength = Math.max(element.text.length, 10) // 至少 10，或文本长度
     }
 
     if (typeof element.maxLength !== "number" || element.maxLength < 1 || element.maxLength > 255) {
@@ -266,7 +266,7 @@ function validateTextElements(textElements: TextElement[]): void {
 }
 
 /**
- * Safe wrapper for getting text elements with validation
+ * 带校验获取文本元素的安全包装器
  */
 export async function getTextElementsSafe(
   connection: ADTClient,
@@ -281,7 +281,7 @@ export async function updateTextElementsWithTransport(
   connection: ADTClient,
   objectName: string,
   textElements: TextElement[],
-  objectType?: string // Optional - only required when called from Copilot
+  objectType?: string // 可选 - 只从 Copilot 调用时需要
 ): Promise<void> {
   validateObjectName(objectName)
   validateTextElements(textElements)
