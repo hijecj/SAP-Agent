@@ -10,13 +10,13 @@ const startIdent = /^((<?[\w]+>?)|(\/\w+\/\w+))/
 const endIdent = /((<?[\w]+>?)|(\/\w+\/\w+))$/
 
 /**
- * Return true when the range points to a single cursor position.
+ * 当范围指向单个光标位置时返回 true。
  */
 export const rangeIsEmpty = (r: Range) =>
   r.start.line === r.end.line && r.start.character === r.end.character
 
 /**
- * Map the ABAP severity letter to the LSP diagnostic severity used by the client.
+ * 把 ABAP 严重级别字母映射到客户端使用的 LSP 诊断严重级别。
  */
 export function decodeSeverity(severity: string) {
   switch (severity) {
@@ -34,12 +34,12 @@ export function decodeSeverity(severity: string) {
 }
 
 /**
- * Narrow an unknown value to a string for document and URI handling.
+ * 为文档和 URI 处理把未知值收窄为字符串。
  */
 export const isString = (s: unknown): s is string => typeof s === "string"
 
 /**
- * Build a diagnostic range that spans the identifier under the given cursor or line position.
+ * 构建覆盖给定光标或行位置下标识符的诊断范围。
  */
 export function sourceRange(
   document: TextDocument | string,
@@ -66,7 +66,7 @@ export function sourceRange(
 }
 
 /**
- * Decode a VS Code URI fragment that contains the start and end positions of a selection.
+ * 解码包含选区开始和结束位置的 VS Code URI 片段。
  */
 export function rangeFromUri(uri: string): Range | undefined {
   const [startl, startc, endl, endc] = parts(uri, /\#(?:.*;)?start=(\d+),(\d+);end=(\d+),(\d+)/)
@@ -79,7 +79,7 @@ export function rangeFromUri(uri: string): Range | undefined {
 }
 
 /**
- * Shape of the client, object, and source payload used by the server when resolving ABAP content.
+ * 服务器解析 ABAP 内容时使用的客户端、对象和源码负载形状。
  */
 export interface ClientAndObject {
   confKey: string
@@ -89,7 +89,7 @@ export interface ClientAndObject {
 }
 
 /**
- * Resolve the active ADT client, object metadata, and optionally the source text for a given URI.
+ * 为给定 URI 解析活动 ADT 客户端、对象元数据，以及可选的源文本。
  */
 export async function clientAndObjfromUrl(
   uri: string,
