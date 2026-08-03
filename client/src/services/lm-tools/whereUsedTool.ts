@@ -1,6 +1,6 @@
 /**
- * ABAP Where-Used Analysis Tool
- * Find all references and usage locations
+ * ABAP Where-Used 分析工具
+ * 查找所有引用和使用位置
  */
 
 import * as vscode from "vscode"
@@ -12,36 +12,36 @@ import { getClient } from "../../adt/conections"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface IWhereUsedParameters {
-  objectName: string // Mandatory - need object to search for
-  connectionId: string // Mandatory - need SAP system connection
-  objectType?: string // Optional: specify exact type to avoid ambiguity
-  searchTerm?: string // Optional: specific symbol/method/variable to search for
-  line?: number // Optional: specific line number for context-sensitive search
-  character?: number // Optional: character position for precise symbol search
-  maxResults?: number // Maximum number of references to return (default: 50)
-  includeSnippets?: boolean // Include code snippets showing usage context (warning: can be slow for large result sets)
+  objectName: string // 必填 - 需要搜索的对象
+  connectionId: string // 必填 - 需要 SAP 系统连接
+  objectType?: string // 可选：指定精确类型以避免歧义
+  searchTerm?: string // 可选：要搜索的特定符号/方法/变量
+  line?: number // 可选：上下文敏感搜索的特定行号
+  character?: number // 可选：精确符号搜索的字符位置
+  maxResults?: number // 返回的最大引用数（默认：50）
+  includeSnippets?: boolean // 包含显示使用上下文的代码片段（警告：大结果集可能很慢）
 
-  // Pagination support - for large result sets
-  startIndex?: number // Start from this result index (0-based). Use to skip earlier results and access later ones (e.g., startIndex: 5000 to get results starting from 5000)
+  // 分页支持 - 用于大结果集
+  startIndex?: number // 从此结果索引开始（从 0 开始）。用于跳过较早的结果并访问较晚的（例如 startIndex: 5000 获取从 5000 开始的结果）
 
-  // Filtering support - narrow down results
+  // 过滤支持 - 缩小结果范围
   filter?: {
     objectNamePattern?: string // Filter by object name pattern (supports wildcards: "Z*", "*CUSTOM*", "ZXX_*")
     objectTypes?: string[] // Filter by specific object types (e.g., ["PROG/P", "CLAS/OC", "FUGR/FF"])
-    excludeSystemObjects?: boolean // Exclude SAP standard objects (objects not starting with Z or Y)
+    excludeSystemObjects?: boolean // 排除 SAP 标准对象（不以 Z 或 Y 开头的对象）
   }
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 🔍 ABAP WHERE-USED ANALYSIS TOOL - Find all references and usage locations
+ * 🔍 ABAP WHERE-USED 分析工具 - 查找所有引用和使用位置
  */
 export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedParameters> {
   async prepareInvocation(
@@ -115,10 +115,10 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
     logTelemetry("tool_find_where_used_called", { connectionId })
 
     try {
-      // connectionId is now mandatory
+      // connectionId 现在是必填的
       const actualConnectionId = connectionId.toLowerCase()
 
-      // First, search for the object to get its URI
+      // 首先搜索对象以获取其 URI
       const searcher = getSearchService(actualConnectionId)
       const searchTypes = objectType ? [objectType] : undefined
       const searchResults = await searcher.searchObjects(objectName, searchTypes, 1)
@@ -139,25 +139,25 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
         ])
       }
 
-      // Get the client and object source for where-used analysis
+      // 获取用于 where-used 分析的客户端和对象源码
       const client = getClient(actualConnectionId)
 
-      // Get object source to determine the main URL and perform where-used search
+      // 获取对象源码以确定主 URL 并执行 where-used 搜索
       let mainUrl = objectInfo.uri
       let objectSource = ""
 
       try {
-        // Try to get source - use the same URI optimization as other tools
+        // 尝试获取源码 - 使用与其他工具相同的 URI 优化
         const optimalUri = getOptimalObjectURI(objectInfo.type, objectInfo.uri)
         objectSource = await client.getObjectSource(optimalUri)
         mainUrl = optimalUri
       } catch (sourceError) {
-        // Fallback to original URI
+        // 回退到原始 URI
         try {
           objectSource = await client.getObjectSource(objectInfo.uri)
           mainUrl = objectInfo.uri
         } catch (fallbackError) {
-          // If searchTerm is provided, we need the source to find it - fail
+          // 如果提供了 searchTerm，我们需要源码来找到它 - 失败
           if (searchTerm) {
             return new vscode.LanguageModelToolResult([
               new vscode.LanguageModelTextPart(
@@ -165,17 +165,17 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
               )
             ])
           }
-          // Otherwise, continue without source - will default to line 1, char 0
-          // mainUrl remains as objectInfo.uri which was set earlier
+          // 否则，在没有源码的情况下继续 - 将默认使用第 1 行、第 0 列
+          // mainUrl 保持为之前设置的 objectInfo.uri
           objectSource = ""
         }
       }
 
-      // Determine search position - for where-used, we need a meaningful position
+      // 确定搜索位置 - 对 where-used，我们需要有意义的位置
       let searchLine = line
       let searchCharacter = character
 
-      // If searchTerm is provided, find it in the source
+      // 如果提供了 searchTerm，在源码中找到它
       if (searchTerm && objectSource) {
         const lines = objectSource.split("\n")
         let found = false
@@ -184,7 +184,7 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
           const lineText = lines[i]
           const termIndex = lineText.toUpperCase().indexOf(searchTerm.toUpperCase())
           if (termIndex >= 0) {
-            searchLine = i + 1 // 1-based for ADT API
+            searchLine = i + 1 // ADT API 从 1 开始
             searchCharacter = termIndex
             found = true
             break
@@ -199,15 +199,15 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
           ])
         }
       } else if (!searchLine) {
-        // If no specific position provided, search for object declaration/definition
+        // 如果未提供特定位置，搜索对象声明/定义
         if (objectSource) {
           const lines = objectSource.split("\n")
 
-          // Look for common ABAP declaration patterns
+          // 查找常见的 ABAP 声明模式
           const declarationPatterns = [
             new RegExp(`\\b(class|interface|program|function|method)\\s+${objectName}\\b`, "i"),
             new RegExp(`\\b${objectName}\\b.*\\s+(class|interface|type|data)`, "i"),
-            new RegExp(`^\\s*${objectName}\\b`, "i") // Simple name match at line start
+            new RegExp(`^\\s*${objectName}\\b`, "i") // 行首的简单名称匹配
           ]
 
           for (let i = 0; i < lines.length; i++) {
@@ -226,14 +226,14 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
           }
         }
 
-        // Fallback to first line if no declaration found
+        // 未找到声明时回退到第一行
         if (!searchLine) {
           searchLine = 1
           searchCharacter = 0
         }
       }
 
-      // Perform where-used search using ADT API
+      // 使用 ADT API 执行 where-used 搜索
       let references: any[] = []
       try {
         references = await client.statelessClone.usageReferences(
@@ -249,17 +249,17 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
         ])
       }
 
-      // Extract the actual keyword/symbol at the search position for display
+      // 提取搜索位置的实际关键字/符号用于显示
       let actualKeyword = ""
       if (objectSource && searchLine && searchCharacter !== undefined) {
         const lines = objectSource.split("\n")
         if (searchLine > 0 && searchLine <= lines.length) {
-          const lineText = lines[searchLine - 1] // Convert to 0-based
-          // Extract word at character position (simple word extraction)
+          const lineText = lines[searchLine - 1] // 转换为从 0 开始
+          // 提取字符位置的单词（简单单词提取）
           let start = searchCharacter
           let end = searchCharacter
 
-          // Find word boundaries
+          // 查找单词边界
           while (start > 0 && /[a-zA-Z0-9_]/.test(lineText[start - 1])) {
             start--
           }
@@ -279,7 +279,7 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
         ])
       }
 
-      // Filter and group references
+      // 过滤和分组引用
       const goodRefs = references.filter((ref: any) => {
         const rparts = ref.objectIdentifier?.split(";")
         return rparts && rparts[1] && rparts[0] === "ABAPFullName"
@@ -295,7 +295,7 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
 
       const totalRawReferences = goodRefs.length
 
-      // Apply filters if provided
+      // 提供了过滤器则应用
       let filteredRefs = goodRefs
       const filterStats = {
         byObjectName: 0,
@@ -304,7 +304,7 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
       }
 
       if (filter) {
-        // Filter by object name pattern
+        // 按对象名称模式过滤
         if (filter.objectNamePattern) {
           const pattern = this.wildcardToRegex(filter.objectNamePattern)
           const beforeCount = filteredRefs.length
@@ -316,7 +316,7 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
           filterStats.byObjectName = beforeCount - filteredRefs.length
         }
 
-        // Filter by object types
+        // 按对象类型过滤
         if (filter.objectTypes && filter.objectTypes.length > 0) {
           const beforeCount = filteredRefs.length
           filteredRefs = filteredRefs.filter((ref: any) => {
@@ -326,7 +326,7 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
           filterStats.byObjectType = beforeCount - filteredRefs.length
         }
 
-        // Exclude SAP standard objects (not starting with Z or Y)
+        // 排除 SAP 标准对象（不以 Z 或 Y 开头）
         if (filter.excludeSystemObjects) {
           const beforeCount = filteredRefs.length
           filteredRefs = filteredRefs.filter((ref: any) => {
@@ -352,7 +352,7 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
         return new vscode.LanguageModelToolResult([new vscode.LanguageModelTextPart(filterMsg)])
       }
 
-      // Apply pagination (startIndex)
+      // 应用分页（startIndex）
       const paginatedRefs = filteredRefs.slice(startIndex, startIndex + maxResults)
 
       if (paginatedRefs.length === 0) {
@@ -368,7 +368,7 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
       let resultText = `ABAP Where-Used Analysis\n`
       resultText += `Object: ${objectName}${objectType ? ` (${objectType})` : ""}\n`
 
-      // Show actual keyword found at position (when line/character provided OR searchTerm used)
+      // 显示在位置找到的实际关键字（提供了行/列或使用了 searchTerm 时）
       if (actualKeyword) {
         resultText += `Analyzing symbol at position: \`${actualKeyword}\` (Line ${searchLine}, Character ${searchCharacter})\n`
       } else {
@@ -378,7 +378,7 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
 
       resultText += `System: ${actualConnectionId}\n\n`
 
-      // Show filtering and pagination info
+      // 显示过滤和分页信息
       if (filter || startIndex > 0) {
         resultText += `Result Set Info:\n`
         resultText += `• Total references found: ${totalRawReferences}\n`
@@ -410,7 +410,7 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
         resultText += `\n`
       }
 
-      // Group references by object
+      // 按对象分组引用
       const groups = new Map<string, any[]>()
       for (const ref of paginatedRefs) {
         const rparts = ref.objectIdentifier.split(";")
@@ -427,7 +427,7 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
       let hasUnknownTypes = false
       const allObjects = Array.from(groups.entries())
 
-      // Show details for all objects (they're already paginated by maxResults/startIndex)
+      // 显示所有对象的详情（已按 maxResults/startIndex 分页）
       for (const [fullName, refs] of allObjects) {
         resultText += `${refIndex}. ${fullName} (${refs.length} reference${refs.length > 1 ? "s" : ""})\n`
 
@@ -450,7 +450,7 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
         refIndex++
       }
 
-      // Add tip about Unknown types
+      // 添加关于未知类型的提示
       if (hasUnknownTypes) {
         resultText += `\nTip: some references show Type="Unknown". Determine actual type from URI path:\n`
         resultText += `   • /oo/classes/ → Class (CLAS/OC)\n`
@@ -460,7 +460,7 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
         resultText += `   • Or use the URI with get_object_by_uri to inspect metadata\n\n`
       }
 
-      // Get usage snippets if requested - Copilot controls this via includeSnippets parameter
+      // 请求时获取使用片段 - Copilot 通过 includeSnippets 参数控制
       if (includeSnippets) {
         try {
           resultText += `\nUsage Snippets:\n`
@@ -473,7 +473,7 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
               resultText += `${snippetIndex}. ${s.objectIdentifier}\n`
 
               for (const snippet of s.snippets.slice(0, 3)) {
-                // Max 3 snippets per object
+                // 每个对象最多 3 个片段
                 if (snippet.uri && snippet.uri.start) {
                   resultText += `   Line ${snippet.uri.start.line}: ${snippet.content || snippet.matches || "No content"}\n`
                 }
@@ -487,7 +487,7 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
         }
       }
 
-      // Summary statistics
+      // 汇总统计
       const uniqueObjects = groups.size
       const totalReferences = paginatedRefs.length
 
@@ -506,18 +506,18 @@ export class ABAPWhereUsedTool implements vscode.LanguageModelTool<IWhereUsedPar
     }
   }
 
-  // Helper method to convert wildcard patterns to regex
+  // 把通配符模式转换为正则的辅助方法
   private wildcardToRegex(pattern: string): RegExp {
-    // Escape special regex characters except * and ?
+    // 转义除 * 和 ? 之外的特殊正则字符
     const escaped = pattern.replace(/[.+^${}()|[\]\\]/g, "\\$&")
-    // Convert wildcards: * -> .*, ? -> .
+    // 转换通配符：* -> .*、? -> .
     const regex = escaped.replace(/\*/g, ".*").replace(/\?/g, ".")
     return new RegExp(`^${regex}$`, "i")
   }
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerWhereUsedTool(context: vscode.ExtensionContext): void {
