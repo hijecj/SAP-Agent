@@ -81,7 +81,7 @@ class ConnectionItem extends CollectionItem {
   }
 
   public set label(l: string) {
-    // will never change
+    // 永远不会改变
   }
 
   constructor(public uri: Uri) {
@@ -142,16 +142,16 @@ class TransportItem extends CollectionItem {
       await window.withProgress(
         { location: ProgressLocation.Notification, title: `Releasing ${transport}` },
         async () => {
-          // before releasing the main transports, release subtasks if
-          //  - not released
-          //  - not empty
+          // 释放主传输之前，释放子任务，如果
+          //  - 未释放
+          //  - 不为空
           const tasks = tran.children.filter(
             c => TransportItem.isA(c) && c.children.length && !c.released
           )
-          // append main transport as last
+          // 最后追加主传输
           tasks.push(tran)
           for (const task of tasks) {
-            if (!TransportItem.isA(task)) continue // just to make ts happy
+            if (!TransportItem.isA(task)) continue // 只是让 TS 满意
             const reports = await getClient(task.connId).transportRelease(task.task["tm:number"])
             const failure = reports.find(r => r["chkrun:status"] !== "released")
             if (failure) {
@@ -426,7 +426,7 @@ export class TransportsProvider implements TreeDataProvider<CollectionItem> {
   private static async transportRevision(tran: TransportItem) {
     const transport = tran.task["tm:number"]
     const children = await tran.getChildren()
-    // find the objects in transports and subtasks
+    // 查找传输和子任务中的对象
     const trobjects = children.filter(ObjectItem.isA)
     for (const child of children.filter(TransportItem.isA)) {
       const gc = await child.getChildren()
@@ -463,10 +463,10 @@ export class TransportsProvider implements TreeDataProvider<CollectionItem> {
             const path = await this.decodeTransportObject(tro.obj, tro.connId, false)
             if (!path) continue
             if (isAbapFolder(path.file)) {
-              // expand folders to children
+              // 把文件夹展开为子项
               if (!isAbapStat(path.file)) continue
               const obj = path.file.object
-              // for packages we don't really care about contents
+              // 对包我们不太关心内容
               if (obj.type === PACKAGE) continue
               const allChildren = (item: PathItem) =>
                 isFolder(item.file) ? [...item.file.expandPath(item.path)] : []
