@@ -13,24 +13,24 @@ export interface GraphNode {
   type: string
   description?: string
   isRoot?: boolean
-  isCustom?: boolean // Z* or Y*
-  responsible?: string // Who owns this object
-  package?: string // Package name
-  packageUri?: string // Package URI
-  canExpand?: boolean // Can fetch more dependencies
-  uri?: string // ADT URI for opening
-  line?: number // Line number where used
-  column?: number // Column where used
-  objectIdentifier?: string // For on-demand snippet fetching
-  parentClass?: string // For methods, the parent class name (for filtering)
-  parentUri?: string // Parent URI from reference
-  usageInformation?: string // Usage info from reference
+  isCustom?: boolean // Z* 或 Y*
+  responsible?: string // 谁拥有此对象
+  package?: string // 包名
+  packageUri?: string // 包 URI
+  canExpand?: boolean // 能否获取更多依赖
+  uri?: string // 用于打开的 ADT URI
+  line?: number // 使用位置的行号
+  column?: number // 使用位置的列
+  objectIdentifier?: string // 用于按需获取代码片段
+  parentClass?: string // 对方法，父类名（用于过滤）
+  parentUri?: string // 来自引用的父 URI
+  usageInformation?: string // 来自引用的使用信息
 }
 
 export interface GraphEdge {
   source: string
   target: string
-  usageType?: string // How it's used: READ, WRITE, CALL, etc.
+  usageType?: string // 使用方式：READ、WRITE、CALL 等
 }
 
 export interface GraphData {
@@ -42,11 +42,11 @@ export interface DependencyGraphFilters {
   showCustomOnly: boolean
   showStandardOnly: boolean
   objectTypes: string[]
-  usageTypes: string[] // Filter by how objects are used (READ, WRITE, CALL, etc.)
+  usageTypes: string[] // 按对象使用方式过滤（READ、WRITE、CALL 等）
 }
 
 /**
- * Parse UsageReference to extract object information
+ * 解析 UsageReference 以提取对象信息
  */
 function parseUsageReference(ref: UsageReference): {
   name: string
@@ -73,37 +73,37 @@ function parseUsageReference(ref: UsageReference): {
 
     let objectType = ref["adtcore:type"] || ""
 
-    // Handle special cases with empty type
+    // 处理空类型的特殊情况
     if (!objectType) {
       const name = ref["adtcore:name"]
-      // Class sections have descriptive names but no type
+      // 类部分有描述性名称但没有类型
       if (name === "Public Section" || name === "Protected Section" || name === "Private Section") {
         objectType = "CLAS/SECTION"
       } else if (ref.uri && ref.uri.includes("/oo/classes/")) {
-        objectType = "CLAS/OC" // Default for class-related objects
+        objectType = "CLAS/OC" // 类相关对象的默认值
       } else {
         objectType = "UNKNOWN"
       }
     }
 
-    // Determine the correct object name based on type
-    // objectIdentifier format: ABAPFullName;PROGRAM_NAME;INCLUDE_NAME;...
+    // 按类型确定正确的对象名
+    // objectIdentifier 格式：ABAPFullName;PROGRAM_NAME;INCLUDE_NAME;...
     let objectName = rparts[1]
 
-    // Extract parent class name for methods (for filtering)
+    // 提取方法的父类名（用于过滤）
     let parentClass: string | undefined = undefined
 
     if (objectType === "PROG/I" && rparts.length >= 3 && rparts[2]) {
-      // For includes, use the include name from rparts[2]
+      // 对 include，使用 rparts[2] 中的 include 名
       objectName = rparts[2]
     } else if ((objectType === "FUGR/FF" || objectType === "CLAS/OM") && ref["adtcore:name"]) {
-      // For function modules and methods, use adtcore:name (the actual FM/method name)
+      // 对函数模块和方法，使用 adtcore:name（实际的 FM/方法名）
       objectName = ref["adtcore:name"]
 
-      // For methods, extract parent class name from objectIdentifier
+      // 对方法，从 objectIdentifier 提取父类名
       if (objectType === "CLAS/OM" && rparts[1]) {
-        // Format: ABAPFullName;ZCL_CLASS_NAME======CP;...
-        const className = rparts[1].split("=")[0] // Remove ======CP suffix
+        // 格式：ABAPFullName;ZCL_CLASS_NAME======CP;...
+        const className = rparts[1].split("=")[0] // 移除 ======CP 后缀
         parentClass = className
       }
     }
@@ -118,7 +118,7 @@ function parseUsageReference(ref: UsageReference): {
       usageType: ref.usageInformation || "",
       canExpand: ref.canHaveChildren,
       uri: ref.uri,
-      line: undefined, // Will be fetched on-demand when opening
+      line: undefined, // 打开时按需获取
       column: undefined,
       objectIdentifier: ref.objectIdentifier,
       parentClass: parentClass,
@@ -132,10 +132,10 @@ function parseUsageReference(ref: UsageReference): {
 }
 
 /**
- * Check if object is custom (starts with Z or Y)
- * An object is custom if:
- * - Object name starts with Z or Y, OR
- * - Package name starts with Z or Y
+ * 检查对象是否为自定义（以 Z 或 Y 开头）
+ * 满足以下条件即为自定义：
+ * - 对象名以 Z 或 Y 开头，或者
+ * - 包名以 Z 或 Y 开头
  */
 function isCustomObject(objectName: string, packageName?: string): boolean {
   const nameIsCustom = /^[ZY]/i.test(objectName)
@@ -144,7 +144,7 @@ function isCustomObject(objectName: string, packageName?: string): boolean {
 }
 
 /**
- * Fetch where-used data for an ABAP object with position information
+ * 获取带位置信息的 ABAP 对象的 where-used 数据
  */
 export async function fetchWhereUsedData(
   objectUri: string,
@@ -161,8 +161,8 @@ export async function fetchWhereUsedData(
       character || 0
     )
 
-    // Don't fetch snippets upfront - it's slow for large graphs
-    // Snippets will be fetched on-demand when user double-clicks a node
+    // 不要提前获取代码片段 - 大图会很慢
+    // 用户双击节点时按需获取代码片段
 
     return references || []
   } catch (error) {
@@ -172,17 +172,17 @@ export async function fetchWhereUsedData(
 }
 
 /**
- * Extract the actual symbol being searched from objectIdentifier
- * Format: ABAPFullName;PROGRAM;INCLUDE;\PR:PROGRAM\TY:TYPE\ME:METHOD\DA:VAR;...
- * The objectIdentifier can have MULTIPLE symbols chained - we want the LAST one (most specific)
+ * 从 objectIdentifier 提取实际被搜索的符号
+ * 格式：ABAPFullName;PROGRAM;INCLUDE;\PR:PROGRAM\TY:TYPE\ME:METHOD\DA:VAR;...
+ * objectIdentifier 可以链式包含多个符号 - 我们想要最后一个（最具体的）
  */
 function extractActualSymbol(objectIdentifier: string): { name: string; type: string } | null {
   if (!objectIdentifier) return null
 
-  // Find ALL symbol markers: \TY:, \FU:, \ME:, \DA:, etc.
+  // 查找所有符号标记：\TY:、\FU:、\ME:、\DA: 等
   const symbolMatches = objectIdentifier.match(/\\([A-Z]+):([^\\;]+)/g)
   if (symbolMatches && symbolMatches.length > 0) {
-    // Take the LAST symbol in the chain (most specific)
+    // 取链中的最后一个符号（最具体）
     const lastSymbol = symbolMatches[symbolMatches.length - 1]
     const parts = lastSymbol.match(/\\([A-Z]+):(.+)/)
 
@@ -190,7 +190,7 @@ function extractActualSymbol(objectIdentifier: string): { name: string; type: st
       const symbolTypeCode = parts[1]
       const symbolName = parts[2]
 
-      // Map to readable types
+      // 映射为可读类型
       const typeMap: Record<string, string> = {
         TY: "TYPE",
         FU: "FUNCTION",
@@ -205,7 +205,7 @@ function extractActualSymbol(objectIdentifier: string): { name: string; type: st
         PR: "PROGRAM"
       }
 
-      // Always return the symbol - use raw type code if not in map
+      // 始终返回符号 - 不在映射中时使用原始类型代码
       return {
         name: symbolName,
         type: typeMap[symbolTypeCode] || symbolTypeCode
@@ -217,8 +217,8 @@ function extractActualSymbol(objectIdentifier: string): { name: string; type: st
 }
 
 /**
- * Build graph data from where-used references
- * @param skipSymbolExtraction - If true, use rootObjectName/Type as-is (for node expansion)
+ * 从 where-used 引用构建图数据
+ * @param skipSymbolExtraction - 为 true 时按原样使用 rootObjectName/Type（用于节点展开）
  */
 export function buildGraphData(
   rootObjectName: string,
@@ -230,7 +230,7 @@ export function buildGraphData(
   const edges: GraphEdge[] = []
   const nodeMap = new Map<string, GraphNode>()
 
-  // Try to extract the actual symbol from the first valid reference (unless expanding)
+  // 尝试从第一个有效引用提取实际符号（除非正在展开）
   let actualRootName = rootObjectName
   let actualRootType = rootObjectType
 
@@ -241,13 +241,13 @@ export function buildGraphData(
         if (symbol) {
           actualRootName = symbol.name
           actualRootType = symbol.type
-          break // Use the first one we find
+          break // 使用找到的第一个
         }
       }
     }
   }
 
-  // Add root node with the actual symbol
+  // 用实际符号添加根节点
   const rootId = `${actualRootName}::${actualRootType}`
   const rootNode: GraphNode = {
     id: rootId,
@@ -259,23 +259,23 @@ export function buildGraphData(
   nodes.push(rootNode)
   nodeMap.set(rootId, rootNode)
 
-  // Process references - filter out invalid ones
+  // 处理引用 - 过滤掉无效的
   const validRefs = references.filter(ref => {
     const rparts = ref.objectIdentifier?.split(";")
     return rparts && rparts[1] && rparts[0] === "ABAPFullName"
   })
 
-  // Build nodes and edges
+  // 构建节点和边
   for (const ref of validRefs) {
     const parsed = parseUsageReference(ref)
     if (!parsed) continue
 
     const nodeId = `${parsed.name}::${parsed.type}`
 
-    // Add node if not exists
+    // 不存在时添加节点
     if (!nodeMap.has(nodeId)) {
-      // For methods, check if parent class is custom, not the method name
-      // Also check package name - if either object/class name OR package starts with Z/Y, it's custom
+      // 对方法，检查父类是否为自定义，而不是方法名
+      // 同时检查包名 - 对象/类名或包以 Z/Y 开头即为自定义
       const isCustomNode = parsed.parentClass
         ? isCustomObject(parsed.parentClass, parsed.package)
         : isCustomObject(parsed.name, parsed.package)
@@ -303,8 +303,8 @@ export function buildGraphData(
       nodeMap.set(nodeId, node)
     }
 
-    // Add edge from dependent to root (who uses the root) with usage type
-    // Skip self-referencing edges
+    // 添加从依赖者到根节点的边（谁使用根），带使用类型
+    // 跳过自引用边
     if (nodeId !== rootId) {
       edges.push({
         source: nodeId,
@@ -318,32 +318,32 @@ export function buildGraphData(
 }
 
 /**
- * Merge new graph data into existing graph
- * Used when expanding nodes - preserves existing nodes and adds new ones
+ * 把新图数据合并到现有图
+ * 用于展开节点时 - 保留现有节点并添加新节点
  */
 export function mergeGraphData(existingGraph: GraphData, newGraph: GraphData): GraphData {
   const nodeMap = new Map<string, GraphNode>()
   const edgeMap = new Map<string, GraphEdge>()
 
-  // Add all existing nodes
+  // 添加所有现有节点
   for (const node of existingGraph.nodes) {
     nodeMap.set(node.id, node)
   }
 
-  // Add new nodes (avoiding duplicates)
+  // 添加新节点（避免重复）
   for (const node of newGraph.nodes) {
     if (!nodeMap.has(node.id)) {
-      nodeMap.set(node.id, { ...node, isRoot: false }) // New nodes are not root
+      nodeMap.set(node.id, { ...node, isRoot: false }) // 新节点不是根
     }
   }
 
-  // Add all existing edges (preserve full edge object including usageType)
+  // 添加所有现有边（保留包括 usageType 的完整边对象）
   for (const edge of existingGraph.edges) {
     const key = `${edge.source}::${edge.target}`
     edgeMap.set(key, edge)
   }
 
-  // Add new edges (avoiding duplicates, preserve usageType)
+  // 添加新边（避免重复，保留 usageType）
   for (const edge of newGraph.edges) {
     const key = `${edge.source}::${edge.target}`
     if (!edgeMap.has(key)) {
@@ -351,7 +351,7 @@ export function mergeGraphData(existingGraph: GraphData, newGraph: GraphData): G
     }
   }
 
-  // Convert back to arrays
+  // 转回数组
   const nodes = Array.from(nodeMap.values())
   const edges = Array.from(edgeMap.values())
 
@@ -359,34 +359,34 @@ export function mergeGraphData(existingGraph: GraphData, newGraph: GraphData): G
 }
 
 /**
- * Apply filters to graph data
+ * 对图数据应用过滤器
  */
 export function applyFilters(graphData: GraphData, filters: DependencyGraphFilters): GraphData {
   let filteredNodes = graphData.nodes
 
-  // Filter by custom/standard
+  // 按自定义/标准过滤
   if (filters.showCustomOnly) {
     filteredNodes = filteredNodes.filter(node => node.isCustom || node.isRoot)
   } else if (filters.showStandardOnly) {
     filteredNodes = filteredNodes.filter(node => !node.isCustom || node.isRoot)
   }
 
-  // Filter by object types
+  // 按对象类型过滤
   if (filters.objectTypes.length > 0) {
     filteredNodes = filteredNodes.filter(
       node => node.isRoot || filters.objectTypes.includes(node.type)
     )
   }
 
-  // Create node ID set for filtering edges
+  // 创建节点 ID 集合用于过滤边
   const nodeIds = new Set(filteredNodes.map(n => n.id))
 
-  // Filter edges - only keep edges where both nodes exist
+  // 过滤边 - 只保留两个节点都存在的边
   let filteredEdges = graphData.edges.filter(
     edge => nodeIds.has(edge.source) && nodeIds.has(edge.target)
   )
 
-  // Filter by usage types if specified
+  // 指定时按使用类型过滤
   if (filters.usageTypes.length > 0) {
     filteredEdges = filteredEdges.filter(
       edge => edge.usageType && filters.usageTypes.includes(edge.usageType)
@@ -400,7 +400,7 @@ export function applyFilters(graphData: GraphData, filters: DependencyGraphFilte
 }
 
 /**
- * Get unique object types from graph data
+ * 从图数据获取唯一的对象类型
  */
 export function getObjectTypes(graphData: GraphData): string[] {
   const types = new Set<string>()
@@ -413,7 +413,7 @@ export function getObjectTypes(graphData: GraphData): string[] {
 }
 
 /**
- * Get unique usage types from graph edges
+ * 从图边获取唯一的使用类型
  */
 export function getUsageTypes(graphData: GraphData): string[] {
   const types = new Set<string>()
@@ -426,14 +426,14 @@ export function getUsageTypes(graphData: GraphData): string[] {
 }
 
 /**
- * Main command to visualize dependency graph
+ * 可视化依赖关系图的主命令
  */
 export async function visualizeDependencyGraph(uri?: vscode.Uri) {
   try {
-    // Get active editor to capture cursor position
+    // 获取活动编辑器以捕获光标位置
     const editor = window.activeTextEditor
 
-    // Get active ABAP file if no URI provided
+    // 未提供 URI 时获取活动 ABAP 文件
     if (!uri) {
       if (!editor) {
         window.showErrorMessage("No active ABAP file")
@@ -442,13 +442,13 @@ export async function visualizeDependencyGraph(uri?: vscode.Uri) {
       uri = editor.document.uri
     }
 
-    // Validate it's an ADT URI
+    // 校验它是 ADT URI
     if (uri.scheme !== "adt") {
       window.showErrorMessage("Dependency graph is only available for ABAP objects")
       return
     }
 
-    // Extract connection ID from URI
+    // 从 URI 提取连接 ID
     const connectionMatch = uri.authority.match(/^([^\/]+)/)
     if (!connectionMatch) {
       window.showErrorMessage("Could not determine SAP connection")
@@ -456,19 +456,19 @@ export async function visualizeDependencyGraph(uri?: vscode.Uri) {
     }
     const connectionId = connectionMatch[1]
 
-    // Get cursor position if editor is on the same file
+    // 编辑器在同一文件时获取光标位置
     let cursorLine: number | undefined = undefined
     let cursorCharacter: number | undefined = undefined
     if (editor && editor.document.uri.toString() === uri.toString()) {
-      // If selection is not empty, use start of selection
+      // 如果选区不为空，使用选区起点
       const selection = editor.selection
       const position = selection.isEmpty ? selection.active : selection.start
-      cursorLine = position.line + 1 // ADT uses 1-based line numbers
+      cursorLine = position.line + 1 // ADT 使用从 1 开始的行号
       cursorCharacter = position.character
     } else {
     }
 
-    // Show progress
+    // 显示进度
     await window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
@@ -478,23 +478,23 @@ export async function visualizeDependencyGraph(uri?: vscode.Uri) {
       async progress => {
         progress.report({ increment: 20, message: "Getting object details..." })
 
-        // Get object details from filesystem root (with retry for intermittent failures)
-        // getOrCreateRoot and isAbapFile statically imported at top
+        // 从文件系统根获取对象详情（对间歇性失败带重试）
+        // getOrCreateRoot 和 isAbapFile 已在顶部静态导入
 
         const root = await getOrCreateRoot(uri!.authority)
 
-        // Retry logic for intermittent metadata fetch failures
+        // 对间歇性元数据获取失败的重试逻辑
         let node
         let lastError
         for (let attempt = 1; attempt <= 3; attempt++) {
           try {
             node = await root.getNodeAsync(uri!.path)
-            break // Success
+            break // 成功
           } catch (error) {
             lastError = error
             const errorStr = String(error)
 
-            // Skip enhancement objects - they don't support standard metadata
+            // 跳过增强对象 - 它们不支持标准元数据
             if (errorStr.includes("ENHO/")) {
               throw new Error(
                 `Enhancement objects (ENHO/) are not supported for dependency graphs. Please use regular ABAP objects.`
@@ -502,7 +502,7 @@ export async function visualizeDependencyGraph(uri?: vscode.Uri) {
             }
 
             if (attempt < 3) {
-              // Wait before retry: 100ms, 200ms
+              // 重试前等待：100ms、200ms
               await new Promise(resolve => setTimeout(resolve, attempt * 200))
             }
           }
@@ -519,16 +519,16 @@ export async function visualizeDependencyGraph(uri?: vscode.Uri) {
         const objectName = node.object.name.toUpperCase()
         const objectType = node.object.type || ""
         let mainUrl = node.object.contentsPath()
-        // Use getOptimalObjectURI logic for correct where-used URL (for tables, etc)
+        // 使用 getOptimalObjectURI 逻辑获取正确的 where-used URL（对表等）
         try {
           mainUrl = getOptimalObjectURI(node.object.type, mainUrl)
         } catch (e) {
-          // fallback: use original mainUrl
+          // 回退：使用原始 mainUrl
         }
 
         progress.report({ increment: 20, message: "Fetching where-used data..." })
 
-        // Fetch where-used data with cursor position for symbol-level search
+        // 带光标位置获取 where-used 数据，用于符号级搜索
         const references = await fetchWhereUsedData(
           mainUrl,
           connectionId,
@@ -538,21 +538,21 @@ export async function visualizeDependencyGraph(uri?: vscode.Uri) {
 
         progress.report({ increment: 30, message: "Building graph..." })
 
-        // Use object name/type as root - the ADT API handles symbol-level resolution
-        // If a cursor position is provided, the API returns references to that specific symbol
-        // The root node represents what the API actually searched for
+        // 用对象名/类型作为根 - ADT API 处理符号级解析
+        // 如果提供了光标位置，API 返回对该特定符号的引用
+        // 根节点表示 API 实际搜索的内容
         const rootObjectName = node.object.name.toUpperCase()
         const rootObjectType = node.object.type || ""
         const graphData = buildGraphData(rootObjectName, rootObjectType, references)
 
         progress.report({ increment: 20, message: "Opening visualization..." })
 
-        // Get the actual root node name (might be different from file name if symbol was extracted)
+        // 获取实际根节点名（如果提取了符号，可能与文件名不同）
         const actualRootNode = graphData.nodes.find(n => n.isRoot)
         const actualRootName = actualRootNode?.name || rootObjectName
         const actualRootType = actualRootNode?.type || rootObjectType
 
-        // Get webview manager and create panel
+        // 获取 Webview 管理器并创建面板
         const webviewManager = WebviewManager.getInstance()
         await webviewManager.showDependencyGraph(
           connectionId,
