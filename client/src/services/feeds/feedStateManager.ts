@@ -8,7 +8,7 @@ const FEED_STATES_KEY = "abapfs.feedStates"
 const FEED_ENTRIES_FILENAME = "feedEntries.json"
 
 /**
- * Manages persistent state for feeds (last-seen entries, error counts, etc.)
+ * 管理 feed 的持久状态（上次看到的条目、错误计数等）
  */
 export class FeedStateManager {
   private context: ExtensionContext
@@ -25,7 +25,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Ensure storage directory exists
+   * 确保存储目录存在
    */
   private ensureStorageExists(): void {
     const storagePath = this.storageUri.fsPath
@@ -35,14 +35,14 @@ export class FeedStateManager {
   }
 
   /**
-   * Get file path for feed entries storage
+   * 获取 feed 条目存储的文件路径
    */
   private getEntriesFilePath(): string {
     return path.join(this.storageUri.fsPath, FEED_ENTRIES_FILENAME)
   }
 
   /**
-   * Load feed states from globalState
+   * 从 globalState 加载 feed 状态
    */
   private loadStates(): void {
     const stored = this.context.globalState.get<FeedStates>(FEED_STATES_KEY)
@@ -52,7 +52,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Load feed entries from file storage
+   * 从文件存储加载 feed 条目
    */
   private loadEntries(): void {
     try {
@@ -62,20 +62,20 @@ export class FeedStateManager {
         const data = fs.readFileSync(filePath, "utf8")
         const stored = JSON.parse(data) as Record<string, FeedEntry[]>
 
-        // Convert timestamp strings back to Date objects and validate
+        // 把时间戳字符串转回 Date 对象并校验
         const entries = Object.entries(stored).map(([key, entryList]) => {
           const fixedEntries = entryList.map(entry => {
-            // Ensure timestamp is a valid Date
+            // 确保时间戳是有效的 Date
             const timestamp = entry.timestamp ? new Date(entry.timestamp) : new Date()
 
-            // Validate the date is valid
+            // 校验日期有效
             if (isNaN(timestamp.getTime())) {
             }
 
             return {
               ...entry,
               timestamp,
-              // Ensure required fields exist
+              // 确保必填字段存在
               title: entry.title || "Untitled",
               summary: entry.summary || "",
               systemId: entry.systemId || "",
@@ -98,14 +98,14 @@ export class FeedStateManager {
   }
 
   /**
-   * Save feed states to globalState
+   * 把 feed 状态保存到 globalState
    */
   private async saveStates(): Promise<void> {
     await this.context.globalState.update(FEED_STATES_KEY, this.feedStates)
   }
 
   /**
-   * Save feed entries to file storage
+   * 把 feed 条目保存到文件存储
    */
   private async saveEntries(): Promise<void> {
     try {
@@ -116,14 +116,14 @@ export class FeedStateManager {
   }
 
   /**
-   * Get feed state key
+   * 获取 feed 状态键
    */
   private getStateKey(systemId: string, feedTitle: string): string {
     return `${systemId}|${feedTitle}`
   }
 
   /**
-   * Get feed state
+   * 获取 feed 状态
    */
   getFeedState(systemId: string, feedTitle: string): FeedState | undefined {
     const key = this.getStateKey(systemId, feedTitle)
@@ -131,7 +131,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Update feed state
+   * 更新 feed 状态
    */
   async updateFeedState(
     state: Partial<FeedState> & { systemId: string; feedTitle: string }
@@ -152,7 +152,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Update last poll time
+   * 更新上次轮询时间
    */
   async updateLastPoll(systemId: string, feedTitle: string): Promise<void> {
     await this.updateFeedState({
@@ -163,7 +163,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Update last seen entry
+   * 更新上次看到的条目
    */
   async updateLastSeen(systemId: string, feedTitle: string, entryId: string): Promise<void> {
     await this.updateFeedState({
@@ -174,7 +174,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Increment error count
+   * 递增错误计数
    */
   async incrementErrorCount(systemId: string, feedTitle: string, error: string): Promise<void> {
     const state = this.getFeedState(systemId, feedTitle)
@@ -188,7 +188,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Reset error count
+   * 重置错误计数
    */
   async resetErrorCount(systemId: string, feedTitle: string): Promise<void> {
     await this.updateFeedState({
@@ -200,7 +200,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Mark feed as unavailable
+   * 把 feed 标记为不可用
    */
   async markFeedUnavailable(systemId: string, feedTitle: string): Promise<void> {
     await this.updateFeedState({
@@ -211,7 +211,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Mark feed as available
+   * 把 feed 标记为可用
    */
   async markFeedAvailable(systemId: string, feedTitle: string): Promise<void> {
     await this.updateFeedState({
@@ -222,7 +222,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Get all feed entries for a system/feed
+   * 获取某个系统/feed 的所有条目
    */
   getFeedEntries(systemId: string, feedTitle: string): FeedEntry[] {
     const key = this.getStateKey(systemId, feedTitle)
@@ -230,7 +230,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Get all feed entries across all systems/feeds
+   * 获取所有系统/feed 的所有条目
    */
   getAllFeedEntries(): FeedEntry[] {
     const allEntries: FeedEntry[] = []
@@ -243,27 +243,27 @@ export class FeedStateManager {
   }
 
   /**
-   * Get unread entries for a system/feed
+   * 获取某个系统/feed 的未读条目
    */
   getUnreadEntries(systemId: string, feedTitle: string): FeedEntry[] {
     return this.getFeedEntries(systemId, feedTitle).filter(e => !e.isRead)
   }
 
   /**
-   * Get all unread entries
+   * 获取所有未读条目
    */
   getAllUnreadEntries(): FeedEntry[] {
     return this.getAllFeedEntries().filter(e => !e.isRead)
   }
 
   /**
-   * Add new feed entries
+   * 添加新的 feed 条目
    */
   async addFeedEntries(systemId: string, feedTitle: string, entries: FeedEntry[]): Promise<void> {
     const key = this.getStateKey(systemId, feedTitle)
     const existing = this.feedEntries.get(key) || []
 
-    // Merge new entries with existing (avoid duplicates)
+    // 把新条目与现有条目合并（避免重复）
     const entryMap = new Map<string, FeedEntry>()
     for (const entry of existing) {
       entryMap.set(entry.id, entry)
@@ -274,7 +274,7 @@ export class FeedStateManager {
       }
     }
 
-    // Sort by timestamp (newest first)
+    // 按时间戳排序（新的在前）
     const allEntries = Array.from(entryMap.values()).sort(
       (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
     )
@@ -285,7 +285,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Mark entry as read
+   * 把条目标记为已读
    */
   async markAsRead(systemId: string, feedTitle: string, entryId: string): Promise<void> {
     const key = this.getStateKey(systemId, feedTitle)
@@ -301,7 +301,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Mark all entries as read for a feed
+   * 把某个 feed 的所有条目标记为已读
    */
   async markAllAsRead(systemId: string, feedTitle: string): Promise<void> {
     const key = this.getStateKey(systemId, feedTitle)
@@ -316,7 +316,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Mark all entries as read (all systems, all feeds)
+   * 把所有条目标记为已读（所有系统、所有 feed）
    */
   async markAllEntriesAsRead(): Promise<void> {
     for (const entries of this.feedEntries.values()) {
@@ -329,7 +329,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Remove entry
+   * 移除条目
    */
   async removeEntry(systemId: string, feedTitle: string, entryId: string): Promise<void> {
     const key = this.getStateKey(systemId, feedTitle)
@@ -342,7 +342,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Clear all entries for a feed
+   * 清除某个 feed 的所有条目
    */
   async clearFeedEntries(systemId: string, feedTitle: string): Promise<void> {
     const key = this.getStateKey(systemId, feedTitle)
@@ -351,7 +351,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Clear all entries (all systems, all feeds)
+   * 清除所有条目（所有系统、所有 feed）
    */
   async clearAllEntries(): Promise<void> {
     this.feedEntries.clear()
@@ -359,7 +359,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Get feed statistics
+   * 获取 feed 统计
    */
   getStatistics(): { totalEntries: number; unreadEntries: number; newEntries: number } {
     const allEntries = this.getAllFeedEntries()
@@ -371,7 +371,7 @@ export class FeedStateManager {
   }
 
   /**
-   * Get statistics for a specific feed
+   * 获取特定 feed 的统计
    */
   getFeedStatistics(
     systemId: string,
@@ -386,13 +386,13 @@ export class FeedStateManager {
   }
 
   /**
-   * Check if entry is new (not seen before)
+   * 检查条目是否为新条目（之前未见过）
    */
   isNewEntry(systemId: string, feedTitle: string, entryId: string): boolean {
     const state = this.getFeedState(systemId, feedTitle)
     if (!state) return true
 
-    // Entry is new if we haven't seen it before
+    // 如果之前未见过该条目，则它是新条目
     return state.lastSeenEntryId !== entryId
   }
 }
