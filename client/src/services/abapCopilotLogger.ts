@@ -1,17 +1,17 @@
 /**
- * ABAP FS Logger
- * Dedicated logging for ABAP FS features with separate output channel
+ * ABAP FS 日志器
+ * 带独立输出通道的 ABAP FS 功能专用日志
  */
 
 import * as vscode from "vscode"
-import { channel as abapFSChannel } from "../lib/logger" // Reuse existing ABAP FS channel
+import { channel as abapFSChannel } from "../lib/logger" // 复用现有 ABAP FS 通道
 
 class ABAPCopilotLogger {
   private static instance: ABAPCopilotLogger
   private outputChannel: vscode.LogOutputChannel
 
   private constructor() {
-    // Reuse the existing ABAP FS output channel instead of creating a new one
+    // 复用现有 ABAP FS 输出通道，而不是创建新的
     this.outputChannel = abapFSChannel
   }
 
@@ -74,7 +74,7 @@ class ABAPCopilotLogger {
   }
 }
 
-// Export singleton instance
+// 导出单例实例
 export const copilotLogger = ABAPCopilotLogger.getInstance()
 
 export const logInlineProvider = {
