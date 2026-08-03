@@ -2,31 +2,31 @@ import { ADTClient, DebugVariable, DebugChildVariablesHierarchy } from "abap-adt
 import { CapturedVariable, CapturedScope, CaptureOptions, DEFAULT_CAPTURE_OPTIONS } from "./types"
 import { log, caughtToString } from "../../../lib"
 
-/** Max IDs per single ADT API call to avoid server overload */
+/** 单次 ADT API 调用的最大 ID 数，避免服务器过载 */
 const MAX_IDS_PER_CALL = 500
 
-/** Max table rows to auto-capture during recording */
+/** 录制期间自动捕获的最大表行数 */
 
 const RECORDING_MAX_TABLE_ROWS = 2000
 
 /**
- * Fast batched capture for recording mode with configurable depth.
+ * 录制模式的快速批量捕获，带可配置深度。
  *
- * Uses breadth-first expansion with batched API calls across multiple depth levels:
- *   Round 1: debuggerChildVariables(["@ROOT"]) → scope IDs
- *   Round 2: debuggerChildVariables([all scope IDs]) → all top-level variables
- *   Round 3...N: For each depth level:
- *     - Batch all structure IDs at current level → expand all
- *     - Batch all table row keys at current level → fetch all
+ * 使用跨多个深度级别的广度优先展开和批量 API 调用：
+ *   第 1 轮：debuggerChildVariables(["@ROOT"]) → 作用域 ID
+ *   第 2 轮：debuggerChildVariables([所有作用域 ID]) → 所有顶级变量
+ *   第 3...N 轮：对每个深度级别：
+ *     - 批量当前级别的所有结构 ID → 全部展开
+ *     - 批量当前级别的所有表行键 → 全部获取
  *
- * With maxDepth=4 (default), captures 4 levels deep in typically 5-8 HTTP calls (~1.5-3s).
- * With maxDepth=2, captures 2 levels in 3-4 calls (~0.8-1.5s).
+ * 使用 maxDepth=4（默认），通常 5-8 次 HTTP 调用即可捕获 4 层深度（约 1.5-3 秒）。
+ * 使用 maxDepth=2，3-4 次调用即可捕获 2 层（约 0.8-1.5 秒）。
  */
 export async function captureScopesBatched(
   client: ADTClient,
   options: CaptureOptions = DEFAULT_CAPTURE_OPTIONS
 ): Promise<CapturedScope[]> {
-  // Round 1: get scope hierarchy (1 HTTP call)
+  // 第 1 轮：获取作用域层次（1 次 HTTP 调用）
   const { hierarchies } = await client.debuggerChildVariables(["@ROOT"])
   const scopeIds = hierarchies.map(h => h.CHILD_ID)
   if (!scopeIds.some(id => id === "SY")) scopeIds.push("SY")
@@ -35,11 +35,11 @@ export async function captureScopesBatched(
   for (const h of hierarchies) scopeNames.set(h.CHILD_ID, h.CHILD_NAME || h.CHILD_ID)
   scopeNames.set("SY", "SY")
 
-  // Round 2: get ALL scope variables in one call (1 HTTP call)
+  // 第 2 轮：一次调用获取所有作用域变量（1 次 HTTP 调用）
   const allResult = await batchedChildVariables(client, scopeIds)
   const scopeVarMap = groupByParent(scopeIds, allResult.hierarchies, allResult.variables)
 
-  // Build initial variable tree
+  // 构建初始变量树
   const varTree = new Map<string, VarNode>()
   for (const [scopeId, vars] of scopeVarMap) {
     for (const v of vars) {
@@ -47,13 +47,13 @@ export async function captureScopesBatched(
     }
   }
 
-  // Expand to maxDepth levels using BFS
+  // 使用 BFS 展开到 maxDepth 层
   for (let depth = 1; depth < options.maxDepth; depth++) {
     const didExpand = await expandOneLevel(client, varTree, depth)
-    if (!didExpand) break // No more expandables at this level
+    if (!didExpand) break // 此级别没有更多可展开项
   }
 
-  // Assemble scope tree from varTree
+  // 从 varTree 组装作用域树
   const scopes: CapturedScope[] = []
   for (const scopeId of scopeIds) {
     const name = scopeNames.get(scopeId) || scopeId
@@ -65,7 +65,7 @@ export async function captureScopesBatched(
   return scopes
 }
 
-// ── Expansion engine ──
+// ── 展开引擎 ──
 
 interface VarNode {
   variable: DebugVariable
@@ -74,8 +74,8 @@ interface VarNode {
 }
 
 /**
- * Expands all structures and tables at the given depth level.
- * Returns true if any expansion happened, false if nothing to expand.
+ * 展开给定深度级别的所有结构和表。
+ * 有任何展开发生则返回 true，无可展开则返回 false。
  */
 async function expandOneLevel(
   client: ADTClient,
@@ -85,7 +85,7 @@ async function expandOneLevel(
   const structIds: string[] = []
   const tableSpecs: TableSpec[] = []
 
-  // Collect all expandables at this depth
+  // 收集此深度的所有可展开项
   for (const node of varTree.values()) {
     if (node.depth !== depth - 1) continue
     const v = node.variable
@@ -101,11 +101,11 @@ async function expandOneLevel(
 
   if (structIds.length === 0 && tableSpecs.length === 0) return false
 
-  // Run structure expansion and table row fetching in parallel
+  // 并行运行结构展开和表行获取
   const structPromise =
     structIds.length > 0 ? batchedChildVariables(client, structIds) : Promise.resolve(null)
 
-  // Build table row keys
+  // 构建表行键
   const allKeys: string[] = []
   const keyToTableId = new Map<string, string>()
   for (const spec of tableSpecs) {
@@ -120,7 +120,7 @@ async function expandOneLevel(
 
   const [structResult, rowVars] = await Promise.all([structPromise, tablePromise])
 
-  // Apply structure results
+  // 应用结构结果
   if (structResult) {
     const grouped = groupByParent(structIds, structResult.hierarchies, structResult.variables)
     for (const [parentId, children] of grouped) {
@@ -134,7 +134,7 @@ async function expandOneLevel(
     }
   }
 
-  // Apply table row results
+  // 应用表行结果
   for (const rowVar of rowVars) {
     const tableId = keyToTableId.get(rowVar.ID) || inferTableId(rowVar.ID)
     const tableNode = varTree.get(tableId)
@@ -148,12 +148,12 @@ async function expandOneLevel(
 }
 
 /**
- * Recursively builds CapturedVariable tree from VarNode tree.
+ * 从 VarNode 树递归构建 CapturedVariable 树。
  */
 function buildCapturedTree(varId: string, varTree: Map<string, VarNode>): CapturedVariable {
   const node = varTree.get(varId)
   if (!node) {
-    // Shouldn't happen, but return a placeholder
+    // 不应发生，但返回占位符
     return { id: varId, name: varId, value: "", type: "", metaType: "unknown" }
   }
 
@@ -171,7 +171,7 @@ function buildCapturedTree(varId: string, varTree: Map<string, VarNode>): Captur
     cv.children = Array.from(node.children.values()).map(child =>
       buildCapturedTree(child.variable.ID, varTree)
     )
-    // Add skip reason for tables that were truncated
+    // 为被截断的表添加跳过原因
     if (v.META_TYPE === "table" && cv.children.length < (v.TABLE_LINES || 0)) {
       cv.skipReason = `Captured ${cv.children.length} of ${v.TABLE_LINES} rows`
     }
@@ -182,7 +182,7 @@ function buildCapturedTree(varId: string, varTree: Map<string, VarNode>): Captur
   return cv
 }
 
-// ── Batched API helpers ──
+// ── 批量 API 辅助 ──
 
 interface TableSpec {
   id: string
@@ -194,7 +194,7 @@ interface BatchedChildResult {
   variables: DebugVariable[]
 }
 
-/** Call debuggerChildVariables in sub-batches if needed */
+/** 需要时以子批次调用 debuggerChildVariables */
 async function batchedChildVariables(
   client: ADTClient,
   ids: string[]
@@ -216,7 +216,7 @@ async function batchedChildVariables(
   return { hierarchies: allHierarchies, variables: allVariables }
 }
 
-/** Call debuggerVariables in sub-batches if needed */
+/** 需要时以子批次调用 debuggerVariables */
 async function batchedVariables(client: ADTClient, ids: string[]): Promise<DebugVariable[]> {
   if (ids.length <= MAX_IDS_PER_CALL) {
     return client.debuggerVariables(ids)
@@ -240,9 +240,9 @@ async function batchedVariables(client: ADTClient, ids: string[]): Promise<Debug
   return all
 }
 
-// ── Grouping and assembly ──
+// ── 分组和组装 ──
 
-/** Group flat variable list back to their parent IDs using hierarchy info */
+/** 使用层次信息把扁平变量列表分组回其父 ID */
 function groupByParent(
   parentIds: string[],
   hierarchies: DebugChildVariablesHierarchy[],
@@ -251,20 +251,20 @@ function groupByParent(
   const result = new Map<string, DebugVariable[]>()
   for (const pid of parentIds) result.set(pid, [])
 
-  // Build child→parent lookup from hierarchies
+  // 从层次构建子→父查找
   const childToParent = new Map<string, string>()
   for (const h of hierarchies) {
     childToParent.set(h.CHILD_ID, h.PARENT_ID)
   }
 
   for (const v of variables) {
-    // Try hierarchy mapping first
+    // 先尝试层次映射
     const parent = childToParent.get(v.ID)
     if (parent && result.has(parent)) {
       result.get(parent)!.push(v)
       continue
     }
-    // Fallback: match by ID prefix
+    // 回退：按 ID 前缀匹配
     for (const pid of parentIds) {
       if (v.ID.startsWith(pid)) {
         result.get(pid)!.push(v)
