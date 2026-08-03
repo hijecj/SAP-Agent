@@ -1,11 +1,10 @@
 /**
- * SQL cell executor. Runs ABAP SQL via ADT's datapreview API.
+ * SQL 单元格执行器。通过 ADT 的 datapreview API 运行 ABAP SQL。
  *
- * NOTE: ADT HTTP requests cannot be aborted mid-flight. When a user
- * cancels execution, the UI shows "Interrupted" immediately but the
- * SAP-side query runs to completion. The result is discarded by the
- * controller (not stored in cellResults). This matches the behavior
- * of SE16N and the existing execute_data_query LM tool.
+ * 注意：ADT HTTP 请求无法中途中止。用户取消执行时，
+ * UI 立即显示“已中断”，但 SAP 端查询会运行到完成。
+ * 结果被控制器丢弃（不存储在 cellResults 中）。
+ * 这与 SE16N 和现有 execute_data_query LM 工具的行为一致。
  */
 
 import { ADTClient } from "abap-adt-api"
