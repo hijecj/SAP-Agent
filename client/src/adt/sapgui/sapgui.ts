@@ -62,7 +62,7 @@ export function getGuiCommand(target: AbapObject | string | SapGuiCommand): SapG
     }
   }
 
-  // target is AbapObject
+  // 目标是 AbapObject
   const objectType = target.type
   const objectName = target.name
 
@@ -134,7 +134,7 @@ export async function openInGui(
       const cmd = getGuiCommand(target)
       const client = getClient(connId)
 
-      // Determine the target mode based on argument or configuration preference
+      // 按参数或配置偏好确定目标模式
       let targetMode: "SAPGUI" | "WEBGUI" | "EMBEDDED" = mode || "SAPGUI"
       if (!mode) {
         const guiType = config.sapGui?.guiType || "SAPGUI"
@@ -152,7 +152,7 @@ export async function openInGui(
       if (targetMode === "EMBEDDED") {
         const webguiUrl = getWebGuiUrl(config, cmd)
 
-        // Use VS Code simple browser if configured
+        // 配置了则使用 VS Code simple browser
         const useIntegratedBrowser = workspace
           .getConfiguration("abapfs.sapGui")
           .get<boolean>("useIntegratedBrowser", true)
@@ -164,7 +164,7 @@ export async function openInGui(
           return
         }
 
-        // Otherwise, open in webview panel
+        // 否则，在 Webview 面板中打开
         let extensionUri: Uri
         try {
           const extension = extensions.getExtension("murbani.vscode-abap-remote-fs")
@@ -217,7 +217,7 @@ export async function openInGui(
         return
       }
 
-      // Default: Native SAPGUI
+      // 默认：原生 SAPGUI
       sapGui.checkConfig()
       const ticket = await client.reentranceTicket()
       return sapGui.startGui(cmd, ticket)
@@ -259,7 +259,7 @@ export class SapGui {
   public static create(config: RemoteConfig) {
     try {
       const gui = config.sapGui
-      // are we connecting via load balancing? This requires all three parameters
+      // 我们是否通过负载均衡连接？这需要所有三个参数
       if (gui && gui.messageServer && gui.group) {
         const guiconf: LoadBalancingGuiConfig = {
           group: gui.group,
@@ -271,7 +271,7 @@ export class SapGui {
 
         return new SapGui(gui.disabled, guiconf, config.username, config.name, config.language)
       } else {
-        // use the config if found, try to guess if not
+        // 找到配置则使用，否则尝试猜测
         const [server = "", port = ""] = (
           config.url.match(/https?:\/\/([^:]+):([0-9]+)/i) || ["", "", "8000"]
         ).splice(1)
@@ -302,7 +302,7 @@ export class SapGui {
 
   public get connectionString() {
     this.checkConfig()
-    if (!this.config) return "" // hack to prevent TS errors
+    if (!this.config) return "" // 防止 TS 错误的临时方案
     const c = this.config
     const routerString = this.config.routerString.replace(/\/.\/$/, "")
     if (isLoadBalancing(c)) {
@@ -326,15 +326,15 @@ export class SapGui {
       keep: win32
     })
     await writeAsync(shortcut.path, content)
-    // windows won't open this if still open...
+    // 如果仍然打开，Windows 不会重新打开它……
     if (win32) closeSync(shortcut.fd)
     try {
-      // workaround for bug in opn trying to use /xdg-open...
+      // 针对 opn 尝试使用 /xdg-open 的 bug 的变通方案……
       const options: any = {}
       if (linux) options.app = "xdg-open"
 
       await opn(shortcut.path, options)
-      // delete after opening sapgui, only in windows
+      // 打开 sapgui 后删除，仅限 Windows
       if (win32) setTimeout(() => shortcut.cleanup(), 50000)
     } catch (e) {
       log("Error executing file", shortcut.path)
@@ -344,7 +344,7 @@ export class SapGui {
   public async runInBrowser(config: RemoteConfig, cmd: SapGuiCommand, client: ADTClient) {
     let guitype = config.sapGui?.guiType
 
-    // WebView doesn't need Live Preview extension - remove the check
+    // WebView 不需要 Live Preview 扩展 - 移除检查
     if (cmd.parameters) {
       const okCode = cmd.parameters.find(
         (parameter: { name: string; value: string }) => parameter.name === "DYNP_OKCODE"
@@ -365,17 +365,17 @@ export class SapGui {
 
       switch (guitype) {
         case "WEBGUI_UNSAFE_EMBEDDED":
-          // Use direct WebGUI URL (no SSO ticket - user will login manually in webview)
+          // 使用直接 WebGUI URL（无 SSO ticket - 用户将在 Webview 中手动登录）
           const objectParam = D_OBJECT_URI?.value || "SAP_GUI"
 
-          // Get extension context more reliably
+          // 更可靠地获取扩展上下文
           let extensionUri: vscode.Uri
           try {
             const extension = vscode.extensions.getExtension("murbani.vscode-abap-remote-fs")
             if (extension) {
               extensionUri = extension.extensionUri
             } else {
-              // Fallback: try alternative extension ID
+              // 回退：尝试备用扩展 ID
               const altExtension = vscode.extensions.getExtension("abap-copilot")
               extensionUri = altExtension?.extensionUri || vscode.Uri.file(__dirname)
             }
@@ -393,14 +393,14 @@ export class SapGui {
             detectedObjectType
           )
 
-          // Load direct WebGUI URL (will show login screen immediately)
+          // 加载直接 WebGUI URL（将立即显示登录界面）
           panel.loadDirectWebGuiUrl(url.toString())
           break
         case "WEBGUI_UNSAFE":
           commands.executeCommand("vscode.open", url)
           break
         default:
-          // For WEBGUI_CONTROLLED mode, fall back to opening in default browser
+          // 对 WEBGUI_CONTROLLED 模式，回退到在默认浏览器中打开
           let ticket2: string
           try {
             ticket2 = await client.reentranceTicket()
