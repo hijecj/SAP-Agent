@@ -119,14 +119,14 @@ export function openObject(connId: string, uri: string, objectType?: string) {
       const root = getRoot(connId)
       let result = await root.findByAdtUri(uri, true)
 
-      // If not found, try refreshing the workspace (for newly created objects)
+      // 如果未找到，尝试刷新工作区（针对新建对象）
       if (!result) {
         try {
           await commands.executeCommand("workbench.files.action.refreshFilesExplorer")
-          await new Promise(resolve => setTimeout(resolve, 500)) // Give it a moment
+          await new Promise(resolve => setTimeout(resolve, 500)) // 稍等一下
           result = await root.findByAdtUri(uri, true)
         } catch (e) {
-          // Refresh failed or still not found
+          // 刷新失败或仍未找到
         }
       }
 
@@ -251,7 +251,7 @@ export class AdtCommands {
       name = remote.name
 
       log(`Connecting to server ${remote.name}`)
-      // this might involve asking for a password...
+      // 这可能需要询问密码...
       await getOrCreateRoot(remote.name) // if connection raises an exception don't mount any folder
 
       await storeTokens()
@@ -269,7 +269,7 @@ export class AdtCommands {
       const isMissing = (e: any) => !!`${e}`.match("name.*org.freedesktop.secrets")
       const errStr = caughtToString(e)
 
-      // Recoverable config errors → open Connection Manager with helpful message
+      // 可恢复的配置错误 → 打开连接管理器并显示有帮助的消息
       let configError = ""
       if (errStr.includes("No remote configuration available")) {
         configError = "No SAP systems configured yet. Opening Connection Manager to add one."
@@ -284,7 +284,7 @@ export class AdtCommands {
         return commands.executeCommand("abapfs.connectionManager")
       }
 
-      // HTTP errors with user-friendly messages
+      // 带友好消息的 HTTP 错误
       if (errStr.includes("status code 401")) {
         return window.showErrorMessage(
           name
@@ -313,7 +313,7 @@ export class AdtCommands {
   private static async disconnectAdtServer(selector?: any) {
     logTelemetry("command_disconnect_called")
     try {
-      // Show confirmation dialog
+      // 显示确认对话框
       const choice = await window.showWarningMessage(
         "This will disconnect from all ABAP systems and remove them from the workspace. Continue?",
         { modal: true },
@@ -325,28 +325,28 @@ export class AdtCommands {
         return
       }
 
-      // Get all current ABAP workspace folders
+      // 获取所有当前的 ABAP 工作区文件夹
       const abapFolders =
         workspace.workspaceFolders?.filter(folder => folder.uri.scheme === ADTSCHEME) || []
 
-      // Log out from all connections and clear cached data
+      // 从所有连接注销并清除缓存数据
       await disconnect()
 
-      // Remove all ABAP folders from workspace
+      // 从工作区移除所有 ABAP 文件夹
       if (abapFolders.length > 0) {
         const startIndex =
           workspace.workspaceFolders?.findIndex(folder => folder.uri.scheme === ADTSCHEME) ?? 0
 
         workspace.updateWorkspaceFolders(
           startIndex,
-          abapFolders.length // Remove all ABAP folders
+          abapFolders.length // 移除所有 ABAP 文件夹
         )
       }
 
-      // Clear any cached tokens
+      // 清除任何缓存的 token
       clearTokens()
 
-      // Refresh file explorer to reflect changes
+      // 刷新文件资源管理器以反映变化
       await commands.executeCommand("workbench.files.action.refreshFilesExplorer")
 
       window.showInformationMessage("✅ Disconnected from all ABAP systems")
@@ -374,7 +374,7 @@ export class AdtCommands {
           progress.report({ message: "Validating object..." })
           const obj = await findAbapObject(uri)
 
-          // Enhanced save logic with better error handling
+          // 带更好错误处理的增强保存逻辑
           if (editor && editor.document.isDirty) {
             progress.report({ message: "Saving changes..." })
             const saved = await editor.document.save()
@@ -383,7 +383,7 @@ export class AdtCommands {
                 "Failed to save file before activation. Please save manually and try again."
               )
             }
-            // Small delay to ensure save is completed
+            // 短暂延迟确保保存完成
             await new Promise(resolve => setTimeout(resolve, 100))
           }
 
@@ -400,7 +400,7 @@ export class AdtCommands {
         }
       )
 
-      // Show success message
+      // 显示成功消息
       const objectName = uri.path.split("/").pop() || "Object"
       window.showInformationMessage(`✅ ${objectName} activated successfully`)
     } catch (e) {
@@ -413,7 +413,7 @@ export class AdtCommands {
       if (action === "Show activation log") {
         channel.show(true)
       }
-      // Don't re-throw or show additional notifications - user already saw the summary
+      // 不重新抛出或显示额外通知 - 用户已看到摘要
       return
     }
   }
@@ -516,16 +516,16 @@ export class AdtCommands {
 
   @command(AbapFsCommands.search)
   private static async searchAdtObject(uri: Uri | undefined) {
-    // find the adt relevant namespace roots, and let the user pick one if needed
+    // 找到 ADT 相关的命名空间根，需要时让用户选择一个
     const adtRoot = await pickAdtRoot(uri)
     logTelemetry("command_search_for_object_called", { connectionId: adtRoot?.uri.authority })
     if (!adtRoot) return
     try {
       const connId = adtRoot.uri.authority
-      // Use enhanced search with type filter for manual command
+      // 对手动命令使用带类型过滤的增强搜索
       const object = await new AdtObjectFinder(connId).findObjectWithTypeFilter()
-      if (!object) return // user cancelled
-      // found, show progressbar as opening might take a while
+      if (!object) return // 用户已取消
+      // 已找到，显示进度条，因为打开可能需要一段时间
       await openObject(connId, object.uri, object.type)
     } catch (e) {
       return window.showErrorMessage(caughtToString(e))
@@ -535,19 +535,19 @@ export class AdtCommands {
   @command(AbapFsCommands.create)
   private static async createAdtObject(uri: Uri | undefined) {
     try {
-      // find the adt relevant namespace roots, and let the user pick one if needed
+      // 找到 ADT 相关的命名空间根，需要时让用户选择一个
       const fsRoot = await pickAdtRoot(uri)
       logTelemetry("command_create_object_called", { connectionId: fsRoot?.uri.authority })
       const connId = fsRoot?.uri.authority
       if (!connId) return
       const obj = await new AdtObjectCreator(connId).createObject(uri)
-      if (!obj) return // user aborted
+      if (!obj) return // 用户已中止
       log(`Created object ${obj.type} ${obj.name}`)
       await obj.loadStructure()
 
       if (obj.type === PACKAGE) {
         commands.executeCommand("workbench.files.action.refreshFilesExplorer")
-        return // Packages can't be opened perhaps could reveal it?
+        return // 包无法打开，也许可以显示它？
       }
       const nodePath = await openObject(connId, obj.path)
       if (nodePath) {
@@ -567,8 +567,8 @@ export class AdtCommands {
   }
 
   /**
-   * Creates an ABAP object programmatically for AI/automation purposes
-   * Uses the exact same logic as createObject() but with programmatic selections
+   * 以编程方式为 AI/自动化目的创建 ABAP 对象
+   * 使用与 createObject() 完全相同的逻辑，但带编程式选择
    *
    * @example
    * // Create a new ABAP report with new transport request
@@ -593,19 +593,19 @@ export class AdtCommands {
     parentName?: string,
     connectionId?: string,
     additionalOptions?: {
-      // For service bindings
+      // 用于服务绑定
       serviceDefinition?: string
       bindingType?: string
       bindingCategory?: string
-      // For packages
+      // 用于包
       softwareComponent?: string
       packageType?: PackageTypes
       transportLayer?: string
-      // For transport requests
+      // 用于传输请求
       transportRequest?: {
         type: "new" | "existing"
-        number?: string // For existing transport
-        description?: string // For new transport
+        number?: string // 用于现有传输
+        description?: string // 用于新传输
       }
     }
   ) {
@@ -621,16 +621,16 @@ export class AdtCommands {
         }
       }
 
-      // Use current connection or specified one
+      // 使用当前连接或指定的连接
       const connId = connectionId || (await pickAdtRoot())?.uri.authority
       if (!connId) return
 
-      // Create a special AdtObjectCreator that uses programmatic selections
+      // 创建使用编程式选择的特殊 AdtObjectCreator
       const creator = new AdtObjectCreator(connId)
 
-      // Override the key methods based on AdtObjectCreator analysis
+      // 基于 AdtObjectCreator 分析重写关键方法
 
-      // 1. Override askInput for name and description prompts
+      // 1. 重写 askInput 用于名称和描述提示
       creator["askInput"] = async (
         prompt: string,
         uppercase: boolean = true,
@@ -646,24 +646,24 @@ export class AdtCommands {
         return value
       }
 
-      // 2. Override guessParentByType - THIS IS THE KEY METHOD that prevents package popup
+      // 2. 重写 guessParentByType - 这是防止包弹窗的关键方法
       creator["guessParentByType"] = (hierarchy: any[], type: string): string => {
         if (type === "DEVC/K") {
-          // PACKAGE type - this is what prevents the "Select package" dialog
+          // PACKAGE 类型 - 这是防止“选择包”对话框的关键
           return packageName
         }
         if (type === "FUGR/F" && parentName) {
-          // Function modules are function group children; AI creation must use the provided parent group
-          // to avoid falling back to the current workspace location.
+          // 函数模块是函数组的子对象；AI 创建必须使用提供的父组
+          // 以避免回退到当前工作区位置。
           return parentName.trim().toUpperCase()
         }
-        // For other types, use original logic
+        // 对其他类型，使用原始逻辑
         const original =
           hierarchy.filter((n: any) => n.object?.type === type)?.[0]?.object?.name || ""
         return original
       }
 
-      // 3. Override guessOrSelectObjectType to return the specified object type
+      // 3. 重写 guessOrSelectObjectType 返回指定的对象类型
       creator["guessOrSelectObjectType"] = async (hierarchy: any[]): Promise<any> => {
         const objType = CreatableTypes.get(objectType)
         if (objType) {
@@ -672,7 +672,7 @@ export class AdtCommands {
         throw new Error(`Unknown object type: ${objectType}`)
       }
 
-      // 4. Override getServiceOptions to use programmatic values for service bindings
+      // 4. 重写 getServiceOptions，对服务绑定使用编程式值
       if (objectType === "SRVB/SVB" && additionalOptions) {
         const { serviceDefinition, bindingType, bindingCategory } = additionalOptions
         if (!serviceDefinition || !bindingType || !bindingCategory) {
@@ -697,10 +697,10 @@ export class AdtCommands {
         }
       }
 
-      // 5. Build a non-interactive transport picker if a transport request was
-      // supplied. Passed to createObject below so it replaces the default UI
-      // picker without any monkey-patching. Prevents blocking QuickPicks and
-      // silent LOCKS-based reassignment during MCP-driven creation. See #466.
+      // 5. 如果提供了传输请求，构建非交互式传输选择器。
+      // 传递给下面的 createObject，这样它无需任何猴子补丁就能替换默认 UI
+      // 选择器。防止 MCP 驱动的创建期间出现阻塞性 QuickPick 和
+      // 基于 LOCKS 的静默重新分配。参见 #466。
       let resolvedTransport: string | undefined
       const transportPicker = additionalOptions?.transportRequest
         ? async (objContentPath: string, devclass: string, transportLayer: string) => {
@@ -716,7 +716,7 @@ export class AdtCommands {
           }
         : undefined
 
-      // 6. Let ADT create the object (picker handles transport step if supplied)
+      // 6. 让 ADT 创建对象（选择器在提供时处理传输步骤）
       const obj = await creator.createObject(undefined, transportPicker)
 
       if (!obj) {
@@ -730,7 +730,7 @@ export class AdtCommands {
         }
       }
 
-      // 🔧 FIX: Follow the same pattern as manual creation (like AbapFsCommands.create)
+      // 🔧 修复：遵循与手动创建相同的模式（如 AbapFsCommands.create）
       await obj.loadStructure()
 
       if (obj.type === PACKAGE) {
@@ -745,7 +745,7 @@ export class AdtCommands {
         }
       }
 
-      // 🔧 FIX: Use the same flow as manual creation - no artificial delays
+      // 🔧 修复：使用与手动创建相同的流程 - 无人为延迟
       const nodePath = await openObject(connId, obj.path)
       if (nodePath) {
         new AdtObjectFinder(connId).displayNode(nodePath)
@@ -769,8 +769,8 @@ export class AdtCommands {
       const stack = types.isNativeError(e) ? e.stack || "" : ""
       const errorMessage = caughtToString(e)
 
-      // ⚡ PROGRAMMATIC API: Return structured error result, don't show UI popups
-      // This is used by AI systems that need to handle the response programmatically
+      // ⚡ 编程式 API：返回结构化错误结果，不显示 UI 弹窗
+      // 供需要以编程方式处理响应的 AI 系统使用
       if (e instanceof TransportPickerError) {
         return {
           success: false,
@@ -791,7 +791,7 @@ export class AdtCommands {
         }
       }
 
-      // For other errors, return structured error response
+      // 对其他错误，返回结构化错误响应
       return {
         success: false,
         error: "CREATION_FAILED",
@@ -826,7 +826,7 @@ export class AdtCommands {
       if (!isAbapStat(file)) return
 
       await AdtCommands.autoStartDebuggerIfNeeded(fsRoot.uri.authority)
-      // Mode is determined by the connection's sapGui.guiType config (SAPGUI | WEBGUI_UNSAFE | WEBGUI_UNSAFE_EMBEDDED | WEBGUI_CONTROLLED)
+      // 模式由连接的 sapGui.guiType 配置决定（SAPGUI | WEBGUI_UNSAFE | WEBGUI_UNSAFE_EMBEDDED | WEBGUI_CONTROLLED）
       await openInGui(fsRoot.uri.authority, file.object)
     } catch (e) {
       return window.showErrorMessage(caughtToString(e))
@@ -834,8 +834,8 @@ export class AdtCommands {
   }
 
   /**
-   * Execute ABAP object in embedded SAP GUI within VS Code
-   * This provides Eclipse ADT-like functionality where execution happens in a webview
+   * 在 VS Code 内的嵌入式 SAP GUI 中执行 ABAP 对象
+   * 这提供类似 Eclipse ADT 的功能：执行发生在 Webview 中
    */
   @command("abapfs.runInEmbeddedGui")
   private static async executeAbapEmbedded() {
@@ -864,13 +864,13 @@ export class AdtCommands {
   }
 
   /**
-   * Run SAP Transaction Code
-   * Allows users to search for and execute any SAP transaction
+   * 运行 SAP 事务码
+   * 允许用户搜索并执行任意 SAP 事务
    */
   @command(AbapFsCommands.runTransaction)
   private static async runTransaction() {
     try {
-      // 1. Select system
+      // 1. 选择系统
       const fsRoot = await pickAdtRoot()
       if (!fsRoot) return
 
@@ -883,7 +883,7 @@ export class AdtCommands {
 
       const client = getClient(connectionId)
 
-      // 2. Search for transaction code with QuickPick that allows Enter
+      // 2. 用允许回车确认的 QuickPick 搜索事务码
       const quickPick = window.createQuickPick()
       quickPick.placeholder =
         "Type transaction code (e.g., MM43, SE16N) and press Enter, or search for transactions..."
@@ -893,7 +893,7 @@ export class AdtCommands {
 
       let currentInput = ""
 
-      // Function to perform search using ADT client
+      // 使用 ADT 客户端执行搜索的函数
       const performSearch = async (searchTerm: string) => {
         if (!searchTerm || searchTerm.length < 3) {
           quickPick.items = []
@@ -920,7 +920,7 @@ export class AdtCommands {
         }
       }
 
-      // Handle input changes
+      // 处理输入变化
       quickPick.onDidChangeValue(async value => {
         currentInput = value
         if (value.length >= 3) {
@@ -930,16 +930,16 @@ export class AdtCommands {
         }
       })
 
-      // Handle selection
+      // 处理选择
       quickPick.onDidAccept(async () => {
         const selected = quickPick.selectedItems[0]
         let tcodeToRun = ""
 
         if (selected) {
-          // User selected from list
+          // 用户从列表中选择
           tcodeToRun = (selected as any).tcode
         } else if (currentInput) {
-          // User pressed Enter without selecting - use typed value
+          // 用户未选择直接按回车 - 使用输入的值
           tcodeToRun = currentInput.toUpperCase()
         }
 
@@ -950,24 +950,24 @@ export class AdtCommands {
         logTelemetry("command_run_transaction_called", { connectionId })
         await AdtCommands.autoStartDebuggerIfNeeded(connectionId)
 
-        // 3. Execute transaction based on guiType preference
+        // 3. 按 guiType 偏好执行事务
         const guiType = config.sapGui?.guiType || "SAPGUI"
 
         switch (guiType) {
           case "WEBGUI_UNSAFE_EMBEDDED":
-            // Embedded webview
+            // 嵌入式 Webview
             await openInGui(connectionId, tcodeToRun, "EMBEDDED")
             break
 
           case "WEBGUI_UNSAFE":
           case "WEBGUI_CONTROLLED":
-            // External browser
+            // 外部浏览器
             await openInGui(connectionId, tcodeToRun, "WEBGUI")
             break
 
           case "SAPGUI":
           default:
-            // Native SAP GUI
+            // 原生 SAP GUI
             await openInGui(connectionId, tcodeToRun, "SAPGUI")
             break
         }
@@ -1025,7 +1025,7 @@ export class AdtCommands {
   @command(AbapFsCommands.unittest)
   private static async runAbapUnit(targetUri?: Uri) {
     try {
-      // Use provided URI (from language model tool) or current active editor
+      // 使用提供的 URI（来自语言模型工具）或当前活动编辑器
       const uri = targetUri || currentUri()
       if (!uri) {
         window.showErrorMessage(
@@ -1112,7 +1112,7 @@ export class AdtCommands {
           progress.report({ message: "Validating class..." })
 
           const obj = await findAbapObject(uri)
-          // only makes sense for classes
+          // 只对类有意义
           if (!isAbapClassInclude(obj)) {
             throw new Error("This command only works with ABAP class files")
           }
@@ -1122,7 +1122,7 @@ export class AdtCommands {
           if (!obj.parent.structure) await obj.parent.loadStructure()
           if (obj.parent.findInclude("testclasses")) {
             window.showInformationMessage("Test include already exists")
-            return // This will properly close the progress window
+            return // 这会正确关闭进度窗口
           }
 
           progress.report({ message: "Acquiring lock..." })
@@ -1151,33 +1151,33 @@ export class AdtCommands {
 
             if (created) {
               progress.report({ message: "Refreshing structure..." })
-              // Force fresh reload by invalidating cache first
+              // 先使缓存失效，强制全新重新加载
               const root = uriRoot(uri)
               root.service.invalidateStructCache(obj.parent.path)
               await obj.parent.loadStructure() // Fetch fresh structure from SAP
 
               progress.report({ message: "Opening test include..." })
-              // Find the newly created test include
+              // 查找新创建的测试 include
               const testInclude = obj.parent.findInclude("testclasses")
               if (testInclude) {
-                // Get the test include URI from the structure
+                // 从结构获取测试 include URI
                 const testIncludeUri = testInclude["abapsource:sourceUri"] || "includes/testclasses"
                 const fullTestPath = `${obj.parent.path}/${testIncludeUri}`
 
                 try {
-                  // Open the test include (like create object command)
+                  // 打开测试 include（类似创建对象命令）
                   const nodePath = await openObject(uri.authority, fullTestPath)
                   if (nodePath) {
-                    // Display the node (like create object command)
+                    // 显示节点（类似创建对象命令）
                     new AdtObjectFinder(uri.authority).displayNode(nodePath)
                   }
                 } catch (openError) {
-                  // Fallback to manual refresh if opening fails
+                  // 打开失败时回退到手动刷新
                 }
               }
 
               progress.report({ message: "Refreshing file explorer..." })
-              // Refresh file explorer
+              // 刷新文件资源管理器
               await commands.executeCommand("workbench.files.action.refreshFilesExplorer")
             }
           } catch (e) {
@@ -1193,8 +1193,8 @@ export class AdtCommands {
   }
 
   /**
-   * Refresh SAP System Info Cache
-   * Clears the cached system information so next request fetches fresh data
+   * 刷新 SAP 系统信息缓存
+   * 清除缓存的系统信息，让下一次请求获取新数据
    */
   @command(AbapFsCommands.refreshSystemInfoCache)
   private static async refreshSystemInfoCache() {
@@ -1209,9 +1209,9 @@ export class AdtCommands {
   }
 
   /**
-   * Refresh the ABAP filesystem for the right-clicked node, bypassing the
-   * SAP standard folder throttle. Backup for cases where standard SAP
-   * objects changed and the user cannot wait for the TTL to expire.
+   * 刷新右键点击节点的 ABAP 文件系统，绕过
+   * SAP 标准文件夹节流。当标准 SAP 对象发生变化
+   * 且用户无法等待 TTL 过期时的备份方案。
    */
   @command(AbapFsCommands.refreshFilesystem)
   private static async refreshFilesystem(uri?: Uri) {
