@@ -1,6 +1,6 @@
 /**
- * ABAP Cleaner Commands
- * Commands for the ABAP Cleaner integration
+ * ABAP Cleaner 命令
+ * ABAP Cleaner 集成的命令
  */
 
 import * as vscode from "vscode"
@@ -10,12 +10,12 @@ import { log } from "../lib"
 import { logTelemetry } from "./telemetry"
 
 /**
- * Register all ABAP Cleaner-related commands
+ * 注册所有 ABAP Cleaner 相关命令
  */
 export function registerCleanerCommands(context: vscode.ExtensionContext): void {
   const cleanerService = ABAPCleanerService.getInstance()
 
-  // Main clean code command - can be called from icon or context menu
+  // 主清理代码命令 - 可以从图标或右键菜单调用
   const cleanCodeCommand = vscode.commands.registerCommand("abapfs.cleanCode", async () => {
     // log('🧹 AbapFs Clean Code command triggered');
 
@@ -35,13 +35,13 @@ export function registerCleanerCommands(context: vscode.ExtensionContext): void 
     await cleanerService.cleanActiveEditor()
   })
 
-  // Setup wizard command
+  // 设置向导命令
   const setupCleanerCommand = vscode.commands.registerCommand("abapfs.setupCleaner", async () => {
     // log('⚙️ AbapFs Setup ABAP Cleaner command triggered');
     await cleanerService.setupWizard()
   })
 
-  // Register auto-clean on save if enabled
+  // 启用时注册保存时自动清理
   const onSaveListener = vscode.workspace.onWillSaveTextDocument(async event => {
     if (
       cleanerService.shouldCleanOnSave() &&
@@ -50,13 +50,13 @@ export function registerCleanerCommands(context: vscode.ExtensionContext): void 
     ) {
       log("💾 Auto-cleaning ABAP code on save...")
 
-      // Note: This is a simplified version. For production, you'd want to
-      // integrate this more carefully with the document save pipeline
+      // 注意：这是简化版本。生产环境你可能想
+      // 更仔细地把它集成到文档保存管道中
       const editor = window.visibleTextEditors.find(e => e.document === event.document)
 
       if (editor) {
-        // We can't directly modify the document during onWillSave,
-        // so we'll show a message instead
+        // 我们不能在 onWillSave 期间直接修改文档，
+        // 所以改为显示消息
         window.showInformationMessage("💡 Tip: Use the clean code icon to format before saving")
       }
     }
@@ -68,23 +68,23 @@ export function registerCleanerCommands(context: vscode.ExtensionContext): void 
 }
 
 /**
- * Update editor context for showing/hiding ABAP Cleaner commands
- * Note: Called from main activeTextEditorChangedListener for efficiency
+ * 更新用于显示/隐藏 ABAP Cleaner 命令的编辑器上下文
+ * 注意：为效率从主 activeTextEditorChangedListener 调用
  */
 export function updateCleanerContext(): void {
   const cleanerService = ABAPCleanerService.getInstance()
   const isAvailable = cleanerService.isAvailable()
 
-  // Set context for when clause in package.json
+  // 为 package.json 中的 when 子句设置上下文
   vscode.commands.executeCommand("setContext", "abapfs.cleanerAvailable", isAvailable)
 }
 
 /**
- * Setup cleaner context monitoring
- * Note: Editor change monitoring is handled by main listener for performance
+ * 设置清理器上下文监控
+ * 注意：编辑器变化监控由主监听器处理以提升性能
  */
 export function setupCleanerContextMonitoring(context: vscode.ExtensionContext): void {
-  // Update context when configuration changes
+  // 配置变化时更新上下文
   const configChangeListener = vscode.workspace.onDidChangeConfiguration(e => {
     if (e.affectsConfiguration("abapfs.cleaner")) {
       updateCleanerContext()
@@ -93,7 +93,7 @@ export function setupCleanerContextMonitoring(context: vscode.ExtensionContext):
 
   context.subscriptions.push(configChangeListener)
 
-  // Initial context update
+  // 初始上下文更新
   updateCleanerContext()
 
   log("✅ ABAP Cleaner context monitoring setup complete")
