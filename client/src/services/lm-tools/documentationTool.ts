@@ -1,6 +1,6 @@
 /**
- * ABAP FS Documentation Tool
- * Access extension documentation and settings reference
+ * ABAP FS 文档工具
+ * 访问扩展文档和设置参考
  */
 
 import * as vscode from "vscode"
@@ -11,7 +11,7 @@ import * as path from "path"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface IDocumentationToolParameters {
@@ -22,18 +22,18 @@ export interface IDocumentationToolParameters {
 }
 
 // ============================================================================
-// HELPER FUNCTIONS
+// 辅助函数
 // ============================================================================
 
 /**
- * Read lines from a file
+ * 从文件读取行
  */
 function readFileLines(filePath: string, startLine: number, lineCount: number): string {
   try {
     const content = fs.readFileSync(filePath, "utf-8")
     const lines = content.split("\n")
 
-    // 1-based to 0-based conversion
+    // 从 1 开始转为从 0 开始
     const start = Math.max(0, startLine - 1)
     const end = Math.min(lines.length, start + lineCount)
 
@@ -48,15 +48,15 @@ function readFileLines(filePath: string, startLine: number, lineCount: number): 
 }
 
 /**
- * Search for text in file and return matching lines with context
- * Splits search query by spaces and finds lines matching ANY of the words
+ * 在文件中搜索文本并返回带上下文的匹配行
+ * 按空格拆分搜索查询，查找匹配任意单词的行
  */
 function searchFileLines(filePath: string, searchQuery: string, contextLines: number = 3): string {
   try {
     const content = fs.readFileSync(filePath, "utf-8")
     const lines = content.split("\n")
 
-    // Split search query by spaces and convert to lowercase
+    // 按空格拆分搜索查询并转小写
     const searchTerms = searchQuery
       .toLowerCase()
       .split(/\s+/)
@@ -70,20 +70,20 @@ function searchFileLines(filePath: string, searchQuery: string, contextLines: nu
     }> = []
     const matchedLineNumbers = new Set<number>()
 
-    // Find all matching lines for each search term
+    // 为每个搜索词查找所有匹配行
     for (const searchTerm of searchTerms) {
       for (let i = 0; i < lines.length; i++) {
         if (lines[i].toLowerCase().includes(searchTerm) && !matchedLineNumbers.has(i + 1)) {
-          // Get context lines before and after
+          // 获取前后上下文行
           const contextStart = Math.max(0, i - contextLines)
           const contextEnd = Math.min(lines.length, i + contextLines + 1)
           const contextLinesArray = lines.slice(contextStart, contextEnd)
 
-          // Find which terms matched this line
+          // 找出哪些词匹配此行
           const matchedTerms = searchTerms.filter(term => lines[i].toLowerCase().includes(term))
 
           matches.push({
-            lineNumber: i + 1, // 1-based
+            lineNumber: i + 1, // 从 1 开始
             line: lines[i],
             context: contextLinesArray,
             matchedTerms
@@ -97,10 +97,10 @@ function searchFileLines(filePath: string, searchQuery: string, contextLines: nu
       return `No matches found for: "${searchQuery}" (searched for: ${searchTerms.join(", ")})`
     }
 
-    // Sort by line number
+    // 按行号排序
     matches.sort((a, b) => a.lineNumber - b.lineNumber)
 
-    // Format results
+    // 格式化结果
     let result = `Found ${matches.length} match(es) for: "${searchQuery}"\n`
     result += `Search terms: ${searchTerms.join(", ")}\n\n`
 
@@ -117,11 +117,11 @@ function searchFileLines(filePath: string, searchQuery: string, contextLines: nu
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 📚 ABAP FS DOCUMENTATION TOOL
+ * 📚 ABAP FS 文档工具
  */
 export class ABAPFSDocumentationTool implements vscode.LanguageModelTool<IDocumentationToolParameters> {
   async prepareInvocation(
@@ -159,14 +159,14 @@ export class ABAPFSDocumentationTool implements vscode.LanguageModelTool<IDocume
     logTelemetry("tool_abapfs_documentation_called")
     const { action, searchQuery, startLine = 1, lineCount = 50 } = options.input
 
-    // Get extension path
+    // 获取扩展路径
     const extension = vscode.extensions.getExtension("murbani.vscode-abap-remote-fs")
     if (!extension) {
       throw new Error("ABAP FS extension not found")
     }
 
     const extensionPath = extension.extensionPath
-    // Files are copied by webpack to client/dist/media during build
+    // 构建期间 webpack 会把文件复制到 client/dist/media
     const docsPath = path.join(extensionPath, "client", "dist", "media", "DOCUMENTATION.md")
     const settingsPath = path.join(extensionPath, "client", "dist", "media", "ABAP-FS-SETTINGS.md")
 
@@ -220,7 +220,7 @@ export class ABAPFSDocumentationTool implements vscode.LanguageModelTool<IDocume
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerDocumentationTool(context: vscode.ExtensionContext): void {
