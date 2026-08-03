@@ -26,7 +26,7 @@ async function ddicRepositoryAccessRaw(
 }
 
 /**
- * Resolve a CDS field reference to the corresponding DDIC object entry.
+ * 把 CDS 字段引用解析为对应的 DDIC 对象条目。
  */
 export async function ddicRepositoryAccessField(
   client: ADTClient,
@@ -41,7 +41,7 @@ export async function ddicRepositoryAccessField(
 }
 
 /**
- * Resolve a CDS data source name to the corresponding DDIC repository object.
+ * 把 CDS 数据源名解析为对应的 DDIC 仓库对象。
  */
 export async function ddicRepositoryAccessSource(
   client: ADTClient,
