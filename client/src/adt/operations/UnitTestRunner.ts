@@ -53,7 +53,7 @@ enum TestResType {
   method
 }
 
-// Exported types for LM tools
+// 为 LM 工具导出的类型
 export interface TestMethodResult {
   name: string
   passed: boolean
@@ -326,8 +326,8 @@ export class UnitTestRunner {
   }
 
   /**
-   * Run unit tests and return structured results for LM tools
-   * Also updates the VS Code Testing UI
+   * 运行单元测试并为 LM 工具返回结构化结果
+   * 同时更新 VS Code 测试 UI
    */
   async addResultsWithReturn(uri: Uri): Promise<UnitTestResults> {
     logTelemetry("command_run_abap_unit_tests_called", { connectionId: uri.authority })
@@ -339,11 +339,11 @@ export class UnitTestRunner {
     this.controller.items.add(current)
     this.urlTypes.set(objectKey(object), TestResType.object)
 
-    // Run tests and capture results
+    // 运行测试并捕获结果
     const classes = await runUnitUrl(this.connId, current.id)
     this.setUrlTypes(classes)
 
-    // Update UI
+    // 更新 UI
     const run = this.controller.createTestRun(new TestRunRequest([current]), undefined, false)
     try {
       setObjectResult(run, classes, current, this.controller)
@@ -351,7 +351,7 @@ export class UnitTestRunner {
       run.end()
     }
 
-    // Build structured results for LM tool
+    // 为 LM 工具构建结构化结果
     return this.buildTestResults(classes, object.key)
   }
 
