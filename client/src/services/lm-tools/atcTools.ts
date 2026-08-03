@@ -1,6 +1,6 @@
 /**
- * ABAP ATC (ABAP Test Cockpit) Tools
- * Run ATC analysis and access ATC decorations
+ * ABAP ATC（ABAP Test Cockpit）工具
+ * 运行 ATC 分析并访问 ATC 装饰
  */
 
 import * as vscode from "vscode"
@@ -14,7 +14,7 @@ import { getATCDecorations } from "../../views/abaptestcockpit/decorations"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// INTERFACES
+// 接口
 // ============================================================================
 
 export interface IRunATCAnalysisParameters {
@@ -25,7 +25,7 @@ export interface IRunATCAnalysisParameters {
   connectionId?: string
   useActiveFile?: boolean
   scope?: "object" | "package" | "transport"
-  // For get_documentation action
+  // 用于 get_documentation 操作
   docUri?: string
 }
 
@@ -34,11 +34,11 @@ export interface IGetATCDecorationsParameters {
 }
 
 // ============================================================================
-// TOOL CLASSES
+// 工具类
 // ============================================================================
 
 /**
- * 🔍 RUN ATC ANALYSIS TOOL - Wrapper for existing ATC logic with AI integration
+ * 🔍 运行 ATC 分析工具 - 现有 ATC 逻辑的包装器，带 AI 集成
  */
 export class RunATCAnalysisTool implements vscode.LanguageModelTool<IRunATCAnalysisParameters> {
   async prepareInvocation(
@@ -55,7 +55,7 @@ export class RunATCAnalysisTool implements vscode.LanguageModelTool<IRunATCAnaly
       docUri
     } = options.input
 
-    // get_documentation only needs docUri + connectionId
+    // get_documentation 只需要 docUri + connectionId
     if (action === "get_documentation") {
       if (!docUri) {
         throw new Error("get_documentation requires docUri (from a previous run_analysis result)")
@@ -74,7 +74,7 @@ export class RunATCAnalysisTool implements vscode.LanguageModelTool<IRunATCAnaly
       }
     }
 
-    // Validate: must have objectUri, objectName+connectionId, or useActiveFile
+    // 校验：必须有 objectUri、objectName+connectionId 或 useActiveFile
     if (objectUri) {
       if (!objectUri.startsWith("adt://")) {
         throw new Error("objectUri must be a valid ADT URI (adt://system/path)")
@@ -124,7 +124,7 @@ export class RunATCAnalysisTool implements vscode.LanguageModelTool<IRunATCAnaly
       connectionId = connectionId.toLowerCase()
     }
 
-    // Handle get_documentation action
+    // 处理 get_documentation 操作
     if (action === "get_documentation") {
       return this.getDocumentation(options.input)
     }
@@ -193,7 +193,7 @@ export class RunATCAnalysisTool implements vscode.LanguageModelTool<IRunATCAnaly
         )
       }
 
-      // atcProvider is imported statically at top
+      // atcProvider 已在顶部静态导入
 
       const existingEditor = window.visibleTextEditors.find(
         editor => editor.document.uri.toString() === targetUri.toString()
@@ -223,7 +223,7 @@ export class RunATCAnalysisTool implements vscode.LanguageModelTool<IRunATCAnaly
             ])
           }
         } catch {
-          // Ignore fs errors
+          // 忽略文件系统错误
         }
       }
 
@@ -236,7 +236,7 @@ export class RunATCAnalysisTool implements vscode.LanguageModelTool<IRunATCAnaly
               await window.showTextDocument(document, { preserveFocus: true })
             }
           } catch {
-            // Continue with ATC even if file opening fails
+            // 即使文件打开失败也继续 ATC
           }
 
           return atcProvider.runInspector(targetUri)
@@ -360,7 +360,7 @@ export class RunATCAnalysisTool implements vscode.LanguageModelTool<IRunATCAnaly
     const client = getClient(connectionId)
     const doc = await client.atcDocumentation(docUri)
 
-    // Strip HTML tags to get plain text for the AI
+    // 剥离 HTML 标签以获得纯文本给 AI
     const plainText = doc.body
       .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
       .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
@@ -391,7 +391,7 @@ export class RunATCAnalysisTool implements vscode.LanguageModelTool<IRunATCAnaly
 }
 
 /**
- * 🎨 GET ATC DECORATIONS TOOL - Access current visual decorations in editor
+ * 🎨 获取 ATC 装饰工具 - 访问编辑器中的当前可视装饰
  */
 export class GetATCDecorationsTool implements vscode.LanguageModelTool<IGetATCDecorationsParameters> {
   async prepareInvocation(
@@ -497,7 +497,7 @@ export class GetATCDecorationsTool implements vscode.LanguageModelTool<IGetATCDe
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerAtcTools(context: vscode.ExtensionContext): void {
