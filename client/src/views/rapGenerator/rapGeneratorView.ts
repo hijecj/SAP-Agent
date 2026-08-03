@@ -27,7 +27,7 @@ export class RapGeneratorPanel implements WebviewViewProvider {
     return RapGeneratorPanel.instance
   }
 
-  /** Pre-populate the panel with a table name from an editor context menu */
+  /** 用编辑器右键菜单的表名预填充面板 */
   public prefill(connId: string, tableName: string) {
     this.view?.webview.postMessage({ type: "prefill", connId, tableName })
   }
@@ -64,7 +64,7 @@ export class RapGeneratorPanel implements WebviewViewProvider {
     panel.onDidDispose(() => {
       this.view = undefined
     })
-    // Assign after setup so prefill() can safely post
+    // 设置后分配，这样 prefill() 可以安全地 post
     this.view = panel
   }
 
@@ -118,14 +118,14 @@ export class RapGeneratorPanel implements WebviewViewProvider {
     try {
       const client = await getOrCreateClient(connId)
 
-      // Check availability first
+      // 先检查可用性
       const available = await client.rapGenIsAvailable(genId)
       if (!available) {
         this.post({ type: "error", text: "RAP Generator is not available on this system." })
         return
       }
 
-      // Initial validation
+      // 初始校验
       const tableUri = this.tableUri(tableName)
       const validation = await client.rapGenValidateInitial(genId, tableUri, packageName)
       if (validation.severity === "error") {
@@ -136,7 +136,7 @@ export class RapGeneratorPanel implements WebviewViewProvider {
         return
       }
 
-      // Get default content
+      // 获取默认内容
       const content = await client.rapGenGetContent(genId, tableUri, packageName)
       this.post({ type: "defaults", content })
     } catch (e: any) {
@@ -183,7 +183,7 @@ export class RapGeneratorPanel implements WebviewViewProvider {
     try {
       const client = await getOrCreateClient(connId)
 
-      // Validate content first (like Eclipse does)
+      // 先校验内容（像 Eclipse 那样）
       const validation = await client.rapGenValidateContent(
         genId,
         this.tableUri(tableName),
@@ -197,7 +197,7 @@ export class RapGeneratorPanel implements WebviewViewProvider {
         return
       }
 
-      // Get full object list via preview before generating
+      // 生成前通过预览获取完整对象列表
       const previewObjects = await client.rapGenPreview(genId, this.tableUri(tableName), content)
 
       const needsTransport = content.metadata?.package !== "$TMP"
@@ -220,8 +220,8 @@ export class RapGeneratorPanel implements WebviewViewProvider {
 
       await client.rapGenGenerate(genId, this.tableUri(tableName), transport, content)
 
-      // Use the preview list (which has all objects) for the generated view
-      // Mark them as CREATED instead of CREATE
+      // 对生成的视图使用预览列表（包含所有对象）
+      // 把它们标记为 CREATED 而不是 CREATE
       const objects = previewObjects.map(o => ({ ...o, description: "CREATED" }))
       this.post({
         type: "generated",
@@ -229,13 +229,13 @@ export class RapGeneratorPanel implements WebviewViewProvider {
         srvbName: content.businessService?.serviceBinding?.name
       })
 
-      // Open the service binding from the preview URIs
+      // 从预览 URI 打开服务绑定
       const srvb = previewObjects.find(o => o.type?.includes("SRVB"))
       if (srvb?.uri) {
         try {
           await openObject(connId, srvb.uri)
         } catch {
-          /* non-critical — objects are already created */
+          /* 非关键 — 对象已创建 */
         }
       }
 
@@ -243,7 +243,7 @@ export class RapGeneratorPanel implements WebviewViewProvider {
         `RAP service generated successfully (${objects.length} objects created)`
       )
     } catch (e: any) {
-      // Extract detailed error info from ADT HTTP exceptions
+      // 从 ADT HTTP 异常提取详细错误信息
       const responseBody = e?.response?.body || e?.response?.data || ""
       const detail = typeof responseBody === "string" ? responseBody : JSON.stringify(responseBody)
       const mainMsg = caughtToString(e)
@@ -270,7 +270,7 @@ export class RapGeneratorPanel implements WebviewViewProvider {
     }
   }
 
-  // ── Commands ────────────────────────────────────────────────────────
+  // ── 命令 ────────────────────────────────────────────────────────
 
   @command(AbapFsCommands.rapGenFromEditor)
   private static async fromEditor() {
@@ -286,7 +286,7 @@ export class RapGeneratorPanel implements WebviewViewProvider {
     const tableName = abapFile.object.name
 
     await commands.executeCommand("abapfs.rapGenerator.focus")
-    // Wait for the webview to be resolved
+    // 等待 Webview 被解析
     const panel = RapGeneratorPanel.get()
     for (let i = 0; i < 20 && !panel.view; i++) {
       await new Promise(r => setTimeout(r, 50))
