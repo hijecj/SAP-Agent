@@ -1,10 +1,10 @@
 import { CompletionProposal } from "abap-adt-api"
 import { CompletionItem, Position, Range, TextEdit } from "vscode-languageserver-protocol"
 
-const INTERFACEROLE = 58 // sccmp_role_intftype in abap
+const INTERFACEROLE = 58 // ABAP 中的 sccmp_role_intftype
 
 /**
- * Transform an ADT completion proposal into the LSP shape expected by the client.
+ * 把 ADT 补全提议转换为客户端期望的 LSP 形状。
  */
 export const formatItem =
   (textLine: string, p: Position) =>
@@ -15,7 +15,7 @@ export const formatItem =
     const isMethodCall = !!before.substring(start - 2).match(/^[-=]>/)
     const label = i.IDENTIFIER + (i.ROLE === INTERFACEROLE && isMethodCall ? "~" : "")
     let insertText = label
-    // handle wildcards
+    // 处理通配符
     if (before.match(/\*/)) {
       const mpref = before.match(/(<?[\w\*]+)$/)
       const len = mpref ? mpref[1].length : i.PREFIXLENGTH
@@ -32,7 +32,7 @@ export const formatItem =
         data: i
       }
     }
-    // fix namespaces
+    // 修复命名空间
     const match = label.match(/^(\/\w+\/)/)
     if (match) {
       const lastChar = before.substring(start, start + 1)
@@ -40,7 +40,7 @@ export const formatItem =
       if (i.PREFIXLENGTH >= len) insertText = insertText.substring(len)
       else if (lastChar === "/") insertText = insertText.substring(1)
     }
-    // fix field-symbols
+    // 修复字段符号
     if (label[0] === "<") {
       if (textLine[p.character - i.PREFIXLENGTH] === "<") insertText = insertText.substring(1)
       if (textLine[p.character] === ">") insertText = insertText.substring(0, insertText.length - 1)
