@@ -16,7 +16,7 @@ import { CompletionProposal, ADTClient, CompletionElementInfo } from "abap-adt-a
 import { cdsCompletionExtractor, cdsDataSources } from "./cdsSyntax"
 import { formatItem } from "./completionutils"
 
-// ── Completion ──────────────────────────────────────────────────────────────
+// ── 补全 ──────────────────────────────────────────────────────────────
 
 const completionKey = (url: string, p: Position) => `${url} ${p.line} ${p.character}`
 const throttler = callThrottler<CompletionProposal[]>()
@@ -31,7 +31,7 @@ const proposals = (client: ADTClient, url: string, p: Position, source: string) 
 }
 const isSupported = (x: string) => isAbap(x) || isCdsView(x)
 
-// Cache the last completion context so onCompletionResolve can call codeCompletionFull
+// 缓存上次补全上下文，让 onCompletionResolve 可以调用 codeCompletionFull
 let lastCompletionContext:
   | {
       uri: string
@@ -47,7 +47,7 @@ async function abapCompletion(co: ClientAndObject, pos: Position, docUri: string
   const line = source.split(/\n/)[pos.line] || ""
   const items: CompletionItem[] = rawItems.map(formatItem(line, pos))
 
-  // Store context for resolve - must use the adt:// document URI, not obj.url
+  // 存储上下文供解析使用 - 必须使用 adt:// 文档 URI，而不是 obj.url
   lastCompletionContext = {
     uri: docUri,
     mainUrl: obj.mainUrl,
@@ -66,7 +66,7 @@ async function cdsCompletion(co: ClientAndObject, pos: Position) {
     if (!items.find(i => i.label === label)) items.push({ label })
   }
   if (matched === "NONE") {
-    // cursor may be on an empty line inside { } — offer all fields from data sources
+    // 光标可能在 { } 内的空行上 — 提供来自数据源的所有字段
     const line = source.split("\n")[pos.line] || ""
     if (line.trim() === "" || line.trim() === "," || line.trim() === "KEY") {
       const dataSources = cdsDataSources(source)
@@ -94,7 +94,7 @@ async function cdsCompletion(co: ClientAndObject, pos: Position) {
 }
 
 /**
- * Provide completion items for ABAP and CDS documents based on the current cursor context.
+ * 基于当前光标上下文为 ABAP 和 CDS 文档提供补全项。
  */
 export async function completion(params: CompletionParams) {
   try {
@@ -109,7 +109,7 @@ export async function completion(params: CompletionParams) {
     const isInComplete = (compl: CompletionItem[]) => {
       if (compl.length > 10) return true
       if (compl.length === 0) return false
-      // special handling for "type table of"
+      // 对 "type table of" 的特殊处理
       let found = false
 
       compl.some(c => {
@@ -122,16 +122,16 @@ export async function completion(params: CompletionParams) {
     }
     return CompletionList.create(items, isInComplete(items))
   } catch (e) {
-    log("Exception in completion:", caughtToString(e)) // ignore
+    log("Exception in completion:", caughtToString(e)) // 忽略
   }
 }
 
-// ── Completion Resolve ──────────────────────────────────────────────────────
-// When the user selects a completion item, try to get the full insertion text
-// (with method parameters) from the ADT codeCompletionFull endpoint.
+// ── 补全解析 ──────────────────────────────────────────────────────
+// 用户选择补全项时，尝试从 ADT codeCompletionFull 端点
+// 获取完整插入文本（带方法参数）。
 
 /**
- * Resolve a completion item into its full snippet text when the ADT backend can provide it.
+ * 当 ADT 后端可以提供时，把补全项解析为其完整片段文本。
  */
 export async function completionResolve(item: CompletionItem): Promise<CompletionItem> {
   try {
@@ -179,7 +179,7 @@ export async function completionResolve(item: CompletionItem): Promise<Completio
 
     log("[completionResolve] fullText:", JSON.stringify(fullText?.substring(0, 200)))
     if (fullText && typeof fullText === "string" && fullText.length > proposal.IDENTIFIER.length) {
-      // Convert to a snippet: replace empty assignment spots with tab stops
+      // 转换为片段：把空赋值位置替换为制表位
       const snippet = convertToSnippet(fullText, proposal.IDENTIFIER)
       log("[completionResolve] snippet:", JSON.stringify(snippet?.substring(0, 200)))
       if (snippet) {
@@ -202,37 +202,37 @@ export async function completionResolve(item: CompletionItem): Promise<Completio
 }
 
 /**
- * Convert ADT's full insertion text into a VS Code snippet with tab stops.
- * ADT returns text in three known formats depending on system/method:
- *   Format A: multiline, echo on next line: "param = \necho_value\n"
- *   Format B: multiline, inline ABAP comment: "param =                  " comment"
- *   Format C: single-line: "method( param =  )."
- * We normalize all to "param = " and add tab stops.
+ * 把 ADT 的完整插入文本转换为带制表位的 VS Code 片段。
+ * ADT 根据系统/方法以三种已知格式返回文本：
+ *   格式 A：多行，下一行回显："param = \necho_value\n"
+ *   格式 B：多行，内联 ABAP 注释："param =                  " comment"
+ *   格式 C：单行："method( param =  )."
+ * 我们把所有格式规范化为 "param = " 并添加制表位。
  */
 function convertToSnippet(fullText: string, identifier: string): string | undefined {
-  // If the full text doesn't contain parentheses, it's not a method call
+  // 如果完整文本不包含括号，则不是方法调用
   if (!fullText.includes("(")) return undefined
 
   log("[convertToSnippet] raw fullText:", JSON.stringify(fullText))
 
-  // Normalize line endings
+  // 规范化行尾
   let text = fullText.replace(/\r\n/g, "\n")
 
-  // Format A: strip echoed parameter value on next line: "= \n<echo>" → "= \n"
+  // 格式 A：剥离下一行回显的参数值："= \n<echo>" → "= \n"
   text = text.replace(/(=[ \t]*\n)[^\n]*/g, "$1")
 
-  // Format B: strip inline ABAP comment after "=": "= <spaces>" comment" → "= "
+  // 格式 B：剥离 "=" 之后的内联 ABAP 注释："= <spaces>" comment" → "= "
   text = text.replace(/(=)\s*"[^\n]*/g, "$1 ")
 
   log("[convertToSnippet] cleanedText:", JSON.stringify(text))
 
   let tabIndex = 0
-  // Replace all empty assignment slots (value is only whitespace before ")", ",", or end-of-line)
-  // Works for both multiline (Format A/B) and single-line (Format C)
+  // 替换所有空赋值槽位（值在 ")"、"," 或行尾之前只有空白）
+  // 对多行（格式 A/B）和单行（格式 C）都有效
   const snippet = text.replace(
     /(\b\w+)([ \t]*=[ \t]*)(?=[ \t]*[),\n]|[ \t]*$)/gm,
     (match, paramName, equals, offset, str) => {
-      // Skip assignments on commented-out lines (line starts with optional spaces then *)
+      // 跳过注释行上的赋值（行以可选空格后跟 * 开头）
       const lineStart = str.lastIndexOf("\n", offset - 1) + 1
       if (/^\s*\*/.test(str.substring(lineStart, offset + paramName.length))) return match
       tabIndex++
@@ -252,11 +252,11 @@ function convertToSnippet(fullText: string, identifier: string): string | undefi
   return snippet + `\$0`
 }
 
-// ── Signature Help ──────────────────────────────────────────────────────────
-// Shows method parameter hints when typing inside parentheses.
+// ── 签名帮助 ──────────────────────────────────────────────────────────
+// 在括号内输入时显示方法参数提示。
 
 /**
- * Provide signature help for ABAP method calls based on the current cursor position.
+ * 基于当前光标位置为 ABAP 方法调用提供签名帮助。
  */
 export async function signatureHelp(
   params: SignatureHelpParams
@@ -270,11 +270,11 @@ export async function signatureHelp(
     const { source, obj } = co
     const lines = source.split(/\n/)
 
-    // Find the method call context: look backwards for CLASS=>METHOD( or OBJECT->METHOD(
+    // 查找方法调用上下文：向后查找 CLASS=>METHOD( 或 OBJECT->METHOD(
     const callMatch = findMethodCall(lines, params.position)
     if (!callMatch) return undefined
 
-    // Use codeCompletionElement to get parameter info at the method call position
+    // 使用方法调用位置的 codeCompletionElement 获取参数信息
     const elementInfo = await co.client.statelessClone.codeCompletionElement(
       obj.mainUrl,
       source,
@@ -287,7 +287,7 @@ export async function signatureHelp(
     const sigInfo = buildSignatureFromElementInfo(elementInfo, callMatch.methodName)
     if (!sigInfo) return undefined
 
-    // Determine active parameter based on comma count
+    // 基于逗号数确定活动参数
     const activeParam = countCommasBeforeCursor(lines, params.position, callMatch)
 
     return {
@@ -310,15 +310,15 @@ interface MethodCallContext {
 }
 
 /**
- * Scan backwards from cursor to find the opening ( of a method call.
- * Handles multi-line calls.
+ * 从光标向后扫描，找到方法调用的左括号 (。
+ * 处理多行调用。
  */
 function findMethodCall(lines: string[], pos: Position): MethodCallContext | undefined {
   let depth = 0
   let l = pos.line
   let c = pos.character - 1
 
-  // Walk backwards to find the matching opening parenthesis
+  // 向后遍历找到匹配的左括号
   while (l >= 0) {
     const line = lines[l] || ""
     if (c < 0) c = line.length - 1
@@ -328,9 +328,9 @@ function findMethodCall(lines: string[], pos: Position): MethodCallContext | und
       if (ch === ")") depth++
       else if (ch === "(") {
         if (depth === 0) {
-          // Found the opening paren. Now look for the method name before it.
+          // 找到左括号。现在查找它之前的方法名。
           const textBefore = line.substring(0, c).trimEnd()
-          // Match patterns like: CLASS=>METHOD, obj->method, FUNCTION_NAME
+          // 匹配如：CLASS=>METHOD、obj->method、FUNCTION_NAME 的模式
           const nameMatch = textBefore.match(/([\w\/]+(?:[=-]>[\w\/]+)?)\s*$/)
           if (nameMatch) {
             const fullName = nameMatch[1]
@@ -341,7 +341,7 @@ function findMethodCall(lines: string[], pos: Position): MethodCallContext | und
             const nameStart = textBefore.length - nameMatch[0].trimStart().length
             return {
               line: l,
-              column: nameStart + 1, // 1-based for ADT
+              column: nameStart + 1, // ADT 从 1 开始
               methodName,
               parenLine: l,
               parenColumn: c
@@ -360,7 +360,7 @@ function findMethodCall(lines: string[], pos: Position): MethodCallContext | und
 }
 
 /**
- * Build a SignatureInformation from CompletionElementInfo
+ * 从 CompletionElementInfo 构建 SignatureInformation
  */
 function buildSignatureFromElementInfo(
   info: CompletionElementInfo,
@@ -372,7 +372,7 @@ function buildSignatureFromElementInfo(
   const paramLabels: string[] = []
 
   for (const comp of info.components) {
-    // Each component represents a parameter group or individual parameter
+    // 每个组件表示一个参数组或单个参数
     if (comp.entries && comp.entries.length > 0) {
       const paramType = comp.entries.find(e => e.key === "type")?.value || ""
       const paramDir = comp["adtcore:type"] || ""
@@ -390,7 +390,7 @@ function buildSignatureFromElementInfo(
 }
 
 /**
- * Count commas between the opening paren and the cursor to determine active parameter
+ * 统计左括号与光标之间的逗号数以确定活动参数
  */
 function countCommasBeforeCursor(
   lines: string[],
