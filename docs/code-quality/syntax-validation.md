@@ -1,26 +1,26 @@
-# Syntax Validation
+# 语法验证
 
-ABAP FS validates your code in real time — no need to run a separate syntax check. Errors appear as you type, directly in the editor and in the Problems panel.
+ABAP FS 实时验证你的代码——无需单独运行语法检查。错误会在输入时直接显示在编辑器和问题面板中。
 
-## When it runs
+## 何时运行
 
-Syntax checking triggers automatically on:
+语法检查在以下时机自动触发：
 
-- **Open** — when you open an ABAP file
-- **Edit** — as you type
-- **Save** — when you save changes
-- **Activate** — when activating the object
+- **打开** — 打开 ABAP 文件时
+- **编辑** — 输入时
+- **保存** — 保存修改时
+- **激活** — 激活对象时
 
-## Viewing errors
+## 查看错误
 
-| Where | How to open |
+| 位置 | 如何打开 |
 |---|---|
-| Inline underlines | Hover over the underlined code for details |
-| Problems panel | `Ctrl+Shift+M` |
-| Error lens (inline) | Shown automatically next to the offending line |
+| 内联下划线 | 悬停下划线代码查看详情 |
+| 问题面板 | `Ctrl+Shift+M` |
+| 错误透镜（内联） | 自动显示在出错行旁边 |
 
-## Fixing errors
+## 修复错误
 
-- **Quick Fix** — press `Ctrl+.` on an error to see available fixes
-- **AI Chat fix** — click the sparkle icon next to an error to open an inline AI chat for a suggested fix
-- **Jump to next error** — `F8` / `Shift+F8` to cycle through problems
+- **快速修复** — 在错误上按 `Ctrl+.` 查看可用修复
+- **AI 聊天修复** — 点击错误旁边的✨图标，打开内联 AI 聊天获取建议修复
+- **跳转到下一个错误** — `F8` / `Shift+F8` 循环浏览问题

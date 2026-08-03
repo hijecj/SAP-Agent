@@ -1,40 +1,40 @@
-# ABAP Cleaner Integration
+# ABAP Cleaner 集成
 
-ABAP Cleaner automatically formats and cleans up ABAP code — fixing indentation, modernizing syntax, and applying configurable cleanup rules in one step.
+ABAP Cleaner 自动格式化和清理 ABAP 代码——一步完成缩进修正、语法现代化和可配置的清理规则。
 
-## Setup
+## 设置
 
-ABAP Cleaner requires its standalone command-line tool (`abap-cleanerc.exe`).
+ABAP Cleaner 需要其独立的命令行工具（`abap-cleanerc.exe`）。
 
-1. Download ABAP Cleaner from [github.com/SAP/abap-cleaner](https://github.com/SAP/abap-cleaner) and extract it to a folder.
-2. Open the Command Palette (`Ctrl+Shift+P`) and run **ABAP FS: Setup ABAP Cleaner Integration**.
-3. Enter the path to `abap-cleanerc.exe` when prompted.
+1. 从 [github.com/SAP/abap-cleaner](https://github.com/SAP/abap-cleaner) 下载 ABAP Cleaner 并解压到文件夹。
+2. 打开命令面板（`Ctrl+Shift+P`）并运行 **ABAP FS: Setup ABAP Cleaner Integration**。
+3. 提示时输入 `abap-cleanerc.exe` 的路径。
 
-## Cleaning Code
+## 清理代码
 
-With an ABAP file open, use any of these methods:
+打开 ABAP 文件后，可以使用以下任一方法：
 
-| Method | Action |
+| 方法 | 操作 |
 |---|---|
-| Keyboard shortcut | `Ctrl+Shift+Alt+F` |
-| Format on save | `Shift+Alt+F` (standard VS Code format — triggers ABAP Cleaner if configured as formatter) |
-| Command Palette | **ABAP FS: Clean ABAP Code with ABAP Cleaner** |
-| Toolbar button | Click the Cleaner button in the editor toolbar |
+| 键盘快捷键 | `Ctrl+Shift+Alt+F` |
+| 保存时格式化 | `Shift+Alt+F`（标准 VS Code 格式化——如果配置了 ABAP Cleaner 作为格式化器，会触发它） |
+| 命令面板 | **ABAP FS: Clean ABAP Code with ABAP Cleaner** |
+| 工具栏按钮 | 点击编辑器工具栏中的 Cleaner 按钮 |
 
-To clean only selected lines, select the code first, then trigger the command.
+只清理选中行：先选中代码，再触发命令。
 
-## What It Does
+## 它的作用
 
-- Applies all configured ABAP Cleaner rules to the file
-- Respects a custom cleanup profile if one is configured
-- Targets the ABAP release you specify (avoids using syntax unavailable on your system)
-- Reports which rules were applied and how many lines changed
+- 对文件应用所有已配置的 ABAP Cleaner 规则
+- 如果配置了自定义清理配置文件，则遵守该配置
+- 以你指定的 ABAP 版本为目标（避免使用你系统上不可用的语法）
+- 报告应用了哪些规则以及修改了多少行
 
-## Configuration
+## 配置
 
-In VS Code settings (`Ctrl+,`), search for **ABAP Cleaner** to configure:
+在 VS Code 设置（`Ctrl+,`）中搜索 **ABAP Cleaner** 进行配置：
 
-- **Executable path** — path to `abap-cleanerc.exe`
-- **Profile** — custom cleanup profile file (optional)
-- **Target release** — ABAP release to target (e.g. `757`)
-- **Clean on save** — automatically clean every time you save an ABAP file
+- **可执行文件路径** — `abap-cleanerc.exe` 的路径
+- **配置文件** — 自定义清理配置文件（可选）
+- **目标版本** — 目标 ABAP 版本（例如 `757`）
+- **保存时清理** — 每次保存 ABAP 文件时自动清理

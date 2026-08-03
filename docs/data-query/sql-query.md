@@ -1,47 +1,47 @@
-# SQL Query Execution
+# SQL 查询执行
 
-Query SAP tables directly from VS Code — the equivalent of SE16N or DBACOCKPIT, but driven by natural language and integrated with Copilot.
+直接从 VS Code 查询 SAP 表——相当于 SE16N 或 DBACOCKPIT，但由自然语言驱动并与 Copilot 集成。
 
-## How to Use
+## 使用方法
 
-Open the Copilot chat (`Ctrl+Alt+I`) and describe what you want:
+打开 Copilot 聊天（`Ctrl+Alt+I`）并描述你的需求：
 
-- *"Show me the first 10 records from MARA"*
-- *"Query USR02 where the username starts with Z"*
-- *"Compare open purchase orders in EKKO for vendor 1000"*
+- *“显示 MARA 的前 10 条记录”*
+- *“查询 USR02 中用户名以 Z 开头的记录”*
+- *“比较供应商 1000 在 EKKO 中的未结采购订单”*
 
-Copilot builds and executes the ABAP SQL query, then displays results in an interactive table in the editor.
+Copilot 构建并执行 ABAP SQL 查询，然后在编辑器中的交互式表格里显示结果。
 
-## Working with Results
+## 处理结果
 
-The result table supports:
+结果表格支持：
 
-| Action | How |
+| 操作 | 方式 |
 |---|---|
-| Sort by column | Click a column header (click again to reverse) |
-| Multi-column sort | Hold `Shift` and click additional headers |
-| Filter rows | Type in the filter box — supports wildcards `*` and `?` |
-| Export | Use the export button in the result toolbar |
+| 按列排序 | 点击列标题（再点一次反向） |
+| 多列排序 | 按住 `Shift` 点击其他列标题 |
+| 过滤行 | 在过滤框中输入——支持通配符 `*` 和 `?` |
+| 导出 | 使用结果工具栏中的导出按钮 |
 
-You can also ask Copilot to refine results after the initial query: *"Now filter by plant 1000"* or *"Sort by creation date descending"*.
+你也可以在初次查询后让 Copilot 优化结果：*“现在按工厂 1000 过滤”* 或 *“按创建日期降序排序”*。
 
-## Display Modes
+## 显示模式
 
-**UI mode** (default) — results appear in a webview for you to explore interactively. Data stays in VS Code.
+**UI 模式**（默认）— 结果出现在 WebView 中，供你交互式探索。数据留在 VS Code 中。
 
-**Internal mode** — results are sent back to Copilot for further analysis (e.g., *"find duplicates"*, *"summarize by material type"*). Copilot automatically selects this mode when analysis is needed.
+**内部模式** — 结果发送回 Copilot 做进一步分析（例如 *“查找重复项”*、*“按物料类型汇总”*）。Copilot 在需要分析时自动选择此模式。
 
-## Production System Protection
+## 生产系统保护
 
-When Copilot would send data back to itself from a **production system**, a confirmation dialog appears:
+当 Copilot 要从**生产系统**把数据发回给自己时，会出现确认对话框：
 
-- **Run & send to Copilot** — proceed with analysis
-- **Run & show in UI only** — display results without sharing data with Copilot
-- **Cancel**
+- **运行并发送给 Copilot** — 继续分析
+- **运行且仅在 UI 中显示** — 显示结果但不与 Copilot 共享数据
+- **取消**
 
-This prevents sensitive production data from being inadvertently included in the AI context.
+这可以防止敏感的生产数据无意中进入 AI 上下文。
 
-## Notes
+## 注意事项
 
-- **Row limit:** Default 1000 rows, maximum 50,000. Copilot manages this automatically — the ABAP SQL `UP TO x ROWS` clause is not supported via ADT, so use natural language like *"limit to 500 rows"* instead.
-- **Not just SAP data:** The same result viewer can display any structured data — JIRA issues, task lists, comparison tables — that Copilot assembles during a conversation.
+- **行数限制：** 默认 1000 行，最大 50,000。Copilot 自动管理——ADT 不支持 ABAP SQL 的 `UP TO x ROWS` 子句，所以请改用自然语言，例如 *“限制为 500 行”*。
+- **不只是 SAP 数据：** 同一个结果查看器可以显示 Copilot 在对话中整理的任意结构化数据——JIRA 问题、任务列表、对比表等。

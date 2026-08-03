@@ -1,35 +1,35 @@
-# Where-Used Analysis
+# Where-Used 分析
 
-The VS Code equivalent of **Ctrl+Shift+F3** (Where-Used List) in SAP GUI. Finds every place an object, method, variable, or symbol is referenced across the entire system.
+这是 SAP GUI 中 **Ctrl+Shift+F3**（Where-Used List）的 VS Code 等价功能。查找对象、方法、变量或符号在整个系统中被引用的每一个位置。
 
-## How to Use
+## 使用方法
 
-**Option 1 — Editor shortcut:**
-1. Place the cursor on any symbol (class name, method, variable, etc.)
-2. Press `Shift+F12` (Find All References) or right-click → **Find All References**
-3. Results appear in the References panel with file locations and code snippets
+**方式 1 — 编辑器快捷键：**
+1. 将光标放在任意符号上（类名、方法、变量等）
+2. 按 `Shift+F12`（查找所有引用）或右键 → **查找所有引用**
+3. 结果出现在引用面板中，包含文件位置和代码片段
 
-**Option 2 — Ask Copilot:**
-> "Where is `BAPI_USER_GET_DETAIL` used?"
-> "Find all usages of method `FACTORY` in `ZCL_MY_CLASS`"
+**方式 2 — 让 Copilot 执行：**
+> “BAPI_USER_GET_DETAIL 用在哪里？”
+> “查找 `ZCL_MY_CLASS` 中方法 `FACTORY` 的所有用法”
 
-## Filtering Results
+## 过滤结果
 
-For large result sets (1,000+ references), filters prevent having to page through SAP standard objects to find your custom code:
+对于大型结果集（1000+ 引用），过滤器可以避免在 SAP 标准对象中翻页查找自定义代码：
 
-| Filter | What it does |
+| 过滤器 | 作用 |
 |--------|-------------|
-| Exclude standard objects | Shows only Z\* / Y\* custom code |
-| Object type | Restrict to programs, classes, interfaces, etc. |
-| Object name pattern | e.g. `Z*INVOICE*` to narrow by naming convention |
+| 排除标准对象 | 只显示 Z\* / Y\* 自定义代码 |
+| 对象类型 | 限定为程序、类、接口等 |
+| 对象名称模式 | 例如 `Z*INVOICE*`，按命名规范缩小范围 |
 
-> **Tip:** Custom Z/Y objects often appear at the end of large result sets. Apply the "exclude standard objects" filter to jump straight to them.
+> **提示：** 自定义 Z/Y 对象通常出现在大型结果集的末尾。应用“排除标准对象”过滤器可以直接跳转到它们。
 
-## Compared to SAP GUI
+## 与 SAP GUI 对比
 
-| SAP GUI (Ctrl+Shift+F3) | VS Code |
+| SAP GUI（Ctrl+Shift+F3） | VS Code |
 |-------------------------|---------|
-| Modal dialog, one object at a time | Inline results panel, stays open |
-| No snippet preview | Shows code context around each reference |
-| No pattern filtering | Filter by type, name pattern, custom-only |
-| Paginated per transaction | Pagination + filters in one view |
+| 模态对话框，一次一个对象 | 内联结果面板，保持打开 |
+| 无代码片段预览 | 显示每个引用周围的代码上下文 |
+| 无模式过滤 | 按类型、名称模式、仅自定义过滤 |
+| 每个事务分页 | 一个视图内分页 + 过滤 |

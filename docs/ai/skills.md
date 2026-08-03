@@ -1,61 +1,61 @@
-# AI Skills
+# AI 技能包
 
-Skills are built-in "cheat sheets" that Copilot reads automatically when your question or task matches their domain. They contain ABAP-specific knowledge — coding standards, performance rules, SAP navigation techniques — so you don't have to explain that context yourself.
+技能包是内置的“速查表”，当你的问题或任务与其领域匹配时，Copilot 会自动读取它们。它们包含 ABAP 专属知识——编码规范、性能规则、SAP 导航技巧——这样你就不必自己解释这些上下文。
 
-Copilot only loads a skill's full content when relevant, so having many skills does not slow down unrelated conversations.
+Copilot 只在相关时加载技能包的完整内容，所以技能包再多也不会拖慢无关对话。
 
-## Using Skills
+## 使用技能包
 
-**Automatic:** Skills load on their own when Copilot detects a match. Nothing to do.
+**自动：** 当 Copilot 检测到匹配时，技能包会自动加载。无需任何操作。
 
-**Manual:** Type `/` in the Copilot Chat input to see all skills as slash commands. Select one to invoke it explicitly, for example:
+**手动：** 在 Copilot 聊天输入框中输入 `/`，查看所有技能包的斜杠命令。选择其中一个显式调用，例如：
 
 - `/clean-abap review this method`
 - `/abap-research find the transaction for this screen`
 
-## Available Skills
+## 可用技能包
 
-| Skill | Slash command | When it loads |
+| 技能包 | 斜杠命令 | 何时加载 |
 |---|---|---|
-| [Clean ABAP](#clean-abap) | `/clean-abap` | Writing or reviewing ABAP code |
-| [Code Writing Process](#code-writing-process) | `/abap-code-writing` | Building any ABAP solution |
-| [Performance (ECC)](#performance-ecc) | `/abap-performance-ecc` | Non-HANA systems (Oracle, DB2, MSSQL) |
-| [Performance (HANA)](#performance-hana) | `/abap-performance-hana` | S/4HANA / HANA DB systems |
-| [SAP Research](#sap-research) | `/abap-research` | Searching for objects, transactions, messages |
-| [System Personality Report](#system-personality-report) | `/sap-system-personality-report` | Analyzing a system's custom code landscape |
-| [SAP Customizing](#sap-customizing) | `/sap-customizing` | SPRO/IMG settings and configuration tables |
-| [SAP Data Workbook](#sap-data-workbook) | `/sap-data-workbook` | Multi-step SAP data analysis |
+| [Clean ABAP](#clean-abap) | `/clean-abap` | 编写或审查 ABAP 代码时 |
+| [代码编写流程](#代码编写流程) | `/abap-code-writing` | 构建任何 ABAP 解决方案时 |
+| [性能（ECC）](#性能ecc) | `/abap-performance-ecc` | 非 HANA 系统（Oracle、DB2、MSSQL） |
+| [性能（HANA）](#性能hana) | `/abap-performance-hana` | S/4HANA / HANA DB 系统 |
+| [SAP 研究](#sap-研究) | `/abap-research` | 搜索对象、事务、消息时 |
+| [系统画像报告](#系统画像报告) | `/sap-system-personality-report` | 分析系统的自定义代码版图时 |
+| [SAP 定制](#sap-定制) | `/sap-customizing` | SPRO/IMG 设置和配置表 |
+| [SAP 数据工作簿](#sap-数据工作簿) | `/sap-data-workbook` | 多步骤 SAP 数据分析 |
 
 ---
 
 ### Clean ABAP
 
-SAP's official [Clean ABAP Style Guide](https://github.com/SAP/styleguides) condensed into AI-optimized rules. Covers naming conventions, modern syntax, class/method design, error handling, formatting, and unit testing patterns.
+SAP 官方的 [Clean ABAP 风格指南](https://github.com/SAP/styleguides) 浓缩为 AI 优化规则。涵盖命名规范、现代语法、类/方法设计、错误处理、格式化和单元测试模式。
 
-### Code Writing Process
+### 代码编写流程
 
-A structured process for building ABAP solutions: validate requirements → explore the system → plan architecture → research existing objects → design → write code. Prevents the AI from guessing at parameters or reimplementing standard SAP functionality that already exists.
+构建 ABAP 解决方案的结构化流程：验证需求 → 探索系统 → 规划架构 → 调研现有对象 → 设计 → 编写代码。防止 AI 猜测参数，或重新实现 SAP 标准中已存在的功能。
 
-### Performance (ECC)
+### 性能（ECC）
 
-Performance patterns for traditional databases (Oracle, DB2, MSSQL, MaxDB). Covers simple SQL, buffering, index usage, and internal table optimization. Copilot checks the system type automatically and loads this skill only on non-HANA systems.
+传统数据库（Oracle、DB2、MSSQL、MaxDB）的性能模式。涵盖简单 SQL、缓冲、索引使用和内部表优化。Copilot 会自动检查系统类型，只在非 HANA 系统上加载此技能包。
 
-### Performance (HANA)
+### 性能（HANA）
 
-Performance patterns for S/4HANA. Covers code pushdown, CDS views, AMDP, and complex SQL aggregations. Copilot checks the system type automatically and loads this skill only on HANA-based systems.
+S/4HANA 的性能模式。涵盖代码下推、CDS 视图、AMDP 和复杂 SQL 聚合。Copilot 会自动检查系统类型，只在基于 HANA 的系统上加载此技能包。
 
-### SAP Research
+### SAP 研究
 
-Teaches Copilot to find anything in an unfamiliar SAP system — the way a senior developer would. Covers which metadata tables to query for what (TSTCT for transactions, T100 for messages, TADIR for all objects, DD03L for table fields), wildcard strategies, package clustering, and tracing error messages back to code.
+教会 Copilot 在陌生的 SAP 系统中找到任何东西——就像资深开发人员那样。涵盖针对不同目标应查询哪些元数据表（事务用 TSTCT、消息用 T100、所有对象用 TADIR、表字段用 DD03L）、通配符策略、包聚类，以及把错误消息追溯到代码。
 
-### System Personality Report
+### 系统画像报告
 
-Generates a structured overview of any connected SAP system: number of custom objects, most-developed business areas, recent dump activity, and more. Useful for quickly understanding an unfamiliar system.
+生成任意已连接 SAP 系统的结构化概览：自定义对象数量、开发最多的业务领域、近期 Dump 活动等。有助于快速了解陌生系统。
 
-### SAP Customizing
+### SAP 定制
 
-Teaches Copilot to navigate SPRO/IMG configuration. Uses systematic lookup procedures to trace from an SPRO activity to its storage tables (via `CUS_IMGACH`, `CUS_ACTH`, `CUS_ACTOBJ`), reverse-look up tables to their SPRO path, and resolve domain fixed values (`DD07T`).
+教会 Copilot 导航 SPRO/IMG 配置。使用系统化的查找流程，从 SPRO 活动追溯到其存储表（通过 `CUS_IMGACH`、`CUS_ACTH`、`CUS_ACTOBJ`），反向查找表对应的 SPRO 路径，并解析域固定值（`DD07T`）。
 
-### SAP Data Workbook
+### SAP 数据工作簿
 
-Teaches Copilot to create `.sapwb` files — VS Code notebooks combining ABAP SQL and JavaScript cells for multi-step SAP data analysis. See [SAP Data Workbooks](../data-query/data-workbooks.md) for details on the workbook feature itself.
+教会 Copilot 创建 `.sapwb` 文件——结合 ABAP SQL 和 JavaScript 单元格的 VS Code 笔记本，用于多步骤 SAP 数据分析。关于工作簿功能本身的详细信息，参见 [SAP 数据工作簿](../data-query/data-workbooks.md)。
