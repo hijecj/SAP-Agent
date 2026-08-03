@@ -1,5 +1,5 @@
 /**
- * TreeDataProvider and TreeItem classes for S/4HANA Readiness Dashboard.
+ * S/4HANA 就绪仪表盘的 TreeDataProvider 和 TreeItem 类。
  */
 
 import {
@@ -20,7 +20,7 @@ export class S4HProvider implements TreeDataProvider<S4HNode> {
   readonly onDidChangeTreeData = this._emitter.event
 
   private roots = new Map<string, S4HRoot>()
-  private filters = new Map<string, string>() // per-connection filter
+  private filters = new Map<string, string>() // 按连接的过滤器
 
   getFilter(connectionId: string): string {
     return this.filters.get(connectionId) || ""
@@ -35,7 +35,7 @@ export class S4HProvider implements TreeDataProvider<S4HNode> {
       const root = this.roots.get(connectionId)
       if (root) this.roots.set(connectionId, new S4HRoot(connectionId, root.data, filter))
     } else {
-      // Apply to all
+      // 全部应用
       for (const [connId, root] of this.roots) {
         this.filters.set(connId, filter)
         this.roots.set(connId, new S4HRoot(connId, root.data, filter))
@@ -93,10 +93,10 @@ export class S4HRoot extends TreeItem {
     const filterLower = filter.toLowerCase()
     const children: S4HNode[] = []
 
-    // Summary node
+    // 摘要节点
     children.push(new S4HSummaryNode(data, this))
 
-    // Item groups
+    // 项分组
     for (const group of data.groups) {
       const node = new S4HItemNode(group, this, filterLower)
       if (!filterLower || node.children.length > 0) {
@@ -104,7 +104,7 @@ export class S4HRoot extends TreeItem {
       }
     }
 
-    // Ungrouped references
+    // 未分组的引用
     if (data.ungrouped.length > 0) {
       const ungroupedItem: ItemGroup = {
         item: {
@@ -124,7 +124,7 @@ export class S4HRoot extends TreeItem {
 
     this.children = children
 
-    // Set description with filtered count
+    // 设置带过滤计数的描述
     const filteredRefCount = children
       .filter(c => c instanceof S4HItemNode)
       .reduce((sum, c) => sum + (c as S4HItemNode).children.length, 0)
@@ -184,7 +184,7 @@ export class S4HItemNode extends TreeItem {
       ? "References to objects that couldn't be mapped to a simplification item"
       : `${group.item.title}\nSAP Note: ${group.item.note}\nReferences: ${group.refs.length}`
 
-    // Deduplicate refs by OBJ_NAME to avoid showing same object multiple times
+    // 按 OBJ_NAME 对引用去重，避免多次显示同一对象
     const seen = new Map<string, CustomReference>()
     for (const ref of group.refs) {
       const key = `${ref.objType}:${ref.objName}:${ref.refObjName}`
@@ -193,7 +193,7 @@ export class S4HItemNode extends TreeItem {
       }
     }
 
-    // Apply filter (supports * wildcard)
+    // 应用过滤器（支持 * 通配符）
     let filteredRefs = [...seen.values()]
     if (filter) {
       const regex = new RegExp("^" + filter.replace(/\*/g, ".*") + "$", "i")
@@ -208,7 +208,7 @@ export class S4HItemNode extends TreeItem {
 
     this.children = filteredRefs.map(r => new S4HRefNode(r, this))
 
-    // Update description with filtered count if different
+    // 不同时用过滤计数更新描述
     const totalDeduped = seen.size
     if (filter && this.children.length !== totalDeduped) {
       this.description = isUngrouped
