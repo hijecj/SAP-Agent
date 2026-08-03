@@ -1,16 +1,16 @@
 /**
- * 💓 Heartbeat Types
+ * 💓 心跳类型
  *
- * Periodic LLM agent turns for background monitoring.
- * The LLM reads heartbeat.json watchlist and uses available tools to check tasks.
+ * 用于后台监控的周期性 LLM 代理轮次。
+ * LLM 读取 heartbeat.json 监控列表并使用可用工具检查任务。
  */
 
 // ============================================================================
-// CORE TYPES
+// 核心类型
 // ============================================================================
 
 /**
- * Heartbeat run result
+ * 心跳运行结果
  */
 export type HeartbeatRunResult =
   | { status: "ran"; durationMs: number; response?: string }
@@ -18,7 +18,7 @@ export type HeartbeatRunResult =
   | { status: "failed"; reason: string }
 
 /**
- * A single heartbeat run record
+ * 单次心跳运行记录
  */
 export interface HeartbeatRunRecord {
   timestamp: Date
@@ -30,7 +30,7 @@ export interface HeartbeatRunRecord {
 }
 
 /**
- * Heartbeat service state
+ * 心跳服务状态
  */
 export interface HeartbeatServiceState {
   isRunning: boolean
@@ -42,63 +42,63 @@ export interface HeartbeatServiceState {
 }
 
 // ============================================================================
-// CONFIGURATION
+// 配置
 // ============================================================================
 
 /**
- * Active hours configuration
+ * 活跃时段配置
  */
 export interface ActiveHoursConfig {
-  /** Start time in 24h format (e.g., "08:00") */
+  /** 开始时间，24 小时制（例如 "08:00"） */
   start: string
-  /** End time in 24h format (e.g., "22:00"). Use "24:00" for end of day */
+  /** 结束时间，24 小时制（例如 "22:00"）。一天结束时用 "24:00" */
   end: string
-  /** Timezone: "local", "utc", or IANA timezone (e.g., "America/New_York") */
+  /** 时区："local"、"utc" 或 IANA 时区（例如 "America/New_York"） */
   timezone?: string
 }
 
 /**
- * Heartbeat configuration from settings.json
+ * 来自 settings.json 的心跳配置
  */
 export interface HeartbeatConfig {
-  /** Is heartbeat feature enabled? */
+  /** 心跳功能是否启用？ */
   enabled: boolean
 
-  /** Interval between heartbeats (e.g., "5m", "30m", "1h") */
+  /** 心跳间隔（例如 "5m"、"30m"、"1h"） */
   every: string
 
-  /** Language model to use (e.g., "Claude Sonnet 4", "GPT-4o") */
+  /** 要使用的语言模型（例如 "Claude Sonnet 4"、"GPT-4o"） */
   model: string
 
-  /** Custom prompt (overrides watchlist-based prompt) */
+  /** 自定义提示（覆盖基于监控列表的提示） */
   prompt?: string
 
-  /** Maximum characters allowed after HEARTBEAT_OK before delivery */
+  /** HEARTBEAT_OK 之后在投递前允许的最大字符数 */
   ackMaxChars: number
 
-  /** Maximum history entries to keep */
+  /** 保留的最大历史条数 */
   maxHistory: number
 
-  /** Max consecutive errors before auto-pause */
+  /** 自动暂停前允许的最大连续错误数 */
   maxConsecutiveErrors: number
 
-  /** Active hours window (optional) */
+  /** 活跃时段窗口（可选） */
   activeHours?: ActiveHoursConfig
 
-  /** Show notifications for alerts */
+  /** 对告警显示通知 */
   notifyOnAlert: boolean
 
-  /** Show notifications for errors */
+  /** 对错误显示通知 */
   notifyOnError: boolean
 }
 
 /**
- * Default configuration values
+ * 默认配置值
  */
 export const DEFAULT_HEARTBEAT_CONFIG: HeartbeatConfig = {
-  enabled: false, // Opt-in feature
+  enabled: false, // 选择加入的功能
   every: "30m",
-  model: "", // Will be selected at runtime
+  model: "", // 运行时选择
   ackMaxChars: 300,
   maxHistory: 100,
   maxConsecutiveErrors: 5,
@@ -107,16 +107,16 @@ export const DEFAULT_HEARTBEAT_CONFIG: HeartbeatConfig = {
 }
 
 /**
- * The magic token that signals "nothing needs attention"
+ * 表示“无需关注”的魔法 token
  */
 export const HEARTBEAT_OK_TOKEN = "HEARTBEAT_OK"
 
 // ============================================================================
-// PERSISTENCE
+// 持久化
 // ============================================================================
 
 /**
- * Serializable state for storage
+ * 可序列化的存储状态
  */
 export interface HeartbeatStorageData {
   version: number
@@ -133,11 +133,11 @@ export interface HeartbeatStorageData {
 }
 
 // ============================================================================
-// EVENTS
+// 事件
 // ============================================================================
 
 /**
- * Events emitted by the heartbeat service
+ * 心跳服务发出的事件
  */
 export type HeartbeatEvent =
   | { type: "started" }
@@ -152,12 +152,12 @@ export type HeartbeatEvent =
 export type HeartbeatEventListener = (event: HeartbeatEvent) => void
 
 // ============================================================================
-// UTILITY FUNCTIONS
+// 工具函数
 // ============================================================================
 
 /**
- * Parse duration string to milliseconds
- * Supports: 5m, 30m, 1h, 2h, etc.
+ * 把时长字符串解析为毫秒
+ * 支持：5m、30m、1h、2h 等
  */
 export function parseDurationMs(duration: string): number | null {
   const match = duration
@@ -185,12 +185,12 @@ export function parseDurationMs(duration: string): number | null {
     case "hours":
       return value * 60 * 60 * 1000
     default:
-      return value * 60 * 1000 // Default to minutes
+      return value * 60 * 1000 // 默认按分钟
   }
 }
 
 /**
- * Format milliseconds as human-readable duration
+ * 把毫秒格式化为人类可读的时长
  */
 export function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`
@@ -200,7 +200,7 @@ export function formatDuration(ms: number): string {
 }
 
 /**
- * Check if current time is within active hours
+ * 检查当前时间是否在活跃时段内
  */
 export function isWithinActiveHours(config?: ActiveHoursConfig): boolean {
   if (!config) return true
@@ -209,7 +209,7 @@ export function isWithinActiveHours(config?: ActiveHoursConfig): boolean {
   let hours: number
   let minutes: number
 
-  // For now, use local time. TODO: Add timezone support
+  // 暂时使用本地时间。TODO：添加时区支持
   hours = now.getHours()
   minutes = now.getMinutes()
 
@@ -221,14 +221,14 @@ export function isWithinActiveHours(config?: ActiveHoursConfig): boolean {
   const startMinutes = startH * 60 + startM
   let endMinutes = endH * 60 + endM
 
-  // Handle "24:00" as end of day
+  // 把 "24:00" 当作一天结束
   if (endH === 24) endMinutes = 24 * 60
 
   return currentMinutes >= startMinutes && currentMinutes < endMinutes
 }
 
 /**
- * Extract HEARTBEAT_OK from response and determine if it's an ack
+ * 从响应中提取 HEARTBEAT_OK 并判断是否为确认
  */
 export function parseHeartbeatResponse(
   response: string,
@@ -240,13 +240,13 @@ export function parseHeartbeatResponse(
 } {
   const trimmed = response.trim()
 
-  // Simple check: if response contains HEARTBEAT_OK, it's an ack
+  // 简单检查：如果响应包含 HEARTBEAT_OK，即为确认
   const containsToken = trimmed.toUpperCase().includes(HEARTBEAT_OK_TOKEN)
 
   if (containsToken) {
     return { isAck: true, cleanedResponse: "", hasAlert: false }
   }
 
-  // No token = alert
+  // 无 token = 告警
   return { isAck: false, cleanedResponse: trimmed, hasAlert: true }
 }
