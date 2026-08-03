@@ -1,7 +1,7 @@
 /**
- * ABAP Get Object Lines Tool - VSCode AI Integration
+ * ABAP 获取对象行工具 - VSCode AI 集成
  *
- * Retrieves source code lines from ABAP objects with table structure support
+ * 从 ABAP 对象检索源代码行，带表结构支持
  */
 
 import * as vscode from "vscode"
@@ -23,7 +23,7 @@ import {
 } from "./shared"
 
 // ============================================================================
-// LOCAL COMPLETE TABLE STRUCTURE (uses enhancement URIs - different from shared)
+// 本地完整表结构（使用增强 URI - 与 shared 不同）
 // ============================================================================
 
 async function getCompleteTableStructure(
@@ -52,7 +52,7 @@ async function getCompleteTableStructure(
           return completeStructure
         }
       } catch (fallbackError) {
-        // Ignore
+        // 忽略
       }
     }
 
@@ -94,12 +94,12 @@ async function getCompleteTableStructure(
               }
             }
           } catch (error) {
-            // Ignore append structure errors
+            // 忽略追加结构错误
           }
         }
       }
     } catch (appendError) {
-      // Ignore enhancement errors
+      // 忽略增强错误
     }
 
     let completeStructure = `Complete Table Structure for ${objectName} (SE11-like, includes ALL append structures):\n\n`
@@ -122,23 +122,23 @@ async function getCompleteTableStructure(
   }
 }
 
-// Tool parameter interface
+// 工具参数接口
 export interface IGetABAPObjectLinesParameters {
   objectName: string
   objectType?: string
   startLine?: number
   lineCount?: number
   connectionId?: string
-  methodName?: string // For classes: extract only this specific method
+  methodName?: string // 对类：只提取此特定方法
 }
 
 /**
- * 📋 GET ABAP OBJECT LINES TOOL
+ * 📋 获取 ABAP 对象行工具
  */
 export class GetABAPObjectLinesTool implements vscode.LanguageModelTool<IGetABAPObjectLinesParameters> {
   /**
-   * Extract a specific method from class source code
-   * Handles: METHOD xxx. to ENDMETHOD. including multi-line comments
+   * 从类源代码提取特定方法
+   * 处理：METHOD xxx. 到 ENDMETHOD.，包括多行注释
    */
   private extractMethod(
     lines: string[],
@@ -155,7 +155,7 @@ export class GetABAPObjectLinesTool implements vscode.LanguageModelTool<IGetABAP
       const lineUpper = line.toUpperCase()
       const lineTrimmed = lineUpper.trim()
 
-      // Track block comments /* ... */
+      // 跟踪块注释 /* ... */
       if (lineTrimmed.includes("/*")) {
         inBlockComment = true
       }
@@ -164,44 +164,44 @@ export class GetABAPObjectLinesTool implements vscode.LanguageModelTool<IGetABAP
         continue
       }
 
-      // Skip if in block comment
+      // 在块注释中则跳过
       if (inBlockComment) {
         if (inMethod) methodLines.push(line)
         continue
       }
 
-      // Skip single-line comments when checking for METHOD/ENDMETHOD
+      // 检查 METHOD/ENDMETHOD 时跳过单行注释
       const isCommented = lineTrimmed.startsWith("*") || lineTrimmed.startsWith('"')
 
       if (!inMethod) {
-        // Look for METHOD methodName. (not commented)
+        // 查找 METHOD methodName.（非注释）
         if (!isCommented) {
-          // Match: METHOD method_name. or METHOD interface~method_name.
+          // 匹配：METHOD method_name. 或 METHOD interface~method_name.
           const methodPattern = new RegExp(`^\\s*METHOD\\s+(\\w+~)?${methodNameUpper}\\s*\\.`, "i")
           if (methodPattern.test(line)) {
             inMethod = true
-            methodStartLine = i + 1 // 1-based
+            methodStartLine = i + 1 // 从 1 开始
             methodLines.push(line)
           }
         }
       } else {
-        // We're inside the method, collect lines
+        // 我们在方法内部，收集行
         methodLines.push(line)
 
-        // Look for ENDMETHOD. (not commented)
+        // 查找 ENDMETHOD.（非注释）
         if (!isCommented && /^\s*ENDMETHOD\s*\./.test(lineUpper)) {
-          // Found the end
+          // 找到结尾
           return {
             found: true,
             code: methodLines.join("\n"),
             startLine: methodStartLine,
-            endLine: i + 1 // 1-based
+            endLine: i + 1 // 从 1 开始
           }
         }
       }
     }
 
-    // Method not found or ENDMETHOD not found
+    // 未找到方法或 ENDMETHOD
     return { found: false, code: "", startLine: -1, endLine: -1 }
   }
 
@@ -252,18 +252,18 @@ export class GetABAPObjectLinesTool implements vscode.LanguageModelTool<IGetABAP
     } = options.input
     logTelemetry("tool_get_abap_object_lines_called", { connectionId })
 
-    // Ensure connectionId is lowercase for consistency
+    // 确保 connectionId 为小写以保持一致
     if (connectionId) {
       connectionId = connectionId.toLowerCase()
     }
 
-    // Convert 1-based line number (user input) to 0-based (array index)
+    // 把从 1 开始的行号（用户输入）转换为从 0 开始（数组索引）
     const arrayStartIndex = Math.max(0, startLine - 1)
 
     try {
       let actualConnectionId = connectionId
 
-      // If no connectionId provided, try to get from active editor
+      // 未提供 connectionId 时，尝试从活动编辑器获取
       if (!actualConnectionId) {
         const activeEditor = window.activeTextEditor
         if (!activeEditor || !abapUri(activeEditor.document.uri)) {
@@ -274,7 +274,7 @@ export class GetABAPObjectLinesTool implements vscode.LanguageModelTool<IGetABAP
         actualConnectionId = activeEditor.document.uri.authority
       }
 
-      // First, search for the object to get its URI
+      // 首先搜索对象以获取其 URI
       const searcher = getSearchService(actualConnectionId)
       const searchTypes = objectType ? [objectType] : undefined
       const searchResults = await searcher.searchObjects(objectName, searchTypes, 1)
@@ -295,7 +295,7 @@ export class GetABAPObjectLinesTool implements vscode.LanguageModelTool<IGetABAP
         ])
       }
 
-      // Table/Structure/TableType-aware processing
+      // 表/结构/表类型感知处理
       if (
         objectInfo.type === "TABL/TA" ||
         objectInfo.type === "TABL" ||
@@ -347,11 +347,11 @@ export class GetABAPObjectLinesTool implements vscode.LanguageModelTool<IGetABAP
             ])
           }
         } catch (tableError) {
-          // Continue with standard approach below
+          // 继续使用下面的标准方法
         }
       }
 
-      // Standard object processing for non-table objects
+      // 对非表对象的标准处理
       const client = getClient(actualConnectionId)
 
       let sourceContent = ""
@@ -424,7 +424,7 @@ export class GetABAPObjectLinesTool implements vscode.LanguageModelTool<IGetABAP
       const lines = sourceContent.split("\n")
       const totalLines = lines.length
 
-      // Method extraction for classes
+      // 对类的方法提取
       if (
         methodName &&
         (objectInfo.type === "CLAS/OC" ||
@@ -467,7 +467,7 @@ export class GetABAPObjectLinesTool implements vscode.LanguageModelTool<IGetABAP
           enhancementInfo += `Use search tool to find enhancement code, or re-call this tool with the enhancement line range.`
         }
       } catch (enhError) {
-        // Ignore enhancement errors
+        // 忽略增强错误
       }
 
       const displayStartLine = startLine
@@ -495,7 +495,7 @@ export class GetABAPObjectLinesTool implements vscode.LanguageModelTool<IGetABAP
 }
 
 /**
- * Register the Get Object Lines tool
+ * 注册获取对象行工具
  */
 export function registerGetObjectLinesTool(context: vscode.ExtensionContext) {
   context.subscriptions.push(
