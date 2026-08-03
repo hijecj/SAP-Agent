@@ -1,6 +1,6 @@
 /**
- * ABAP Get Batch Lines Tool
- * Retrieve lines from multiple ABAP objects in a single request
+ * ABAP 批量获取行工具
+ * 在单个请求中从多个 ABAP 对象检索行
  */
 
 import * as vscode from "vscode"
@@ -14,7 +14,7 @@ import { getOptimalObjectURI, resolveCorrectURI } from "./shared"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface IBatchLinesParameters {
@@ -27,11 +27,11 @@ export interface IBatchLinesParameters {
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 📦 GET BATCH LINES TOOL
+ * 📦 批量获取行工具
  */
 export class GetBatchLinesTool implements vscode.LanguageModelTool<IBatchLinesParameters> {
   async prepareInvocation(
@@ -84,7 +84,7 @@ export class GetBatchLinesTool implements vscode.LanguageModelTool<IBatchLinesPa
       const finalConnectionId = actualConnectionId
       const searcher = getSearchService(finalConnectionId)
 
-      // Process all requests in parallel
+      // 并行处理所有请求
       const results = await Promise.all(
         requests.map(async req => {
           try {
@@ -207,7 +207,7 @@ export class GetBatchLinesTool implements vscode.LanguageModelTool<IBatchLinesPa
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerGetBatchLinesTool(context: vscode.ExtensionContext): void {
