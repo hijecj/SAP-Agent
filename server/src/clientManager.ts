@@ -22,32 +22,32 @@ type ServerSslConfig = ReturnType<typeof createSSLConfig> & {
 }
 
 /**
- * Shared connection object for the language server process.
+ * 语言服务器进程的共享连接对象。
  */
 export const connection = createConnection(ProposedFeatures.all)
 
 /**
- * Log an error through the language server connection.
+ * 通过语言服务器连接记录错误。
  */
 export const error = (...params: unknown[]) => connection.console.error(convertParams(...params))
 
 /**
- * Log a warning through the language server connection.
+ * 通过语言服务器连接记录警告。
  */
 export const warn = (...params: unknown[]) => connection.console.warn(convertParams(...params))
 
 /**
- * Log informational output through the language server connection.
+ * 通过语言服务器连接记录信息输出。
  */
 export const info = (...params: unknown[]) => connection.console.info(convertParams(...params))
 
 /**
- * Log a message through the language server connection.
+ * 通过语言服务器连接记录消息。
  */
 export const log = (...params: unknown[]) => connection.console.log(convertParams(...params))
 
 /**
- * Extract the connection key from an ADT URI so the server can reuse the same client instance.
+ * 从 ADT URI 提取连接键，让服务器可以复用同一客户端实例。
  */
 export function clientKeyFromUrl(url: string) {
   const match = url.match(/adt:\/\/([^\/]*)/)
@@ -59,7 +59,7 @@ function createFetchToken(conf: ClientConfiguration) {
     return () => connection.sendRequest(Methods.getToken, conf.name) as Promise<string>
 }
 
-/** Fetch auth headers from the client extension for non-basic auth methods. */
+/** 从客户端扩展获取非 basic 认证方法的认证头。 */
 async function fetchAuthHeaders(connName: string): Promise<AuthHeadersResponse | undefined> {
   try {
     const headers = await connection.sendRequest(Methods.getAuthHeaders, connName)
@@ -67,23 +67,23 @@ async function fetchAuthHeaders(connName: string): Promise<AuthHeadersResponse |
       return headers as AuthHeadersResponse
     }
   } catch {
-    // Client may not support this method (older version) — fall back silently
+    // 客户端可能不支持此方法（旧版本）— 静默回退
   }
   return undefined
 }
 
-/** Whether the client has the comm-log panel open */
+/** 客户端是否打开了通信日志面板 */
 const activeConnections = new Set<string>()
 
 /**
- * Track whether a connection should receive comm-log notifications from the server.
+ * 跟踪连接是否应从服务器接收通信日志通知。
  */
 export function setCommLogActive(active: CommLogTogglePayload) {
   if (active.active) activeConnections.add(active.connId)
   else activeConnections.delete(active.connId)
 }
 
-/** Build a debugCallback that chains MongoDB tracing and comm log forwarding */
+/** 构建链接 MongoDB 跟踪和通信日志转发的 debugCallback */
 function buildServerDebugCallback(connId: string) {
   return (logData: LogData) =>
     activeConnections.has(connId) &&
@@ -174,7 +174,7 @@ const refreshClient = async (key: string, conf: ClientConfiguration) => {
           )
         } catch (e) {
           warn(`Failed to reconstruct cert httpsAgent for ${key}: ${e}`)
-          // Don't create a broken client — propagate the error
+          // 不要创建损坏的客户端 — 传播错误
           throw new Error(`Certificate auth setup failed for ${key}: ${e}`)
         }
       } else {
@@ -228,7 +228,7 @@ export async function clientFromKey(key: string) {
     const conf = await readConfiguration(key)
     if (conf) {
       await refreshClient(key, conf)
-      // as clients are stateful, they will expire, usually in 10 minutes. So we need to refresh them every 4 minutes
+      // 由于客户端是有状态的，它们通常会过期，一般 10 分钟。所以我们需要每 4 分钟刷新一次
       setInterval(() => refreshClient(key, conf), 240000)
     }
   }
