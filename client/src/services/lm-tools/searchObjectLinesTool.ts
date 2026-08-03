@@ -1,6 +1,6 @@
 /**
- * ABAP Search Object Lines Tool
- * Search for text within ABAP object source code
+ * ABAP 搜索对象行工具
+ * 在 ABAP 对象源代码中搜索文本
  */
 
 import * as vscode from "vscode"
@@ -19,7 +19,7 @@ import {
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface ISearchABAPObjectLinesParameters {
@@ -32,7 +32,7 @@ export interface ISearchABAPObjectLinesParameters {
 }
 
 // ============================================================================
-// LOCAL HELPER FUNCTIONS (unique implementation using getObjectEnhancements)
+// 本地辅助函数（使用 getObjectEnhancements 的独特实现）
 // ============================================================================
 
 async function getCompleteTableStructure(
@@ -54,7 +54,7 @@ async function getCompleteTableStructure(
       try {
         mainStructure = await client.getObjectSource(finalUri)
       } catch (finalError) {
-        // Fallback to DD query
+        // 回退到 DD 查询
         try {
           const tableFields = await getTableStructureFromDD(client, objectName)
           if (tableFields) {
@@ -82,7 +82,7 @@ async function getCompleteTableStructure(
         }
       }
     } catch (appendError) {
-      // Append structures are optional
+      // 追加结构是可选的
     }
 
     let completeStructure = `Complete Table Structure for ${objectName} (SE11-like, includes ALL append structures):\n`
@@ -106,7 +106,7 @@ async function getCompleteTableStructure(
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 export class SearchABAPObjectLinesTool implements vscode.LanguageModelTool<ISearchABAPObjectLinesParameters> {
@@ -282,7 +282,7 @@ export class SearchABAPObjectLinesTool implements vscode.LanguageModelTool<ISear
 
               continue
             } catch (tableError) {
-              // Fall through to standard search
+              // 回退到标准搜索
             }
           }
 
@@ -386,7 +386,7 @@ export class SearchABAPObjectLinesTool implements vscode.LanguageModelTool<ISear
               }
             }
           } catch (enhSearchError) {
-            // Enhancement search is optional
+            // 增强搜索是可选的
           }
 
           if (matches.length > 0 || enhancementMatches.length > 0) {
@@ -475,7 +475,7 @@ export class SearchABAPObjectLinesTool implements vscode.LanguageModelTool<ISear
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerSearchObjectLinesTool(context: vscode.ExtensionContext): void {
