@@ -3,7 +3,7 @@ import { Feed } from "abap-adt-api"
 import { log } from "../../lib"
 
 /**
- * Determine feed type from feed metadata
+ * 从 feed 元数据确定 feed 类型
  */
 export function determineFeedType(feed: Feed): FeedType {
   const path = feed.href.toLowerCase()
@@ -28,7 +28,7 @@ export function determineFeedType(feed: Feed): FeedType {
 }
 
 /**
- * Get default query for feed
+ * 获取 feed 的默认查询
  */
 export function getDefaultQuery(feed: Feed): string | undefined {
   if (feed.queryVariants && feed.queryVariants.length > 0) {
@@ -39,7 +39,7 @@ export function getDefaultQuery(feed: Feed): string | undefined {
 }
 
 /**
- * Convert Feed to FeedMetadata
+ * 把 Feed 转换为 FeedMetadata
  */
 export function toFeedMetadata(feed: Feed): FeedMetadata {
   return {
@@ -50,7 +50,7 @@ export function toFeedMetadata(feed: Feed): FeedMetadata {
 }
 
 /**
- * Parse raw feed entry to FeedEntry
+ * 把原始 feed 条目解析为 FeedEntry
  */
 export function parseFeedEntry(
   rawEntry: any,
@@ -59,22 +59,22 @@ export function parseFeedEntry(
   feedPath: string,
   feedType: FeedType
 ): FeedEntry {
-  // Extract title (for dumps, use category term)
+  // 提取标题（对 Dump，使用类别术语）
   let title = rawEntry.title || "Untitled"
 
-  // For dumps, always try to get the runtime error name from categories
+  // 对 Dump，始终尝试从类别获取运行时错误名
   if (
     feedType === FeedType.DUMPS &&
     rawEntry.categories &&
     Array.isArray(rawEntry.categories) &&
     rawEntry.categories.length > 0
   ) {
-    // Find the category with label "ABAP runtime error" and use its term
+    // 找到标签为 "ABAP runtime error" 的类别并使用其术语
     const runtimeError = rawEntry.categories.find((c: any) => c.label === "ABAP runtime error")
     if (runtimeError?.term) {
       title = runtimeError.term
     } else {
-      // Fallback to first category's term
+      // 回退到第一个类别的术语
       title = rawEntry.categories[0].term || rawEntry.categories[0].label || title
     }
   }
@@ -100,7 +100,7 @@ export function parseFeedEntry(
 }
 
 /**
- * Parse date from various formats
+ * 从各种格式解析日期
  */
 function parseDate(dateStr: any): Date {
   if (!dateStr) return new Date()
@@ -114,10 +114,10 @@ function parseDate(dateStr: any): Date {
 }
 
 /**
- * Extract summary text from feed entry
+ * 从 feed 条目提取摘要文本
  */
 function extractSummary(rawEntry: any): string {
-  // Try summary field first
+  // 先尝试 summary 字段
   if (rawEntry.summary) {
     if (typeof rawEntry.summary === "string") {
       return rawEntry.summary
@@ -128,7 +128,7 @@ function extractSummary(rawEntry: any): string {
     }
   }
 
-  // Try content field
+  // 尝试 content 字段
   if (rawEntry.content !== undefined && typeof rawEntry.content === "string") {
     const str = String(rawEntry.content)
     if (str !== undefined && typeof str === "string") {
@@ -136,7 +136,7 @@ function extractSummary(rawEntry: any): string {
     }
   }
 
-  // For dumps: extract from text field (contains HTML)
+  // 对 Dump：从 text 字段提取（包含 HTML）
   if (rawEntry.text !== undefined && typeof rawEntry.text === "string") {
     const str = String(rawEntry.text)
     if (str !== undefined && typeof str === "string") {
@@ -149,7 +149,7 @@ function extractSummary(rawEntry: any): string {
 }
 
 /**
- * Extract category from feed entry
+ * 从 feed 条目提取类别
  */
 function extractCategory(rawEntry: any): string | undefined {
   if (rawEntry.category) {
@@ -165,15 +165,15 @@ function extractCategory(rawEntry: any): string | undefined {
 }
 
 /**
- * Determine severity from entry and feed type
+ * 从条目和 feed 类型确定严重级别
  */
 function determineSeverity(rawEntry: any, feedType: FeedType): "error" | "warning" | "info" {
-  // For dumps - always error
+  // 对 Dump - 始终是错误
   if (feedType === FeedType.DUMPS) {
     return "error"
   }
 
-  // For ATC - check priority
+  // 对 ATC - 检查优先级
   if (feedType === FeedType.ATC) {
     const priority = rawEntry.priority || 3
     if (priority === 1) return "error"
@@ -181,12 +181,12 @@ function determineSeverity(rawEntry: any, feedType: FeedType): "error" | "warnin
     return "info"
   }
 
-  // For gateway/EEE errors - always error
+  // 对 gateway/EEE 错误 - 始终是错误
   if (feedType === FeedType.GATEWAY_ERROR || feedType === FeedType.EEE_ERROR) {
     return "error"
   }
 
-  // For system messages - check severity in content
+  // 对系统消息 - 检查内容中的严重级别
   if (feedType === FeedType.SYSTEM_MESSAGES) {
     const summary = extractSummary(rawEntry).toLowerCase()
     if (summary.includes("error") || summary.includes("failed")) {
@@ -197,12 +197,12 @@ function determineSeverity(rawEntry: any, feedType: FeedType): "error" | "warnin
     }
   }
 
-  // Default to info
+  // 默认为 info
   return "info"
 }
 
 /**
- * Parse feed response based on feed type
+ * 按 feed 类型解析 feed 响应
  */
 export function parseFeedResponse(
   feedData: any,
@@ -214,10 +214,10 @@ export function parseFeedResponse(
   const entries: FeedEntry[] = []
 
   try {
-    // Handle different response structures
+    // 处理不同的响应结构
     let rawEntries: any[] = []
 
-    // Check for direct array FIRST (before checking .entries property, which exists on arrays!)
+    // 先检查直接数组（在检查 .entries 属性之前，因为数组上也有该属性！）
     if (Array.isArray(feedData)) {
       rawEntries = feedData
     } else if (feedData.dumps) {
@@ -227,11 +227,11 @@ export function parseFeedResponse(
     } else if (feedData.entry) {
       rawEntries = Array.isArray(feedData.entry) ? feedData.entry : [feedData.entry]
     } else {
-      // Unknown structure
+      // 未知结构
       return entries
     }
 
-    // Ensure rawEntries is iterable
+    // 确保 rawEntries 可迭代
     if (!Array.isArray(rawEntries)) {
       return entries
     }
@@ -249,7 +249,7 @@ export function parseFeedResponse(
 }
 
 /**
- * Get icon for feed type
+ * 获取 feed 类型的图标
  */
 export function getFeedTypeIcon(feedType: FeedType): string {
   switch (feedType) {
@@ -273,7 +273,7 @@ export function getFeedTypeIcon(feedType: FeedType): string {
 }
 
 /**
- * Get severity icon
+ * 获取严重级别图标
  */
 export function getSeverityIcon(severity: "error" | "warning" | "info"): string {
   switch (severity) {
@@ -287,7 +287,7 @@ export function getSeverityIcon(severity: "error" | "warning" | "info"): string 
 }
 
 /**
- * Get human-readable feed type name
+ * 获取人类可读的 feed 类型名
  */
 export function getFeedTypeName(feedType: FeedType): string {
   switch (feedType) {
