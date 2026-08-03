@@ -1,26 +1,26 @@
 /**
- * On-Premise SAP OAuth 2.0 Authentication (Authorization Code + PKCE)
+ * 本地 SAP OAuth 2.0 认证（授权码 + PKCE）
  *
- * Uses SAP's built-in OAuth 2.0 provider configured via transaction SOAUTH2.
- * The SAP system itself is the OAuth server — no external IdP URL needed.
+ * 使用通过事务 SOAUTH2 配置的 SAP 内置 OAuth 2.0 提供器。
+ * SAP 系统本身就是 OAuth 服务器 — 无需外部 IdP URL。
  *
- * Endpoints:
- *   Authorize: {sapUrl}/sap/bc/sec/oauth2/authorize
- *   Token:     {sapUrl}/sap/bc/sec/oauth2/token
+ * 端点：
+ *   授权：{sapUrl}/sap/bc/sec/oauth2/authorize
+ *   Token：{sapUrl}/sap/bc/sec/oauth2/token
  *
- * Flow:
- *  1. Generate PKCE code verifier + SHA-256 challenge
- *  2. Open browser to SAP authorization endpoint
- *  3. User authenticates (SAP login or SSO via IdP)
- *  4. SAP redirects to localhost callback with authorization code
- *  5. Exchange code for access + refresh tokens
- *  6. Bearer token used for all ADT requests
- *  7. Auto-refresh via refresh token before expiry
+ * 流程：
+ *  1. 生成 PKCE 代码验证器 + SHA-256 挑战
+ *  2. 在浏览器中打开 SAP 授权端点
+ *  3. 用户认证（SAP 登录或通过 IdP 的 SSO）
+ *  4. SAP 用授权码重定向到 localhost 回调
+ *  5. 用代码换取访问 + 刷新 token
+ *  6. Bearer token 用于所有 ADT 请求
+ *  7. 过期前通过刷新 token 自动刷新
  *
- * Prerequisites:
- *  - SOAUTH2 configured on SAP system
- *  - OAuth client registered with redirect URI: http://localhost:{port}/callback
- *  - Scope includes ADT access (typically "SAP_ADT")
+ * 前置条件：
+ *  - 在 SAP 系统上配置了 SOAUTH2
+ *  - OAuth 客户端注册了重定向 URI：http://localhost:{port}/callback
+ *  - 作用域包含 ADT 访问（通常是 "SAP_ADT"）
  */
 
 import * as http from "http"
@@ -38,7 +38,7 @@ const VAULT_SERVICE = "vscode.abapfs.oauth_onprem"
 interface TokenSet {
   accessToken: string
   refreshToken: string
-  expiresAt: number // epoch ms
+  expiresAt: number // 纪元毫秒
 }
 
 interface OAuthTokenResponse {
@@ -98,7 +98,7 @@ function parseTokenSet(body: string): TokenSet {
   }
 }
 
-/** Store tokens securely in the OS credential manager. */
+/** 在操作系统凭据管理器中安全存储 token。 */
 async function storeTokens(connId: string, tokens: TokenSet): Promise<void> {
   const vault = PasswordVault.get()
   await vault.setPassword(VAULT_SERVICE, formatKey(connId), JSON.stringify(tokens))
@@ -107,7 +107,7 @@ async function storeTokens(connId: string, tokens: TokenSet): Promise<void> {
   )
 }
 
-/** Retrieve stored tokens. */
+/** 检索存储的 token。 */
 async function getTokens(connId: string): Promise<TokenSet | null> {
   const vault = PasswordVault.get()
   const raw = await vault.getPassword(VAULT_SERVICE, formatKey(connId))
@@ -132,7 +132,7 @@ async function getTokens(connId: string): Promise<TokenSet | null> {
   }
 }
 
-/** Clear stored tokens. */
+/** 清除存储的 token。 */
 export async function clearOAuthOnPremTokens(connId: string): Promise<void> {
   const vault = PasswordVault.get()
   await vault.deletePassword(VAULT_SERVICE, formatKey(connId))
@@ -140,11 +140,11 @@ export async function clearOAuthOnPremTokens(connId: string): Promise<void> {
 }
 
 /**
- * Perform the full OAuth Authorization Code + PKCE flow.
+ * 执行完整的 OAuth 授权码 + PKCE 流程。
  *
- * Opens the user's browser to SAP's authorization endpoint,
- * listens on a local HTTP server for the redirect callback,
- * exchanges the code for tokens, and returns them.
+ * 在用户浏览器中打开 SAP 的授权端点，
+ * 在本地 HTTP 服务器上监听重定向回调，
+ * 用代码换取 token，并返回它们。
  */
 async function authorizeInteractive(
   sapUrl: string,
@@ -152,7 +152,7 @@ async function authorizeInteractive(
   config: OAuthOnPremConfig,
   skipSsl: boolean
 ): Promise<TokenSet> {
-  // PKCE: generate code verifier and challenge
+  // PKCE：生成代码验证器和挑战
   const codeVerifier = randomBytes(32).toString("base64url")
   const codeChallenge = createHash("sha256").update(codeVerifier).digest("base64url")
   const state = randomBytes(16).toString("hex")
@@ -205,7 +205,7 @@ async function authorizeInteractive(
         return
       }
 
-      // Exchange code for tokens
+      // 用代码换取 token
       try {
         const tokens = await exchangeCodeForTokens(
           sapUrl,
@@ -239,7 +239,7 @@ async function authorizeInteractive(
       }
     })
 
-    // Listen on a random port on loopback
+    // 在回环地址的随机端口上监听
     server.listen(0, "127.0.0.1", () => {
       const redirectUri = `http://localhost:${getCallbackPort(server)}/callback`
 
@@ -256,7 +256,7 @@ async function authorizeInteractive(
 
       const authUrl = `${sapUrl}/sap/bc/sec/oauth2/authorize?${params.toString()}`
 
-      // Open in the user's default browser
+      // 在用户默认浏览器中打开
       vscode.env.openExternal(vscode.Uri.parse(authUrl))
       vscode.window.showInformationMessage(
         "OAuth: Complete the login in your browser. Waiting for redirect..."
@@ -276,7 +276,7 @@ async function authorizeInteractive(
 }
 
 /**
- * Exchange authorization code for access + refresh tokens.
+ * 用授权码换取访问 + 刷新 token。
  */
 async function exchangeCodeForTokens(
   sapUrl: string,
@@ -310,7 +310,7 @@ async function exchangeCodeForTokens(
 }
 
 /**
- * Refresh the access token using the refresh token.
+ * 用刷新 token 刷新访问 token。
  */
 async function refreshTokens(
   sapUrl: string,
@@ -346,10 +346,10 @@ async function refreshTokens(
 }
 
 /**
- * Build an AuthResult for on-premise OAuth.
+ * 为本地 OAuth 构建 AuthResult。
  *
- * Tries stored tokens first (with refresh if expired),
- * falls back to interactive browser login.
+ * 先尝试存储的 token（过期时刷新），
+ * 回退到交互式浏览器登录。
  */
 export async function buildOAuthOnPremAuth(
   connId: string,
@@ -361,7 +361,7 @@ export async function buildOAuthOnPremAuth(
   log.debug(
     `[oauth-onprem] buildOAuthOnPremAuth starting for ${connId}, clientId=${config.clientId}`
   )
-  // Resolve client secret from vault if not inline
+  // 如果未内联，从保险库解析客户端密钥
   if (!config.clientSecret) {
     const vault = PasswordVault.get()
     const secret = await vault.getPassword("vscode.abapfs.oauth_onprem_secret", formatKey(connId))
@@ -371,9 +371,9 @@ export async function buildOAuthOnPremAuth(
   let tokens = await getTokens(connId)
 
   if (tokens) {
-    // Check if access token is expired (with 60s buffer)
+    // 检查访问 token 是否过期（带 60 秒缓冲）
     if (tokens.expiresAt < Date.now() + 60_000) {
-      // Try refresh
+      // 尝试刷新
       if (tokens.refreshToken) {
         try {
           log.debug(`[oauth-onprem] Token expired, attempting refresh for ${connId}`)
@@ -398,7 +398,7 @@ export async function buildOAuthOnPremAuth(
     await storeTokens(connId, tokens)
   }
 
-  // Return a token fetcher that auto-refreshes
+  // 返回自动刷新的 token 获取器
   const fetchToken = createTokenFetcher(connId, sapUrl, sapClient, config, skipSsl)
 
   log.debug(`[oauth-onprem] buildOAuthOnPremAuth complete for ${connId}`)
@@ -408,9 +408,9 @@ export async function buildOAuthOnPremAuth(
 }
 
 /**
- * Create a token fetcher function that ADTClient calls on every request.
- * Handles automatic refresh when the token is near expiry.
- * Uses a per-connection mutex to prevent concurrent refresh races.
+ * 创建 ADTClient 在每个请求时调用的 token 获取器函数。
+ * 处理 token 接近过期时的自动刷新。
+ * 使用按连接互斥锁防止并发刷新竞争。
  */
 const refreshLocks = new Map<string, Promise<TokenSet>>()
 
@@ -425,10 +425,10 @@ function createTokenFetcher(
     let tokens = await getTokens(connId)
     if (!tokens) throw new Error("OAuth tokens not available — reconnect required")
 
-    // Refresh if expired (60s buffer)
+    // 过期时刷新（60 秒缓冲）
     if (tokens.expiresAt < Date.now() + 60_000 && tokens.refreshToken) {
       log.debug(`[oauth-onprem] Token near expiry in fetcher, refreshing for ${connId}`)
-      // Mutex: only one refresh at a time per connection
+      // 互斥锁：每个连接同时只允许一次刷新
       let pending = refreshLocks.get(connId)
       if (!pending) {
         pending = refreshTokens(sapUrl, sapClient, config, tokens.refreshToken, skipSsl)
@@ -451,7 +451,7 @@ function createTokenFetcher(
   }
 }
 
-/** Simple HTTPS POST helper using Node.js built-in https module. Rejects non-HTTPS URLs. */
+/** 使用 Node.js 内置 https 模块的简单 HTTPS POST 辅助。拒绝非 HTTPS URL。 */
 function doPost(
   url: string,
   body: string,
@@ -482,7 +482,7 @@ function doPost(
 
     const req = https.request(options, res => {
       let data = ""
-      const maxSize = 1024 * 1024 // 1 MB response limit
+      const maxSize = 1024 * 1024 // 1 MB 响应限制
       res.on("data", (chunk: Buffer) => {
         data += chunk.toString("utf8")
         if (data.length > maxSize) {
