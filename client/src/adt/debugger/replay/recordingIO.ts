@@ -11,7 +11,7 @@ import * as path from "path"
 const gzip = promisify(zlib.gzip)
 const gunzip = promisify(zlib.gunzip)
 
-/** Gzip magic bytes: 0x1f 0x8b */
+/** Gzip 魔数：0x1f 0x8b */
 const GZIP_MAGIC_0 = 0x1f
 const GZIP_MAGIC_1 = 0x8b
 
@@ -20,8 +20,8 @@ const RECORDING_FILTER = {
 }
 
 /**
- * Saves a recording to a user-chosen file location.
- * Returns the saved Uri, or undefined if cancelled.
+ * 把录制保存到用户选择的文件位置。
+ * 返回保存的 Uri，取消时返回 undefined。
  */
 export async function saveRecording(recording: DebugRecording): Promise<Uri | undefined> {
   const defaultName = buildDefaultFilename(recording)
@@ -45,8 +45,8 @@ export async function saveRecording(recording: DebugRecording): Promise<Uri | un
 }
 
 /**
- * Loads a recording from a user-chosen file.
- * Returns the parsed recording, or undefined if cancelled or invalid.
+ * 从用户选择的文件加载录制。
+ * 返回解析后的录制，取消或无效时返回 undefined。
  */
 export async function loadRecording(): Promise<DebugRecording | undefined> {
   const uris = await window.showOpenDialog({
@@ -65,8 +65,8 @@ export async function loadRecording(): Promise<DebugRecording | undefined> {
 }
 
 /**
- * Loads a recording from a specific Uri.
- * Supports both plain JSON (.abaprecord) and gzip-compressed files.
+ * 从特定 Uri 加载录制。
+ * 同时支持纯 JSON（.abaprecord）和 gzip 压缩文件。
  */
 export async function loadRecordingFromUri(uri: Uri): Promise<DebugRecording | undefined> {
   try {
@@ -114,8 +114,8 @@ function buildDefaultFilename(recording: DebugRecording): string {
 }
 
 /**
- * Core: gzip-compress raw bytes, write to targetUri, show result.
- * Used by both saveRecordingCompressed and compressRecording.
+ * 核心：gzip 压缩原始字节，写入 targetUri，显示结果。
+ * saveRecordingCompressed 和 compressRecording 都使用。
  */
 async function gzipAndSave(raw: Buffer, targetUri: Uri): Promise<void> {
   await window.withProgress(
@@ -141,8 +141,8 @@ async function gzipAndSave(raw: Buffer, targetUri: Uri): Promise<void> {
 }
 
 /**
- * Saves a recording directly as a gzip-compressed .abaprecord.gz file.
- * Used by the "Compress & Save" button in the stop-recording notification.
+ * 直接把录制保存为 gzip 压缩的 .abaprecord.gz 文件。
+ * 由停止录制通知中的“压缩并保存”按钮使用。
  */
 export async function saveRecordingCompressed(recording: DebugRecording): Promise<Uri | undefined> {
   const defaultName = buildDefaultFilename(recording).replace(/\.abaprecord$/, ".abaprecord.gz")
@@ -165,8 +165,8 @@ export async function saveRecordingCompressed(recording: DebugRecording): Promis
 }
 
 /**
- * Compresses an existing .abaprecord file using gzip.
- * Prompts user to select input file, compresses, then shows save-as dialog.
+ * 用 gzip 压缩现有 .abaprecord 文件。
+ * 提示用户选择输入文件，压缩，然后显示另存为对话框。
  */
 export async function compressRecording(): Promise<void> {
   const uris = await window.showOpenDialog({
@@ -213,8 +213,8 @@ export async function compressRecording(): Promise<void> {
 }
 
 /**
- * Decompresses an existing .abaprecord.gz file back to plain JSON .abaprecord.
- * Prompts user to select input file, decompresses, then shows save-as dialog.
+ * 把现有 .abaprecord.gz 文件解压回纯 JSON .abaprecord。
+ * 提示用户选择输入文件，解压，然后显示另存为对话框。
  */
 export async function decompressRecording(): Promise<void> {
   const uris = await window.showOpenDialog({
@@ -240,7 +240,7 @@ export async function decompressRecording(): Promise<void> {
       return
     }
 
-    // Suggest .abaprecord next to the original
+    // 建议在原始文件旁边使用 .abaprecord
     const defaultSave = Uri.file(sourceUri.fsPath.replace(/\.abaprecord\.gz$/i, ".abaprecord"))
     const saveUri = await window.showSaveDialog({
       defaultUri: defaultSave,
