@@ -1,8 +1,8 @@
 /**
- * Data fetching and joining logic for S/4HANA Readiness Dashboard.
+ * S/4HANA 就绪仪表盘的数据获取和连接逻辑。
  *
- * Fetches SYCM tables from SAP and performs the join in JS
- * (required because ADT SQL has a 255-char query limit).
+ * 从 SAP 获取 SYCM 表并在 JS 中执行连接
+ * （因为 ADT SQL 有 255 字符查询限制，所以需要这样做）。
  */
 
 import { ADTClient } from "abap-adt-api"
@@ -22,9 +22,9 @@ const INCREMENT = 50000
 const ABSOLUTE_MAX = 500000
 
 /**
- * Runs a query with automatic pagination. Starts at INITIAL_LIMIT rows,
- * and if ADT signals there's more (returns limit+1 rows), retries with
- * a higher limit until all rows are fetched or ABSOLUTE_MAX is hit.
+ * 带自动分页运行查询。从 INITIAL_LIMIT 行开始，
+ * 如果 ADT 提示还有更多（返回 limit+1 行），用更高的
+ * 限制重试，直到获取所有行或达到 ABSOLUTE_MAX。
  */
 async function safeQuery(client: ADTClient, sql: string, context: string): Promise<any[]> {
   let limit = INITIAL_LIMIT
@@ -36,13 +36,13 @@ async function safeQuery(client: ADTClient, sql: string, context: string): Promi
       log.debug(`${LOG_PREFIX} ${context}: got ${result.values.length} rows (complete)`)
       return result.values
     }
-    // More rows exist — increase limit and retry
+    // 还有更多行 — 增加限制并重试
     log.debug(
       `${LOG_PREFIX} ${context}: got ${result.values.length} rows, more available — retrying with higher limit`
     )
     limit += INCREMENT
   }
-  // Hit absolute max — fetch one final time at that limit
+  // 达到绝对上限 — 以该限制最后获取一次
   log.warn(
     `${LOG_PREFIX} ${context}: hit absolute max (${ABSOLUTE_MAX}), results may be incomplete`
   )
@@ -112,9 +112,9 @@ export async function fetchItemPiecelistLinks(client: ADTClient): Promise<ItemPi
 }
 
 /**
- * Fetches the entire piecelist table in a single ADT call.
- * This table maps piecelist IDs to affected SAP object names.
- * Typically 100K-200K rows but a single call is far better than hundreds of per-ID queries.
+ * 在单次 ADT 调用中获取整个 piecelist 表。
+ * 此表把 piecelist ID 映射到受影响的 SAP 对象名。
+ * 通常有 10 万-20 万行，但单次调用远比数百次按 ID 查询好。
  */
 export async function fetchPiecelist(client: ADTClient): Promise<PiecelistEntry[]> {
   log.debug(`${LOG_PREFIX} fetchPiecelist: querying full sycm_piecelist`)
@@ -139,9 +139,9 @@ function mapPiecelistRow(row: any): PiecelistEntry {
 }
 
 /**
- * Joins custom references to simplification items via piecelist.
+ * 通过 piecelist 把自定义引用连接到简化项。
  *
- * Join path: CUST_REFS.REF_OBJ_NAME → PIECELIST.OBJECT_NAME
+ * 连接路径：CUST_REFS.REF_OBJ_NAME → PIECELIST.OBJECT_NAME
  *          → PIECELIST.PIECELIST_ID → SITEM_PLIST.PIECELIST_ID
  *          → SITEM_PLIST.ID → SITEM.ID
  */
@@ -151,7 +151,7 @@ export function joinData(
   piecelist: PiecelistEntry[],
   itemPiecelistLinks: ItemPiecelistLink[]
 ): GroupedData {
-  // Build lookup: piecelistId → Set of item IDs
+  // 构建查找：piecelistId → 项 ID 集合
   const piecelistToItemIds = new Map<string, Set<string>>()
   for (const link of itemPiecelistLinks) {
     let set = piecelistToItemIds.get(link.piecelistId)
@@ -162,7 +162,7 @@ export function joinData(
     set.add(link.id)
   }
 
-  // Build lookup: objectName → Set of piecelist IDs
+  // 构建查找：objectName → piecelist ID 集合
   const objNameToPiecelistIds = new Map<string, Set<string>>()
   for (const p of piecelist) {
     let set = objNameToPiecelistIds.get(p.objectName)
@@ -173,14 +173,14 @@ export function joinData(
     set.add(p.piecelistId)
   }
 
-  // Build item lookup
+  // 构建项查找
   const itemMap = new Map<string, SimplificationItem>()
   for (const item of items) {
     itemMap.set(item.id, item)
   }
 
-  // For each ref, find which item it belongs to
-  const groupMap = new Map<string, CustomReference[]>() // itemId → refs
+  // 对每个引用，找到它属于哪个项
+  const groupMap = new Map<string, CustomReference[]>() // itemId → 引用
   const ungrouped: CustomReference[] = []
 
   for (const ref of refs) {
@@ -203,7 +203,7 @@ export function joinData(
             }
             arr.push(ref)
             matched = true
-            break // assign to first matching item
+            break // 分配给第一个匹配的项
           }
         }
         if (matched) break
@@ -220,7 +220,7 @@ export function joinData(
     groups.push({ item, refs: itemRefs })
   }
 
-  // Merge groups that share the same title+note (different versions of same item)
+  // 合并共享相同标题+注释的分组（同一项的不同版本）
   const mergedMap = new Map<string, ItemGroup>()
   for (const group of groups) {
     const key = `${group.item.title}||${group.item.note}`
@@ -233,14 +233,14 @@ export function joinData(
   }
   const mergedGroups = [...mergedMap.values()]
 
-  // Sort groups by number of refs descending
+  // 按引用数降序排序分组
   mergedGroups.sort((a, b) => b.refs.length - a.refs.length)
 
   return { groups: mergedGroups, ungrouped, totalRefs: refs.length }
 }
 
 /**
- * Orchestrates the full data fetch + join for a connection.
+ * 编排连接的完整数据获取 + 连接。
  */
 export async function loadReadinessData(
   client: ADTClient,
@@ -249,7 +249,7 @@ export async function loadReadinessData(
   const report = onProgress || (() => {})
   log.debug(`${LOG_PREFIX} loadReadinessData: starting`)
   report("Fetching simplification items & custom references...")
-  // Fetch items and links in parallel (small tables)
+  // 并行获取项和链接（小表）
   const [items, itemLinks, refs] = await Promise.all([
     fetchSimplificationItems(client),
     fetchItemPiecelistLinks(client),
@@ -262,8 +262,8 @@ export async function loadReadinessData(
     return { groups: [], ungrouped: [], totalRefs: 0 }
   }
 
-  // Fetch the full piecelist in one call (typically 100K-200K rows)
-  // Much faster than per-ID queries which could be 500+ sequential calls
+  // 一次调用获取完整 piecelist（通常 10 万-20 万行）
+  // 远比可能 500+ 次顺序调用的按 ID 查询快
   report("Fetching piecelist (this may take a moment)...")
   const piecelist = await fetchPiecelist(client)
   report(`Got ${piecelist.length} piecelist entries, joining data...`)
