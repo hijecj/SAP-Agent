@@ -1,11 +1,11 @@
 import { ExtensionContext } from "vscode"
 
 /**
- * Secure password storage using VS Code's built-in secrets API.
- * @security This class does NOT send any data outside the application.
- * All credentials are stored locally in VS Code's encrypted secret storage
- * (ExtensionContext.secrets) which uses the OS keychain/credential manager.
- * Checkmarx false positive: CWE-359 - This is secure local storage, not external transmission.
+ * 使用 VS Code 内置 secrets API 的安全密码存储。
+ * @security 此类不会向应用外部发送任何数据。
+ * 所有凭证都存储在 VS Code 加密的机密存储中
+ * （ExtensionContext.secrets），它使用操作系统钥匙串/凭据管理器。
+ * Checkmarx 误报：CWE-359 - 这是安全的本地存储，不是外部传输。
  */
 export class PasswordVault {
   private static instance: PasswordVault
@@ -25,7 +25,7 @@ export class PasswordVault {
     return this.context.secrets.delete(`${service}:${account}`)
   }
   async accounts(service: string): Promise<{ account: string; password: string }[]> {
-    return [] //TODO:implement or remove
+    return [] //TODO：实现或移除
   }
   static get() {
     if (!PasswordVault.instance) throw new Error("No password vault defined")
