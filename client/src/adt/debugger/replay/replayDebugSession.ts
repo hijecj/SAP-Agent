@@ -13,8 +13,8 @@ import { ReplayVariableManager } from "./replayVariableManager"
 const REPLAY_THREAD_ID = 1
 
 /**
- * A read-only debug adapter that replays a recorded ABAP debug session.
- * Supports forward and backward stepping via DAP's supportsStepBack.
+ * 回放录制的 ABAP 调试会话的只读调试适配器。
+ * 通过 DAP 的 supportsStepBack 支持前进和后退步进。
  */
 export class ReplayDebugSession extends LoggingDebugSession {
   private currentStep = 0
@@ -34,7 +34,7 @@ export class ReplayDebugSession extends LoggingDebugSession {
     return this.recording.snapshots.length
   }
 
-  // -- Initialization --
+  // -- 初始化 --
 
   protected initializeRequest(
     response: DebugProtocol.InitializeResponse,
@@ -49,9 +49,9 @@ export class ReplayDebugSession extends LoggingDebugSession {
       supportsCancelRequest: false,
       supportsTerminateRequest: true,
       supportsLoadedSourcesRequest: false,
-      // Disable stepping granularity — all forward steps behave identically
-      // (advance to next recorded snapshot). VS Code always shows Step Over,
-      // Step Into, Step Out buttons but in replay they all do the same thing.
+      // 禁用步进粒度 — 所有前进步进行为相同
+      // （前进到下一个录制快照）。VS Code 总是显示单步跳过、
+      // 单步进入、单步返回按钮，但在回放中它们做同样的事。
       supportsSteppingGranularity: false
     }
     this.sendResponse(response)
@@ -67,11 +67,11 @@ export class ReplayDebugSession extends LoggingDebugSession {
       this.sendEvent(new TerminatedEvent())
       return
     }
-    // Start at step 0 and immediately show it
+    // 从步骤 0 开始并立即显示
     this.sendEvent(new StoppedEvent("entry", REPLAY_THREAD_ID))
   }
 
-  // -- Launch --
+  // -- 启动 --
 
   protected launchRequest(
     response: DebugProtocol.LaunchResponse,
@@ -81,7 +81,7 @@ export class ReplayDebugSession extends LoggingDebugSession {
     this.sendResponse(response)
   }
 
-  // -- Threads --
+  // -- 线程 --
 
   protected threadsRequest(response: DebugProtocol.ThreadsResponse): void {
     const snap = this.snapshot
@@ -97,7 +97,7 @@ export class ReplayDebugSession extends LoggingDebugSession {
     this.sendResponse(response)
   }
 
-  // -- Stack Trace --
+  // -- 调用栈 --
 
   protected stackTraceRequest(
     response: DebugProtocol.StackTraceResponse,
@@ -134,7 +134,7 @@ export class ReplayDebugSession extends LoggingDebugSession {
     return ref
   }
 
-  // -- Scopes & Variables --
+  // -- 作用域与变量 --
 
   protected scopesRequest(
     response: DebugProtocol.ScopesResponse,
@@ -146,8 +146,8 @@ export class ReplayDebugSession extends LoggingDebugSession {
       this.sendResponse(response)
       return
     }
-    // Scopes are only captured for the top frame (frame 0).
-    // For other frames, return empty scopes.
+    // 只为顶部帧（帧 0）捕获作用域。
+    // 对其他帧，返回空作用域。
     const isTopFrame = args.frameId === 0
     if (isTopFrame) {
       response.body = { scopes: this.variableManager.getScopes(snap) }
@@ -188,7 +188,7 @@ export class ReplayDebugSession extends LoggingDebugSession {
     this.sendResponse(response)
   }
 
-  // -- Forward stepping --
+  // -- 前进步进 --
 
   protected nextRequest(
     response: DebugProtocol.NextResponse,
@@ -219,7 +219,7 @@ export class ReplayDebugSession extends LoggingDebugSession {
     _args: DebugProtocol.ContinueArguments
   ): void {
     this.sendResponse(response)
-    // If already at last step, terminate. Otherwise jump to last step.
+    // 如果已在最后一步，终止。否则跳到最后一步。
     if (this.currentStep >= this.totalSteps - 1) {
       this.sendEvent(new TerminatedEvent())
     } else {
@@ -227,7 +227,7 @@ export class ReplayDebugSession extends LoggingDebugSession {
     }
   }
 
-  // -- Backward stepping --
+  // -- 后退步进 --
 
   protected stepBackRequest(
     response: DebugProtocol.StepBackResponse,
@@ -245,7 +245,7 @@ export class ReplayDebugSession extends LoggingDebugSession {
     this.stepTo(0)
   }
 
-  // -- Navigation --
+  // -- 导航 --
 
   private stepTo(target: number): void {
     if (target >= this.totalSteps) {
@@ -257,7 +257,7 @@ export class ReplayDebugSession extends LoggingDebugSession {
     this.sendEvent(new StoppedEvent("step", REPLAY_THREAD_ID))
   }
 
-  // -- Lifecycle --
+  // -- 生命周期 --
 
   protected disconnectRequest(
     response: DebugProtocol.DisconnectResponse,
@@ -274,7 +274,7 @@ export class ReplayDebugSession extends LoggingDebugSession {
     this.sendEvent(new TerminatedEvent())
   }
 
-  // Replay is always stopped, pause is a no-op
+  // 回放始终处于停止状态，暂停是空操作
   protected pauseRequest(
     response: DebugProtocol.PauseResponse,
     _args: DebugProtocol.PauseArguments
@@ -282,7 +282,7 @@ export class ReplayDebugSession extends LoggingDebugSession {
     this.sendResponse(response)
   }
 
-  // -- Breakpoints (no-op for replay) --
+  // -- 断点（对回放是空操作） --
 
   protected setBreakPointsRequest(
     response: DebugProtocol.SetBreakpointsResponse,
@@ -298,7 +298,7 @@ export class ReplayDebugSession extends LoggingDebugSession {
     this.sendResponse(response)
   }
 
-  // -- Source --
+  // -- 源码 --
 
   protected sourceRequest(
     response: DebugProtocol.SourceResponse,
