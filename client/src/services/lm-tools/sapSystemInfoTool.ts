@@ -1,6 +1,6 @@
 /**
- * SAP System Info Tool
- * LM tool to retrieve comprehensive SAP system information
+ * SAP 系统信息工具
+ * 检索全面 SAP 系统信息的 LM 工具
  */
 
 import * as vscode from "vscode"
@@ -10,7 +10,7 @@ import { getSAPSystemInfo, formatSAPSystemInfoAsText } from "../sapSystemInfo"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface ISAPSystemInfoParameters {
@@ -19,15 +19,15 @@ export interface ISAPSystemInfoParameters {
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 📊 SAP SYSTEM INFO TOOL
- * Retrieves comprehensive information about the SAP system including:
- * - Client information (from T000)
- * - Software component versions (from CVERS)
- * - SAP release information (from SVERS)
+ * 📊 SAP 系统信息工具
+ * 检索关于 SAP 系统的全面信息，包括：
+ * - Client 信息（来自 T000）
+ * - 软件组件版本（来自 CVERS）
+ * - SAP 版本信息（来自 SVERS）
  */
 export class SAPSystemInfoTool implements vscode.LanguageModelTool<ISAPSystemInfoParameters> {
   async prepareInvocation(
@@ -69,17 +69,17 @@ export class SAPSystemInfoTool implements vscode.LanguageModelTool<ISAPSystemInf
       throw new Error("connectionId is required")
     }
 
-    // Normalize connection ID to lowercase
+    // 把连接 ID 规范化为小写
     connectionId = connectionId.toLowerCase()
 
-    // Default includeComponents to false
+    // 默认 includeComponents 为 false
     includeComponents = includeComponents ?? false
 
     try {
-      // Get system information (with caching) - connectionId lookup is done internally
+      // 获取系统信息（带缓存）- connectionId 查找在内部完成
       const systemInfo = await getSAPSystemInfo(connectionId, includeComponents)
 
-      // Create concise summary
+      // 创建简洁摘要
       let summary = `SAP System: ${connectionId.toUpperCase()}\n`
       summary += `- Type: ${systemInfo.systemType}\n`
       summary += `- Release: ${systemInfo.sapRelease || "N/A"}\n`
@@ -112,7 +112,7 @@ export class SAPSystemInfoTool implements vscode.LanguageModelTool<ISAPSystemInf
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerSAPSystemInfoTool(context: vscode.ExtensionContext): void {
