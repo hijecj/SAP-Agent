@@ -29,7 +29,7 @@ export const AbapFsCommands = {
   exportToJson: "abapfs.exportToJson",
   extractMethod: "abapfs.extractMethod",
   showWalkThrough: "abapfs.showWalkThrough",
-  // atc
+  // ATC
   atcChecks: "abapfs.atcChecks",
   atcIgnore: "abapfs.atcIgnore",
   atcRefresh: "abapfs.atcRefresh",
@@ -42,14 +42,14 @@ export const AbapFsCommands = {
   atcDocHistoryBack: "abapfs.atcDocHistoryBack",
   atcFilterExemptOn: "abapfs.atcFilterExemptOn",
   atcFilterExemptOff: "abapfs.atcFilterExemptOff",
-  // text elements
+  // 文本元素
   manageTextElements: "abapfs.manageTextElements",
-  // classes
+  // 类
   refreshHierarchy: "abapfs.refreshHierarchy",
   pickObject: "abapfs.pickObject",
   pickAdtRootConn: "abapfs.pickAdtRootConn",
   runClass: "abapfs.runClass",
-  // revisions
+  // 修订
   clearScmGroup: "abapfs.clearScmGroup",
   filterScmGroup: "abapfs.filterScmGroup",
   openrevstate: "abapfs.openrevstate",
@@ -64,7 +64,7 @@ export const AbapFsCommands = {
   remotediff: "abapfs.remotediff",
   comparediff: "abapfs.comparediff",
   mergeEditor: "abapfs.openMergeEditor",
-  // transports
+  // 传输
   transportObjectDiff: "abapfs.transportObjectDiff",
   openTransportObject: "abapfs.openTransportObject",
   openLocation: "abapfs.openLocation",
@@ -93,15 +93,15 @@ export const AbapFsCommands = {
   agitRemove: "abapfs.removeAbapGit",
   agitresetPwd: "abapfs.resetAbapGitPwd",
   agitBranch: "abapfs.switchBranch",
-  //traces
+  // 跟踪
   refreshTraces: "abapfs.refreshTraces",
   deleteTrace: "abapfs.deleteTrace",
-  // programmatic commands
+  // 编程式命令
   createObjectProgrammatically: "abapfs.createObjectProgrammatically",
-  // ABAP Cleaner commands
+  // ABAP Cleaner 命令
   cleanCode: "abapfs.cleanCode",
   setupCleaner: "abapfs.setupCleaner",
-  // Feed commands
+  // Feed 命令
   configureFeeds: "abapfs.configureFeeds",
   refreshFeedInbox: "abapfs.refreshFeedInbox",
   viewFeedEntry: "abapfs.viewFeedEntry",
@@ -113,18 +113,18 @@ export const AbapFsCommands = {
   // Blame
   showBlame: "abapfs.showBlame",
   hideBlame: "abapfs.hideBlame",
-  // System info
+  // 系统信息
   refreshSystemInfoCache: "abapfs.refreshSystemInfoCache",
-  // Filesystem
+  // 文件系统
   refreshFilesystem: "abapfs.refreshFilesystem",
-  // Communication log
+  // 通信日志
   activateCommLog: "abapfs.activateCommLog",
   deactivateCommLog: "abapfs.deactivateCommLog",
-  // RAP Generator
+  // RAP 生成器
   rapGenFromEditor: "abapfs.rapGenFromEditor",
   publishServiceBinding: "abapfs.publishServiceBinding",
   testServiceBinding: "abapfs.testServiceBinding",
-  // S/4HANA Readiness
+  // S/4HANA 就绪
   s4hLoad: "abapfs.s4hLoad",
   s4hRefresh: "abapfs.s4hRefresh",
   s4hOpenObject: "abapfs.s4hOpenObject",
