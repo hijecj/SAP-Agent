@@ -1,17 +1,17 @@
 import { types } from "util"
 
 /**
- * Narrow a value to the string type when the runtime check passes.
+ * 运行时检查通过时把值收窄为字符串类型。
  */
 export const isString = (x: any): x is string => typeof x === "string"
 
 /**
- * Narrow a value to the number type when the runtime check passes.
+ * 运行时检查通过时把值收窄为数字类型。
  */
 export const isNumber = (x: any): x is number => typeof x === "number"
 
 /**
- * Cache the result of an async function for the lifetime of the wrapper.
+ * 在包装器生命周期内缓存异步函数的结果。
  */
 export const memoize = <P, R>(base: (p: P) => Promise<R>): ((p: P) => Promise<R>) => {
   const cache: Map<P, R> = new Map()
@@ -26,7 +26,7 @@ export const memoize = <P, R>(base: (p: P) => Promise<R>): ((p: P) => Promise<R>
 }
 
 /**
- * Extract capture groups from a string using the provided regular expression.
+ * 使用提供的正则表达式从字符串提取捕获组。
  */
 export function parts(whole: any, pattern: RegExp): string[] {
   if (!isString(whole)) return []
@@ -35,7 +35,7 @@ export function parts(whole: any, pattern: RegExp): string[] {
 }
 
 /**
- * Convert a value to an integer while tolerating empty or non-numeric input.
+ * 把值转换为整数，同时容忍空或非数字输入。
  */
 export function toInt(raw: any): number {
   if (isNaN(raw)) return 0
@@ -47,7 +47,7 @@ export function toInt(raw: any): number {
 }
 
 /**
- * Parse the query-string style fragment from an ADT URI into a plain object.
+ * 把 ADT URI 中的查询字符串风格片段解析为普通对象。
  */
 export const hashParms = (uri: string): any => {
   const parms: any = {}
@@ -61,23 +61,23 @@ export const hashParms = (uri: string): any => {
 }
 
 /**
- * Return true for ABAP source files that use the .abap extension.
+ * 对使用 .abap 扩展名的 ABAP 源文件返回 true。
  */
 export const isAbap = (uri: string) => !!uri.match(/\.abap$/i)
 
 /**
- * Return true for CDS DDLS source files.
+ * 对 CDS DDLS 源文件返回 true。
  */
 export const isCdsView = (uri: string) => !!uri.match(/\.ddls.asddls$/i)
 
 /**
- * Return true for CDS-like source file extensions handled by the language server.
+ * 对语言服务器处理的类 CDS 源文件扩展名返回 true。
  */
 export const isCdsLike = (uri: string) =>
   !!uri.match(/\.(ddls\.asddls|dcls\.asdcls|ddlx\.asddlxs|bdef\.asbdef|srvd\.srvdsrv)$/i)
 
 /**
- * Return true for ABAP or CDS-based resources that should be processed by the server.
+ * 对应由服务器处理的 ABAP 或基于 CDS 的资源返回 true。
  */
 export const isAbapOrCds = (uri: string) => isAbap(uri) || isCdsLike(uri)
 
@@ -87,10 +87,10 @@ interface RunningState<T> {
 }
 const doNext = <T>(p: Promise<T>, n: (ok?: T, err?: any) => Promise<T>) =>
   p.then(ok => n(ok)).catch(err => n(undefined, err))
-// Repeated requests share a single in-flight call and queue the next one until the current run finishes.
+// 重复请求共享单个进行中的调用，并排队下一次尝试，直到当前运行完成。
 
 /**
- * Limit concurrent calls for the same key by reusing the in-flight request or queueing the next attempt.
+ * 通过复用进行中的请求或排队下一次尝试，限制同一键的并发调用。
  */
 export const callThrottler = <T>() => {
   const runStates = new Map<string, RunningState<T>>()
@@ -127,7 +127,7 @@ export const callThrottler = <T>() => {
 }
 
 /**
- * Convert an unknown value into a stable string for logging and diagnostics.
+ * 把未知值转换为稳定的字符串，用于日志和诊断。
  */
 export const caughtToString = (e: any) => {
   if (types.isNativeError(e)) return e.message
