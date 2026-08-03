@@ -1,29 +1,29 @@
 /**
- * MCP Get Diagnostics Tool
+ * MCP 获取诊断工具
  *
- * MCP-only tool that returns syntax errors/warnings/info for a given ABAP file URI.
- * VS Code Copilot uses its built-in get_errors tool; this provides the same for MCP clients.
+ * 仅限 MCP 的工具，为给定 ABAP 文件 URI 返回语法错误/警告/信息。
+ * VS Code Copilot 使用其内置的 get_errors 工具；这为 MCP 客户端提供相同功能。
  */
 
 import * as vscode from "vscode"
 import { triggerSyntaxCheck } from "../../langClient"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface IMcpGetDiagnosticsParams {
-  /** The full workspace URI of the ABAP source file (e.g. 'adt://dev100/path/to/file.prog.abap'). */
+  /** ABAP 源文件的完整工作区 URI（例如 'adt://dev100/path/to/file.prog.abap'）。 */
   fileUri: string
 }
 
 // ============================================================================
-// CORE LOGIC
+// 核心逻辑
 // ============================================================================
 
 /**
- * Get diagnostics (errors, warnings, info) for a given file URI.
- * Opens the document first to ensure diagnostics are computed, then waits briefly.
+ * 为给定文件 URI 获取诊断（错误、警告、信息）。
+ * 先打开文档以确保计算出诊断，然后短暂等待。
  */
 export async function getDiagnosticsForUri(fileUri: string): Promise<string> {
   const uri = vscode.Uri.parse(fileUri)
@@ -35,7 +35,7 @@ export async function getDiagnosticsForUri(fileUri: string): Promise<string> {
     )
   }
 
-  // Check if the file is already open in an editor tab
+  // 检查文件是否已在编辑器标签页中打开
   const alreadyOpen = vscode.window.tabGroups.all.some(group =>
     group.tabs.some(tab => {
       if (tab.input instanceof vscode.TabInputText) {
@@ -48,12 +48,12 @@ export async function getDiagnosticsForUri(fileUri: string): Promise<string> {
   let diagnostics: vscode.Diagnostic[]
 
   if (alreadyOpen) {
-    // File is already open - language server already knows about it
+    // 文件已打开 - 语言服务器已知道它
     await triggerSyntaxCheck(uri.toString())
     await new Promise(resolve => setTimeout(resolve, 1000))
     diagnostics = vscode.languages.getDiagnostics(uri)
   } else {
-    // File not open - must show it to trigger didOpen in language server
+    // 文件未打开 - 必须显示它以触发语言服务器中的 didOpen
     try {
       const doc = await vscode.workspace.openTextDocument(uri)
       await vscode.window.showTextDocument(doc, { preserveFocus: true, preview: true })
@@ -61,16 +61,16 @@ export async function getDiagnosticsForUri(fileUri: string): Promise<string> {
       throw new Error(`File not found: ${fileUri}`)
     }
 
-    // Wait for language server didOpen + syntax check (server has 500ms delay on didOpen)
+    // 等待语言服务器 didOpen + 语法检查（服务器在 didOpen 上有 500ms 延迟）
     await new Promise(resolve => setTimeout(resolve, 2000))
 
-    // Also explicitly trigger in case the didOpen race was lost
+    // 也显式触发，以防 didOpen 竞态失败
     await triggerSyntaxCheck(uri.toString())
     await new Promise(resolve => setTimeout(resolve, 1000))
 
     diagnostics = vscode.languages.getDiagnostics(uri)
 
-    // Close the tab we opened to avoid cluttering the editor
+    // 关闭我们打开的标签页，避免弄乱编辑器
     const tabToClose = vscode.window.tabGroups.all
       .flatMap(group => group.tabs)
       .find(tab => {
