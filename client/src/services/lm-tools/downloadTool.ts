@@ -1,18 +1,18 @@
 /**
- * ABAP Download Tool
+ * ABAP 下载工具
  *
- * Downloads any adt:// resource (package, program, class, function group,
- * folder, or single file) to a local folder.
+ * 把任意 adt:// 资源（包、程序、类、函数组、
+ * 文件夹或单个文件）下载到本地文件夹。
  *
- * Why we walk the tree ourselves instead of vscode.workspace.fs.copy:
- *   1. Atomicity — fs.copy aborts on the first per-file failure. The abap fs
- *      provider surfaces stale/orphan entries (renamed but still listed by
- *      the tree) whose readFile throws Unavailable; a manual walk skips them
- *      and lets the rest of the package land.
- *   2. Progress — fs.copy is opaque. We need per-file progress and a running
- *      done/total counter in the notification.
- *   3. Cancellation — fs.copy takes no CancellationToken. Manual walk checks
- *      the token between files so cancel is near-instant.
+ * 为什么我们自己遍历树而不是用 vscode.workspace.fs.copy：
+ *   1. 原子性 — fs.copy 在第一个逐文件失败时中止。abap fs
+ *      提供器会暴露陈旧/孤儿条目（已重命名但树仍列出），
+ *      其 readFile 会抛 Unavailable；手动遍历会跳过它们，
+ *      让包的其余部分落地。
+ *   2. 进度 — fs.copy 不透明。我们需要逐文件进度以及通知中
+ *      实时更新的已完成/总数计数器。
+ *   3. 取消 — fs.copy 不接受 CancellationToken。手动遍历在文件之间
+ *      检查 token，所以取消几乎是即时的。
  */
 
 import * as vscode from "vscode"
@@ -24,19 +24,19 @@ import { getOrCreateRoot } from "../../adt/conections"
 
 export interface IDownloadParameters {
   /**
-   * Source. One of:
-   *   - Full adt URI: `adt://ged100/System Library/ZFOO`
-   *   - ADT path: `/sap/bc/adt/packages/zfoo`
-   *   - Bare object name (requires `connectionId` and usually `objectType`)
+   * 源。以下之一：
+   *   - 完整 adt URI：`adt://ged100/System Library/ZFOO`
+   *   - ADT 路径：`/sap/bc/adt/packages/zfoo`
+   *   - 裸对象名（需要 `connectionId`，通常还需要 `objectType`）
    */
   source: string
-  /** Absolute local folder path (`C:\wiki\raw\ZFOO`) or `file://` URI. */
+  /** 绝对本地文件夹路径（`C:\wiki\raw\ZFOO`）或 `file://` URI。 */
   target: string
-  /** Required if `source` is a bare object name or an ADT path. */
+  /** 如果 `source` 是裸对象名或 ADT 路径，则必填。 */
   connectionId?: string
-  /** Optional type disambiguator for bare names (e.g. `CLAS/OC`, `PROG/P`). */
+  /** 裸名称的可选类型消歧符（例如 `CLAS/OC`、`PROG/P`）。 */
   objectType?: string
-  /** Overwrite existing files at the target. Default true. */
+  /** 覆盖目标位置的现有文件。默认 true。 */
   overwrite?: boolean
 }
 
@@ -53,8 +53,8 @@ async function resolveSource(input: IDownloadParameters): Promise<vscode.Uri> {
   const root = await getOrCreateRoot(connectionId)
 
   if (source.startsWith("/sap/bc/adt/")) {
-    // main=false so FUGR / CLAS / DEVC resolve to the containing folder
-    // (with all FMs / includes / class parts), not just the main include.
+    // main=false，让 FUGR / CLAS / DEVC 解析到包含文件夹
+    // （包含所有 FM / include / 类部分），而不仅仅是主 include。
     const found = await root.findByAdtUri(source, false)
     if (!found?.path) throw new Error(`Cannot resolve ADT path ${source} on ${connectionId}`)
     return vscode.Uri.parse(`adt://${connectionId}${found.path}`)
@@ -129,13 +129,13 @@ export class DownloadTool implements vscode.LanguageModelTool<IDownloadParameter
         cancellable: true
       },
       async (progress, progressToken) => {
-        // Compose the LM tool token with the progress notification's own cancel button
+        // 把 LM 工具 token 与进度通知自己的取消按钮组合
         const cts = new vscode.CancellationTokenSource()
         const sub1 = token.onCancellationRequested(() => cts.cancel())
         const sub2 = progressToken.onCancellationRequested(() => cts.cancel())
         try {
-          // Resolution can be slow on first hit (tree hydration, findByAdtUri);
-          // keep it inside the progress so the user sees "Resolving…" immediately.
+          // 首次命中时解析可能很慢（树水合、findByAdtUri）；
+          // 把它放在进度内，让用户立即看到“正在解析…”。
           progress.report({ message: "Resolving source…" })
           const resolved = await race(resolveSource(input), cts.token)
           if (cts.token.isCancellationRequested || !resolved) return
@@ -161,8 +161,8 @@ export class DownloadTool implements vscode.LanguageModelTool<IDownloadParameter
     )
 
     if (cancelled) {
-      // Propagate to Copilot so the model sees a real cancellation rather than
-      // a partial "downloaded" result it might treat as success.
+      // 传播给 Copilot，让模型看到真正的取消，而不是
+      // 可能被当作成功的部分“已下载”结果。
       throw new vscode.CancellationError()
     }
 
@@ -175,9 +175,9 @@ export class DownloadTool implements vscode.LanguageModelTool<IDownloadParameter
 }
 
 /**
- * Recursively copy `source` (adt:// or file://) to `target` (file://), tolerating
- * per-file failures — the abap fs provider surfaces stale/orphan entries that fail
- * on readFile; skipping them lets the rest of the package land.
+ * 递归把 `source`（adt:// 或 file://）复制到 `target`（file://），容忍
+ * 逐文件失败 — abap fs 提供器会暴露 readFile 失败的陈旧/孤儿条目；
+ * 跳过它们可以让包的其余部分落地。
  */
 async function copyTree(
   source: vscode.Uri,
@@ -224,7 +224,7 @@ async function copyTree(
     return
   }
 
-  // File
+  // 文件
   const leaf = source.path.split("/").pop() ?? ""
   onFile(leaf)
   if (!overwrite) {
@@ -233,7 +233,7 @@ async function copyTree(
       stats.skipped++
       return
     } catch {
-      // target absent — proceed
+      // 目标不存在 — 继续
     }
   }
   try {
@@ -252,10 +252,9 @@ function errMsg(e: unknown): string {
 }
 
 /**
- * Race a promise against a cancellation token. If the token fires first, the
- * returned promise resolves to `undefined` (the original promise keeps running
- * but nobody is waiting for it). Use only when the underlying op has no native
- * cancellation.
+ * 让 Promise 与取消令牌竞争。如果令牌先触发，
+ * 返回的 Promise 解析为 `undefined`（原始 Promise 继续运行，
+ * 但没人等待它）。只在底层操作没有原生取消时使用。
  */
 function race<T>(p: Promise<T>, token: vscode.CancellationToken): Promise<T | undefined> {
   return new Promise<T | undefined>((resolve, reject) => {
@@ -278,9 +277,9 @@ function race<T>(p: Promise<T>, token: vscode.CancellationToken): Promise<T | un
 }
 
 /**
- * Fast recursive count of files under `source`. Uses only readDirectory
- * (no readFile). Returns 0 on any error; the copy will fall back to
- * indeterminate progress.
+ * 快速递归统计 `source` 下的文件数。只使用 readDirectory
+ * （不 readFile）。任何错误都返回 0；复制将回退到
+ * 不确定进度。
  */
 async function countFiles(source: vscode.Uri, token: vscode.CancellationToken): Promise<number> {
   if (token.isCancellationRequested) return 0
@@ -298,9 +297,9 @@ async function countFiles(source: vscode.Uri, token: vscode.CancellationToken): 
 }
 
 /**
- * Parallel worker pool: run at most `limit` promises at a time over `items`.
- * ADT tolerates a handful of parallel reads on one HTTP session; pushing beyond
- * ~8 tends to hit backend serialisation or lock contention.
+ * 并行工作池：在 `items` 上同时最多运行 `limit` 个 Promise。
+ * ADT 容忍一个 HTTP 会话上的少量并行读取；超过约 8 个
+ * 往往会遇到后端串行化或锁竞争。
  */
 const DL_CONCURRENCY = 5
 async function runPool<T>(
