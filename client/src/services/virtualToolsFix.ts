@@ -1,12 +1,12 @@
 /**
- * Disable VS Code's experimental "virtual tools" feature.
+ * 禁用 VS Code 的实验性“虚拟工具”功能。
  *
- * When the threshold > 0 and there are many tools registered, VS Code clubs
- * them into groups that Copilot often fails to activate — making our 30+ ABAP
- * tools invisible. Setting threshold to 0 disables grouping entirely.
+ * 当阈值 > 0 且注册了很多工具时，VS Code 会把它们
+ * 分组，Copilot 经常无法激活这些组 — 使我们的 30+ 个 ABAP
+ * 工具不可见。把阈值设为 0 会完全禁用分组。
  *
- * This is triggered once after the user first connects to a SAP system.
- * It shows a non-modal notification rather than a blocking modal dialog.
+ * 这在用户首次连接 SAP 系统后触发一次。
+ * 它显示非模态通知而不是阻塞式模态对话框。
  */
 
 import * as vscode from "vscode"
@@ -19,27 +19,27 @@ const RESET_COMMAND = "github.copilot.debug.resetVirtualToolGroups"
 const DISMISSED_KEY = "abapfs.virtualToolsFix.dismissed"
 
 /**
- * Called on every activation. Handles two scenarios:
- * 1. ADT folders already present (extension restarted after connecting) → check after a delay.
- * 2. No ADT folders yet → register a listener and wait for the first connection.
+ * 每次激活时调用。处理两种场景：
+ * 1. ADT 文件夹已存在（连接后扩展重启）→ 延迟后检查。
+ * 2. 还没有 ADT 文件夹 → 注册监听器并等待首次连接。
  *
- * Safe to call on every activation — dismissed/already-fixed state is persisted.
+ * 每次激活都可以安全调用 — 已关闭/已修复状态会持久化。
  */
 export function registerVirtualToolsFixOnConnect(context: vscode.ExtensionContext): void {
-  // Already dismissed — nothing to do ever again
+  // 已关闭 — 永远无需再做任何事
   if (context.globalState.get<boolean>(DISMISSED_KEY)) return
 
   const hasAdtFolders =
     vscode.workspace.workspaceFolders?.some(f => f.uri.scheme === ADTSCHEME) ?? false
 
   if (hasAdtFolders) {
-    // Extension restarted with ADT folders already mounted (e.g. after connecting).
-    // Delay so the workspace finishes settling before showing the notification.
+    // 扩展重启时 ADT 文件夹已挂载（例如连接之后）。
+    // 延迟让工作区稳定后再显示通知。
     setTimeout(() => disableVirtualToolGrouping(context), 5000)
     return
   }
 
-  // No ADT folders yet — wait for the first connection
+  // 还没有 ADT 文件夹 — 等待首次连接
   const listener = vscode.workspace.onDidChangeWorkspaceFolders(e => {
     const hasNewAdtFolder = e.added.some(f => f.uri.scheme === ADTSCHEME)
     if (!hasNewAdtFolder) return
@@ -54,14 +54,14 @@ export async function disableVirtualToolGrouping(context: vscode.ExtensionContex
   try {
     if (context.globalState.get<boolean>(DISMISSED_KEY)) return
 
-    // Only proceed if AI models are available — if not, Copilot isn't active yet
-    // and there's nothing to fix. Will retry automatically on next activation.
+    // 只在 AI 模型可用时继续 — 不可用则 Copilot 尚未激活，
+    // 没有需要修复的内容。下次激活会自动重试。
     let hasModels = false
     try {
       const models = await vscode.lm.selectChatModels({})
       hasModels = models.length > 0
     } catch {
-      // selectChatModels not available or failed — skip silently
+      // selectChatModels 不可用或失败 — 静默跳过
     }
     if (!hasModels) return
 
@@ -73,10 +73,10 @@ export async function disableVirtualToolGrouping(context: vscode.ExtensionContex
     const effectiveValue = workspaceValue ?? globalValue ?? inspection?.defaultValue ?? 128
 
     if (effectiveValue === 0) {
-      return // Already disabled — stay dormant
+      return // 已禁用 — 保持休眠
     }
 
-    // Non-modal notification — doesn't interrupt the user's workflow
+    // 非模态通知 — 不中断用户的工作流
     const selection = await window.showWarningMessage(
       `ABAP FS: Virtual tool grouping is active (threshold: ${effectiveValue}). ` +
         "Copilot may not see all 30+ ABAP tools. " +
@@ -97,7 +97,7 @@ export async function disableVirtualToolGrouping(context: vscode.ExtensionContex
       return
     }
 
-    // Show progress while applying changes
+    // 应用更改时显示进度
     await window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
@@ -114,7 +114,7 @@ export async function disableVirtualToolGrouping(context: vscode.ExtensionContex
             await rootConfig.update(FULL_SETTING_ID, 0, vscode.ConfigurationTarget.Workspace)
             log("🔧 Disabled virtual tool grouping at workspace level")
           } catch {
-            // May fail for single-file mode or readonly workspace — global is enough
+            // 单文件模式或只读工作区可能失败 — 全局设置就足够了
           }
         }
 
@@ -123,7 +123,7 @@ export async function disableVirtualToolGrouping(context: vscode.ExtensionContex
           await vscode.commands.executeCommand(RESET_COMMAND)
           log("🔧 Reset virtual tool groups")
         } catch {
-          // Command may not exist in older Copilot versions — that's fine
+          // 旧版 Copilot 中命令可能不存在 — 没关系
         }
 
         progress.report({ message: "Reloading window..." })
@@ -133,7 +133,7 @@ export async function disableVirtualToolGrouping(context: vscode.ExtensionContex
   } catch (error) {
     const msg = String(error)
     if (msg.includes("Canceled")) return
-    // Unexpected error (e.g. settings write failed, reload command unavailable)
+    // 意外错误（例如设置写入失败、重新加载命令不可用）
     log(`⚠️ Could not apply virtual tool grouping fix: ${error}`)
   }
 }
