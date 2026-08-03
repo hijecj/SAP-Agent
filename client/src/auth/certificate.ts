@@ -1,16 +1,16 @@
 /**
- * X.509 Client Certificate Authentication
+ * X.509 客户端证书认证
  *
- * Builds an https.Agent with the user's client certificate + private key.
- * SAP authenticates the user by mapping the certificate to a SAP user
- * (via CERTRULE / STRUST configuration on the SAP side).
+ * 用用户的客户端证书 + 私钥构建 https.Agent。
+ * SAP 通过把证书映射到 SAP 用户来认证用户
+ * （通过 SAP 侧的 CERTRULE / STRUST 配置）。
  *
- * What's stored where:
- *  - certPath, keyPath, caPath → VS Code settings (non-secret paths)
- *  - passphrase → PasswordVault (OS credential store)
+ * 存储位置：
+ *  - certPath、keyPath、caPath → VS Code 设置（非机密路径）
+ *  - passphrase → PasswordVault（操作系统凭据存储）
  *
- * The ADTClient receives a dummy username placeholder; actual auth
- * happens at the TLS layer via the custom httpsAgent.
+ * ADTClient 收到一个虚拟用户名占位符；实际认证
+ * 通过自定义 httpsAgent 在 TLS 层发生。
  */
 
 import * as https from "https"
@@ -21,31 +21,31 @@ import { formatKey } from "../config"
 
 const VAULT_SERVICE = "vscode.abapfs.cert"
 
-/** Store cert passphrase securely. */
+/** 安全存储证书口令。 */
 export async function storeCertPassphrase(connId: string, passphrase: string): Promise<void> {
   const vault = PasswordVault.get()
   await vault.setPassword(VAULT_SERVICE, formatKey(connId), passphrase)
 }
 
-/** Retrieve cert passphrase from secure storage. */
+/** 从安全存储检索证书口令。 */
 export async function getCertPassphrase(connId: string): Promise<string> {
   const vault = PasswordVault.get()
   return (await vault.getPassword(VAULT_SERVICE, formatKey(connId))) || ""
 }
 
-/** Clear cert passphrase from secure storage. */
+/** 从安全存储清除证书口令。 */
 export async function clearCertPassphrase(connId: string): Promise<void> {
   const vault = PasswordVault.get()
   await vault.deletePassword(VAULT_SERVICE, formatKey(connId))
 }
 
 /**
- * Build an AuthResult for certificate authentication.
+ * 为证书认证构建 AuthResult。
  *
- * @param connId      Connection identifier (for vault lookup)
- * @param certConfig  Certificate paths from settings
- * @param skipSsl     Whether to skip server cert validation
- * @param customCA    Optional custom CA cert content or path
+ * @param connId     连接标识符（用于保险库查找）
+ * @param certConfig 来自设置的证书路径
+ * @param skipSsl    是否跳过服务器证书校验
+ * @param customCA   可选的自定义 CA 证书内容或路径
  */
 export async function buildCertAuth(
   connId: string,
@@ -66,7 +66,7 @@ export async function buildCertAuth(
   ) {
     throw new Error(`Client certificate not found or invalid extension: ${certConfig.certPath}`)
   }
-  // keyPath is only required for PEM format, not for PKCS#12 (.p12/.pfx) containers
+  // keyPath 只对 PEM 格式必需，PKCS#12（.p12/.pfx）容器不需要
   if (!isPkcs12) {
     if (
       !certConfig.keyPath ||
@@ -82,10 +82,10 @@ export async function buildCertAuth(
     keepAlive: true
   }
 
-  // .p12/.pfx files are PKCS#12 containers — use `pfx` option, not cert+key
+  // .p12/.pfx 文件是 PKCS#12 容器 — 使用 `pfx` 选项，而不是 cert+key
   if (/\.(p12|pfx)$/i.test(certConfig.certPath)) {
     agentOptions.pfx = readFileSync(certConfig.certPath)
-    // keyPath is not used for PFX containers
+    // keyPath 不用于 PFX 容器
   } else {
     agentOptions.cert = readFileSync(certConfig.certPath)
     agentOptions.key = readFileSync(certConfig.keyPath)
@@ -96,13 +96,13 @@ export async function buildCertAuth(
     agentOptions.passphrase = passphrase
   }
 
-  // CA chain: prefer explicit caPath from cert config, then connection-level customCA
+  // CA 链：优先使用证书配置中的显式 caPath，然后是连接级 customCA
   const caPath = certConfig.caPath || customCA
   if (caPath) {
     if (existsSync(caPath)) {
       agentOptions.ca = readFileSync(caPath)
     } else if (caPath.includes("-----BEGIN CERTIFICATE-----")) {
-      agentOptions.ca = caPath // Already PEM content
+      agentOptions.ca = caPath // 已是 PEM 内容
     } else {
       throw new Error(`CA certificate not found: ${caPath}`)
     }
