@@ -1,6 +1,6 @@
 /**
- * ABAP Transport Management Tool
- * Manage transport requests - view user transports, get details, list objects, compare
+ * ABAP 传输管理工具
+ * 管理传输请求 - 查看用户传输、获取详情、列出对象、比较
  */
 
 import * as vscode from "vscode"
@@ -12,7 +12,7 @@ import { readTransports } from "../../views/transports"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface IManageTransportRequestsParameters {
@@ -28,17 +28,17 @@ export interface IManageTransportRequestsParameters {
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 🚚 MANAGE TRANSPORT REQUESTS TOOL - Direct ADT API access
+ * 🚚 管理传输请求工具 - 直接 ADT API 访问
  *
- * IMPORTANT: Some SAP systems (older versions) may not support
- * direct transport lookup via ADT API. In such cases, the tool may return incorrect transport
- * data. The AI model should ALWAYS verify that the returned transport number matches the
- * requested transport number. If they don't match, inform the user that this feature is not
- * available on their system.
+ * 重要：某些 SAP 系统（旧版本）可能不支持
+ * 通过 ADT API 直接查询传输。这种情况下，工具可能返回不正确的传输
+ * 数据。AI 模型应始终验证返回的传输编号是否与
+ * 请求的传输编号匹配。如果不匹配，告知用户此功能
+ * 在其系统上不可用。
  */
 export class ManageTransportRequestsTool implements vscode.LanguageModelTool<IManageTransportRequestsParameters> {
   async prepareInvocation(
@@ -47,7 +47,7 @@ export class ManageTransportRequestsTool implements vscode.LanguageModelTool<IMa
   ) {
     const { action, connectionId, transportNumber, transportNumbers, user } = options.input
 
-    // Validate required parameters based on action
+    // 按操作校验必填参数
     switch (action) {
       case "get_transport_details":
       case "get_transport_objects":
@@ -452,7 +452,7 @@ export class ManageTransportRequestsTool implements vscode.LanguageModelTool<IMa
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerTransportTool(context: vscode.ExtensionContext): void {
