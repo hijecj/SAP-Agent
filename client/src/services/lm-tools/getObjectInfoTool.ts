@@ -1,6 +1,6 @@
 /**
- * ABAP Get Object Info Tool
- * Retrieve metadata and information about ABAP objects
+ * ABAP 获取对象信息工具
+ * 检索 ABAP 对象的元数据和信息
  */
 
 import * as vscode from "vscode"
@@ -21,7 +21,7 @@ import {
 } from "./shared"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface IGetABAPObjectInfoParameters {
@@ -31,7 +31,7 @@ export interface IGetABAPObjectInfoParameters {
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 export class GetABAPObjectInfoTool implements vscode.LanguageModelTool<IGetABAPObjectInfoParameters> {
@@ -95,10 +95,10 @@ export class GetABAPObjectInfoTool implements vscode.LanguageModelTool<IGetABAPO
 
       const objectInfo = searchResults[0]
 
-      // Get client for DD queries
+      // 获取用于 DD 查询的客户端
       const client = getClient(actualConnectionId)
 
-      // Table/Structure/TableType-aware info
+      // 表/结构/表类型感知信息
       if (
         objectInfo.type === "TABL/TA" ||
         objectInfo.type === "TABL" ||
@@ -128,13 +128,13 @@ export class GetABAPObjectInfoTool implements vscode.LanguageModelTool<IGetABAPO
 
             const structureLines = completeStructure.split("\n")
 
-            // Count append structures from the structure content
+            // 从结构内容统计追加结构
             let appendCount = 0
             const appendMatches = completeStructure.match(/ALL APPEND STRUCTURES \((\d+)\):/)
             if (appendMatches) {
               appendCount = parseInt(appendMatches[1], 10)
             } else {
-              // Fallback: count individual append structure markers
+              // 回退：统计单个追加结构标记
               const individualAppends = (completeStructure.match(/• [A-Z_]+ \(\d+ fields\)/g) || [])
                 .length
               appendCount = individualAppends
@@ -169,12 +169,12 @@ export class GetABAPObjectInfoTool implements vscode.LanguageModelTool<IGetABAPO
               new vscode.LanguageModelTextPart(tableResultText)
             ])
           } catch {
-            // Continue with standard approach
+            // 继续使用标准方法
           }
         }
       }
 
-      // Standard object info
+      // 标准对象信息
       let totalLines = "Unknown"
       let uriUsed = "Not determined"
       let enhancementInfo = ""
@@ -243,7 +243,7 @@ export class GetABAPObjectInfoTool implements vscode.LanguageModelTool<IGetABAPO
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerGetObjectInfoTool(context: vscode.ExtensionContext): void {
