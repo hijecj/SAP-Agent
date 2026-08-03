@@ -1,8 +1,8 @@
 /**
- * 💓 Heartbeat Watchlist
+ * 💓 心跳监控列表
  *
- * Manages the heartbeat.json file - a structured list of monitoring tasks.
- * Both the user (via Copilot chat) and the heartbeat LLM can add/remove tasks.
+ * 管理 heartbeat.json 文件 - 结构化监控任务列表。
+ * 用户（通过 Copilot 聊天）和心跳 LLM 都可以添加/移除任务。
  */
 
 import * as vscode from "vscode"
@@ -11,137 +11,137 @@ import * as path from "path"
 import { log } from "../../lib"
 
 // ============================================================================
-// TYPES
+// 类型
 // ============================================================================
 
 /**
- * A single monitoring task in the watchlist
+ * 监控列表中的单个监控任务
  */
 export interface WatchlistTask {
-  /** Unique task ID (auto-generated) */
+  /** 唯一任务 ID（自动生成） */
   id: string
 
-  /** Human-readable description of what to monitor */
+  /** 要监控内容的可读描述 */
   description: string
 
-  /** Optional: specific condition or query to check */
+  /** 可选：要检查的特定条件或查询 */
   condition?: string
 
-  /** Optional: SAP connection ID for this task */
+  /** 可选：此任务的 SAP 连接 ID */
   connectionId?: string
 
-  /** Is this task currently active? */
+  /** 此任务当前是否激活？ */
   enabled: boolean
 
-  /** When was this task added */
+  /** 此任务何时添加 */
   addedAt: string
 
-  /** When was this task last checked by heartbeat */
+  /** 心跳上次检查此任务的时间 */
   lastCheckedAt?: string
 
-  /** Result of last check (for context in next run) */
+  /** 上次检查结果（为下次运行提供上下文） */
   lastResult?: string
 
-  /** Optional: auto-remove after condition is met */
+  /** 可选：条件满足后自动移除 */
   removeWhenDone?: boolean
 
-  // ========== Smart context from main agent ==========
+  // ========== 来自主代理的智能上下文 ==========
 
-  /** Pre-built SQL query for HB model to execute directly */
+  /** 预构建的 SQL 查询，供心跳模型直接执行 */
   sampleQuery?: string
 
-  /** Step-by-step instructions for HB model to follow */
+  /** 供心跳模型遵循的分步指令 */
   checkInstructions?: string[]
 
-  /** Task priority: high alerts immediately, low can batch */
+  /** 任务优先级：高立即提醒，低可以批量 */
   priority?: "high" | "medium" | "low"
 
-  /** Category for grouping/filtering */
+  /** 用于分组/过滤的类别 */
   category?: "transport" | "dump" | "job" | "idoc" | "performance" | "reminder" | "custom"
 
-  // ========== Scheduling ==========
+  // ========== 调度 ==========
 
-  /** Don't check this task until this ISO timestamp (for "remind me tomorrow at 10am") */
+  /** 在此 ISO 时间戳之前不检查此任务（用于“明天上午 10 点提醒我”） */
   startAt?: string
 
-  /** Is this just a simple reminder? (notify once and auto-remove) */
+  /** 这只是简单提醒吗？（通知一次并自动移除） */
   reminderOnly?: boolean
 
-  /** Who added this task - for context */
+  /** 谁添加了此任务 - 用于上下文 */
   addedBy?: "user" | "agent" | "heartbeat"
 
-  /** Why was this task added - gives HB model context */
+  /** 为什么添加此任务 - 给心跳模型提供上下文 */
   reason?: string
 
-  // ========== Notification tracking ==========
+  // ========== 通知跟踪 ==========
 
-  /** When user was last notified about this task */
+  /** 用户上次被通知此任务的时间 */
   lastNotifiedAt?: string
 
-  /** What was included in last notification (IDs, hashes, counts) */
+  /** 上次通知包含的内容（ID、哈希、计数） */
   lastNotifiedFindings?: string
 
-  /** Minimum count before alerting (e.g., only alert if > 5 errors) */
+  /** 提醒前的最小计数（例如只有错误 > 5 才提醒） */
   alertThreshold?: number
 
-  /** Don't re-notify within this many minutes */
+  /** 此分钟数内不重复通知 */
   cooldownMinutes?: number
 
-  // ========== Task lifecycle ==========
+  // ========== 任务生命周期 ==========
 
-  /** Auto-remove task after this ISO timestamp */
+  /** 在此 ISO 时间戳之后自动移除任务 */
   expiresAt?: string
 
-  /** Maximum number of checks before auto-remove */
+  /** 自动移除前最大检查次数 */
   maxChecks?: number
 
-  /** How many times has this task been checked */
+  /** 此任务已被检查多少次 */
   checkCount?: number
 }
 
 /**
- * The heartbeat.json file structure
+ * heartbeat.json 文件结构
  */
 export interface HeartbeatWatchlistFile {
-  /** Schema version for future migrations */
+  /** 供未来迁移使用的 schema 版本 */
   version: number
 
-  /** Last modified timestamp */
+  /** 最后修改时间戳 */
   lastModified: string
 
-  /** Who last modified (user or heartbeat) */
+  /** 谁最后修改（用户或心跳） */
   lastModifiedBy: "user" | "heartbeat"
 
-  /** The monitoring tasks */
+  /** 监控任务 */
   tasks: WatchlistTask[]
 }
 
 /**
- * Current schema version
+ * 当前 schema 版本
  */
 const WATCHLIST_VERSION = 1
 
 /**
- * Filename for the watchlist
+ * 监控列表的文件名
  */
 const WATCHLIST_FILENAME = "heartbeat.json"
 
 // ============================================================================
-// WATCHLIST MANAGER
+// 监控列表管理器
 // ============================================================================
 
 /**
- * Manages the heartbeat.json watchlist file
+ * 管理 heartbeat.json 监控列表文件
  */
 export class HeartbeatWatchlist {
   /**
-   * Get the path to heartbeat.json (in first file-based workspace folder)
+   * 获取 heartbeat.json 的路径（在第一个基于文件的工作区文件夹中）
    */
   static getFilePath(): string | null {
     const workspaceFolders = vscode.workspace.workspaceFolders
     if (!workspaceFolders) return null
 
-    // Find first file-based workspace folder (not adt://)
+    // 查找第一个基于文件的工作区文件夹（不是 adt://）
     for (const folder of workspaceFolders) {
       if (folder.uri.scheme === "file") {
         return path.join(folder.uri.fsPath, WATCHLIST_FILENAME)
@@ -152,7 +152,7 @@ export class HeartbeatWatchlist {
   }
 
   /**
-   * Read the watchlist file
+   * 读取监控列表文件
    */
   static read(): HeartbeatWatchlistFile | null {
     const filePath = this.getFilePath()
@@ -166,10 +166,10 @@ export class HeartbeatWatchlist {
       const content = fs.readFileSync(filePath, "utf8")
       const data = JSON.parse(content) as HeartbeatWatchlistFile
 
-      // Validate version
+      // 校验版本
       if (data.version !== WATCHLIST_VERSION) {
         log(`💓 Watchlist version mismatch: ${data.version} vs ${WATCHLIST_VERSION}`)
-        // Future: migrate schema if needed
+        // 未来：需要时迁移 schema
       }
 
       return data
@@ -180,20 +180,20 @@ export class HeartbeatWatchlist {
   }
 
   /**
-   * Write the watchlist file
+   * 写入监控列表文件
    */
   static write(data: HeartbeatWatchlistFile, modifiedBy: "user" | "heartbeat" | "agent"): boolean {
     const filePath = this.getFilePath()
     if (!filePath) return false
 
     try {
-      // Ensure directory exists
+      // 确保目录存在
       const dir = path.dirname(filePath)
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true })
       }
 
-      // Update metadata (agent counts as user for file metadata)
+      // 更新元数据（对文件元数据而言，agent 算作用户）
       data.version = WATCHLIST_VERSION
       data.lastModified = new Date().toISOString()
       data.lastModifiedBy = modifiedBy === "agent" ? "user" : modifiedBy
@@ -207,7 +207,7 @@ export class HeartbeatWatchlist {
   }
 
   /**
-   * Get or create the watchlist
+   * 获取或创建监控列表
    */
   static getOrCreate(): HeartbeatWatchlistFile {
     const existing = this.read()
@@ -222,14 +222,14 @@ export class HeartbeatWatchlist {
   }
 
   /**
-   * Generate a unique task ID
+   * 生成唯一任务 ID
    */
   static generateTaskId(): string {
     return `task-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`
   }
 
   /**
-   * Add a new task to the watchlist
+   * 向监控列表添加新任务
    */
   static addTask(
     description: string,
@@ -260,7 +260,7 @@ export class HeartbeatWatchlist {
 
     const watchlist = this.getOrCreate()
 
-    // Check for duplicate description (but allow if it's a reminder - those are unique by time)
+    // 检查重复描述（但提醒除外 - 它们按时间唯一）
     const normalized = description.trim().toLowerCase()
     if (
       !options?.reminderOnly &&
@@ -278,7 +278,7 @@ export class HeartbeatWatchlist {
       addedAt: new Date().toISOString(),
       addedBy: modifiedBy === "heartbeat" ? "heartbeat" : modifiedBy === "agent" ? "agent" : "user",
       removeWhenDone: options?.removeWhenDone,
-      // Smart context fields
+      // 智能上下文字段
       sampleQuery: options?.sampleQuery,
       checkInstructions: options?.checkInstructions,
       priority: options?.priority,
@@ -288,7 +288,7 @@ export class HeartbeatWatchlist {
       expiresAt: options?.expiresAt,
       maxChecks: options?.maxChecks,
       checkCount: 0,
-      // Scheduling
+      // 调度
       startAt: options?.startAt,
       reminderOnly: options?.reminderOnly,
       reason: options?.reason
@@ -304,7 +304,7 @@ export class HeartbeatWatchlist {
   }
 
   /**
-   * Remove a task by ID or description
+   * 按 ID 或描述移除任务
    */
   static removeTask(
     idOrDescription: string,
@@ -334,7 +334,7 @@ export class HeartbeatWatchlist {
   }
 
   /**
-   * Update a task (e.g., record last check result, notification tracking)
+   * 更新任务（例如记录上次检查结果、通知跟踪）
    */
   static updateTask(
     taskId: string,
@@ -363,19 +363,19 @@ export class HeartbeatWatchlist {
       return { success: false, error: `Task not found: ${taskId}` }
     }
 
-    // Apply updates
+    // 应用更新
     if (updates.enabled !== undefined) task.enabled = updates.enabled
     if (updates.lastCheckedAt !== undefined) task.lastCheckedAt = updates.lastCheckedAt
     if (updates.lastResult !== undefined) task.lastResult = updates.lastResult
     if (updates.description !== undefined) task.description = updates.description
     if (updates.condition !== undefined) task.condition = updates.condition
 
-    // Notification tracking
+    // 通知跟踪
     if (updates.lastNotifiedAt !== undefined) task.lastNotifiedAt = updates.lastNotifiedAt
     if (updates.lastNotifiedFindings !== undefined)
       task.lastNotifiedFindings = updates.lastNotifiedFindings
 
-    // Check count (auto-increment on check)
+    // 检查次数（检查时自动递增）
     if (updates.checkCount !== undefined) task.checkCount = updates.checkCount
 
     if (this.write(watchlist, modifiedBy)) {
@@ -386,7 +386,7 @@ export class HeartbeatWatchlist {
   }
 
   /**
-   * Get all enabled tasks
+   * 获取所有已启用的任务
    */
   static getEnabledTasks(): WatchlistTask[] {
     const watchlist = this.read()
@@ -395,7 +395,7 @@ export class HeartbeatWatchlist {
   }
 
   /**
-   * Get all tasks (for listing)
+   * 获取所有任务（用于列出）
    */
   static getAllTasks(): WatchlistTask[] {
     const watchlist = this.read()
@@ -404,26 +404,26 @@ export class HeartbeatWatchlist {
   }
 
   /**
-   * Get tasks that are due for checking (filters out future-scheduled tasks)
+   * 获取到期需要检查的任务（过滤掉未来调度的任务）
    */
   static getDueTasks(): WatchlistTask[] {
     const tasks = this.getEnabledTasks()
     const now = new Date()
 
     return tasks.filter(task => {
-      // Check if task has a startAt and it's in the future
+      // 检查任务是否有 startAt 且在未来
       if (task.startAt) {
         const startTime = new Date(task.startAt)
         if (now < startTime) {
-          return false // Not due yet
+          return false // 尚未到期
         }
       }
 
-      // Check if task has expired
+      // 检查任务是否已过期
       if (task.expiresAt) {
         const expireTime = new Date(task.expiresAt)
         if (now > expireTime) {
-          return false // Expired
+          return false // 已过期
         }
       }
 
@@ -432,7 +432,7 @@ export class HeartbeatWatchlist {
   }
 
   /**
-   * Get tasks scheduled for the future (for display purposes)
+   * 获取调度到未来的任务（用于显示）
    */
   static getScheduledTasks(): WatchlistTask[] {
     const tasks = this.getEnabledTasks()
@@ -448,7 +448,7 @@ export class HeartbeatWatchlist {
   }
 
   /**
-   * Format tasks as a prompt section for the LLM
+   * 把任务格式化为供 LLM 使用的提示部分
    */
   static formatForPrompt(): string {
     const dueTasks = this.getDueTasks()
@@ -467,7 +467,7 @@ export class HeartbeatWatchlist {
     for (const task of dueTasks) {
       lines.push(`### ${task.id}`)
 
-      // Show if it's a reminder vs monitoring task
+      // 显示它是提醒还是监控任务
       if (task.reminderOnly) {
         lines.push(`🔔 **REMINDER:** ${task.description}`)
         lines.push(`**Action:** Notify the user with this message, then REMOVE this task.`)
@@ -495,7 +495,7 @@ export class HeartbeatWatchlist {
         lines.push(`**Condition:** ${task.condition}`)
       }
 
-      // Smart context from main agent
+      // 来自主代理的智能上下文
       if (task.sampleQuery) {
         lines.push(`**SQL Query to Execute:**`)
         lines.push("```sql")
@@ -509,7 +509,7 @@ export class HeartbeatWatchlist {
         })
       }
 
-      // Thresholds and cooldowns
+      // 阈值和冷却时间
       if (task.alertThreshold !== undefined) {
         lines.push(`**Alert Threshold:** Only alert if count > ${task.alertThreshold}`)
       }
@@ -523,7 +523,7 @@ export class HeartbeatWatchlist {
         }
       }
 
-      // Previous findings for comparison
+      // 供比较的先前发现
       if (task.lastCheckedAt) {
         lines.push(`**Last Checked:** ${task.lastCheckedAt}`)
       }
