@@ -1,6 +1,6 @@
 /**
- * ABAP Get Workspace URI Tool
- * Get workspace URI for direct file access to ABAP objects
+ * ABAP 获取工作区 URI 工具
+ * 获取用于直接文件访问 ABAP 对象的工作区 URI
  */
 
 import * as vscode from "vscode"
@@ -10,7 +10,7 @@ import { getClient, getOrCreateRoot } from "../../adt/conections"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface IGetAbapObjectWorkspaceUriParameters {
@@ -20,11 +20,11 @@ export interface IGetAbapObjectWorkspaceUriParameters {
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 🔗 GET ABAP OBJECT WORKSPACE URI TOOL - Get workspace URI for direct file access
+ * 🔗 获取 ABAP 对象工作区 URI 工具 - 获取用于直接文件访问的工作区 URI
  */
 export class GetAbapObjectWorkspaceUriTool implements vscode.LanguageModelTool<IGetAbapObjectWorkspaceUriParameters> {
   async prepareInvocation(
@@ -107,7 +107,7 @@ export class GetAbapObjectWorkspaceUriTool implements vscode.LanguageModelTool<I
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerGetWorkspaceUriTool(context: vscode.ExtensionContext): void {
