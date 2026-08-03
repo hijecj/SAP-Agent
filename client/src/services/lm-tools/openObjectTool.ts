@@ -1,6 +1,6 @@
 /**
- * ABAP Open Object Tool
- * Open ABAP objects in the VS Code editor
+ * ABAP 打开对象工具
+ * 在 VS Code 编辑器中打开 ABAP 对象
  */
 
 import * as vscode from "vscode"
@@ -11,7 +11,7 @@ import { logTelemetry } from "../telemetry"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface IOpenObjectParameters {
@@ -21,11 +21,11 @@ export interface IOpenObjectParameters {
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 📂 OPEN OBJECT TOOL
+ * 📂 打开对象工具
  */
 export class OpenObjectTool implements vscode.LanguageModelTool<IOpenObjectParameters> {
   async prepareInvocation(
@@ -93,7 +93,7 @@ export class OpenObjectTool implements vscode.LanguageModelTool<IOpenObjectParam
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerOpenObjectTool(context: vscode.ExtensionContext): void {
