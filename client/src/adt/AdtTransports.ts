@@ -27,7 +27,7 @@ async function selectOrCreate(
   client: ADTClient,
   transportLayer = ""
 ) {
-  // select/create
+  // 选择/创建
   const CREATENEW = "Create a new transport"
   const selection = await window.showQuickPick(
     [
@@ -59,15 +59,15 @@ export async function selectTransport(
   transportLayer = ""
 ): Promise<TransportSelection> {
   const ti = await client.transportInfo(objContentPath, devClass, forCreation ? "I" : "")
-  // if I have a lock return the locking transport
-  // will probably be a task but should be fine
+  // 如果我有锁，返回锁定传输
+  // 可能是任务，但应该没问题
 
   if (ti.LOCKS) return trSel(ti.LOCKS.HEADER.TRKORR)
 
-  // if one of the proposals matches the requested, return that
+  // 如果某个提议与请求的匹配，返回它
   const curtr = current && ti.TRANSPORTS.find(t => t.TRKORR === current)
   if (curtr) return trSel(curtr.TRKORR)
-  // if local, return an empty value
+  // 如果是本地的，返回空值
   if (ti.DLVUNIT === "LOCAL") return trSel("")
 
   let selection = await selectOrCreate(ti, objContentPath, client, transportLayer)
@@ -77,8 +77,8 @@ export async function selectTransport(
 }
 
 /**
- * Error thrown by pickTransportProgrammatically when the caller-supplied
- * transport request is invalid or conflicts with the target object's state.
+ * 当调用方提供的传输请求无效或与目标对象状态冲突时，
+ * pickTransportProgrammatically 抛出的错误。
  */
 export class TransportPickerError extends Error {
   constructor(message: string) {
@@ -94,9 +94,9 @@ export interface ProgrammaticTransportRequest {
 }
 
 /**
- * Callback that resolves a transport request for a new object without any UI.
- * Used by {@link AdtObjectCreator.createObject} to let programmatic callers
- * inject their own picker (e.g. one backed by {@link pickTransportProgrammatically}).
+ * 无任何 UI 的情况下为新对象解析传输请求的回调。
+ * {@link AdtObjectCreator.createObject} 用它让编程式调用方
+ * 注入自己的选择器（例如由 {@link pickTransportProgrammatically} 支持的选择器）。
  */
 export type TransportPicker = (
   objContentPath: string,
@@ -105,10 +105,10 @@ export type TransportPicker = (
 ) => Promise<TransportSelection>
 
 /**
- * Non-interactive transport picker for programmatic (MCP/agent) object creation.
- * Honors the caller's explicit choice; never opens a UI dialog.
- * Throws {@link TransportPickerError} with a descriptive message on validation
- * failure so headless callers get a clear error instead of a silent override.
+ * 供编程式（MCP/代理）对象创建使用的非交互式传输选择器。
+ * 尊重调用方的显式选择；绝不打开 UI 对话框。
+ * 校验失败时抛出带描述性消息的 {@link TransportPickerError}，
+ * 让无头调用方得到清晰错误而不是静默覆盖。
  */
 export async function pickTransportProgrammatically(
   client: ADTClient,
@@ -240,7 +240,7 @@ const transportStatus = (uri: Uri): TransportDetail => {
     if (status.IS_LOCAL) return { status: TransportStatus.LOCAL }
     return { status: TransportStatus.REQUIRED, transport: status.CORRNR || "" }
   }
-  return { status: TransportStatus.UNKNOWN } // TODO different status?
+  return { status: TransportStatus.UNKNOWN } // TODO 不同的状态？
 }
 
 export const selectTransportIfNeeded = async (uri: Uri) => {
