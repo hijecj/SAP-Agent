@@ -1,28 +1,28 @@
 /**
- * Fun Messenger - Runtime message enhancement
+ * 趣味信使 - 运行时消息增强
  *
- * Automatically makes messages more fun without changing every call site
+ * 自动让消息更有趣，无需更改每个调用点
  */
 
 import * as vscode from "vscode"
 
 // ============================================================================
-// MESSAGE PATTERNS & DETECTION
+// 消息模式与检测
 // ============================================================================
 
 const PATTERNS = {
-  // Success patterns from actual messages (177 messages analyzed)
+  // 来自实际消息的成功模式（分析了 177 条消息）
   success:
     /(?:✅|successfully|success|saved|completed|refreshed|added|updated|deleted|loaded|activated|connected|disconnected|cleared|exported|generated|passed|done|ready|clean|already clean)/i,
 
-  // Error patterns from actual messages
+  // 来自实际消息的错误模式
   error:
     /(?:❌|⚠️|failed|fail|failure|error|exception|cannot|unable|could not|not found|invalid|no active|no adt|no abap|no connection|only works|ABAP file|missing|denied|errors during)/i,
 
-  // Warning patterns
+  // 警告模式
   warning: /(?:⚠️|warning|caution|note|attention|please|multiple|already exists|already running)/i,
 
-  // Operation-specific patterns
+  // 操作专属模式
   activation: /activat(?:e|ed|ing)/i,
   connection: /connect(?:ed|ing|ion)?|disconnect/i,
   saved: /sav(?:e|ed|ing)/i,
@@ -180,19 +180,19 @@ const FUN_PREFIXES = {
 }
 
 // ============================================================================
-// MESSAGE TYPE DETECTION
+// 消息类型检测
 // ============================================================================
 
 function detectMessageType(message: string): string {
   const msg = message.toLowerCase()
 
-  // Check more specific patterns first (order matters!)
-  // Check success/error/warning FIRST before operation-specific patterns
+  // 先检查更具体的模式（顺序很重要！）
+  // 先检查成功/错误/警告，再检查操作专属模式
   if (PATTERNS.success.test(msg)) return "success"
   if (PATTERNS.error.test(msg)) return "error"
   if (PATTERNS.warning.test(msg)) return "warning"
 
-  // Then check operation-specific patterns
+  // 然后检查操作专属模式
   if (PATTERNS.activation.test(msg)) return "activation"
   if (PATTERNS.test.test(msg)) return "test"
   if (PATTERNS.search.test(msg)) return "search"
@@ -210,11 +210,11 @@ function getRandom<T>(array: T[]): T {
 }
 
 // ============================================================================
-// MESSAGE ENHANCEMENT
+// 消息增强
 // ============================================================================
 
 /**
- * Check if professional notifications mode is enabled
+ * 检查是否启用了专业通知模式
  */
 function isProfessionalMode(): boolean {
   const config = vscode.workspace.getConfiguration("abapfs.copilot")
@@ -222,14 +222,14 @@ function isProfessionalMode(): boolean {
 }
 
 function enhanceMessage(message: string, type: "info" | "error" | "warning"): string {
-  // Skip enhancement if professional mode is enabled
+  // 启用专业模式时跳过增强
   if (isProfessionalMode()) {
     return message
   }
 
   const msgType = detectMessageType(message)
 
-  // Add fun prefix based on detected type
+  // 按检测到的类型添加趣味前缀
   const prefixMap: Record<string, string[]> = {
     success: FUN_PREFIXES.success,
     activation: FUN_PREFIXES.activation,
@@ -244,10 +244,10 @@ function enhanceMessage(message: string, type: "info" | "error" | "warning"): st
     warning: FUN_PREFIXES.warning
   }
 
-  // Try to get prefixes for detected message type first
+  // 先尝试获取检测到的消息类型的前缀
   let prefixes = prefixMap[msgType]
 
-  // If no specific type detected, fall back to the type parameter
+  // 未检测到特定类型时，回退到类型参数
   if (!prefixes || prefixes.length === 0) {
     prefixes = prefixMap[type] || []
   }
@@ -260,7 +260,7 @@ function enhanceMessage(message: string, type: "info" | "error" | "warning"): st
 }
 
 // ============================================================================
-// WRAPPED WINDOW FUNCTIONS
+// 包装的窗口函数
 // ============================================================================
 
 export const funWindow = {
@@ -284,7 +284,7 @@ export const funWindow = {
     return vscode.window.setStatusBarMessage(enhanced, hideAfterTimeout as any)
   },
 
-  // Enhanced withProgress that adds fun messages to progress titles
+  // 增强的 withProgress，向进度标题添加趣味消息
   withProgress: <R>(
     options: vscode.ProgressOptions,
     task: (
@@ -299,7 +299,7 @@ export const funWindow = {
     return vscode.window.withProgress(enhancedOptions, task)
   },
 
-  // Pass-through for comprehensive window API (using getters for dynamic properties)
+  // 全面窗口 API 的直通（使用 getter 处理动态属性）
   createOutputChannel: vscode.window.createOutputChannel,
   showQuickPick: vscode.window.showQuickPick,
   showInputBox: vscode.window.showInputBox,
