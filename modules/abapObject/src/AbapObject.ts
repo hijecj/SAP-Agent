@@ -18,57 +18,57 @@ const objectTag = Symbol("abapObject")
 
 export interface AbapObject {
   readonly [objectTag]: true
-  /** unique object ID, usually type and name */
+  /** 唯一对象 ID，通常是类型和名称 */
   readonly key: string
-  /** as defined in ADT, i.e. PROG/P for programs */
+  /** 按 ADT 定义，例如程序是 PROG/P */
   readonly type: string
-  /** the raw object name */
+  /** 原始对象名 */
   readonly name: string
-  /** Object technical name, i.e. main, testclasses,... */
+  /** 对象技术名，例如 main、testclasses…… */
   readonly techName: string
-  /** object path in ADT, used to retrieve metadata or source */
+  /** ADT 中的对象路径，用于检索元数据或源码 */
   readonly path: string
-  /** the path for read and write operations */
+  /** 读写操作的路径 */
   contentsPath(): string
-  /** true if the object has children, i.e. class */
+  /** 对象是否有子对象，例如类，为 true */
   readonly expandable: boolean
-  /** Object structure i.e. activation flag, last change data,... */
+  /** 对象结构，例如激活标志、最后更改数据…… */
   readonly structure?: AbapObjectStructure
-  /** sanitized name usable in a filesystem. i.e. replace / with some other character */
+  /** 可用于文件系统的清理后名称。例如把 / 替换为其他字符 */
   readonly fsName: string
-  /** the object to lock when editing. i.e. the function group of a function */
+  /** 编辑时要锁定的对象。例如函数所属的函数组 */
   readonly lockObject: AbapObject
-  /** user who created the object. Only available after loading the metadata */
+  /** 创建对象的用户。只在加载元数据后可用 */
   readonly createdBy: string
-  /** time of creation. Only available after loading the metadata */
+  /** 创建时间。只在加载元数据后可用 */
   readonly createdAt: Date | undefined
-  /** user who last changed the object. Only available after loading the metadata */
+  /** 最后更改对象的用户。只在加载元数据后可用 */
   readonly changedBy: string
-  /** time of last change. Only available after loading the metadata */
+  /** 最后更改时间。只在加载元数据后可用 */
   readonly changedAt: Date | undefined
-  /** reads the main objects available for this object */
+  /** 读取此对象可用的主对象 */
   mainPrograms: () => Promise<MainInclude[]>
   readonly parent: AbapObject | undefined
-  /** whether we are able to write it */
+  /** 我们是否能够写入它 */
   readonly canBeWritten: boolean
-  /** objcect namespace
-   *  i.e. for /UI5/IF_ADT_REP_MODEL is /UI5/
+  /** 对象命名空间
+   *  例如 /UI5/IF_ADT_REP_MODEL 的是 /UI5/
    */
   readonly nameSpace: string
-  /** object base name
-   *   i.e. for /UI5/IF_ADT_REP_MODEL is IF_ADT_REP_MODEL
+  /** 对象基础名
+   *  例如 /UI5/IF_ADT_REP_MODEL 的是 IF_ADT_REP_MODEL
    */
   readonly baseName: string
-  /** used to open the object in SAPGUI */
+  /** 用于在 SAPGUI 中打开对象 */
   readonly sapGuiUri: string
-  /** supported or only sapgui */
+  /** 受支持或仅 sapgui */
   readonly supported: boolean
   readonly gui_objects: "yes" | "no" | "better"
   readonly owner?: string
   readonly modtime: number
   readonly version: ObjectVersion | undefined
 
-  /** loads/updates the object metadata */
+  /** 加载/更新对象元数据 */
   loadStructure: (refresh?: boolean, version?: ObjectVersion) => Promise<AbapObjectStructure>
   delete: (lockId: string, transport: string) => Promise<void>
   write: (contents: string, lockId: string, transport: string) => Promise<void>
