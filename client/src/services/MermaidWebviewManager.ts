@@ -1,8 +1,8 @@
 /**
- * Mermaid Webview Manager - Headless Local Rendering Engine
+ * Mermaid Webview 管理器 - 无头本地渲染引擎
  *
- * This class creates invisible webview panels that act as secure, local
- * rendering engines for Mermaid diagrams. No external dependencies or CDNs.
+ * 此类创建不可见的 Webview 面板，作为 Mermaid 图表的安全本地
+ * 渲染引擎。无外部依赖或 CDN。
  */
 
 import * as vscode from "vscode"
@@ -59,15 +59,15 @@ export class MermaidWebviewManager {
   }
 
   /**
-   * Creates a new webview panel on-demand for a single operation.
-   * This is the core of the "create-on-demand, dispose-after-use" pattern.
+   * 按需为单个操作创建新的 Webview 面板。
+   * 这是“按需创建、用后销毁”模式的核心。
    */
   private async createOneTimeWebview(): Promise<vscode.WebviewPanel> {
-    // Create webview panel that should be truly invisible
+    // 创建真正不可见的 Webview 面板
     const panel = window.createWebviewPanel(
       "mermaidRenderer",
       "Mermaid Renderer",
-      // Use Active column but don't reveal it
+      // 使用 Active 列但不显示它
       vscode.ViewColumn.Active,
       {
         enableScripts: true,
@@ -76,28 +76,28 @@ export class MermaidWebviewManager {
           vscode.Uri.joinPath(this.extensionUri, "dist", "media"),
           vscode.Uri.joinPath(this.extensionUri, "client", "dist", "media")
         ]
-        // Remove retainContextWhenHidden since we dispose immediately
+        // 移除 retainContextWhenHidden，因为我们立即销毁
       }
     )
 
-    // Set the HTML and wait for the ready signal.
+    // 设置 HTML 并等待就绪信号。
     panel.webview.html = this.getWebviewContent(panel.webview)
 
-    // The waitForReady promise is now tied to this specific panel instance.
+    // waitForReady Promise 现在绑定到这个特定面板实例。
     await this.waitForReady(panel)
 
     return panel
   }
 
   private getWebviewContent(webview: vscode.Webview): string {
-    // Get the local path to mermaid library
+    // 获取 mermaid 库的本地路径
     const mermaidUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this.extensionUri, "client", "dist", "media", "mermaid.min.js")
     )
 
-    // Log the extension URI and mermaid URI for debugging
+    // 记录扩展 URI 和 mermaid URI 用于调试
 
-    // Nonce for Content Security Policy
+    // 用于内容安全策略的 nonce
     const nonce = Date.now().toString()
 
     return `<!DOCTYPE html>
@@ -121,7 +121,7 @@ export class MermaidWebviewManager {
             width: 100%; 
             height: auto; 
         }
-        /* Minimal text improvements without interfering with Mermaid */
+        /* 不干扰 Mermaid 的最小文本改进 */
         svg text {
             font-family: Arial, sans-serif;
             font-size: 12px;
@@ -134,9 +134,9 @@ export class MermaidWebviewManager {
     <script nonce="${nonce}">
         const vscode = acquireVsCodeApi();
         
-        // Wait for mermaid to load with proper error handling
+        // 等待 mermaid 加载，带正确的错误处理
         let attempts = 0;
-        const maxAttempts = 50; // 5 seconds total
+        const maxAttempts = 50; // 总共 5 秒
         
         function waitForMermaid() {
             attempts++;
@@ -169,10 +169,10 @@ export class MermaidWebviewManager {
 
                 vscode.postMessage({ type: 'log', message: 'Mermaid initialized, sending ready signal' });
                 
-                // Signal that we're ready
+                // 发出就绪信号
                 vscode.postMessage({ type: 'ready' });
 
-                // Handle messages from extension
+                // 处理来自扩展的消息
                 window.addEventListener('message', async (event) => {
                     vscode.postMessage({ type: 'log', message: 'Received message: ' + event.data.type });
                     
@@ -205,7 +205,7 @@ export class MermaidWebviewManager {
                     }
                 });
                 
-                // Handler functions
+                // 处理函数
                 async function handleRender(id, code, theme) {
                     try {
                         const element = document.getElementById('diagram');
@@ -233,7 +233,7 @@ export class MermaidWebviewManager {
                 
                 async function handleValidate(id, code) {
                     try {
-                        // Try to parse the diagram
+                        // 尝试解析图表
                         await mermaid.parse(code);
                         
                         vscode.postMessage({
@@ -258,7 +258,7 @@ export class MermaidWebviewManager {
                 
                 async function handleDetectType(id, code) {
                     try {
-                        // Use mermaid's getDiagramFromText function for proper type detection
+                        // 使用 mermaid 的 getDiagramFromText 函数进行正确的类型检测
                         const diagramType = mermaid.detectType ? mermaid.detectType(code) : 'unknown';
                         
                         vscode.postMessage({
@@ -279,7 +279,7 @@ export class MermaidWebviewManager {
             }
         }
         
-        // Start the initialization process
+        // 启动初始化过程
         waitForMermaid();
     </script>
 </body>
@@ -289,16 +289,16 @@ export class MermaidWebviewManager {
   private handleWebviewMessage(message: any, panelId: string): void {
     const { type, id, result, error } = message
 
-    // Handle log messages from webview
+    // 处理来自 Webview 的日志消息
     if (type === "log") {
       return
     }
 
-    // Use a composite key to handle multiple panels if ever needed, though we dispose immediately.
+    // 使用复合键处理多个面板（如果需要），尽管我们立即销毁。
     const operationKey = `${panelId}-${id}`
     const initKey = `ready-${panelId}`
 
-    // Handle initialization-specific messages
+    // 处理初始化专属消息
     if (type === "ready" || (type === "error" && id === "initialization-error")) {
       const initPromise = this.pendingOperations.get(initKey)
       if (initPromise) {
@@ -335,31 +335,31 @@ export class MermaidWebviewManager {
     const panelId = Date.now().toString() // Simple unique ID for this panel's lifetime
     const readyKey = `ready-${panelId}`
 
-    // Attach a temporary message listener
+    // 附加临时消息监听器
     const listener = panel.webview.onDidReceiveMessage(message => {
       //logCommands.info(`🧜‍♀️ Received message from webview: ${JSON.stringify(message)}`);
 
-      // Handle log messages
+      // 处理日志消息
       if (message.type === "log") {
         this.handleWebviewMessage(message, panelId)
         return
       }
 
-      // We only care about the ready/error signal for this specific panel
+      // 我们只关心此特定面板的就绪/错误信号
       if (message.type === "ready" && this.pendingOperations.has(readyKey)) {
         this.handleWebviewMessage({ ...message, id: "ready" }, panelId)
-        listener.dispose() // Clean up listener
+        listener.dispose() // 清理监听器
       } else if (
         message.type === "error" &&
         message.id === "initialization-error" &&
         this.pendingOperations.has(readyKey)
       ) {
         this.handleWebviewMessage(message, panelId)
-        listener.dispose() // Clean up listener
+        listener.dispose() // 清理监听器
       }
     })
 
-    // The promise is now for this specific panel
+    // Promise 现在针对此特定面板
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         this.pendingOperations.delete(readyKey)
@@ -389,20 +389,20 @@ export class MermaidWebviewManager {
     let panel: vscode.WebviewPanel | undefined
     try {
       panel = await this.createOneTimeWebview()
-      const panelId = Date.now().toString() // Simple unique ID
-      const operationKey = `${panelId}-${panelId}` // Use same ID for simplicity
+      const panelId = Date.now().toString() // 简单唯一 ID
+      const operationKey = `${panelId}-${panelId}` // 为简单起见使用相同 ID
 
-      // Re-wire the message handler for this specific panel instance
+      // 为此特定面板实例重新连接消息处理程序
       const listener = panel.webview.onDidReceiveMessage(message => {
         ////logCommands.info(`🧜‍♀️ Operation message: ${JSON.stringify(message)}`);
 
-        // Handle log messages
+        // 处理日志消息
         if (message.type === "log") {
           this.handleWebviewMessage(message, panelId)
           return
         }
 
-        // Handle result and error messages
+        // 处理结果和错误消息
         if (message.type === "result" || message.type === "error") {
           this.handleWebviewMessage(message, panelId)
         }
@@ -423,14 +423,14 @@ export class MermaidWebviewManager {
         panel!.webview.postMessage({ type, id: panelId, data })
       })
 
-      // Cleanup listener on dispose
+      // 销毁时清理监听器
       panel.onDidDispose(() => {
         listener.dispose()
       })
 
       return await promise
     } finally {
-      // CRITICAL: Always dispose of the panel after the operation.
+      // 关键：操作后始终销毁面板。
       if (panel) {
         panel.dispose()
       }
@@ -440,7 +440,7 @@ export class MermaidWebviewManager {
   public async renderDiagram(code: string, theme: string = "dark"): Promise<MermaidRenderResult> {
     const result = await this.executeOperation<MermaidRenderResult>("render", { code, theme })
 
-    // If successful, display in diagram viewer instead of saving immediately
+    // 成功时在图表查看器中显示，而不是立即保存
     if (result.success && result.svg) {
       try {
         const diagramManager = DiagramWebviewManager.getInstance()
@@ -452,7 +452,7 @@ export class MermaidWebviewManager {
         // logCommands.info('✅ Diagram displayed in webview successfully');
       } catch (error) {
         logCommands.error("Failed to display diagram in webview:", error)
-        // Continue with the original result even if webview display fails
+        // 即使 Webview 显示失败，也继续使用原始结果
       }
     }
 
@@ -468,6 +468,6 @@ export class MermaidWebviewManager {
   }
 
   public dispose(): void {
-    // No-op, as panels are now disposed immediately after use.
+    // 空操作，因为面板现在使用后立即销毁。
   }
 }
