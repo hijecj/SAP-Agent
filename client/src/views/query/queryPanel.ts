@@ -4,7 +4,7 @@ import { ADTClient } from "abap-adt-api"
 import { log } from "../../lib"
 
 /**
- * SQL Security Validator
+ * SQL 安全校验器
  */
 class SQLValidator {
   static validate(sql: string): void {
@@ -14,7 +14,7 @@ class SQLValidator {
 
     const upperSQL = sql.toUpperCase().trim()
 
-    // Block dangerous SQL operations
+    // 阻止危险 SQL 操作
     const dangerousPatterns = [
       /\bDROP\s+/i,
       /\bDELETE\s+(?!.*\bFROM\s+@)/i,
@@ -23,9 +23,9 @@ class SQLValidator {
       /\bALTER\s+/i,
       /\bCREATE\s+/i,
       /\bTRUNCATE\s+/i,
-      /;\s*(?!$)/i, // Multiple statements
-      /--/i, // SQL comments
-      /\/\*/i // Block comments
+      /;\s*(?!$)/i, // 多条语句
+      /--/i, // SQL 注释
+      /\/\*/i // 块注释
     ]
 
     for (const pattern of dangerousPatterns) {
@@ -34,18 +34,18 @@ class SQLValidator {
       }
     }
 
-    // Ensure it's a SELECT or WITH statement
+    // 确保是 SELECT 或 WITH 语句
     if (!upperSQL.startsWith("SELECT") && !upperSQL.startsWith("WITH")) {
       throw new Error("Only SELECT and WITH statements are allowed")
     }
   }
 }
 /**
- * Manages cat coding webview panels
+ * 管理 cat coding Webview 面板
  */
 export class QueryPanel {
   /**
-   * Track the currently panel. Only allow a single panel to exist at a time.
+   * 跟踪当前面板。一次只允许存在一个面板。
    */
   public static readonly viewType = "ABAPQuery"
 
@@ -59,9 +59,9 @@ export class QueryPanel {
   public static createOrShow(extensionUri: vscode.Uri, client: ADTClient, table: string) {
     const column = window.activeTextEditor ? window.activeTextEditor.viewColumn : undefined
 
-    // Allow multiple panels; don't reuse a singleton
+    // 允许多个面板；不复用单例
 
-    // Otherwise, create a new panel.
+    // 否则，创建新面板。
     const panel = window.createWebviewPanel(
       QueryPanel.viewType,
       "Query",
@@ -82,14 +82,14 @@ export class QueryPanel {
     this._client = client
     this._extensionUri = extensionUri
     this._table = table
-    // Set the webview's initial html content
+    // 设置 Webview 的初始 HTML 内容
     this._update()
 
-    // Listen for when the panel is disposed
-    // This happens when the user closes the panel or when the panel is closed programatically
+    // 监听面板销毁
+    // 这发生在用户关闭面板或面板被程序化关闭时
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables)
 
-    // Update the content based on view changes
+    // 按视图变化更新内容
     this._panel.onDidChangeViewState(
       e => {
         if (this._panel.visible) {
@@ -100,13 +100,13 @@ export class QueryPanel {
       this._disposables
     )
 
-    // Handle messages from the webview
+    // 处理来自 Webview 的消息
     this._panel.webview.onDidReceiveMessage(
       async message => {
         try {
           switch (message.command) {
             case "execute": {
-              // legacy free-SQL
+              // 旧版自由 SQL
               const resp = await client.runQuery(message.query, message.rowCount)
               this.showResult(JSON.stringify(resp))
               return
@@ -120,7 +120,7 @@ export class QueryPanel {
               const typeVariants = (t: string) => {
                 switch (t) {
                   case "TABL":
-                    return ["TABL/DT"] // tables only, exclude structures/TA
+                    return ["TABL/DT"] // 只返回表，排除结构/TA
                   case "VIEW":
                     return ["VIEW", "VIEW/V"]
                   case "DDLS":
@@ -136,7 +136,7 @@ export class QueryPanel {
                     const part = await client.searchObject(term, vt, cap)
                     for (const r of part) {
                       const type = r["adtcore:type"]
-                      // Only allow the exact types we requested, not just anything starting with the prefix
+                      // 只允许我们请求的精确类型，而不是任何以该前缀开头的内容
                       if (variants.includes(type)) {
                         all.push({
                           name: r["adtcore:name"],
@@ -147,10 +147,10 @@ export class QueryPanel {
                     }
                   }
                 } catch (e) {
-                  // ignore per-type errors and continue
+                  // 忽略按类型的错误并继续
                 }
               }
-              // de-duplicate by name+type
+              // 按名称+类型去重
               const uniq = new Map<string, any>()
               for (const it of all) uniq.set(`${it.name}|${it.type}`, it)
               this._panel.webview.postMessage({
@@ -202,7 +202,7 @@ export class QueryPanel {
                       .join(", ")
                   : "*"
               const sql = `select ${list} from ${entity.name}${sanitized ? " where " + sanitized : ""}`
-              // URL-encode % characters in LIKE queries for ADT compatibility
+              // 为 ADT 兼容性对 LIKE 查询中的 % 字符进行 URL 编码
               // const encodedSql = sql.replace(/%/g, '%25')
               const resp = await client.runQuery(sql, limit + 1, true)
               const hasMore = (resp.values?.length || 0) > limit
@@ -223,7 +223,7 @@ export class QueryPanel {
             case "runSQL": {
               const { sql, top } = message
 
-              // Validate SQL for security
+              // 为安全校验 SQL
               try {
                 SQLValidator.validate(sql)
               } catch (error) {
@@ -235,7 +235,7 @@ export class QueryPanel {
               }
 
               const limit = typeof top === "number" && top > 0 ? top : 200
-              // URL-encode % characters in LIKE queries for ADT compatibility
+              // 为 ADT 兼容性对 LIKE 查询中的 % 字符进行 URL 编码
               //  const encodedSql = sql.replace(/%/g, '%25')
               const resp = await client.runQuery(sql, limit + 1, true)
               const hasMore = (resp.values?.length || 0) > limit
@@ -250,7 +250,7 @@ export class QueryPanel {
               const { mode, entity, where, sql, nextTop, columns } = message
               const limit = typeof nextTop === "number" && nextTop > 0 ? nextTop : 500
 
-              // Validate SQL if in SQL mode
+              // SQL 模式下校验 SQL
               if (mode === "sql") {
                 try {
                   SQLValidator.validate(sql)
@@ -318,25 +318,25 @@ export class QueryPanel {
   }
 
   public showResult(data: string) {
-    // Send a message to the webview webview.
-    // You can send any JSON serializable data.
+    // 向 Webview 发送消息。
+    // 你可以发送任何可 JSON 序列化的数据。
     this._panel.webview.postMessage({ command: "result", data: data })
   }
 
   public showError(errorMsg: string) {
-    // Send a message to the webview webview.
-    // You can send any JSON serializable data.
+    // 向 Webview 发送消息。
+    // 你可以发送任何可 JSON 序列化的数据。
     try {
       this._panel.webview.postMessage({ command: "error", data: errorMsg })
     } catch (disposalError) {
-      // If webview is disposed, log the original error and show it as a VS Code notification
+      // 如果 Webview 已销毁，记录原始错误并以 VS Code 通知显示
       log(`[QUERY_PANEL] Cannot show error in webview (disposed): ${errorMsg}`)
       window.showErrorMessage(`SQL Error: ${errorMsg}`)
     }
   }
 
   public dispose() {
-    // Clean up our resources
+    // 清理我们的资源
     this._panel.dispose()
 
     while (this._disposables.length) {
@@ -350,13 +350,13 @@ export class QueryPanel {
   private _update() {
     const webview = this._panel.webview
 
-    // Vary the webview's content based on where it is located in the editor.
+    // 根据 Webview 在编辑器中的位置变化其内容。
     this._panel.title = "Data Browser"
     this._panel.webview.html = this._getHtmlForWebview(webview, this._table)
   }
 
   private _getHtmlForWebview(webview: vscode.Webview, tableName: string) {
-    // Local path to main script run in the webview
+    // 在 Webview 中运行的主脚本的本地路径
     const scriptPathOnDisk = vscode.Uri.joinPath(
       this._extensionUri,
       "client",
@@ -365,10 +365,10 @@ export class QueryPanel {
       "query.js"
     )
 
-    // And the uri we use to load this script in the webview
+    // 以及我们在 Webview 中加载此脚本所用的 URI
     const scriptUri = webview.asWebviewUri(scriptPathOnDisk)
 
-    // Local path to css styles
+    // CSS 样式的本地路径
     //const styleResetPath = vscode.Uri.joinPath(this._extensionUri, 'client/media', 'reset.css');
     const stylesPathMainPath = vscode.Uri.joinPath(
       this._extensionUri,
@@ -378,7 +378,7 @@ export class QueryPanel {
       "editor.css"
     )
 
-    // Local path to Tabulator files - using a lighter theme
+    // Tabulator 文件的本地路径 - 使用较轻的主题
     const tabulatorCssPath = vscode.Uri.joinPath(
       this._extensionUri,
       "client",
@@ -394,13 +394,13 @@ export class QueryPanel {
       "tabulator.min.js"
     )
 
-    // Uri to load styles and scripts into webview
+    // 把样式和脚本加载到 Webview 的 URI
     //const stylesResetUri = webview.asWebviewUri(styleResetPath);
     const stylesMainUri = webview.asWebviewUri(stylesPathMainPath)
     const tabulatorCssUri = webview.asWebviewUri(tabulatorCssPath)
     const tabulatorJsUri = webview.asWebviewUri(tabulatorJsPath)
 
-    // CSP to allow local extension resources
+    // 允许本地扩展资源的 CSP
     const cspSource = webview.cspSource
 
     return `<!DOCTYPE html>
@@ -481,9 +481,9 @@ export class QueryPanel {
   }
 }
 
-// Simple JSON persistence for Show preferences in a separate file
+// 在单独文件中为 Show 偏好做简单 JSON 持久化
 async function prefsFileUri(): Promise<vscode.Uri> {
-  // Prefer local user profile for cross-workspace safety; only use workspace folder if it's a real file workspace
+  // 优先使用本地用户配置以确保跨工作区安全；只在真实文件工作区时使用工作区文件夹
   const folders = vscode.workspace.workspaceFolders
   if (folders && folders.length) {
     const root = folders[0].uri
@@ -495,7 +495,7 @@ async function prefsFileUri(): Promise<vscode.Uri> {
       return vscode.Uri.joinPath(dir, "abap-data-browser.json")
     }
   }
-  // fallback to user profile
+  // 回退到用户配置
   const home = process.env.HOME || process.env.USERPROFILE || ""
   const base = vscode.Uri.file(home)
   const dir = vscode.Uri.joinPath(base, ".abap-data-browser")
@@ -528,11 +528,11 @@ function getWebviewOptions(
   extensionUri: vscode.Uri
 ): vscode.WebviewOptions & vscode.WebviewPanelOptions {
   return {
-    // Enable javascript in the webview
+    // 在 Webview 中启用 JavaScript
     enableScripts: true,
     retainContextWhenHidden: true,
 
-    // And restrict the webview to only loading content from our extension's `media` directory.
+    // 并把 Webview 限制为只从我们扩展的 `media` 目录加载内容。
     localResourceRoots: [
       vscode.Uri.joinPath(extensionUri, "client", "dist", "media"),
       vscode.Uri.joinPath(extensionUri, "client", "media")
