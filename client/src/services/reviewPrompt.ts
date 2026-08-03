@@ -1,19 +1,19 @@
 /**
- * Review Prompt Service
+ * 评分提示服务
  *
- * Prompts engaged users to rate the extension on the VS Code Marketplace.
+ * 提示活跃用户在 VS Code Marketplace 上为扩展评分。
  *
- * Conditions (both must be true):
- *   1. The user has invoked at least 100 tool/command actions (tracked via global state counter).
- *   2. At least 7 days have passed since the extension was first activated.
+ * 条件（两者都必须满足）：
+ *   1. 用户已调用至少 100 次工具/命令操作（通过全局状态计数器跟踪）。
+ *   2. 自扩展首次激活以来至少已过 7 天。
  *
- * Once both conditions are met, a 5-minute delay fires, then:
- *   - A notification with three buttons:
- *       "⭐ Rate Now"       → opens Marketplace review page
- *       "Remind Me Later"  → resets counter & date so the cycle restarts
- *       "Never Show Again" → permanently suppresses the prompt
- *   - A persistent status bar item linking to the Marketplace page
- *     (dismissed permanently once the user clicks it).
+ * 两个条件都满足后，延迟 5 分钟触发，然后：
+ *   - 带三个按钮的通知：
+ *       "⭐ 立即评分"       → 打开 Marketplace 评分页面
+ *       "稍后提醒"  → 重置计数器和日期，让循环重新开始
+ *       "不再显示" → 永久抑制提示
+ *   - 链接到 Marketplace 页面的持久状态栏项
+ *     （用户点击后永久关闭）。
  */
 
 import * as vscode from "vscode"
@@ -21,20 +21,20 @@ import * as vscode from "vscode"
 const MARKETPLACE_URL =
   "https://marketplace.visualstudio.com/items?itemName=murbani.vscode-abap-remote-fs&ssr=false#review-details"
 
-// ─── Global State Keys ───────────────────────────────────────────────────────
+// ─── 全局状态键 ───────────────────────────────────────────────────────
 
 const STATE_USAGE_COUNT = "abapfs.reviewPrompt.usageCount"
 const STATE_FIRST_ACTIVATION_DATE = "abapfs.reviewPrompt.firstActivationDate"
 const STATE_NEVER_SHOW_AGAIN = "abapfs.reviewPrompt.neverShowAgain"
 const STATE_STATUSBAR_DISMISSED = "abapfs.reviewPrompt.statusBarDismissed"
 
-// ─── Thresholds ──────────────────────────────────────────────────────────────
+// ─── 阈值 ──────────────────────────────────────────────────────────────
 
 const USAGE_THRESHOLD = 100
 const DAYS_THRESHOLD = 7
-const PROMPT_DELAY_MS = 5 * 60 * 1000 // 5 minutes
+const PROMPT_DELAY_MS = 5 * 60 * 1000 // 5 分钟
 
-// ─── Module state ────────────────────────────────────────────────────────────
+// ─── 模块状态 ────────────────────────────────────────────────────────────
 
 let extensionContext: vscode.ExtensionContext | undefined
 let promptTimer: ReturnType<typeof setTimeout> | undefined
@@ -42,23 +42,23 @@ let promptShownThisSession = false
 let statusBarCreated = false
 let reviewStatusBarItem: vscode.StatusBarItem | undefined
 
-// ─── Public API ──────────────────────────────────────────────────────────────
+// ─── 公共 API ──────────────────────────────────────────────────────────────
 
 /**
- * Call once during extension activation to record first-use date and
- * schedule the review prompt check.
+ * 在扩展激活期间调用一次，记录首次使用日期并
+ * 安排评分提示检查。
  */
 export function initializeReviewPrompt(context: vscode.ExtensionContext): void {
   try {
     extensionContext = context
 
-    // Record first activation date (only if not already stored)
+    // 记录首次激活日期（只在尚未存储时）
     const storedDate = context.globalState.get<string>(STATE_FIRST_ACTIVATION_DATE)
     if (!storedDate) {
       context.globalState.update(STATE_FIRST_ACTIVATION_DATE, new Date().toISOString())
     }
 
-    // Clean up timer on deactivation
+    // 停用时清理定时器
     context.subscriptions.push(
       new vscode.Disposable(() => {
         if (promptTimer) {
@@ -68,16 +68,16 @@ export function initializeReviewPrompt(context: vscode.ExtensionContext): void {
       })
     )
 
-    // Check conditions right away (handles case where counter already passed threshold in previous session)
+    // 立即检查条件（处理计数在上次会话已超过阈值的情况）
     evaluateAndSchedule()
   } catch (error) {
-    // Review prompt is non-critical — never break extension activation
+    // 评分提示非关键 — 绝不让它中断扩展激活
     console.error("Review prompt initialization failed:", error)
   }
 }
 
 /**
- * Call for review-eligible command/tool usage to bump the counter.
+ * 对符合条件的命令/工具使用调用，递增计数器。
  */
 export function incrementReviewCounter(): void {
   try {
@@ -86,39 +86,39 @@ export function incrementReviewCounter(): void {
     const count = extensionContext.globalState.get<number>(STATE_USAGE_COUNT) ?? 0
     extensionContext.globalState.update(STATE_USAGE_COUNT, count + 1)
 
-    // Re-evaluate every 10 invocations to avoid checking on every single call
+    // 每 10 次调用重新评估，避免每次调用都检查
     if ((count + 1) % 10 === 0) {
       evaluateAndSchedule()
     }
   } catch (error) {
-    // Review prompt is non-critical — never break telemetry
+    // 评分提示非关键 — 绝不让它中断遥测
     console.error("Review prompt counter increment failed:", error)
   }
 }
 
-// ─── Internal helpers ────────────────────────────────────────────────────────
+// ─── 内部辅助 ────────────────────────────────────────────────────────
 
 function evaluateAndSchedule(): void {
   if (!extensionContext) return
 
-  // Permanently dismissed?
+  // 已永久关闭？
   if (extensionContext.globalState.get<boolean>(STATE_NEVER_SHOW_AGAIN)) return
 
-  // Already shown this session — don't nag again
+  // 本次会话已显示 — 不再打扰
   if (promptShownThisSession) return
 
-  // Condition 1: usage count
+  // 条件 1：使用计数
   const count = extensionContext.globalState.get<number>(STATE_USAGE_COUNT) ?? 0
   if (count < USAGE_THRESHOLD) return
 
-  // Condition 2: days since first activation
+  // 条件 2：自首次激活以来的天数
   const firstDate = extensionContext.globalState.get<string>(STATE_FIRST_ACTIVATION_DATE)
   if (!firstDate) return
 
   const daysSinceFirst = (Date.now() - new Date(firstDate).getTime()) / (1000 * 60 * 60 * 24)
   if (daysSinceFirst < DAYS_THRESHOLD) return
 
-  // Both conditions met — schedule prompt after delay (avoid duplicate timers)
+  // 两个条件都满足 — 延迟后安排提示（避免重复定时器）
   if (promptTimer) return
   promptTimer = setTimeout(() => {
     promptTimer = undefined
@@ -132,7 +132,7 @@ function showReviewPrompt(): void {
   promptShownThisSession = true
   const ctx = extensionContext
 
-  // ── Notification ───────────────────────────────────────────────────────────
+  // ── 通知 ───────────────────────────────────────────────────────────
   vscode.window
     .showInformationMessage(
       "You've been using ABAP Remote FS for a while now — thank you! " +
@@ -152,13 +152,13 @@ function showReviewPrompt(): void {
         ctx.globalState.update(STATE_STATUSBAR_DISMISSED, true)
         disposeReviewStatusBar()
       } else {
-        // "Remind Me Later" or dismissed (X) — reset tracking so the cycle restarts
+        // “稍后提醒”或关闭（X）— 重置跟踪，让循环重新开始
         ctx.globalState.update(STATE_USAGE_COUNT, undefined)
         ctx.globalState.update(STATE_FIRST_ACTIVATION_DATE, undefined)
       }
     })
 
-  // ── Status bar item (persistent until clicked) ─────────────────────────────
+  // ── 状态栏项（点击前持久显示）─────────────────────────────
   if (!statusBarCreated && !ctx.globalState.get<boolean>(STATE_STATUSBAR_DISMISSED)) {
     statusBarCreated = true
     showReviewStatusBar(ctx)
