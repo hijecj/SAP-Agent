@@ -1,6 +1,6 @@
 /**
- * Compare ABAP object with same object in another SAP system
- * Right-click context menu: "ABAP FS: Compare With Other System"
+ * 把 ABAP 对象与另一个 SAP 系统中的同一对象比较
+ * 右键菜单："ABAP FS: Compare With Other System"
  */
 
 import * as vscode from "vscode"
@@ -10,12 +10,12 @@ import { connectedRoots, formatKey } from "../config"
 import { logTelemetry } from "../services/telemetry"
 
 /**
- * Compare current ABAP object with same object in another connected system
+ * 把当前 ABAP 对象与另一个已连接系统中的同一对象比较
  */
 export async function compareWithOtherSystem(uri?: vscode.Uri): Promise<void> {
   logTelemetry("command_compare_with_system_called")
   try {
-    // Get the source URI (from context menu or active editor)
+    // 获取源 URI（来自右键菜单或活动编辑器）
     let sourceUri: vscode.Uri | undefined = uri
 
     if (!sourceUri) {
@@ -32,7 +32,7 @@ export async function compareWithOtherSystem(uri?: vscode.Uri): Promise<void> {
 
     const currentSystem = formatKey(sourceUri.authority)
 
-    // Get all connected systems except the current one
+    // 获取除当前系统外的所有已连接系统
     const roots = connectedRoots()
 
     if (roots.size <= 1) {
@@ -40,7 +40,7 @@ export async function compareWithOtherSystem(uri?: vscode.Uri): Promise<void> {
       return
     }
 
-    // Filter to only show systems that are different from current
+    // 只显示与当前不同的系统
     const otherSystems: vscode.QuickPickItem[] = []
 
     for (const [systemId, folder] of roots.entries()) {
@@ -59,37 +59,37 @@ export async function compareWithOtherSystem(uri?: vscode.Uri): Promise<void> {
       return
     }
 
-    // Show quick pick to select target system
+    // 显示快速选择以选择目标系统
     const selected = await window.showQuickPick(otherSystems, {
       placeHolder: `Compare with which system? (current: ${currentSystem.toUpperCase()})`,
       title: "ABAP FS: Compare With Other System"
     })
 
     if (!selected) {
-      return // User cancelled
+      return // 用户已取消
     }
 
     const targetSystem = formatKey(selected.description || selected.label)
 
-    // Build the target URI - same path, different authority
+    // 构建目标 URI - 相同路径，不同权威
     const targetUri = sourceUri.with({ authority: targetSystem })
     const sourcePath = sourceUri.path
 
-    // Extract object name for the diff title
+    // 提取对象名用于 diff 标题
     const pathParts = sourceUri.path.split("/")
     const fileName = pathParts[pathParts.length - 1] || "Unknown"
     const objectName = fileName.replace(/\.(prog|clas|fugr|intf|ddls)\.abap$/, "")
     const diffTitle = `${objectName}: ${currentSystem.toUpperCase()} ↔ ${targetSystem.toUpperCase()}`
 
-    // Newer systems: "Source Code Library", Older systems: "Source Library"
+    // 新版系统："Source Code Library"，旧版系统："Source Library"
 
-    // First, check if target file exists by trying to read it
+    // 首先，尝试读取目标文件以检查它是否存在
     let finalTargetUri = targetUri
     try {
       await vscode.workspace.fs.stat(targetUri)
-      // File exists, use it
+      // 文件存在，使用它
     } catch {
-      // File doesn't exist, try alternate path
+      // 文件不存在，尝试备用路径
       if (sourcePath.includes("/Source Code Library/") || sourcePath.includes("/Source Library/")) {
         const alternatePath = sourcePath.includes("/Source Code Library/")
           ? sourcePath.replace("/Source Code Library/", "/Source Library/")
@@ -99,7 +99,7 @@ export async function compareWithOtherSystem(uri?: vscode.Uri): Promise<void> {
 
         try {
           await vscode.workspace.fs.stat(alternateUri)
-          // Alternate exists, use it
+          // 备用路径存在，使用它
           finalTargetUri = alternateUri
         } catch {
           throw new Error(
@@ -111,12 +111,12 @@ export async function compareWithOtherSystem(uri?: vscode.Uri): Promise<void> {
       }
     }
 
-    // Now open the diff with the correct URI
+    // 现在用正确的 URI 打开 diff
     await vscode.commands.executeCommand(
       "vscode.diff",
-      sourceUri, // Left side (current system)
-      finalTargetUri, // Right side (target system)
-      diffTitle // Title for the diff editor
+      sourceUri, // 左侧（当前系统）
+      finalTargetUri, // 右侧（目标系统）
+      diffTitle // diff 编辑器的标题
     )
   } catch (error) {
     window.showErrorMessage(`Failed to compare: ${error}`)
@@ -124,7 +124,7 @@ export async function compareWithOtherSystem(uri?: vscode.Uri): Promise<void> {
 }
 
 /**
- * Register the compare command
+ * 注册比较命令
  */
 export function registerCompareWithSystemCommand(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
