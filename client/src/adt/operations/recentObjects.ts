@@ -1,9 +1,9 @@
 import { context } from "../../extension"
 
 /**
- * Canonical shape for persisted recent objects.
- * Both the popup (AdtObjectFinder) and sidebar (objectSearchView)
- * read/write this same shape so items look identical everywhere.
+ * 持久化最近对象的规范形状。
+ * 弹窗（AdtObjectFinder）和侧边栏（objectSearchView）
+ * 都读写此相同形状，让项目在任何地方看起来一致。
  */
 export interface RecentObject {
   uri: string
