@@ -1,14 +1,14 @@
 /**
- * ADT Discovery Tool
+ * ADT 发现工具
  *
- * Dumps the full ADT discovery tree (workspaces, collections, template links)
- * and RES_APP class list into markdown files in the workspace.
+ * 把完整 ADT 发现树（工作区、集合、模板链接）
+ * 和 RES_APP 类列表转储为工作区中的 markdown 文件。
  *
- * AI uses these files + other ABAP tools + the adt-api-discovery skill
- * to trace handler classes, read transformations, and parse request/response schemas.
+ * AI 使用这些文件 + 其他 ABAP 工具 + adt-api-discovery 技能包
+ * 来追踪处理程序类、读取转换并解析请求/响应模式。
  *
- * The tool is deliberately "dumb" — no constant resolution, no source parsing,
- * no title matching. Just deterministic API calls and structured output.
+ * 此工具刻意保持“简单” — 不做常量解析、不解析源码、
+ * 不匹配标题。只做确定性的 API 调用和结构化输出。
  */
 
 import * as vscode from "vscode"
@@ -17,7 +17,7 @@ import { logTelemetry } from "../telemetry"
 import { getClient } from "../../adt/conections"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
-// ── Interfaces (mirror abap-adt-api types) ──────────────────────
+// ── 接口（镜像 abap-adt-api 类型）─────────────────────
 
 interface TemplateLink {
   rel: string
@@ -42,13 +42,13 @@ interface CoreDiscoveryWorkspace {
   collection: { href: string; title: string; category: string }
 }
 
-// ── Parameters ──────────────────────────────────────────────────
+// ── 参数 ──────────────────────────────────────────────────
 
 export interface IAdtDiscoveryParameters {
   connectionId: string
 }
 
-// ── Tool ────────────────────────────────────────────────────────
+// ── 工具 ────────────────────────────────────────────────────────
 
 export class AdtDiscoveryTool implements vscode.LanguageModelTool<IAdtDiscoveryParameters> {
   async prepareInvocation(
@@ -76,13 +76,13 @@ export class AdtDiscoveryTool implements vscode.LanguageModelTool<IAdtDiscoveryP
 
     const client = getClient(connId.toLowerCase())
 
-    // ── 1. Call discovery endpoints in parallel ─────────────────
+    // ── 1. 并行调用发现端点 ─────────────────
     const [discovery, coreDiscovery] = await Promise.all([
       client.adtDiscovery() as Promise<DiscoveryWorkspace[]>,
       client.adtCoreDiscovery() as Promise<CoreDiscoveryWorkspace[]>
     ])
 
-    // ── 2. Query SEOMETAREL for all RES_APP classes ─────────────
+    // ── 2. 查询 SEOMETAREL 获取所有 RES_APP 类 ─────────────
     let resAppClasses: { name: string; description: string }[] = []
     try {
       const sql1 =
@@ -113,15 +113,15 @@ export class AdtDiscoveryTool implements vscode.LanguageModelTool<IAdtDiscoveryP
         }
       }
     } catch {
-      // non-fatal — we still have discovery data
+      // 非致命 — 我们仍有发现数据
     }
 
-    // ── 3. Generate markdown content ────────────────────────────
+    // ── 3. 生成 markdown 内容 ────────────────────────────
     const now = new Date()
     const timestamp = now.toISOString().replace(/[:T]/g, "-").replace(/\..+/, "")
     const folderName = `adt-discovery_${connId}_${timestamp}`
 
-    // Compute stats
+    // 计算统计
     let totalCollections = 0
     let totalTemplateLinks = 0
     for (const ws of discovery) {
@@ -143,7 +143,7 @@ export class AdtDiscoveryTool implements vscode.LanguageModelTool<IAdtDiscoveryP
     const coreDiscoveryMd = buildCoreDiscoveryMd(coreDiscovery)
     const resAppMd = buildResAppClassesMd(resAppClasses)
 
-    // ── 4. Write files to workspace ─────────────────────────────
+    // ── 4. 把文件写入工作区 ─────────────────────────────
     const workspaceFolder = getFirstNonAdtFolder()
     if (!workspaceFolder) {
       throw new Error(
@@ -187,7 +187,7 @@ export class AdtDiscoveryTool implements vscode.LanguageModelTool<IAdtDiscoveryP
   }
 }
 
-// ── Markdown generators ─────────────────────────────────────────
+// ── Markdown 生成器 ─────────────────────────────────────────
 
 function buildIndexMd(
   connId: string,
@@ -337,7 +337,7 @@ function buildResAppClassesMd(classes: { name: string; description: string }[]):
   return lines.join("\n")
 }
 
-// ── Helpers ─────────────────────────────────────────────────────
+// ── 辅助 ─────────────────────────────────────────────────────
 
 function getFirstNonAdtFolder(): vscode.Uri | undefined {
   const folders = vscode.workspace.workspaceFolders
@@ -348,7 +348,7 @@ function getFirstNonAdtFolder(): vscode.Uri | undefined {
   return folders[0].uri
 }
 
-// ── Registration ────────────────────────────────────────────────
+// ── 注册 ────────────────────────────────────────────────
 
 export function registerAdtDiscoveryTool(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
