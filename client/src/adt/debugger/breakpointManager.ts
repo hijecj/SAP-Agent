@@ -99,11 +99,11 @@ export class BreakpointManager {
     }
     const objuri = node.object.contentsPath()
 
-    // For includes, we need to use VIT URI format with main program + include
-    // SAP expects object_name as: <MAIN_PROGRAM padded 40 chars><INCLUDE padded 40 chars>
-    // object_type is wbobjtype: objtype_tr (4 chars) + subtype_wb (3 chars) = 7 chars total
-    // For includes: objtype_tr = 'PROG', subtype_wb = 'I  ' (swbm_c_type_prg_include)
-    // So object_type = 'PROGI  ' (7 chars)
+    // 对 include，我们需要使用带主程序 + include 的 VIT URI 格式
+    // SAP 期望 object_name 为：<主程序补齐 40 字符><INCLUDE 补齐 40 字符>
+    // object_type 是 wbobjtype：objtype_tr（4 字符）+ subtype_wb（3 字符）= 共 7 字符
+    // 对 include：objtype_tr = 'PROG'，subtype_wb = 'I  '（swbm_c_type_prg_include）
+    // 所以 object_type = 'PROGI  '（7 字符）
     let bpUri = objuri
     let isInclude = false
     try {
@@ -114,10 +114,10 @@ export class BreakpointManager {
         const mainProgName = mainProg["adtcore:name"].toUpperCase().padEnd(40, " ")
         const includeName = node.object.name.toUpperCase().padEnd(40, " ")
         const combinedName = `${mainProgName}${includeName}`
-        // VIT URI format: /sap/bc/adt/vit/wb/object_type/<type>/object_name/<combined>
-        // Type = 'PROGI  ' (4 chars objtype_tr + 3 chars subtype_wb)
-        // SAP uses: url_escape(type) CASE = LOWER, url_escape(name)
-        const objectType = "PROGI  " // PROG + I + 2 spaces = 7 chars
+        // VIT URI 格式：/sap/bc/adt/vit/wb/object_type/<type>/object_name/<combined>
+        // 类型 = 'PROGI  '（4 字符 objtype_tr + 3 字符 subtype_wb）
+        // SAP 使用：url_escape(type) CASE = LOWER、url_escape(name)
+        const objectType = "PROGI  " // PROG + I + 2 空格 = 7 字符
         const escapedType = encodeURIComponent(objectType).toLowerCase()
         const escapedName = encodeURIComponent(combinedName)
         bpUri = `/sap/bc/adt/vit/wb/object_type/${escapedType}/object_name/${escapedName}`
