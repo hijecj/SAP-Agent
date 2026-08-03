@@ -2,13 +2,13 @@ import { getClient } from "../adt/conections"
 import { RemoteManager } from "../config"
 
 /**
- * SAP System Information Service
- * Retrieves comprehensive system information from SAP tables
- * Includes caching to avoid repeated queries to SAP
+ * SAP 系统信息服务
+ * 从 SAP 表检索全面的系统信息
+ * 包含缓存以避免重复查询 SAP
  */
 
 // ============================================================================
-// INTERFACES
+// 接口
 // ============================================================================
 
 export interface SAPClientInfo {
@@ -29,11 +29,11 @@ export interface SAPSoftwareComponent {
 }
 
 export interface SAPTimezoneInfo {
-  timezone: string // e.g., "CAT"
-  description: string // e.g., "Central Africa"
-  utcOffset: string // e.g., "UTC+2"
-  dstRule: string // e.g., "NONE" or DST rule name
-  rawOffset: string // e.g., "P0200" (raw from SAP)
+  timezone: string // 例如 "CAT"
+  description: string // 例如 "Central Africa"
+  utcOffset: string // 例如 "UTC+2"
+  dstRule: string // 例如 "NONE" 或 DST 规则名
+  rawOffset: string // 例如 "P0200"（SAP 原始值）
 }
 
 export interface SAPSystemInfo {
@@ -46,7 +46,7 @@ export interface SAPSystemInfo {
 }
 
 // ============================================================================
-// CACHE MANAGEMENT
+// 缓存管理
 // ============================================================================
 
 interface CachedSystemInfo {
@@ -54,36 +54,36 @@ interface CachedSystemInfo {
   timestamp: number
 }
 
-// Cache store: "baseUrl|client" -> cached data
-// Using URL + client as key because connectionId is just a user label that can change
+// 缓存存储："baseUrl|client" -> 缓存数据
+// 用 URL + client 作为键，因为 connectionId 只是用户标签，可能会变
 const systemInfoCache = new Map<string, CachedSystemInfo>()
 
-// Default TTL: 24 hours in milliseconds
+// 默认 TTL：24 小时（毫秒）
 const DEFAULT_CACHE_TTL_MS = 24 * 60 * 60 * 1000
 
 /**
- * Generate cache key from URL and client
+ * 从 URL 和 client 生成缓存键
  */
 function getCacheKey(url: string, client: string): string {
-  // Normalize URL: lowercase, remove trailing slash
+  // 规范化 URL：转小写、移除尾部斜杠
   const normalizedUrl = url.toLowerCase().replace(/\/$/, "")
   return `${normalizedUrl}|${client}`
 }
 
 /**
- * Clear the system info cache
- * Called on extension deactivation to free memory
+ * 清除系统信息缓存
+ * 在扩展停用时调用以释放内存
  */
 export function clearSystemInfoCache(): void {
   systemInfoCache.clear()
 }
 
 // ============================================================================
-// HELPER FUNCTIONS
+// 辅助函数
 // ============================================================================
 
 /**
- * Get client category description
+ * 获取 client 类别描述
  */
 function getClientCategoryDescription(category: string): string {
   const categories: Record<string, string> = {
@@ -99,7 +99,7 @@ function getClientCategoryDescription(category: string): string {
 }
 
 /**
- * Get change protection description
+ * 获取更改保护描述
  */
 function getChangeProtectionDescription(indicator: string): string {
   const protections: Record<string, string> = {
@@ -112,9 +112,9 @@ function getChangeProtectionDescription(indicator: string): string {
 }
 
 /**
- * Detect SAP system type based on software components
- * S/4HANA has S4CORE or S4COREOP components
- * ECC has SAP_APPL component but no S4CORE
+ * 基于软件组件检测 SAP 系统类型
+ * S/4HANA 有 S4CORE 或 S4COREOP 组件
+ * ECC 有 SAP_APPL 组件但没有 S4CORE
  */
 function detectSystemType(components: SAPSoftwareComponent[]): SAPSystemType {
   const hasS4Core = components.some(c => c.component === "S4CORE" || c.component === "S4COREOP")
@@ -123,7 +123,7 @@ function detectSystemType(components: SAPSoftwareComponent[]): SAPSystemType {
     return "S/4HANA"
   }
 
-  // Check for ECC indicators
+  // 检查 ECC 指示器
   const hasSapAppl = components.some(c => c.component === "SAP_APPL")
   const hasSapBasis = components.some(c => c.component === "SAP_BASIS")
 
@@ -135,24 +135,24 @@ function detectSystemType(components: SAPSoftwareComponent[]): SAPSystemType {
 }
 
 // ============================================================================
-// MAIN FUNCTION
+// 主函数
 // ============================================================================
 
 /**
- * Get comprehensive SAP system information (with caching)
- * Cache TTL is 4 hours. Use clearSystemInfoCache() to force refresh.
- * @param connectionId - The SAP connection ID (e.g., 'dev100')
- * @param includeComponents - Whether to include full software component list (default: false)
- * @returns SAPSystemInfo object with system details
+ * 获取全面的 SAP 系统信息（带缓存）
+ * 缓存 TTL 为 24 小时。使用 clearSystemInfoCache() 强制刷新。
+ * @param connectionId - SAP 连接 ID（例如 'dev100'）
+ * @param includeComponents - 是否包含完整软件组件列表（默认：false）
+ * @returns 带系统详情的 SAPSystemInfo 对象
  */
 export async function getSAPSystemInfo(
   connectionId: string,
   includeComponents: boolean = false
 ): Promise<SAPSystemInfo> {
-  // Import dependencies
-  // static imports used instead
+  // 导入依赖
+  // 改用静态导入
 
-  // Get client and config
+  // 获取客户端和配置
   const client = getClient(connectionId)
   if (!client) {
     throw new Error(`No client found for connection: ${connectionId}`)
@@ -166,13 +166,13 @@ export async function getSAPSystemInfo(
   const url = connectionConfig.url || ""
   const currentClientNumber = connectionConfig.client || ""
 
-  // Check cache first
+  // 先检查缓存
   const cacheKey = getCacheKey(url, currentClientNumber)
   const now = Date.now()
 
   const cached = systemInfoCache.get(cacheKey)
   if (cached && now - cached.timestamp < DEFAULT_CACHE_TTL_MS) {
-    // Return cached data, filtering components based on request
+    // 返回缓存数据，按请求过滤组件
     const cachedResult = { ...cached.data }
     if (!includeComponents) {
       cachedResult.softwareComponents = []
@@ -180,7 +180,7 @@ export async function getSAPSystemInfo(
     return cachedResult
   }
 
-  // Fetch fresh data from SAP
+  // 从 SAP 获取新数据
   const result: SAPSystemInfo = {
     sapRelease: "",
     systemType: "Unknown",
@@ -190,9 +190,9 @@ export async function getSAPSystemInfo(
     queryTimestamp: new Date().toISOString()
   }
 
-  // Query T000 - Client Information (only current client)
+  // 查询 T000 - Client 信息（仅当前 client）
   try {
-    // Pad client number to 3 digits with leading zeros
+    // 用前导零把 client 编号补齐为 3 位
     const paddedClient = currentClientNumber.padStart(3, "0")
     const t000Sql = `SELECT MANDT, MTEXT, CCCATEGORY, LOGSYS, CCNOCLIIND FROM T000 WHERE MANDT = '${paddedClient}'`
     const t000Result = await client.runQuery(t000Sql, 1, true)
@@ -216,7 +216,7 @@ export async function getSAPSystemInfo(
     console.warn("Failed to query T000:", error)
   }
 
-  // Query CVERS - Software Component Versions
+  // 查询 CVERS - 软件组件版本
   try {
     const cversSql = `SELECT COMPONENT, RELEASE, EXTRELEASE, COMP_TYPE FROM CVERS`
     const cversResult = await client.runQuery(cversSql, 500, true)
@@ -229,17 +229,17 @@ export async function getSAPSystemInfo(
         componentType: row.COMP_TYPE || ""
       }))
 
-      // Always detect system type based on software components
+      // 始终基于软件组件检测系统类型
       result.systemType = detectSystemType(allComponents)
 
-      // Always store full component list (for caching)
+      // 始终存储完整组件列表（用于缓存）
       result.softwareComponents = allComponents
     }
   } catch (error) {
     console.warn("Failed to query CVERS:", error)
   }
 
-  // Query SVERS - SAP Release
+  // 查询 SVERS - SAP 版本
   try {
     const sversSql = `SELECT VERSION FROM SVERS`
     const sversResult = await client.runQuery(sversSql, 10, true)
@@ -256,9 +256,9 @@ export async function getSAPSystemInfo(
     console.warn("Failed to query SVERS:", error)
   }
 
-  // Query Timezone - TTZCU (system timezone) + TTZZ (timezone details) + TTZZT (descriptions)
+  // 查询时区 - TTZCU（系统时区）+ TTZZ（时区详情）+ TTZZT（描述）
   try {
-    // Get system timezone from TTZCU
+    // 从 TTZCU 获取系统时区
     const ttzSql = `SELECT cu~TZONESYS, z~ZONERULE, z~DSTRULE, t~DESCRIPT
       FROM ttzcu AS cu 
       INNER JOIN ttzz AS z ON cu~TZONESYS = z~TZONE
@@ -275,7 +275,7 @@ export async function getSAPSystemInfo(
       const row = ttzResult.values[0]
       const rawOffset = row.ZONERULE || ""
 
-      // Parse offset (e.g., "P0200" -> "UTC+2", "M0500" -> "UTC-5")
+      // 解析偏移（例如 "P0200" -> "UTC+2"、"M0500" -> "UTC-5"）
       let utcOffset = rawOffset
       if (rawOffset.startsWith("P") || rawOffset.startsWith("M")) {
         const sign = rawOffset.startsWith("P") ? "+" : "-"
@@ -296,13 +296,13 @@ export async function getSAPSystemInfo(
     console.warn("Failed to query timezone:", error)
   }
 
-  // Store in cache (always with full data)
+  // 存入缓存（始终带完整数据）
   systemInfoCache.set(cacheKey, {
     data: result,
     timestamp: now
   })
 
-  // Return with or without components based on request
+  // 按请求返回带或不带组件的
   if (!includeComponents) {
     return { ...result, softwareComponents: [] }
   }
@@ -311,7 +311,7 @@ export async function getSAPSystemInfo(
 }
 
 /**
- * Format SAP System Info as readable text for LLM consumption
+ * 把 SAP 系统信息格式化为供 LLM 使用的可读文本
  */
 export function formatSAPSystemInfoAsText(info: SAPSystemInfo): string {
   let output = ""
@@ -321,14 +321,14 @@ export function formatSAPSystemInfoAsText(info: SAPSystemInfo): string {
   output += `Query Timestamp: ${info.queryTimestamp}\n`
   output += `System Type: ${info.systemType}\n\n`
 
-  // SAP Release
+  // SAP 版本
   if (info.sapRelease) {
     output += `🔖 SAP RELEASE\n`
     output += `${"-".repeat(40)}\n`
     output += `Version: ${info.sapRelease}\n\n`
   }
 
-  // Current Client
+  // 当前 client
   if (info.currentClient) {
     output += `🏢 CURRENT CLIENT (from T000)\n`
     output += `${"-".repeat(40)}\n`
@@ -341,7 +341,7 @@ export function formatSAPSystemInfoAsText(info: SAPSystemInfo): string {
     output += `🏢 CURRENT CLIENT: No client information available\n\n`
   }
 
-  // Timezone Information
+  // 时区信息
   if (info.timezone) {
     output += `🌍 SYSTEM TIMEZONE\n`
     output += `${"-".repeat(40)}\n`
@@ -351,19 +351,19 @@ export function formatSAPSystemInfoAsText(info: SAPSystemInfo): string {
     output += "\n"
   }
 
-  // Software Components (only shown if included)
+  // 软件组件（仅在包含时显示）
   if (info.softwareComponents.length > 0) {
     output += `📦 SOFTWARE COMPONENTS (from CVERS)\n`
     output += `${"-".repeat(40)}\n`
     output += `Total Components: ${info.softwareComponents.length}\n\n`
 
-    // Group by component type if available
+    // 可用时按组件类型分组
     const sapBasis = info.softwareComponents.find(c => c.component === "SAP_BASIS")
     if (sapBasis) {
       output += `SAP_BASIS: ${sapBasis.release} (SP ${sapBasis.extRelease || "N/A"})\n`
     }
 
-    // Show key components first
+    // 先显示关键组件
     const keyComponents = [
       "SAP_BASIS",
       "SAP_ABA",
@@ -382,7 +382,7 @@ export function formatSAPSystemInfoAsText(info: SAPSystemInfo): string {
       })
     }
 
-    // List remaining components
+    // 列出其余组件
     const otherComponents = info.softwareComponents.filter(
       c => !keyComponents.includes(c.component)
     )
@@ -395,7 +395,7 @@ export function formatSAPSystemInfoAsText(info: SAPSystemInfo): string {
       output += `\n... and ${otherComponents.length} other components\n`
     }
   }
-  // Don't show "no components" message - they just weren't requested
+  // 不显示“无组件”消息 - 只是未请求而已
 
   return output
 }
