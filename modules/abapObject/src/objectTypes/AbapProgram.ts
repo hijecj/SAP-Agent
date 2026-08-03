@@ -11,7 +11,7 @@ export class AbapProgram extends AbapObjectBase {
 
     const { nodes } = original
 
-    // Main program node - always include this
+    // 主程序节点 - 始终包含它
     const mainProgramNode = {
       OBJECT_TYPE: "PROG/P",
       OBJECT_NAME: `${this.name}`,
@@ -21,16 +21,16 @@ export class AbapProgram extends AbapObjectBase {
       OBJECT_VIT_URI: this.sapGuiUri
     }
 
-    // If includeIncludes is true (called from activator), return includes + main program
+    // 如果 includeIncludes 为 true（从激活器调用），返回 include + 主程序
     if (includeIncludes) {
       const includeNodes = nodes.filter(
         n => n.OBJECT_TYPE === "PROG/I" && n.OBJECT_NAME && n.OBJECT_URI
       )
-      // Return main program + all includes
+      // 返回主程序 + 所有 include
       return { categories: [], objectTypes: [], nodes: [mainProgramNode, ...includeNodes] }
     }
 
-    // Otherwise (filesystem operations), return only the program itself
+    // 否则（文件系统操作），只返回程序本身
     return { categories: [], objectTypes: [], nodes: [mainProgramNode] }
   }
 
@@ -41,8 +41,8 @@ export class AbapProgram extends AbapObjectBase {
   async childComponents(includeIncludes?: boolean) {
     if (!this.structure) await this.loadStructure()
     if (!this.expandable) return { nodes: [], categories: [], objectTypes: [] }
-    // For filesystem operations, filterInvalid() discards all nodeContents results anyway —
-    // skip the server call to avoid crashing ADT on programs with local classes (CLAS/OLA nodes).
+    // 对文件系统操作，filterInvalid() 无论如何都会丢弃所有 nodeContents 结果 —
+    // 跳过服务器调用，避免在带本地类（CLAS/OLA 节点）的程序上使 ADT 崩溃。
     if (!includeIncludes) return this.filterInvalid({ nodes: [], categories: [], objectTypes: [] })
     return super.childComponents(includeIncludes)
   }
