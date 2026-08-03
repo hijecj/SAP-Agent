@@ -1,14 +1,14 @@
 /**
- * 💓 Heartbeat Tool
+ * 💓 心跳工具
  *
- * Language Model Tool for managing the heartbeat service and watchlist.
+ * 管理心跳服务和监控列表的语言模型工具。
  *
- * Two usage contexts:
- * 1. User via Copilot chat (agent mode) - add/remove monitoring tasks
- * 2. Heartbeat LLM run - update task status, mark complete, add new discoveries
+ * 两种使用场景：
+ * 1. 用户通过 Copilot 聊天（代理模式）- 添加/移除监控任务
+ * 2. 心跳 LLM 运行 - 更新任务状态、标记完成、添加新发现
  *
- * The watchlist is stored in heartbeat.json with a structured format
- * that's easy for LLMs to read and maintain.
+ * 监控列表以结构化格式存储在 heartbeat.json 中，
+ * 便于 LLM 读取和维护。
  */
 
 import * as vscode from "vscode"
@@ -20,12 +20,12 @@ import { HeartbeatWatchlist } from "./heartbeatWatchlist"
 import { assertToolInvocationAuthorized } from "../lm-tools/toolGuard"
 
 // ============================================================================
-// TOOL PARAMETERS
+// 工具参数
 // ============================================================================
 
 export interface HeartbeatToolParams {
-  /** Action to perform */
-  action: // Service control
+  /** 要执行的操作 */
+  action: // 服务控制
     | "status"
     | "start"
     | "stop"
@@ -33,88 +33,88 @@ export interface HeartbeatToolParams {
     | "resume"
     | "trigger"
     | "history"
-    // Watchlist management (for both user and heartbeat LLM)
+    // 监控列表管理（对用户和心跳 LLM 都可用）
     | "add_task"
     | "remove_task"
     | "update_task"
     | "enable_task"
     | "disable_task"
     | "list_tasks"
-    | "get_watchlist" // Returns JSON for LLM parsing
+    | "get_watchlist" // 返回 JSON 供 LLM 解析
 
-  /** For 'history' - number of entries to show */
+  /** 对 'history' - 要显示的条目数 */
   count?: number
 
-  // Task management parameters
-  /** For 'add_task' - task description */
+  // 任务管理参数
+  /** 对 'add_task' - 任务描述 */
   description?: string
 
-  /** For 'add_task' - optional condition to check */
+  /** 对 'add_task' - 可选的要检查条件 */
   condition?: string
 
-  /** For 'add_task' - SAP connection ID */
+  /** 对 'add_task' - SAP 连接 ID */
   connectionId?: string
 
-  /** For 'add_task' - auto-remove when condition is met */
+  /** 对 'add_task' - 条件满足时自动移除 */
   removeWhenDone?: boolean
 
-  // Smart context from main agent
-  /** For 'add_task' - pre-built SQL query for HB model */
+  // 来自主代理的智能上下文
+  /** 对 'add_task' - 为心跳模型预构建的 SQL 查询 */
   sampleQuery?: string
 
-  /** For 'add_task' - step-by-step instructions for HB model */
+  /** 对 'add_task' - 供心跳模型遵循的分步指令 */
   checkInstructions?: string[]
 
-  /** For 'add_task' - task priority */
+  /** 对 'add_task' - 任务优先级 */
   priority?: "high" | "medium" | "low"
 
-  /** For 'add_task' - task category */
+  /** 对 'add_task' - 任务类别 */
   category?: "transport" | "dump" | "job" | "idoc" | "performance" | "reminder" | "custom"
 
-  /** For 'add_task' - only alert if count exceeds this */
+  /** 对 'add_task' - 只有计数超过此值才提醒 */
   alertThreshold?: number
 
-  /** For 'add_task' - don't re-notify within this many minutes */
+  /** 对 'add_task' - 此分钟数内不重复通知 */
   cooldownMinutes?: number
 
-  /** For 'add_task' - auto-remove after this ISO timestamp */
+  /** 对 'add_task' - 在此 ISO 时间戳之后自动移除 */
   expiresAt?: string
 
-  /** For 'add_task' - auto-remove after this many checks */
+  /** 对 'add_task' - 检查这么多次后自动移除 */
   maxChecks?: number
 
-  // Scheduling
-  /** For 'add_task' - don't check until this ISO timestamp */
+  // 调度
+  /** 对 'add_task' - 在此 ISO 时间戳之前不检查 */
   startAt?: string
 
-  /** For 'add_task' - simple reminder, notify once and remove */
+  /** 对 'add_task' - 简单提醒，通知一次并移除 */
   reminderOnly?: boolean
 
-  /** For 'trigger' or 'add_task' - why this action/task */
+  /** 对 'trigger' 或 'add_task' - 为什么执行此操作/任务 */
   reason?: string
 
-  /** For 'remove_task', 'update_task', etc. - task ID or description */
+  /** 对 'remove_task'、'update_task' 等 - 任务 ID 或描述 */
   taskId?: string
 
-  /** For 'update_task' - new result to record */
+  /** 对 'update_task' - 要记录的新结果 */
   result?: string
 
-  /** For 'update_task' - when user was last notified */
+  /** 对 'update_task' - 用户上次被通知的时间 */
   lastNotifiedAt?: string
 
-  /** For 'update_task' - what was in last notification */
+  /** 对 'update_task' - 上次通知包含的内容 */
   lastNotifiedFindings?: string
 
-  /** For 'update_task' - who is making the update */
+  /** 对 'update_task' - 谁在做更新 */
   modifiedBy?: "user" | "heartbeat" | "agent"
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 💓 Heartbeat Management Tool
+ * 💓 心跳管理工具
  */
 export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolParams> {
   async prepareInvocation(
@@ -156,7 +156,7 @@ export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolPara
 
     try {
       switch (params.action) {
-        // === Service Control ===
+        // === 服务控制 ===
         case "status":
           return this.handleStatus(service)
 
@@ -175,7 +175,7 @@ export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolPara
         case "history":
           return this.handleHistory(service, params.count || 10)
 
-        // === Watchlist Management ===
+        // === 监控列表管理 ===
         case "add_task":
           return this.handleAddTask(params)
 
@@ -207,7 +207,7 @@ export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolPara
   }
 
   // ============================================================================
-  // HELPERS
+  // 辅助方法
   // ============================================================================
 
   private text(message: string): vscode.LanguageModelToolResult {
@@ -219,7 +219,7 @@ export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolPara
   }
 
   // ============================================================================
-  // SERVICE CONTROL HANDLERS
+  // 服务控制处理程序
   // ============================================================================
 
   private handleStatus(
@@ -229,7 +229,7 @@ export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolPara
       return this.text("❌ Heartbeat service not initialized. Extension may not be fully loaded.")
     }
 
-    // Get settings info
+    // 获取设置信息
     const config = vscode.workspace.getConfiguration("abapfs.heartbeat")
     const enabledInSettings = config.get<boolean>("enabled", false)
     const configuredModel = config.get<string>("model", "")
@@ -241,14 +241,14 @@ export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolPara
 
     const lines = ["💓 **Heartbeat Status**", ""]
 
-    // Configuration section
+    // 配置部分
     lines.push("**Configuration:**")
     lines.push(`- Enabled in settings: ${enabledInSettings ? "✅ Yes" : "❌ No"}`)
     lines.push(`- Model: ${configuredModel || "⚠️ NOT CONFIGURED"}`)
     lines.push(`- Interval: ${interval}`)
     lines.push("")
 
-    // Warnings if not properly configured
+    // 未正确配置时的警告
     if (!configuredModel) {
       lines.push(
         '⚠️ **No model configured!** Set abapfs.heartbeat.model to a cheap model like "GPT-4o mini (copilot)" or "Claude Haiku 4 (copilot)" before starting.'
@@ -256,7 +256,7 @@ export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolPara
       lines.push("")
     }
 
-    // Service status
+    // 服务状态
     lines.push(
       `**Service:** ${status.isRunning ? "✅ Running" : "❌ Stopped"}${status.isPaused ? " (Paused)" : ""}`
     )
@@ -294,7 +294,7 @@ export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolPara
       return this.text("❌ Heartbeat service not initialized. Extension may not be fully loaded.")
     }
 
-    // Check if model is configured
+    // 检查是否配置了模型
     const config = vscode.workspace.getConfiguration("abapfs.heartbeat")
     const configuredModel = config.get<string>("model", "")
 
@@ -309,13 +309,13 @@ export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolPara
       )
     }
 
-    // Auto-enable in settings if disabled
+    // 设置中禁用时自动启用
     const enabledInSettings = config.get<boolean>("enabled", false)
     if (!enabledInSettings) {
       await config.update("enabled", true, vscode.ConfigurationTarget.Workspace)
     }
 
-    // Start the service
+    // 启动服务
     await service.start()
 
     const status = service.getStatus()
@@ -367,7 +367,7 @@ export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolPara
   }
 
   // ============================================================================
-  // WATCHLIST HANDLERS
+  // 监控列表处理程序
   // ============================================================================
 
   private handleAddTask(params: HeartbeatToolParams): vscode.LanguageModelToolResult {
@@ -380,8 +380,8 @@ export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolPara
       {
         condition: params.condition,
         connectionId: params.connectionId,
-        removeWhenDone: params.removeWhenDone || params.reminderOnly, // Reminders auto-remove
-        // Smart context from main agent
+        removeWhenDone: params.removeWhenDone || params.reminderOnly, // 提醒自动移除
+        // 来自主代理的智能上下文
         sampleQuery: params.sampleQuery,
         checkInstructions: params.checkInstructions,
         priority: params.priority,
@@ -390,7 +390,7 @@ export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolPara
         cooldownMinutes: params.cooldownMinutes,
         expiresAt: params.expiresAt,
         maxChecks: params.maxChecks,
-        // Scheduling
+        // 调度
         startAt: params.startAt,
         reminderOnly: params.reminderOnly,
         reason: params.reason
@@ -405,7 +405,7 @@ export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolPara
         `- **Description:** ${result.task.description}`
       ]
 
-      // Show scheduled time for reminders
+      // 显示提醒的预定时间
       if (result.task.startAt) {
         const startTime = new Date(result.task.startAt)
         lines.push(`- **Scheduled for:** ${startTime.toLocaleString()}`)
@@ -432,7 +432,7 @@ export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolPara
         lines.push(`- **Auto-remove:** Yes (when condition is met)`)
       }
 
-      // Hint to start heartbeat if not running
+      // 未运行时提示启动心跳
       const service = getHeartbeatService()
       if (service && !service.getStatus().isRunning) {
         lines.push("")
@@ -471,7 +471,7 @@ export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolPara
       updates.lastCheckedAt = new Date().toISOString()
     }
 
-    // Notification tracking updates
+    // 通知跟踪更新
     if (params.lastNotifiedAt !== undefined) {
       updates.lastNotifiedAt = params.lastNotifiedAt
     }
@@ -544,7 +544,7 @@ export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolPara
   }
 
   /**
-   * Returns raw JSON for LLM parsing during heartbeat runs
+   * 返回原始 JSON 供心跳运行期间的 LLM 解析
    */
   private handleGetWatchlist(): vscode.LanguageModelToolResult {
     const watchlist = HeartbeatWatchlist.read()
@@ -568,11 +568,11 @@ export class HeartbeatTool implements vscode.LanguageModelTool<HeartbeatToolPara
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 /**
- * Register the heartbeat tool
+ * 注册心跳工具
  */
 export function registerHeartbeatTool(context: vscode.ExtensionContext): void {
   context.subscriptions.push(registerToolWithRegistry("manage_heartbeat", new HeartbeatTool()))
