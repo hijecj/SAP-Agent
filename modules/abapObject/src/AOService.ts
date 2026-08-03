@@ -9,17 +9,17 @@ import {
 
 export interface AbapObjectService {
   mainPrograms: (path: string) => Promise<MainInclude[]>
-  /** Loads the object metadata
-   *    As will be called way too often, we will cache it for a second
+  /** 加载对象元数据
+   *   因为会被调用得过于频繁，我们会把它缓存一秒
    */
   objectStructure: (
     path: string,
     refresh?: boolean,
     version?: ObjectVersion
   ) => Promise<AbapObjectStructure>
-  /** invalidate structure cache
-   *    to be invoked after changing operations.
-   *    will happen automatically on write
+  /** 使结构缓存失效
+   *   在更改操作后调用。
+   *   写入时会自动发生
    */
   invalidateStructCache: (uri: string) => void
   setObjectSource: (
@@ -43,7 +43,7 @@ export class AOService implements AbapObjectService {
   constructor(protected client: ADTClient) {}
 
   private activeStructCache = new Map<string, Promise<AbapObjectStructure>>()
-  private readonly MAX_STRUCT_CACHE_SIZE = 100 // Prevent unlimited growth
+  private readonly MAX_STRUCT_CACHE_SIZE = 100 // 防止无限增长
 
   delete(path: string, lockId: string, transport: string) {
     return this.client.deleteObject(path, lockId, transport)
@@ -61,7 +61,7 @@ export class AOService implements AbapObjectService {
     if (refresh) this.activeStructCache.delete(path)
     let structure = this.activeStructCache.get(path)
     if (!structure) {
-      // Performance: Check cache size and evict oldest if needed
+      // 性能：检查缓存大小，需要时驱逐最旧的
       if (this.activeStructCache.size >= this.MAX_STRUCT_CACHE_SIZE) {
         const oldestKey = this.activeStructCache.keys().next().value
         if (oldestKey) {
