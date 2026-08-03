@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import { ADTSCHEME } from "../adt/conections"
 
-// strip ABAP inline comments at the first ".
+// 在第一个 " 处剥离 ABAP 内联注释。
 function stripComment(line: string): string {
   const idx = line.indexOf('"')
   return idx >= 0 ? line.slice(0, idx) : line
@@ -17,7 +17,7 @@ type ChainKeyword =
   | "METHODS"
   | "CLASS-METHODS"
 
-// Keywords that appear in method parameter specs – not method names
+// 出现在方法参数规范中的关键字 – 不是方法名
 const METHOD_SPEC_KEYWORDS = new Set([
   "IMPORTING",
   "EXPORTING",
@@ -68,7 +68,7 @@ function addToScope(
   else root.push(sym)
 }
 
-// Details used to identify section sub-scopes inside a class
+// 用于标识类内部分区子作用域的详情
 const SECTION_DETAILS = new Set(["public section", "private section", "protected section"])
 
 export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.DocumentSymbol[] {
@@ -76,7 +76,7 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
   const scopeStack: vscode.DocumentSymbol[] = []
   let chainKind: ChainKeyword | null = null
   let structDepth = 0
-  // When in a METHODS/CLASS-METHODS chain: true means the next identifier is a method name
+  // 在 METHODS/CLASS-METHODS 链中时：true 表示下一个标识符是方法名
   let methodNameNext = false
   let activeMethodDeclaration: vscode.DocumentSymbol | undefined
   const lineCount = document.lineCount
@@ -90,8 +90,8 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
     )
   }
 
-  // Process one line's worth of text while inside a METHODS/CLASS-METHODS chain.
-  // Returns the updated methodNameNext flag (whether a name is expected on the NEXT line).
+  // 在 METHODS/CLASS-METHODS 链中时处理一行文本。
+  // 返回更新后的 methodNameNext 标志（下一行是否预期名称）。
   function processMethodsChunk(text: string, expectName: boolean, lineIdx: number): boolean {
     let remaining = text.trimStart()
     let expect = expectName
@@ -111,15 +111,15 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
           )
           expect = false
         }
-        // spec keyword while expecting name: keep expect=true (e.g. ABSTRACT before name)
+        // 期望名称时的规范关键字：保持 expect=true（例如名称前的 ABSTRACT）
       }
-      if (ci >= 0) expect = true // comma found → next segment starts a new method name
+      if (ci >= 0) expect = true // 找到逗号 → 下一段开始新方法名
     }
     return expect
   }
-  // Track merged class scopes: name (lower) → symbol
+  // 跟踪合并的类作用域：名称（小写）→ 符号
   const classScopes = new Map<string, vscode.DocumentSymbol>()
-  // Classes whose DEFINITION has closed but IMPLEMENTATION not yet opened
+  // DEFINITION 已关闭但 IMPLEMENTATION 尚未打开的类
   const awaitingImpl = new Set<string>()
 
   function openScope(name: string, kind: vscode.SymbolKind, detail: string, lineIdx: number) {
@@ -152,13 +152,13 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
   for (let i = 0; i < lineCount; i++) {
     const rawLine = document.lineAt(i).text
 
-    // Skip full-line comments (* in first column or leading whitespace)
+    // 跳过整行注释（* 在第一列或前导空白之后）
     if (/^\s*\*/.test(rawLine)) continue
 
     const trimmed = stripComment(rawLine).trim()
     if (!trimmed) continue
 
-    // Scope-closing keywords always exit chain mode first so their scope handler can run
+    // 作用域关闭关键字总是先退出链模式，让它们的作用域处理程序可以运行
     if (
       chainKind !== null &&
       /^(ENDFORM|ENDFUNCTION|ENDMODULE|ENDCLASS|ENDMETHOD|ENDINTERFACE)\b/i.test(trimmed)
@@ -168,11 +168,11 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
       structDepth = 0
     }
 
-    // ── IN CHAIN MODE ──────────────────────────────────────────────────────
+    // ── 链模式中 ──────────────────────────────────────────────────────
     if (chainKind !== null) {
       const endsWithDot = trimmed.endsWith(".")
 
-      // ── METHODS / CLASS-METHODS chain ──
+      // ── METHODS / CLASS-METHODS 链 ──
       if (chainKind === "METHODS" || chainKind === "CLASS-METHODS") {
         methodNameNext = processMethodsChunk(trimmed, methodNameNext, i)
         if (endsWithDot) {
@@ -184,7 +184,7 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
         continue
       }
 
-      // ── DATA / TYPES / CONSTANTS / FIELD-SYMBOLS chain ──
+      // ── DATA / TYPES / CONSTANTS / FIELD-SYMBOLS 链 ──
       if (/\bBEGIN\s+OF\b/i.test(trimmed)) {
         if (structDepth === 0) {
           const sm = /\bBEGIN\s+OF\s+([\w\/]+)/i.exec(trimmed)
@@ -194,7 +194,7 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
       } else if (/\bEND\s+OF\b/i.test(trimmed)) {
         if (structDepth > 0) structDepth--
       } else if (structDepth === 0) {
-        // Extract chain continuation variable name
+        // 提取链续接变量名
         const contFS = /^<([\w\/]+)>\s+(?:TYPE\b|LIKE\b)/i.exec(trimmed)
         const contMain = /^([\w\/]+)\s+(?:TYPE\b|LIKE\b|VALUE\b)/i.exec(trimmed)
         if (contFS) {
@@ -210,10 +210,10 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
       continue
     }
 
-    // ── NORMAL PARSING ─────────────────────────────────────────────────────
+    // ── 正常解析 ─────────────────────────────────────────────────────
     let m: RegExpExecArray | null
 
-    // --- Scope closers
+    // --- 作用域关闭
     if (/^ENDFORM\b/i.test(trimmed)) {
       closeScope(i)
       continue
@@ -227,20 +227,20 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
       continue
     }
     if (/^ENDCLASS\b/i.test(trimmed)) {
-      // Close any open section sub-scope first
+      // 先关闭任何打开的分区子作用域
       if (scopeStack.length > 0 && SECTION_DETAILS.has(scopeStack[scopeStack.length - 1].detail)) {
         closeScope(i)
       }
-      // The class scope is now on top
+      // 类作用域现在在顶部
       const classTop = scopeStack[scopeStack.length - 1]
       const classKey = classTop ? classTop.name.toLowerCase() : ""
       if (awaitingImpl.has(classKey)) {
-        // Closing IMPLEMENTATION – fully done
+        // 关闭 IMPLEMENTATION – 完全完成
         classScopes.delete(classKey)
         awaitingImpl.delete(classKey)
         closeScope(i)
       } else {
-        // Closing DEFINITION – keep the scope open for IMPLEMENTATION to reuse
+        // 关闭 DEFINITION – 保持作用域打开，供 IMPLEMENTATION 复用
         closeScope(i)
         awaitingImpl.add(classKey)
       }
@@ -251,7 +251,7 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
       continue
     }
     if (/^ENDINTERFACE\b/i.test(trimmed)) {
-      // Close any open section sub-scope first
+      // 先关闭任何打开的分区子作用域
       if (scopeStack.length > 0 && SECTION_DETAILS.has(scopeStack[scopeStack.length - 1].detail)) {
         closeScope(i)
       }
@@ -259,7 +259,7 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
       continue
     }
 
-    // --- Scope openers
+    // --- 作用域打开
     if ((m = /^\s*FORM\s+([\w$\/]+)/i.exec(rawLine))) {
       openScope(m[1].toUpperCase(), vscode.SymbolKind.Function, "FORM", i)
       continue
@@ -282,7 +282,7 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
       const key = m[1].toLowerCase()
       const existing = awaitingImpl.has(key) ? classScopes.get(key) : undefined
       if (existing) {
-        // Reuse the definition scope
+        // 复用定义作用域
         scopeStack.push(existing)
         chainKind = null
       } else {
@@ -291,7 +291,7 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
       }
       continue
     }
-    // PUBLIC / PRIVATE / PROTECTED SECTION (inside class)
+    // PUBLIC / PRIVATE / PROTECTED SECTION（类内部）
     if (/^\s*PUBLIC\s+SECTION\b/i.test(rawLine)) {
       if (scopeStack.length > 0 && SECTION_DETAILS.has(scopeStack[scopeStack.length - 1].detail)) {
         closeScope(i)
@@ -313,22 +313,22 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
       openScope("Protected", vscode.SymbolKind.Namespace, "protected section", i)
       continue
     }
-    // METHOD implementation opener – must NOT match METHODS (declaration keyword)
+    // METHOD 实现开启符 – 绝不能匹配 METHODS（声明关键字）
     if ((m = /^\s*METHOD\s+((?!S\b)[\w$\/~]+)/i.exec(rawLine))) {
       openScope(m[1], vscode.SymbolKind.Method, "METHOD", i)
       continue
     }
-    // INTERFACE (standalone definition only – INTERFACES as a class statement has a trailing S)
+    // INTERFACE（仅独立定义 – 作为类语句的 INTERFACES 带尾随 S）
     if ((m = /^\s*INTERFACE\s+([\w$\/]+)/i.exec(rawLine)) && !/^\s*INTERFACES\s+/i.test(rawLine)) {
       openScope(m[1], vscode.SymbolKind.Interface, "INTERFACE", i)
       continue
     }
 
-    // --- METHODS / CLASS-METHODS chain or single declaration
+    // --- METHODS / CLASS-METHODS 链或单一声明
     if ((m = /^\s*(CLASS-METHODS|METHODS)\s*:/i.exec(rawLine))) {
       const kw = m[1].toUpperCase() as ChainKeyword
       chainKind = kw
-      // Use the comment-stripped trimmed to find the colon position
+      // 使用剥离注释后的修剪文本找到冒号位置
       const colonIdx = trimmed.indexOf(":")
       const rest = colonIdx >= 0 ? trimmed.slice(colonIdx + 1) : ""
       methodNameNext = processMethodsChunk(rest, true, i)
@@ -356,7 +356,7 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
       continue
     }
 
-    // --- Colon-chain declarations: DATA: / CLASS-DATA: / STATICS: / TYPES: / CONSTANTS: / FIELD-SYMBOLS:
+    // --- 冒号链声明：DATA: / CLASS-DATA: / STATICS: / TYPES: / CONSTANTS: / FIELD-SYMBOLS:
     if ((m = /^\s*(DATA|CLASS-DATA|STATICS)\s*:/i.exec(rawLine))) {
       const kw = m[1].toUpperCase() as ChainKeyword
       const rest = rawLine.slice(m[0].length).trim()
@@ -408,7 +408,7 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
       continue
     }
 
-    // --- Single-name declarations (no colon chain)
+    // --- 单名称声明（无冒号链）
     if ((m = /^\s*(DATA|STATICS)\s+([\w\/]+)\s*/i.exec(rawLine))) {
       if (/\bBEGIN\s+OF\b/i.test(rawLine)) {
         const sm = /\bBEGIN\s+OF\s+([\w\/]+)/i.exec(rawLine)
@@ -449,7 +449,7 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
       continue
     }
 
-    // --- Selection-screen declarations
+    // --- 选择屏幕声明
     if ((m = /^\s*PARAMETERS\s+([\w\/]+)\b/i.exec(rawLine))) {
       addDeclaration(m[1], vscode.SymbolKind.Variable, "PARAMETERS", i)
       continue
@@ -463,8 +463,8 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
       continue
     }
 
-    // --- Inline DATA(var) declarations (ABAP 7.4+)
-    // Runs only when no keyword was matched above (no `continue` was hit)
+    // --- 内联 DATA(var) 声明（ABAP 7.4+）
+    // 只在上面没有匹配到关键字时运行（未命中 `continue`）
     const inlineRe = /\bDATA\s*\(\s*([\w\/]+)\s*\)/gi
     let inlineMatch: RegExpExecArray | null
     while ((inlineMatch = inlineRe.exec(rawLine)) !== null) {
@@ -472,7 +472,7 @@ export function parseAbapDocumentSymbols(document: vscode.TextDocument): vscode.
     }
   }
 
-  // Close any unclosed scopes (e.g., incomplete/truncated files)
+  // 关闭任何未关闭的作用域（例如不完整/截断的文件）
   while (scopeStack.length > 0) closeScope(lineCount - 1)
 
   return root
