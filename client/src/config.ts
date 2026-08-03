@@ -38,11 +38,11 @@ export type GuiType = "SAPGUI" | "WEBGUI_CONTROLLED" | "WEBGUI_UNSAFE" | "WEBGUI
 export interface SapGuiConfig {
   disabled?: boolean
   routerString?: string
-  // load balancing
+  // 负载均衡
   messageServer?: string
   messageServerPort?: string
   group?: string
-  // individual server
+  // 独立服务器
   server?: string
   systemNumber?: string
   guiType?: GuiType
@@ -121,7 +121,7 @@ export const saveNewRemote = async (cfg: ClientConfiguration, target: Configurat
 
 const config = (name: string, remote: StoredRemoteConfig) => {
   const conf = { ...defaultConfig, ...remote, name, valid: true }
-  conf.valid = !!(remote.url && remote.username) // ✅ SECURITY FIX: Removed password validation from settings
+  conf.valid = !!(remote.url && remote.username) // ✅ 安全修复：不再从设置中校验密码
   if (conf.customCA && !conf.customCA.match(/-----BEGIN CERTIFICATE-----/gi))
     try {
       conf.customCA = readFileSync(conf.customCA).toString()
@@ -156,7 +156,7 @@ export async function pickAdtRoot(uri?: Uri) {
   const roots = connectedRoots()
   if (roots.size === 0) throw new Error("No ABAP filesystem mounted in current workspace")
 
-  if (roots.size === 1) return [...roots.values()][0] // no need to pick if only one root is mounted
+  if (roots.size === 1) return [...roots.values()][0] // 只挂载一个根时无需选择
   if (uri) {
     const root = roots.get(formatKey(uri.authority))
     if (root) return root
@@ -178,7 +178,7 @@ function createClientSslConfig(conf: RemoteConfig): ClientSslConfig {
   sslconf.debugCallback = buildDebugCallback(conf)
   return sslconf
 }
-/** Build a debugCallback that forwards to the comm log */
+/** 构建转发到通信日志的 debugCallback */
 function buildDebugCallback(conf: RemoteConfig): LogCallback {
   const connId = conf.name
   return (data: LogData) => {
@@ -186,7 +186,7 @@ function buildDebugCallback(conf: RemoteConfig): LogCallback {
       const logger = CallLogger.get(connId)
       if (logger) logger.add(data)
     } catch {
-      /* never break HTTP */
+      /* 绝不让日志破坏 HTTP */
     }
   }
 }
@@ -206,9 +206,9 @@ export function createClient(conf: RemoteConfig) {
 }
 
 /**
- * Create an ADTClient using the appropriate authentication method.
- * For basic auth and oauth, delegates to createClient.
- * For cert/kerberos/browser_sso, builds the auth result and configures the client.
+ * 使用适当的认证方法创建 ADTClient。
+ * 对 basic 认证和 oauth，委托给 createClient。
+ * 对 cert/kerberos/browser_sso，构建认证结果并配置客户端。
  */
 export async function createAuthenticatedClient(conf: RemoteConfig): Promise<ADTClient> {
   const authMethod = getAuthMethod(conf)
@@ -248,7 +248,7 @@ export async function createAuthenticatedClient(conf: RemoteConfig): Promise<ADT
       log.debug(`[auth] Building kerberos/SSO auth for ${conf.name}`)
       const result = await buildKerberosAuth(
         conf.name,
-        conf.kerberosAuth, // Optional — PowerShell SSPI handles auth automatically
+        conf.kerberosAuth, // 可选 — PowerShell SSPI 自动处理认证
         conf.url,
         conf.client,
         !!conf.allowSelfSigned
@@ -347,7 +347,7 @@ export class RemoteManager {
       conn = this.loadRemote(connectionId)
       if (!conn) return
 
-      // Only fetch password from vault for basic auth (other methods use different secrets)
+      // 只对 basic 认证从保险库获取密码（其他方式使用不同密钥）
       const authMethod = getAuthMethod(conn)
       if (authMethod === "basic" && !conn.password) {
         conn.password = await this.getPassword(connectionId, conn.username)
@@ -448,10 +448,10 @@ export class RemoteManager {
     if (!connectionId) return
     connectionId = formatKey(connectionId)
     const conn = this.loadRemote(connectionId)
-    if (!conn) return // no connection found, should never happen
+    if (!conn) return // 未找到连接，不应发生
     const deleted = await this.clearPassword(connectionId, conn.oauth?.clientId || conn.username)
     if (deleted && !this.isConnected(connectionId)) this.connections.delete(connectionId)
-    // Also clear auth-method-specific secrets
+    // 同时清除认证方式专属的密钥
     await clearCertPassphrase(connectionId).catch(() => {})
     await clearKerberosCookies(connectionId).catch(() => {})
     await clearSsoCookies(connectionId).catch(() => {})

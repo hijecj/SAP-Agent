@@ -1,10 +1,10 @@
 /**
- * MCP Server for ABAP FS - Exposes tools via Model Context Protocol
+ * ABAP FS 的 MCP 服务器 - 通过模型上下文协议暴露工具
  *
- * This dynamically wraps all VS Code Language Model tools registered by ABAP FS
- * and exposes them as MCP tools for external AI clients (Cursor, Claude Desktop, etc.)
+ * 它动态包装 ABAP FS 注册的所有 VS Code 语言模型工具，
+ * 并把它们作为 MCP 工具暴露给外部 AI 客户端（Cursor、Claude Desktop 等）
  *
- * Usage in other AI tools config:
+ * 在其他 AI 工具配置中的用法：
  * {
  *   "mcpServers": {
  *     "abap-fs": {
@@ -29,7 +29,7 @@ import { executeReplace } from "./lm-tools/mcpReplaceStringTool"
 import { getDiagnosticsForUri } from "./lm-tools/mcpGetDiagnosticsTool"
 
 // ============================================================================
-// TYPES
+// 类型
 // ============================================================================
 
 interface McpServerState {
@@ -38,11 +38,11 @@ interface McpServerState {
   port: number
 }
 
-// Map to store transports by session ID
+// 按会话 ID 存储传输对象的映射
 const transports: { [sessionId: string]: StreamableHTTPServerTransport } = {}
 
 // ============================================================================
-// STATE & SETTINGS
+// 状态与设置
 // ============================================================================
 
 const state: McpServerState = {
@@ -52,7 +52,7 @@ const state: McpServerState = {
 }
 
 /**
- * Get MCP server settings from VS Code configuration
+ * 从 VS Code 配置获取 MCP 服务器设置
  */
 function getMcpSettings(): { autoStart: boolean; port: number; apiKey: string } {
   const config = vscode.workspace.getConfiguration("abapfs.mcpServer")
@@ -64,16 +64,16 @@ function getMcpSettings(): { autoStart: boolean; port: number; apiKey: string } 
 }
 
 /**
- * Validate the API key from the request Authorization header.
- * Returns true if authentication passes, false otherwise.
+ * 校验请求 Authorization 头中的 API 密钥。
+ * 认证通过返回 true，否则返回 false。
  */
 let apiKeyWarningLogged = false
 
 export function validateApiKey(req: http.IncomingMessage): boolean {
   const settings = getMcpSettings()
 
-  // If no API key is configured, allow access (for backwards compatibility)
-  // but log a warning once per session
+  // 如果未配置 API 密钥，允许访问（向后兼容）
+  // 但每个会话记录一次警告
   if (!settings.apiKey) {
     if (!apiKeyWarningLogged) {
       log(
@@ -89,10 +89,10 @@ export function validateApiKey(req: http.IncomingMessage): boolean {
     return false
   }
 
-  // Support both "Bearer <token>" and plain "<token>" formats
+  // 同时支持 "Bearer <token>" 和纯 "<token>" 格式
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader
 
-  // Constant-time comparison to prevent timing attacks
+  // 恒定时间比较，防止时序攻击
   if (token.length !== settings.apiKey.length) {
     return false
   }
@@ -106,12 +106,12 @@ export function validateApiKey(req: http.IncomingMessage): boolean {
 }
 
 // ============================================================================
-// JSON SCHEMA TO ZOD CONVERTER
+// JSON SCHEMA 到 ZOD 转换器
 // ============================================================================
 
 /**
- * Convert a JSON Schema property to a Zod schema.
- * This is a simplified converter that handles the most common cases.
+ * 把 JSON Schema 属性转换为 Zod schema。
+ * 这是一个处理最常见情况的简化转换器。
  */
 export function jsonSchemaPropertyToZod(
   propSchema: Record<string, unknown>,
@@ -125,7 +125,7 @@ export function jsonSchemaPropertyToZod(
   switch (type) {
     case "string":
       if (propSchema.enum && Array.isArray(propSchema.enum)) {
-        // Handle enum strings
+        // 处理枚举字符串
         const enumValues = propSchema.enum as [string, ...string[]]
         zodType = z.enum(enumValues)
       } else {
@@ -163,16 +163,16 @@ export function jsonSchemaPropertyToZod(
       }
       break
     default:
-      // Unknown or missing type - accept anything
+      // 未知或缺失的类型 - 接受任何内容
       zodType = z.unknown()
   }
 
-  // Add description if present
+  // 存在描述时添加
   if (description) {
     zodType = zodType.describe(description)
   }
 
-  // Make optional if not required
+  // 非必填时设为可选
   if (!isRequired) {
     zodType = zodType.optional()
   }
@@ -181,7 +181,7 @@ export function jsonSchemaPropertyToZod(
 }
 
 /**
- * Convert a full JSON Schema (with properties) to a Zod object schema.
+ * 把完整 JSON Schema（带 properties）转换为 Zod 对象 schema。
  */
 export function jsonSchemaToZod(
   jsonSchema: Record<string, unknown> | undefined
@@ -207,14 +207,14 @@ export function jsonSchemaToZod(
 }
 
 // ============================================================================
-// DYNAMIC TOOL WRAPPER
+// 动态工具包装器
 // ============================================================================
 
-// Tag used to identify ABAP FS tools
+// 用于识别 ABAP FS 工具的标签
 const ABAP_FS_TAG = "abap-fs"
 
 /**
- * Create an MCP server that dynamically wraps all VS Code LM tools
+ * 创建动态包装所有 VS Code LM 工具的 MCP 服务器
  */
 function createMcpServer(): McpServer {
   const server = new McpServer({
@@ -222,7 +222,7 @@ function createMcpServer(): McpServer {
     version: "1.0.0"
   })
 
-  // Get all registered LM tools and filter to only ABAP FS tools
+  // 获取所有已注册的 LM 工具，只保留 ABAP FS 工具
   const allTools = vscode.lm.tools
   const abapTools = allTools.filter(tool => tool.tags.includes(ABAP_FS_TAG))
 
@@ -231,10 +231,10 @@ function createMcpServer(): McpServer {
     const toolDescription = tool.description || `ABAP FS tool: ${toolName}`
     const inputSchema = tool.inputSchema as Record<string, unknown> | undefined
 
-    // Convert JSON Schema to Zod schema
+    // 把 JSON Schema 转换为 Zod schema
     const zodSchema = jsonSchemaToZod(inputSchema)
 
-    // Register each LM tool as an MCP tool
+    // 把每个 LM 工具注册为 MCP 工具
     server.registerTool(
       toolName,
       {
@@ -246,9 +246,9 @@ function createMcpServer(): McpServer {
         try {
           const tokenSource = new vscode.CancellationTokenSource()
 
-          // Look up the tool instance from our shared registry so we can
-          // call invoke() directly, bypassing vscode.lm.invokeTool() and
-          // its prepareInvocation confirmation dialog pipeline.
+          // 从共享注册表中查找工具实例，这样我们可以
+          // 直接调用 invoke()，绕过 vscode.lm.invokeTool() 及其
+          // prepareInvocation 确认对话框流程。
           const registeredTool = toolRegistry.get(toolName)
           let result: vscode.LanguageModelToolResult
 
@@ -315,10 +315,10 @@ function createMcpServer(): McpServer {
   }
 
   // ============================================================================
-  // MCP-ONLY TOOLS (not available as VS Code LM tools)
+  // 仅 MCP 工具（不作为 VS Code LM 工具提供）
   // ============================================================================
 
-  // Replace String in ABAP Object - enables MCP clients to edit ABAP source code
+  // 在 ABAP 对象中替换字符串 - 让 MCP 客户端可以编辑 ABAP 源代码
   server.registerTool(
     "replace_string_in_abap_object",
     {
@@ -364,9 +364,8 @@ function createMcpServer(): McpServer {
         if (newString === undefined || newString === null) {
           throw new Error("newString is required (use empty string to delete text)")
         }
-        // Note: empty oldString is allowed only when the file is blank.
-        // That check happens inside executeReplace/findAndReplace once the
-        // current file content is known.
+        // 注意：只有文件为空时才允许空 oldString。
+        // 该检查在 executeReplace/findAndReplace 中，得知当前文件内容后进行。
 
         await executeReplace(fileUri, oldString, newString)
 
@@ -398,7 +397,7 @@ function createMcpServer(): McpServer {
     }
   )
 
-  // Get Diagnostics - returns syntax errors/warnings for a given ABAP file
+  // 获取诊断 - 返回给定 ABAP 文件的语法错误/警告
   server.registerTool(
     "get_abap_diagnostics",
     {
@@ -444,11 +443,11 @@ function createMcpServer(): McpServer {
 }
 
 // ============================================================================
-// HTTP SERVER WITH STREAMABLE HTTP TRANSPORT (Per-Session)
+// 带流式 HTTP 传输的 HTTP 服务器（按会话）
 // ============================================================================
 
 /**
- * Parse JSON body from incoming request
+ * 解析传入请求的 JSON 请求体
  */
 async function parseJsonBody(req: http.IncomingMessage): Promise<unknown> {
   return new Promise((resolve, reject) => {
@@ -471,7 +470,7 @@ async function startHttpServer(): Promise<void> {
     return
   }
 
-  // Get configured port from settings
+  // 从设置获取配置的端口
   const settings = getMcpSettings()
   state.port = settings.port
 
@@ -484,14 +483,14 @@ async function startHttpServer(): Promise<void> {
 
     const url = new URL(req.url || "/", `http://localhost:${state.port}`)
 
-    // Health check endpoint (no auth required)
+    // 健康检查端点（无需认证）
     if (url.pathname === "/health") {
       res.writeHead(200, { "Content-Type": "application/json" })
       res.end(JSON.stringify({ status: "ok", server: "abap-fs-mcp" }))
       return
     }
 
-    // Authentication check for all other endpoints
+    // 对所有其他端点进行认证检查
     if (!validateApiKey(req)) {
       res.writeHead(401, { "Content-Type": "application/json" })
       res.end(
@@ -508,11 +507,11 @@ async function startHttpServer(): Promise<void> {
       return
     }
 
-    // MCP endpoint - handles all MCP protocol messages
+    // MCP 端点 - 处理所有 MCP 协议消息
     if (url.pathname === "/mcp") {
       const sessionId = req.headers["mcp-session-id"] as string | undefined
 
-      // Handle POST requests (JSON-RPC messages)
+      // 处理 POST 请求（JSON-RPC 消息）
       if (req.method === "POST") {
         try {
           const body = await parseJsonBody(req)
@@ -520,10 +519,10 @@ async function startHttpServer(): Promise<void> {
           let transport: StreamableHTTPServerTransport
 
           if (sessionId && transports[sessionId]) {
-            // Reuse existing transport for this session
+            // 复用此会话的现有传输
             transport = transports[sessionId]
           } else if (!sessionId && isInitializeRequest(body)) {
-            // New initialization request - create new transport and server
+            // 新的初始化请求 - 创建新传输和服务器
             transport = new StreamableHTTPServerTransport({
               sessionIdGenerator: () => randomUUID(),
               onsessioninitialized: (newSessionId: string) => {
@@ -531,7 +530,7 @@ async function startHttpServer(): Promise<void> {
               }
             })
 
-            // Clean up on close
+            // 关闭时清理
             transport.onclose = () => {
               const sid = transport.sessionId
               if (sid && transports[sid]) {
@@ -539,15 +538,15 @@ async function startHttpServer(): Promise<void> {
               }
             }
 
-            // Create a new MCP server instance and connect it to this transport
+            // 创建新的 MCP 服务器实例并连接到该传输
             const server = createMcpServer()
             await server.connect(transport)
 
-            // Handle the initialization request
+            // 处理初始化请求
             await transport.handleRequest(req, res, body)
             return
           } else {
-            // Invalid request - no session ID and not an initialization request
+            // 无效请求 - 没有会话 ID 且不是初始化请求
             res.writeHead(400, { "Content-Type": "application/json" })
             res.end(
               JSON.stringify({
@@ -562,7 +561,7 @@ async function startHttpServer(): Promise<void> {
             return
           }
 
-          // Handle the request with existing transport
+          // 用现有传输处理请求
           await transport.handleRequest(req, res, body)
         } catch {
           if (!res.headersSent) {
@@ -579,7 +578,7 @@ async function startHttpServer(): Promise<void> {
         return
       }
 
-      // Handle GET requests for SSE streams
+      // 处理 SSE 流的 GET 请求
       if (req.method === "GET") {
         if (!sessionId || !transports[sessionId]) {
           res.writeHead(400, { "Content-Type": "application/json" })
@@ -591,7 +590,7 @@ async function startHttpServer(): Promise<void> {
         return
       }
 
-      // Handle DELETE requests for session termination
+      // 处理会话终止的 DELETE 请求
       if (req.method === "DELETE") {
         if (!sessionId || !transports[sessionId]) {
           res.writeHead(400, { "Content-Type": "application/json" })
@@ -604,7 +603,7 @@ async function startHttpServer(): Promise<void> {
       }
     }
 
-    // Root endpoint with info
+    // 带信息的根端点
     if (url.pathname === "/") {
       res.writeHead(200, { "Content-Type": "application/json" })
       res.end(
@@ -625,12 +624,12 @@ async function startHttpServer(): Promise<void> {
       return
     }
 
-    // 404 for unknown routes
+    // 未知路由返回 404
     res.writeHead(404, { "Content-Type": "application/json" })
     res.end(JSON.stringify({ error: "Not found" }))
   })
 
-  // Try to start the server, incrementing port if busy
+  // 尝试启动服务器，端口被占用时递增
   const startWithRetry = (port: number, maxRetries: number = 10): Promise<number> => {
     return new Promise((resolve, reject) => {
       state.httpServer!.once("error", (err: NodeJS.ErrnoException) => {
@@ -652,7 +651,7 @@ async function startHttpServer(): Promise<void> {
     state.port = actualPort
     state.isRunning = true
 
-    // Show notification to user
+    // 向用户显示通知
     window.showInformationMessage(
       `🔌 ABAP MCP Server running on port ${actualPort}. External AI clients can connect to http://localhost:${actualPort}/mcp`
     )
@@ -662,13 +661,13 @@ async function startHttpServer(): Promise<void> {
 }
 
 function stopServer(): void {
-  // Close all active transports
+  // 关闭所有活动传输
   for (const sessionId of Object.keys(transports)) {
     try {
       transports[sessionId].close()
       delete transports[sessionId]
     } catch {
-      // Ignore errors during cleanup
+      // 忽略清理过程中的错误
     }
   }
 
@@ -680,18 +679,18 @@ function stopServer(): void {
 }
 
 // ============================================================================
-// PUBLIC API
+// 公共 API
 // ============================================================================
 
 /**
- * Initialize and start the MCP server based on settings
- * Call this from extension.ts during activation
+ * 按设置初始化并启动 MCP 服务器
+ * 在激活期间从 extension.ts 调用
  */
 
 const MCP_COPILOT_DISMISSED_KEY = "abapfs.mcpServer.copilotPromptDismissed"
 
 /**
- * Start MCP server via command. Shows Copilot warning if applicable.
+ * 通过命令启动 MCP 服务器。适用时显示 Copilot 警告。
  */
 export async function startMcpServerCommand(context: vscode.ExtensionContext): Promise<void> {
   if (state.isRunning) {
@@ -699,7 +698,7 @@ export async function startMcpServerCommand(context: vscode.ExtensionContext): P
     return
   }
 
-  // One-time check: if LLM models are available (Copilot active), user may not need MCP
+  // 一次性检查：如果 LLM 模型可用（Copilot 已激活），用户可能不需要 MCP
   const dismissed = context.globalState.get<boolean>(MCP_COPILOT_DISMISSED_KEY)
   if (!dismissed) {
     let hasModels = false
@@ -707,7 +706,7 @@ export async function startMcpServerCommand(context: vscode.ExtensionContext): P
       const models = await vscode.lm.selectChatModels({})
       hasModels = models.length > 0
     } catch {
-      // No models available — user likely needs MCP for external AI clients
+      // 没有可用模型 — 用户可能需要 MCP 供外部 AI 客户端使用
     }
 
     if (hasModels) {
@@ -738,12 +737,12 @@ export async function startMcpServerCommand(context: vscode.ExtensionContext): P
         log("🔌 MCP Server disabled by user — Copilot provides native tool access")
         return
       }
-      // "start" selected
+      // 选择了 "start"
       await context.globalState.update(MCP_COPILOT_DISMISSED_KEY, true)
     }
   }
 
-  // Persist autoStart so MCP starts automatically on next VS Code launch
+  // 持久化 autoStart，让 MCP 在下次 VS Code 启动时自动开启
   if (vscode.workspace.workspaceFolders?.length) {
     const mcpConfig = vscode.workspace.getConfiguration("abapfs.mcpServer")
     await mcpConfig.update("autoStart", true, vscode.ConfigurationTarget.Workspace)
@@ -771,15 +770,15 @@ export async function initializeMcpServer(context: vscode.ExtensionContext): Pro
   const settings = getMcpSettings()
 
   if (!settings.autoStart) {
-    return // Don't start if autoStart is disabled
+    return // autoStart 禁用时不启动
   }
 
-  // On autoStart, reuse the same logic (modal + start)
+  // autoStart 时复用相同逻辑（弹窗 + 启动）
   await startMcpServerCommand(context)
 }
 
 /**
- * Get the current MCP server status
+ * 获取当前 MCP 服务器状态
  */
 export function getMcpServerStatus(): { isRunning: boolean; port: number; url: string } {
   return {

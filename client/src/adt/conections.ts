@@ -24,7 +24,7 @@ async function create(connId: string) {
   const connection = await manager.byIdAsync(connId)
   if (!connection) throw Error(`Connection not found ${connId}`)
 
-  // 🔐 VALIDATE SYSTEM ACCESS BEFORE CLIENT CREATION
+  // 🔐 创建客户端前校验系统访问
   log(`🔍 Validating SAP system access for connection: ${connId}`)
   const validator = SapSystemValidator.getInstance()
   await validator.validateSystemAccess(
@@ -53,13 +53,13 @@ async function create(connId: string) {
     log.debug(`[connect] statelessClone.login() succeeded for ${connId}`)
   } else if (connection.oauth || connection.password) {
     client = createClient(connection)
-    await client.login() // raise exception for login issues
+    await client.login() // 登录问题会抛出异常
     await client.statelessClone.login()
   } else {
     const password = (await manager.askPassword(connection.name)) || ""
     if (!password) throw Error("Can't connect without a password")
     client = await createClient({ ...connection, password })
-    await client.login() // raise exception for login issues
+    await client.login() // 登录问题会抛出异常
     await client.statelessClone.login()
     connection.password = password
     const { name, username } = connection
@@ -73,13 +73,13 @@ async function create(connId: string) {
   clients.set(connId, client)
 }
 
-// Track connections that failed with non-retryable errors (e.g. SSO timeout, auth rejection)
-// to prevent VS Code filesystem from triggering infinite retry loops
-const failedConnections = new Map<string, string>() // connId → error message
+// 跟踪因不可重试错误而失败的连接（例如 SSO 超时、认证被拒）
+// 防止 VS Code 文件系统触发无限重试循环
+const failedConnections = new Map<string, string>() // connId → 错误消息
 
 function createIfMissing(connId: string) {
   if (roots.get(connId)) return
-  // If connection previously failed with a non-retryable error, don't retry
+  // 如果连接之前因不可重试错误失败，不再重试
   const failReason = failedConnections.get(connId)
   if (failReason) {
     return Promise.reject(new Error(failReason))
@@ -87,8 +87,8 @@ function createIfMissing(connId: string) {
   let creation = creations.get(connId)
   if (!creation) {
     creation = create(connId).catch(err => {
-      // Mark as permanently failed if it's an interactive/auth error
-      // so VS Code filesystem doesn't keep triggering retry loops
+      // 如果是交互式/认证错误，标记为永久失败
+      // 这样 VS Code 文件系统不会持续触发重试循环
       const msg = String(err?.message || err)
       if (
         msg.includes("timed out") ||
@@ -114,7 +114,7 @@ function createIfMissing(connId: string) {
   return creation
 }
 
-/** Clear the failed state for a connection (called on disconnect/reconnect). */
+/** 清除连接的失败状态（断开/重连时调用）。 */
 export function clearConnectionFailure(connId: string) {
   failedConnections.delete(connId)
 }
@@ -124,8 +124,8 @@ export async function getOrCreateClient(connId: string, clone = true) {
     try {
       await createIfMissing(connId)
     } catch (error) {
-      // Re-throw validation errors with original message instead of generic "missing" error
-      throw error // Preserve the original validation error message
+      // 重新抛出带原始消息的校验错误，而不是泛化的 "missing" 错误
+      throw error // 保留原始的校验错误消息
     }
   }
   return getClient(connId, clone)
@@ -135,8 +135,8 @@ export function getClient(connId: string, clone = true) {
   const client = clients.get(connId)
   if (client) return clone ? client.statelessClone : client
 
-  // If client doesn't exist, this means validation failed or connection was never established
-  // Instead of generic "missing" error, provide more helpful feedback
+  // 如果客户端不存在，说明校验失败或连接从未建立
+  // 提供更有帮助的反馈，而不是泛化的 "missing" 错误
   throw new Error(
     `SAP system '${connId}' is not accessible. This may be due to whitelist restrictions or connection issues. Check the extension logs for validation details.`
   )
@@ -169,7 +169,7 @@ export async function disconnect() {
     .filter(c => c.loggedin)
     .map(c => c.logout())
   await Promise.all([...main, ...clones, ...LogOutPendingDebuggers()])
-  // Clear all failure states so reconnect is possible
+  // 清除所有失败状态，以便可以重新连接
   failedConnections.clear()
   return
 }
