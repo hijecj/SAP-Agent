@@ -1,7 +1,7 @@
 /**
- * Auth module barrel export.
+ * 认证模块的桶状导出。
  *
- * Re-exports all authentication types and strategy builders.
+ * 重新导出所有认证类型和策略构建器。
  */
 
 export { AUTH_METHODS, AUTH_METHOD_LABELS } from "./types"
