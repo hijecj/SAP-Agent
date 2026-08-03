@@ -130,7 +130,7 @@ export class DebugListener {
     return !!this._recorder?.isRecording
   }
 
-  /** Start recording on this listener. */
+  /** 在此监听器上开始录制。 */
   startRecording(): void {
     if (this._recorder?.isRecording) return
     this._recorder = new DebugRecorder()
@@ -144,7 +144,7 @@ export class DebugListener {
     return recorder.stopRecording()
   }
 
-  /** Returns true if this thread should be recorded */
+  /** 如果应录制此线程则返回 true */
   shouldRecordThread(_threadId: number): boolean {
     return !!this._recorder?.isRecording
   }
@@ -275,7 +275,7 @@ export class DebugListener {
         log(`Debugger ${this.sessionNumber} disconnected`)
         if (isDebugListenerError(debuggee)) {
           log(`Debugger ${this.sessionNumber} reconnecting to ${this.connId}`)
-          // reconnect
+          // 重新连接
           break
         }
         log(`Debugger ${this.sessionNumber} on connection  ${this.connId} reached a breakpoint`)
@@ -301,7 +301,7 @@ export class DebugListener {
             default:
               const elapsed = new Date().getTime() - startTime
               if (elapsed < 50000) {
-                // greater is likely a timeout
+              // 更大可能是超时
                 const quit = await this.ui.Confirmator(
                   `Error listening to debugger: ${caughtToString(error)} Close session?`
                 )
@@ -320,15 +320,15 @@ export class DebugListener {
       await this.breakpointManager
         .removeAllBreakpoints(service)
         .catch(e => log(`stopThread: removeAllBreakpoints failed: ${caughtToString(e)}`))
-      // stepContinue releases the debuggee on SAP. If this fails, the kernel-level
-      // debug attachment persists and the next session's TPDA_ATTACH will fail.
+      // stepContinue 释放 SAP 上的被调试程序。如果失败，内核级
+      // 调试附加会持续存在，下一次会话的 TPDA_ATTACH 将失败。
       try {
         await service.client.debuggerStep("stepContinue")
       } catch (e: any) {
         const details = e?.properties ? JSON.stringify(e.properties) : ""
         log(`stopThread: stepContinue failed: ${caughtToString(e)} ${details}`)
-        // If the debuggee already ended, that's fine. Otherwise try dropping the session
-        // to force SAP to release the debug attachment.
+        // 如果被调试程序已结束，没关系。否则尝试丢弃会话，
+        // 强制 SAP 释放调试附加。
         if (!isEnded(e)) {
           await service.client
             .dropSession()
@@ -395,21 +395,21 @@ export class DebugListener {
     this.active = false
     if (this.killed) return
     this.killed = true
-    // Stop recording if active
+    // 活动时停止录制
     if (this._recorder?.isRecording) {
       await this._recorder
         .stopRecording()
         .catch(e => log(`logout: stopRecording failed: ${caughtToString(e)}`))
       this._recorder = undefined
     }
-    // Always delete the listener from SAP on logout
+    // 注销时始终从 SAP 删除监听器
     await this.stopListener().catch(e => log(`logout: stopListener failed: ${caughtToString(e)}`))
     const stopServices = this.services.active.map(([s, _]) => this.stopThread(s))
     const proms: Promise<any>[] = [...stopServices]
 
     await Promise.all(proms)
 
-    // Dispose all event listeners to prevent memory leaks
+    // 释放所有事件监听器以防止内存泄漏
     this.listeners.forEach(l => l.dispose())
     this.listeners = []
     this.notifier.dispose()
