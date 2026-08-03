@@ -1,54 +1,54 @@
-# ABAP SQL Syntax Guide
+# ABAP SQL 语法指南
 
-**🚨 CRITICAL: SAP HANA/Open SQL uses different syntax than standard SQL. Use these patterns:**
+**🚨 关键：SAP HANA/Open SQL 使用与标准 SQL 不同的语法。请使用这些模式：**
 
-## Field Names:
+## 字段名：
 
-- **ALWAYS use ABAP tools to discover correct field names before querying**
+- **查询前始终用 ABAP 工具发现正确的字段名**
 
-- **NEVER assume standard field names** - each table has its own conventions
+- **绝不要假设标准字段名** - 每张表有自己的约定
 
-- Use `GetABAPObjectLinesTool` to examine table structure first
+- 先用 `GetABAPObjectLinesTool` 检查表结构
 
-## ORDER BY:
+## ORDER BY：
 
-- ✅ `ORDER BY field DESCENDING` / `ASCENDING` 
+- ✅ `ORDER BY field DESCENDING` / `ASCENDING`
 
 - ❌ `ORDER BY field DESC` / `ASC`
 
-## LIMIT:
+## LIMIT：
 
-- ✅ **Use tool maxRows parameter for reliable limiting**: `maxRows: 100` in tool call
+- ✅ **用工具 maxRows 参数做可靠限制**：工具调用中的 `maxRows: 100`
 
-- ⚠️ **`SELECT fields UP TO n ROWS FROM table`** (won't work - will be ignored)
+- ⚠️ **`SELECT fields UP TO n ROWS FROM table`**（不生效 - 会被忽略）
 
-- ❌ **`SELECT fields FROM table LIMIT n`** (standard SQL - NOT supported)
+- ❌ **`SELECT fields FROM table LIMIT n`**（标准 SQL - 不支持）
 
-- ❌ **`SELECT TOP n fields FROM table`** (SQL Server style - NOT supported)
+- ❌ **`SELECT TOP n fields FROM table`**（SQL Server 风格 - 不支持）
 
-## Operators:
+## 运算符：
 
-- ✅ `AND`, `OR`, `IN()`, `BETWEEN`, `IS NULL`, `IS NOT NULL`, `LIKE '%pattern%'`
+- ✅ `AND`、`OR`、`IN()`、`BETWEEN`、`IS NULL`、`IS NOT NULL`、`LIKE '%pattern%'`
 
-- ❌ `&&`, `||`, `CONTAINS`, `NOT NULL`
+- ❌ `&&`、`||`、`CONTAINS`、`NOT NULL`
 
-## Aggregation & Grouping:
+## 聚合与分组：
 
-- ✅ `DISTINCT`, `COUNT(*)`, `GROUP BY`, `HAVING`, `UNION`, `UNION ALL`, `CASE`
+- ✅ `DISTINCT`、`COUNT(*)`、`GROUP BY`、`HAVING`、`UNION`、`UNION ALL`、`CASE`
 
-- ✅ **Aliases required for computed columns in GROUP BY**
+- ✅ **GROUP BY 中的计算列必须用别名**
 
-- ✅ **Functions require spaces around parentheses**: `SUM( column )`, `AVG( column )`, `MIN( column )`, `MAX( column )`
+- ✅ **函数括号两边必须有空格**：`SUM( column )`、`AVG( column )`、`MIN( column )`、`MAX( column )`
 
-- ✅ **String functions**: `LENGTH( column )`, `UPPER( column )`, `LOWER( column )`, `SUBSTRING( column, start, length )`
+- ✅ **字符串函数**：`LENGTH( column )`、`UPPER( column )`、`LOWER( column )`、`SUBSTRING( column, start, length )`
 
-- ✅ **Math functions**: `ROUND( column, decimals )`, `ABS( column )`, `+`, `-`, `*`, `/`
+- ✅ **数学函数**：`ROUND( column, decimals )`、`ABS( column )`、`+`、`-`、`*`、`/`
 
-- ✅ **NULL functions**: `COALESCE( column, default_value )`
+- ✅ **NULL 函数**：`COALESCE( column, default_value )`
 
-- ✅ **Subqueries**: `IN ( SELECT... )`, `NOT IN ( SELECT... )`, `ANY ( SELECT... )`, `ALL ( SELECT... )`
+- ✅ **子查询**：`IN ( SELECT... )`、`NOT IN ( SELECT... )`、`ANY ( SELECT... )`、`ALL ( SELECT... )`
 
-- ✅ **ABAP-style JOINs**: Use tilde notation `table~field` and `AS` aliases
+- ✅ **ABAP 风格 JOIN**：使用波浪号记法 `table~field` 和 `AS` 别名
 
   - `FROM table1 AS a INNER JOIN table2 AS b ON a~key = b~key`
 
@@ -56,23 +56,22 @@
 
   - `FROM table1 AS a RIGHT OUTER JOIN table2 AS b ON a~key = b~key`
 
-- ✅ **EXISTS/NOT EXISTS**: `WHERE EXISTS ( SELECT 1 FROM table AS b WHERE b~key = a~key )`
+- ✅ **EXISTS/NOT EXISTS**：`WHERE EXISTS ( SELECT 1 FROM table AS b WHERE b~key = a~key )`
 
-- ✅ **Multiple JOINs, JOINs with WHERE/GROUP BY/aggregates**
+- ✅ **多个 JOIN、带 WHERE/GROUP BY/聚合的 JOIN**
 
-- ✅ **FULL OUTER JOIN simulation**: Use `LEFT OUTER JOIN ... UNION RIGHT OUTER JOIN ... WHERE left_table~key IS NULL`
+- ✅ **FULL OUTER JOIN 模拟**：用 `LEFT OUTER JOIN ... UNION RIGHT OUTER JOIN ... WHERE left_table~key IS NULL`
 
-- ✅ **Limited date functions**: `ADD_DAYS( date, number )`, `ADD_MONTHS( date, number )`
+- ✅ **有限的日期函数**：`ADD_DAYS( date, number )`、`ADD_MONTHS( date, number )`
 
-- ⚠️ **ABAP-specific clauses ignored**: `INTO CORRESPONDING FIELDS OF TABLE @DATA(var)` (parsed but ignored)
+- ⚠️ **ABAP 专属子句被忽略**：`INTO CORRESPONDING FIELDS OF TABLE @DATA(var)`（会解析但被忽略）
 
-- ❌ **Function syntax without spaces**: `SUM(column)`, `AVG(column)` (parser error)
+- ❌ **无空格的函数语法**：`SUM(column)`、`AVG(column)`（解析错误）
 
-- ❌ **Standard SQL JOINs**: `table.field` notation (use tilde `table~field`)
+- ❌ **标准 SQL JOIN**：`table.field` 记法（用波浪号 `table~field`）
 
-- ❌ **Window functions**: `OVER()`, `PARTITION BY`, `LAG()`, `LEAD()`
+- ❌ **窗口函数**：`OVER()`、`PARTITION BY`、`LAG()`、`LEAD()`
 
-- ❌ **FULL OUTER JOIN** (use simulation pattern above)
+- ❌ **FULL OUTER JOIN**（用上面的模拟模式）
 
-- ❌ **Advanced date functions**: `YEAR()`, `MONTH()`, `EXTRACT()`, `DAYS_BETWEEN()`, `CURRENT_DATE`
-
+- ❌ **高级日期函数**：`YEAR()`、`MONTH()`、`EXTRACT()`、`DAYS_BETWEEN()`、`CURRENT_DATE`

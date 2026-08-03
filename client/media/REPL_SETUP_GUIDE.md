@@ -1,107 +1,107 @@
-# ABAP REPL — SAP-Side Setup Guide
+# ABAP REPL — SAP 端设置指南
 
-> ⚠️ **Experimental Feature** — The ABAP REPL is experimental and may change or be removed in future versions. Use with caution.
+> ⚠️ **实验性功能** — ABAP REPL 是实验性的，未来版本可能更改或移除。请谨慎使用。
 
-> 🔒 **Production Systems Blocked** — The REPL intentionally refuses to execute on production SAP clients. This is a hardcoded security restriction. It is designed for development and test systems only.
+> 🔒 **生产系统已阻止** — REPL 故意拒绝在生产 SAP client 上执行。这是硬编码的安全限制。它只面向开发和测试系统。
 
-## What You're Installing
+## 你要安装什么
 
-One ABAP class (`ZCL_ABAP_REPL`) and one SICF service node (`Z_ABAP_REPL`). Nothing else. No database tables, no function modules, no config tables.
+一个 ABAP 类（`ZCL_ABAP_REPL`）和一个 SICF 服务节点（`Z_ABAP_REPL`）。仅此而已。没有数据库表、没有函数模块、没有配置表。
 
-**Time to set up: 10 minutes.**
-
----
-
-## Step 1: Create the Class
-
-### Option A: Via SE24 (SAP GUI)
-
-1. Open transaction **SE24**
-2. Class name: **ZCL_ABAP_REPL**
-3. Click **Create**
-4. Description: `ABAP REPL - Remote Code Execution Service`
-5. Package: **$TMP** (local, no transport) or your Z-package
-6. Go to the **Interfaces** tab → Add: **IF_HTTP_EXTENSION**
-7. Go to the **Source** tab (Source code-based view)
-8. Delete all generated code
-9. Paste the ENTIRE contents of [`ZCL_ABAP_REPL.abap`](ZCL_ABAP_REPL.abap)
-10. **Activate** (Ctrl+F3)
-
-### Option B: Via ABAP FS in VS Code
-
-1. In Copilot chat: "Create a class ZCL_ABAP_REPL in $TMP with interface IF_HTTP_EXTENSION"
-2. Open the created class
-3. Replace all code with contents of `ZCL_ABAP_REPL.abap`
-4. Save and activate (Alt+Shift+F3)
+**设置时间：10 分钟。**
 
 ---
 
-## Step 2: Create the SICF Service
+## 第 1 步：创建类
 
-1. Open transaction **SICF**
-2. In the tree, navigate to: **default_host → sap → bc**
-3. Right-click on **bc** → **Create Service**
-4. Fill in:
-   - **Name of Service Element:** `z_abap_repl`
-   - **Description:** `ABAP REPL Service`
-5. Go to the **Handler List** tab
-6. In **Handler 1:** enter `ZCL_ABAP_REPL`
-7. Click **Save** (assign to $TMP or your transport)
-8. Back in the SICF tree, right-click on `z_abap_repl` → **Activate Service**
+### 方式 A：通过 SE24（SAP GUI）
 
----
+1. 打开事务 **SE24**
+2. 类名：**ZCL_ABAP_REPL**
+3. 点击**创建**
+4. 描述：`ABAP REPL - Remote Code Execution Service`
+5. 包：**$TMP**（本地，无传输）或你的 Z 包
+6. 转到**接口**选项卡 → 添加：**IF_HTTP_EXTENSION**
+7. 转到**源码**选项卡（基于源码的视图）
+8. 删除所有生成的代码
+9. 粘贴 [`ZCL_ABAP_REPL.abap`](ZCL_ABAP_REPL.abap) 的**全部**内容
+10. **激活**（Ctrl+F3）
 
-## Step 3: Verify
+### 方式 B：通过 VS Code 中的 ABAP FS
 
-Open the REPL panel in VS Code (Command Palette → "Execute ABAP Code"). Select your SAP system and run a simple statement like `WRITE: / 'Hello'.`
-
-If you get an error saying the REPL service is not available:
-1. Go to SICF → search for `z_abap_repl`
-2. Right-click → **Activate Service**
-3. Try again
+1. 在 Copilot 聊天中：“Create a class ZCL_ABAP_REPL in $TMP with interface IF_HTTP_EXTENSION”
+2. 打开创建的类
+3. 用 `ZCL_ABAP_REPL.abap` 的内容替换所有代码
+4. 保存并激活（Alt+Shift+F3）
 
 ---
 
-## Authorizations
+## 第 2 步：创建 SICF 服务
 
-The user needs:
+1. 打开事务 **SICF**
+2. 在树中导航到：**default_host → sap → bc**
+3. 右键 **bc** → **创建服务**
+4. 填写：
+   - **服务元素名称：** `z_abap_repl`
+   - **描述：** `ABAP REPL Service`
+5. 转到**处理程序列表**选项卡
+6. 在**处理程序 1** 中输入：`ZCL_ABAP_REPL`
+7. 点击**保存**（分配给 $TMP 或你的传输）
+8. 回到 SICF 树，右键 `z_abap_repl` → **激活服务**
 
-| Auth Object | Field | Value | Why |
+---
+
+## 第 3 步：验证
+
+在 VS Code 中打开 REPL 面板（命令面板 → “Execute ABAP Code”）。选择你的 SAP 系统并运行一条简单语句，如 `WRITE: / 'Hello'.`。
+
+如果收到 REPL 服务不可用的错误：
+1. 进入 SICF → 搜索 `z_abap_repl`
+2. 右键 → **激活服务**
+3. 重试
+
+---
+
+## 授权
+
+用户需要：
+
+| 授权对象 | 字段 | 值 | 原因 |
 |------------|-------|-------|-----|
-| **S_DEVELOP** | ACTVT | 03 | Developer access (generate subroutine pool) |
-| **S_ICF** | ICF_VALUE | z_abap_repl | Access to the HTTP service |
+| **S_DEVELOP** | ACTVT | 03 | 开发人员访问（生成子程序池） |
+| **S_ICF** | ICF_VALUE | z_abap_repl | 访问 HTTP 服务 |
 
-The executed ABAP code runs under the user's own authorizations. The REPL cannot do anything the user couldn't do in SE38.
-
----
-
-## Safety Features
-
-1. **Production block:** Refuses to execute on production clients (T000-CCCATEGORY = 'P')
-2. **Authorization check:** Requires S_DEVELOP before execution
-3. **Audit logging:** Every execution is logged to the application log (SLG1, object ZREPL)
-4. **No persistent artifacts:** No database objects are created. Temporary reports are deleted immediately after execution.
-5. **User context:** Runs under the calling user's SAP role — same authorization scope as SE38
+执行的 ABAP 代码在用户自己的授权下运行。REPL 不能做用户在 SE38 中做不到的任何事。
 
 ---
 
-## Application Log Object (Optional)
+## 安全特性
 
-If you want the audit log to work properly, create an application log object:
-
-1. Transaction **SLG0**
-2. Create object: **ZREPL**
-3. Description: `ABAP REPL Execution Log`
-4. Create sub-object: **EXEC**
-5. Description: `Code Execution`
-
-Without this, executions won't be logged. The REPL still works — you just don't get the audit trail.
+1. **生产阻止：** 拒绝在生产 client（T000-CCCATEGORY = 'P'）上执行
+2. **授权检查：** 执行前要求 S_DEVELOP
+3. **审计日志：** 每次执行都记录到应用日志（SLG1，对象 ZREPL）
+4. **无持久工件：** 不创建任何数据库对象。临时报表执行后立即删除。
+5. **用户上下文：** 以调用用户的 SAP 角色运行——与 SE38 相同的授权范围
 
 ---
 
-## Removing the Service
+## 应用日志对象（可选）
 
-1. **SICF:** Deactivate and delete `z_abap_repl` service node
-2. **SE24:** Delete class `ZCL_ABAP_REPL`
+想让审计日志正常工作，请创建应用日志对象：
 
-Zero residue on the system.
+1. 事务 **SLG0**
+2. 创建对象：**ZREPL**
+3. 描述：`ABAP REPL Execution Log`
+4. 创建子对象：**EXEC**
+5. 描述：`Code Execution`
+
+不创建的话执行不会被记录。REPL 仍能工作——只是没有审计追踪。
+
+---
+
+## 移除服务
+
+1. **SICF：** 停用并删除 `z_abap_repl` 服务节点
+2. **SE24：** 删除类 `ZCL_ABAP_REPL`
+
+系统上零残留。
