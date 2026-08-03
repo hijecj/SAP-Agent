@@ -1,6 +1,6 @@
 /**
- * Diagram Webview Manager - For displaying Mermaid diagrams with zoom controls
- * Similar to WebviewManager but specialized for diagram viewing
+ * 图表 Webview 管理器 - 用于显示带缩放控件的 Mermaid 图表
+ * 与 WebviewManager 类似，但专用于图表查看
  */
 
 import * as vscode from "vscode"
@@ -39,7 +39,7 @@ export class DiagramWebviewManager {
   }
 
   /**
-   * Display a Mermaid diagram in a webview with zoom controls
+   * 在带缩放控件的 Webview 中显示 Mermaid 图表
    */
   public async displayDiagram(
     svg: string,
@@ -48,7 +48,7 @@ export class DiagramWebviewManager {
   ): Promise<DiagramViewResult> {
     const webviewId = `diagram-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 
-    // Create webview panel
+    // 创建 Webview 面板
     const panel = window.createWebviewPanel("diagramViewer", title, vscode.ViewColumn.One, {
       enableScripts: true,
       localResourceRoots: [
@@ -58,16 +58,16 @@ export class DiagramWebviewManager {
       retainContextWhenHidden: true
     })
 
-    // Store webview reference
+    // 存储 Webview 引用
     this.webviews.set(webviewId, panel)
 
-    // Set up message handler
+    // 设置消息处理程序
     this.setupMessageHandler(panel, webviewId)
 
-    // Generate HTML content
+    // 生成 HTML 内容
     panel.webview.html = this.getWebviewContent(panel.webview, svg, diagramType, title)
 
-    // Handle disposal
+    // 处理销毁
     panel.onDidDispose(() => {
       this.webviews.delete(webviewId)
     })
