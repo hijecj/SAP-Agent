@@ -1,6 +1,6 @@
 /**
- * Test Documentation Creator Service
- * Creates Word documents from Playwright screenshots organized by scenarios
+ * 测试文档创建服务
+ * 从按场景组织的 Playwright 截图创建 Word 文档
  */
 
 import * as vscode from "vscode"
@@ -26,7 +26,7 @@ export interface TestDocumentOptions {
 
 export class TestDocumentCreator {
   /**
-   * Creates a Word document from test scenarios and screenshots
+   * 从测试场景和截图创建 Word 文档
    */
   async createDocument(options: TestDocumentOptions): Promise<Buffer> {
     const {
@@ -35,10 +35,10 @@ export class TestDocumentCreator {
       testDate = new Date().toISOString().split("T")[0]
     } = options
 
-    // Create document sections
+    // 创建文档章节
     const sections: Paragraph[] = []
 
-    // Add title and header
+    // 添加标题和页眉
     sections.push(
       new Paragraph({
         text: reportTitle,
@@ -66,9 +66,9 @@ export class TestDocumentCreator {
       })
     )
 
-    // Process each scenario
+    // 处理每个场景
     for (const scenario of scenarios) {
-      // Scenario header
+      // 场景标题
       sections.push(
         new Paragraph({
           text: `Scenario ${scenario.scenarioId}: ${scenario.scenarioName}`,
@@ -86,17 +86,17 @@ export class TestDocumentCreator {
         })
       )
 
-      // Process screenshots for this scenario
+      // 处理此场景的截图
       for (let i = 0; i < scenario.screenshots.length; i++) {
         const screenshot = scenario.screenshots[i]
 
         try {
-          // Read image file
+          // 读取图片文件
           const normalizedPath = path.normalize(screenshot.filePath)
           const imageUri = vscode.Uri.file(normalizedPath)
           const imageData = await vscode.workspace.fs.readFile(imageUri)
 
-          // Add screenshot description
+          // 添加截图描述
           sections.push(
             new Paragraph({
               children: [
@@ -109,7 +109,7 @@ export class TestDocumentCreator {
             })
           )
 
-          // Add image with proper PNG format specification
+          // 添加带正确 PNG 格式规范的图片
           sections.push(
             new Paragraph({
               children: [
@@ -127,7 +127,7 @@ export class TestDocumentCreator {
             })
           )
         } catch (imageError) {
-          // Add error message if image can't be loaded
+          // 图片无法加载时添加错误消息
           sections.push(
             new Paragraph({
               children: [
@@ -153,7 +153,7 @@ export class TestDocumentCreator {
       }
     }
 
-    // Create document
+    // 创建文档
     const doc = new Document({
       sections: [
         {
@@ -162,12 +162,12 @@ export class TestDocumentCreator {
       ]
     })
 
-    // Generate buffer
+    // 生成缓冲区
     return await Packer.toBuffer(doc)
   }
 
   /**
-   * Shows save dialog and saves the document
+   * 显示保存对话框并保存文档
    */
   async saveDocument(documentBuffer: Buffer, defaultFileName?: string): Promise<string | null> {
     const fileName = defaultFileName || `test-documentation-${Date.now()}.docx`
