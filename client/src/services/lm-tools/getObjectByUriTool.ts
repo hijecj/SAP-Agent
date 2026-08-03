@@ -1,6 +1,6 @@
 /**
- * ABAP Get Object By URI Tool
- * Direct access to ABAP objects using ADT URIs
+ * ABAP 按 URI 获取对象工具
+ * 使用 ADT URI 直接访问 ABAP 对象
  */
 
 import * as vscode from "vscode"
@@ -13,7 +13,7 @@ import { getOptimalObjectURI, resolveCorrectURI } from "./shared"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface IGetObjectByURIParameters {
@@ -24,11 +24,11 @@ export interface IGetObjectByURIParameters {
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 🎯 GET OBJECT BY URI TOOL - Direct access using ADT paths!
+ * 🎯 按 URI 获取对象工具 - 使用 ADT 路径直接访问！
  */
 export class GetObjectByURITool implements vscode.LanguageModelTool<IGetObjectByURIParameters> {
   async prepareInvocation(
@@ -82,7 +82,7 @@ export class GetObjectByURITool implements vscode.LanguageModelTool<IGetObjectBy
       let sourceContent = ""
       let uriUsed = ""
 
-      // Intelligent URI approach
+      // 智能 URI 方法
       let optimalUri = uri
 
       if (!uri.includes("/source/main")) {
@@ -213,7 +213,7 @@ export class GetObjectByURITool implements vscode.LanguageModelTool<IGetObjectBy
               }
             }
           } catch {
-            // Fallback failed
+            // 回退失败
           }
         }
 
@@ -246,7 +246,7 @@ export class GetObjectByURITool implements vscode.LanguageModelTool<IGetObjectBy
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerGetObjectByUriTool(context: vscode.ExtensionContext): void {
