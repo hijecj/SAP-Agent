@@ -1,238 +1,238 @@
-# ABAP FS — ABAP Development in VS Code
+# ABAP FS — 在 VS Code 中进行 ABAP 开发
 
-**ABAP FS** is a VS Code extension that connects directly to your SAP system — giving you (and your AI assistant) live access to read code, query tables, run tests, debug, and manage objects without leaving the editor.
+**ABAP FS** 是一个 VS Code 扩展，直接连接到你的 SAP 系统——让你（和你的 AI 助手）在不离开编辑器的情况下实时访问：读取代码、查询数据表、运行测试、调试和管理对象。
 
-Ask Copilot "How does BAPI_USER_GET_DETAIL work?" and it finds the function, reads the code, checks where it's used, and examines related objects — all autonomously using 40 specialized SAP tools.
+问 Copilot “BAPI_USER_GET_DETAIL 是怎么工作的？”，它会找到该函数、阅读代码、检查它在哪些地方被使用，并查看相关对象——全程自动，使用 40 个专用 SAP 工具。
 
-If you're used to SE38, SE24, or ADT in Eclipse, ABAP FS brings that same direct-system connectivity into VS Code — plus AI assistance, modern tooling, and the full VS Code extension ecosystem.
+如果你习惯使用 SE38、SE24 或 Eclipse 中的 ADT，ABAP FS 将同样的直接系统连接带入 VS Code——并加上 AI 辅助、现代化工具和完整的 VS Code 扩展生态。
 
-> **GitHub Repository:** [github.com/marcellourbani/vscode_abap_remote_fs](https://github.com/marcellourbani/vscode_abap_remote_fs)
+> **GitHub 仓库：** [github.com/marcellourbani/vscode_abap_remote_fs](https://github.com/marcellourbani/vscode_abap_remote_fs)
 
 ---
 
-## What you can do
+## 你可以做什么
 
-> **Note:** ABAP FS has 40+ AI tools, but only the documentation tool is available until you connect to a SAP system. Add SAP connections using Connection manager and then run `ABAP FS: Connect to an ABAP system` from the Command Palette to unlock all tools.
+> **注意：** ABAP FS 有 40+ 个 AI 工具，但在你连接 SAP 系统之前，只有文档工具可用。使用连接管理器添加 SAP 连接，然后从命令面板运行 `ABAP FS: Connect to an ABAP system` 解锁所有工具。
 
-This is a high-level summary. See the left navigation for full feature pages.
+这里是高层概览。完整功能页面请参阅左侧导航。
 
-| Area | Capabilities |
+| 领域 | 能力 |
 |------|-------------|
-| **AI-Powered Development** | 40 tools give Copilot deep SAP awareness — search objects, read code, run tests, explain dumps, all via natural language |
-| **Edit & Activate** | Browse, open, edit, and activate ABAP objects on the live system |
-| **Editor Experience** | Enhanced hover info, custom editors, object properties, and dedicated ABAP views/panels |
-| **Debug** | Full ABAP debugger with breakpoints, variable inspection, stepping, and debug recording |
-| **Test** | Run unit tests, create test classes, generate test documentation |
-| **Code Quality** | ATC analysis, syntax validation, where-used, ABAP Cleaner formatting |
-| **Transport** | View and manage transport requests directly |
-| **Version Control** | abapGit integration, revision history, blame gutter |
-| **Data & SQL** | Run SQL queries against SAP tables, build multi-step data workbooks |
-| **SAP GUI** | Launch embedded, native, or browser-based SAP GUI from the editor |
-| **Diagrams & Docs** | Generate Mermaid diagrams and ABAP documentation from within VS Code |
-| **Developer Tools** | REPL, Dumps/traces analysis, regex search, dependency graph, feed reader, communication log, RAP generator |
+| **AI 驱动开发** | 40 个工具让 Copilot 深入了解 SAP——搜索对象、读代码、跑测试、解释 Dump，全部通过自然语言完成 |
+| **编辑与激活** | 在真实系统上浏览、打开、编辑和激活 ABAP 对象 |
+| **编辑器体验** | 增强的悬停信息、自定义编辑器、对象属性、专用 ABAP 视图/面板 |
+| **调试** | 完整 ABAP 调试器，支持断点、变量检查、单步执行和调试录制 |
+| **测试** | 运行单元测试、创建测试类、生成测试文档 |
+| **代码质量** | ATC 分析、语法验证、where-used、ABAP Cleaner 格式化 |
+| **传输** | 直接查看和管理传输请求 |
+| **版本控制** | abapGit 集成、修订历史、blame 侧边注释 |
+| **数据与 SQL** | 对 SAP 表运行 SQL 查询，构建多步骤数据工作簿 |
+| **SAP GUI** | 从编辑器中启动嵌入式、原生或浏览器版 SAP GUI |
+| **图表与文档** | 在 VS Code 内生成 Mermaid 图表和 ABAP 文档 |
+| **开发者工具** | REPL、Dump/跟踪分析、正则搜索、依赖关系图、Feed 阅读器、通信日志、RAP 生成器 |
 
 ---
 
-## New to ABAP FS?
+## 刚接触 ABAP FS？
 
-1. [Installation](#installation-steps) — install the extension and connect to your SAP system
-2. [Walkthrough](#getting-started-walkthrough) — a guided tour of the main features
-3. [Connection Manager](#sap-connection-manager) — manage multiple SAP connections
-
----
-
-## Using a non-GitHub Copilot AI tool?
-
-Works with **Cursor, Claude Code, Windsurf, Claude Desktop**, and any MCP-compatible client.  
-See [MCP Server](#mcp-server-for-external-ai-tools) for setup.
+1. [安装](#安装步骤) — 安装扩展并连接你的 SAP 系统
+2. [引导](#入门引导) — 主要功能的引导式参观
+3. [连接管理器](#sap-连接管理器) — 管理多个 SAP 连接
 
 ---
 
-> **Tip:** GitHub Copilot (and any AI connected via MCP) has access to this documentation. Just ask your AI assistant about any feature and it can guide you.
+## 使用非 GitHub Copilot 的 AI 工具？
 
-# Installation Steps
+支持 **Cursor、Claude Code、Windsurf、Claude Desktop** 以及任何兼容 MCP 的客户端。
+参见 [MCP 服务器](#面向外部-ai-工具的-mcp-服务器) 进行设置。
 
-Before proceeding, ensure you meet the [Prerequisites](prerequisite.md).
+---
 
-> **Note:** ABAP FS registers 40+ AI tools for Copilot, but only the documentation tool is available until you connect to a SAP system. Connect to SAP first to unlock all tools.
+> **提示：** GitHub Copilot（以及任何通过 MCP 连接的 AI）都可以访问本文档。直接向你的 AI 助手询问任何功能，它就能引导你。
 
-## 1. Install the extension
+# 安装步骤
 
-1. Press `Ctrl+Shift+X` or Click on the extension icon on the activity bar to open the **Extensions** panel (left sidebar)
-2. Search for **murbani.vscode-abap-remote-fs** or **ABAP remote filesystem**
-3. Click **Install**, then restart VS Code
+在继续之前，请确保满足[前置条件](prerequisite.md)。
 
-![Installation instructions](installationImage.png)
+> **注意：** ABAP FS 为 Copilot 注册了 40+ 个 AI 工具，但在你连接 SAP 系统之前，只有文档工具可用。先连接 SAP 才能解锁所有工具。
 
-## 2. Configure a SAP system connection
+## 1. 安装扩展
 
-1. Press `Ctrl+Shift+P` to open the **Command Palette** (the search bar for VS Code commands)
-2. Type and run: **ABAP FS: Connection Manager**
-3. In the connection manager window, click **Add SAP System** and fill in:
-   - **URL** – your SAP system URL
-   - **Client**, **Username**, **Language**
-   - SAP GUI settings (optional)
-4. Choose where to save the connection:
-   - **User settings** – available in all your VS Code workspaces
-   - **Workspace settings** – stored in the current project folder only
+1. 按 `Ctrl+Shift+X` 或点击活动栏上的扩展图标，打开**扩展**面板（左侧边栏）
+2. 搜索 **murbani.vscode-abap-remote-fs** 或 **ABAP remote filesystem**
+3. 点击**安装**，然后重启 VS Code
 
-**Tips:**
+![安装说明](installationImage.png)
 
-- Passwords are stored in the OS credential manager, not in settings files.
-- If a colleague already has connections configured, ask them to export via **Import/Export** and send you the JSON. User IDs and passwords are excluded from exports. You can then import and update your credentials in bulk using **Bulk Operations**.
-- For SAP BTP systems, use **Cloud Support** to create a connection from a BTP Service Key or Endpoint.
+## 2. 配置 SAP 系统连接
 
-## 3. Connect to a SAP system
+1. 按 `Ctrl+Shift+P` 打开**命令面板**（VS Code 命令搜索栏）
+2. 输入并运行：**ABAP FS: Connection Manager**
+3. 在连接管理器窗口中，点击**添加 SAP 系统**并填写：
+   - **URL** — 你的 SAP 系统 URL
+   - **Client**、**Username**、**Language**
+   - SAP GUI 设置（可选）
+4. 选择连接保存的位置：
+   - **用户设置** — 在你所有的 VS Code 工作区中可用
+   - **工作区设置** — 仅存储在当前的工程目录中
 
-1. Press `Ctrl+Shift+P` and run: **ABAP FS: Connect to an SAP system**
-2. Select the system you configured
-3. Enter your password if prompted
-4. Wait a moment for VS Code to establish the connection
+**提示：**
 
-## Password Management
+- 密码存储在操作系统凭据管理器中，而不是设置文件中。
+- 如果同事已经配置了连接，请让他们通过**导入/导出**导出并把 JSON 发给你。导出不包含用户 ID 和密码。你可以导入后用**批量操作**批量更新自己的凭证。
+- 对于 SAP BTP 系统，使用**云支持**通过 BTP Service Key 或 Endpoint 创建连接。
 
-- **Change password:** `Ctrl+Shift+P` → **ABAP FS: Change Connection Password** — select a system and enter your new password.
-- **Forget password:** `Ctrl+Shift+P` → **ABAP FS: Forget connection password** — removes the stored password so you're prompted again on next connect.
+## 3. 连接 SAP 系统
 
-## 4. Verify the connection
+1. 按 `Ctrl+Shift+P` 并运行：**ABAP FS: Connect to an SAP system**
+2. 选择你配置好的系统
+3. 提示时输入密码
+4. 稍等片刻，等待 VS Code 建立连接
 
-- Look for the **ABAP FS** icon in the **Activity Bar** (the vertical icon strip on the far left)
-- Expand the views: **Transports**, **Dumps**, **ATC Finds**, **Traces**, **abapGit**
-- Test object search: `Ctrl+Shift+P` → **ABAP FS: Search for object**
+## 密码管理
 
-## Updates
+- **修改密码：** `Ctrl+Shift+P` → **ABAP FS: Change Connection Password** — 选择一个系统并输入新密码。
+- **忘记密码：** `Ctrl+Shift+P` → **ABAP FS: Forget connection password** — 删除已存储的密码，下次连接时重新提示。
 
-The extension updates automatically if installed from the VS Code Marketplace and auto-update is enabled. To check: open the Extensions panel (`Ctrl+Shift+X`), find the extension, and verify **Auto Update** is on.
+## 4. 验证连接
 
-# Getting Started Walkthrough
+- 在**活动栏**（最左侧的垂直图标条）中查找 **ABAP FS** 图标
+- 展开视图：**传输**、**Dump**、**ATC 结果**、**跟踪**、**abapGit**
+- 测试对象搜索：`Ctrl+Shift+P` → **ABAP FS: Search for object**
 
-When you install ABAP FS, VS Code automatically opens an interactive walkthrough. It guides you through the extension's features in a structured, step-by-step format.
+## 更新
 
-## Walkthrough Stages
+如果从 VS Code Marketplace 安装且启用了自动更新，扩展会自动更新。检查方法：打开扩展面板（`Ctrl+Shift+X`），找到该扩展，确认**自动更新**已开启。
 
-The walkthrough covers four progressive stages:
+# 入门引导
 
-1. **Getting Connected** — Activate the extension, connect to an SAP system, navigate objects, search, run transactions, and launch SAP GUI.
+安装 ABAP FS 时，VS Code 会自动打开一个交互式引导。它以结构化的分步形式带你了解扩展的功能。
 
-2. **Core Features** — ABAP Cleaner, ATC code analysis, blame annotations, debugging, dump analysis, performance traces, transport management, unit tests.
+## 引导阶段
 
-3. **AI & Copilot** — AI-powered search, data queries, diagrams, where-used analysis, version history comparisons, AI-assisted unit tests, and skills.
+引导覆盖四个递进阶段：
 
-4. **Advanced** — Communication log, cross-system comparison, debug recording & replay, dependency graphs, feed inbox, heartbeat monitoring, MCP setup, subagents, text elements.
+1. **连接入门** — 激活扩展、连接 SAP 系统、浏览对象、搜索、运行事务、启动 SAP GUI。
 
-## Re-opening the Walkthrough
+2. **核心功能** — ABAP Cleaner、ATC 代码分析、Blame 注释、调试、Dump 分析、性能跟踪、传输管理、单元测试。
 
-The walkthrough shows automatically only once. To open it again:
+3. **AI 与 Copilot** — AI 驱动的搜索、数据查询、图表、where-used 分析、版本历史比较、AI 辅助单元测试和技能包。
 
-1. Press `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (Mac) to open the **Command Palette** — a search bar for all VS Code commands.
-2. Type **ABAP FS:Show Walkthrough** and press `Enter`.
-3. Search for **ABAP** and select the walkthrough you want.
+4. **高级功能** — 通信日志、跨系统比较、调试录制与回放、依赖关系图、Feed 收件箱、心跳监控、MCP 设置、子代理、文本元素。
 
-Alternatively, open **Help → Welcome** from the menu bar, then select the ABAP FS walkthrough from the list.
+## 重新打开引导
 
-# SAP Connection Manager
+引导只在首次自动显示一次。要再次打开：
 
-> **Important:** ABAP FS has 40+ AI tools for Copilot, but they are only available once you connect to a SAP system. Use the Connection Manager to add your first system.
+1. 按 `Ctrl+Shift+P`（Windows/Linux）或 `Cmd+Shift+P`（Mac）打开**命令面板** — 所有 VS Code 命令的搜索栏。
+2. 输入 **ABAP FS:Show Walkthrough** 并按 `Enter`。
+3. 搜索 **ABAP** 并选择你想要的引导。
 
-The Connection Manager is a visual interface for adding, editing, and organizing your SAP system connections. Open it from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) by typing **ABAP FS: Connection Manager**.
+或者，从菜单栏打开**帮助 → 欢迎**，然后从列表中选择 ABAP FS 引导。
 
-## Adding a Connection
+# SAP 连接管理器
 
-1. Open the Command Palette (`Ctrl+Shift+P`) and run **ABAP FS: Connection Manager**.
-2. Click **Add Connection**.
-3. Fill in the required fields (see [Configuration Fields](#configuration-fields) below).
-4. Choose where to save: **User Settings** (available in all workspaces) or **Workspace Settings** (this project only).
-5. Click **Save**. You will be prompted for your password on the first connect — it is stored securely in the OS credential manager, never in settings files.
+> **重要：** ABAP FS 为 Copilot 提供了 40+ 个 AI 工具，但只有连接 SAP 系统后才能使用。使用连接管理器添加你的第一个系统。
 
-## Configuration Fields
+连接管理器是一个用于添加、编辑和组织 SAP 系统连接的可视化界面。从命令面板（`Ctrl+Shift+P` / `Cmd+Shift+P`）输入 **ABAP FS: Connection Manager** 打开它。
 
-| Section | Fields |
+## 添加连接
+
+1. 打开命令面板（`Ctrl+Shift+P`）并运行 **ABAP FS: Connection Manager**。
+2. 点击**添加连接**。
+3. 填写必填字段（见下方[配置字段](#配置字段)）。
+4. 选择保存位置：**用户设置**（在所有工作区可用）或**工作区设置**（仅当前工程）。
+5. 点击**保存**。首次连接时会提示输入密码——密码安全存储在操作系统凭据管理器中，绝不在设置文件中。
+
+## 配置字段
+
+| 部分 | 字段 |
 |---|---|
-| **Basic** | ADT URL, username, SAP client, language |
-| **SSL** | Allow self-signed certificates, custom CA certificate |
-| **SAP GUI** | Server, system number, router string, message server, GUI type (Desktop / Embedded WebGUI / Browser) |
-| **OAuth** | Client ID, secret, login URL |
-| **Advanced** | ATC approver, ATC check variant, max debug threads, diff formatter |
+| **基本** | ADT URL、用户名、SAP client、语言 |
+| **SSL** | 允许自签名证书、自定义 CA 证书 |
+| **SAP GUI** | 服务器、系统编号、路由字符串、消息服务器、GUI 类型（桌面 / 嵌入式 WebGUI / 浏览器） |
+| **OAuth** | Client ID、密钥、登录 URL |
+| **高级** | ATC 审批人、ATC 检查变式、最大调试线程数、diff 格式化器 |
 
-## Import / Export
+## 导入 / 导出
 
-- **Export** — saves all connections to a JSON file (passwords excluded) for backup or sharing with colleagues.
-- **Import** — merges connections from a previously exported JSON file.
-- **BTP Service Key** — create a connection from a BTP Service Key JSON file.
-- **BTP Endpoint** — create a connection via an interactive Cloud Foundry login flow.
+- **导出** — 将所有连接保存为 JSON 文件（不含密码），用于备份或与同事共享。
+- **导入** — 合并来自之前导出的 JSON 文件的连接。
+- **BTP Service Key** — 从 BTP Service Key JSON 文件创建连接。
+- **BTP Endpoint** — 通过交互式 Cloud Foundry 登录流程创建连接。
 
-## Bulk Operations
+## 批量操作
 
-Select multiple connections using the checkboxes to:
+使用复选框选择多个连接，可以：
 
-- **Bulk delete** — remove several connections at once.
-- **Bulk username edit** — update the username across multiple connections simultaneously.
+- **批量删除** — 一次移除多个连接。
+- **批量修改用户名** — 同时更新多个连接的用户名。
 
-A confirmation dialog appears before any bulk action is applied.
+任何批量操作执行前都会出现确认对话框。
 
-## Password Management
+## 密码管理
 
-Passwords are stored securely in the OS credential manager (never in settings files).
+密码安全存储在操作系统凭据管理器中（绝不在设置文件中）。
 
-| Command | What it does |
+| 命令 | 作用 |
 |---|---|
-| **ABAP FS: Change Connection Password** | Select a system and enter a new password |
-| **ABAP FS: Forget connection password** | Removes the stored password; you'll be prompted on next connect |
+| **ABAP FS: Change Connection Password** | 选择一个系统并输入新密码 |
+| **ABAP FS: Forget connection password** | 删除已存储的密码，下次连接时重新提示 |
 
-## User vs. Workspace Settings
+## 用户设置 vs 工作区设置
 
-Connections saved to **User Settings** are global — they appear in every VS Code workspace on your machine. Connections saved to **Workspace Settings** are stored in the `.vscode/settings.json` of the current project folder, making them easy to commit or share per project.
+保存到**用户设置**的连接是全局的——会出现在你机器上的每个 VS Code 工作区中。保存到**工作区设置**的连接存储在工程目录的 `.vscode/settings.json` 中，方便按工程提交或共享。
 
-# MCP Server for External AI Tools
+# 面向外部 AI 工具的 MCP 服务器
 
-> **Prerequisites:** Complete the [Installation Steps](#installation-steps) first. You need VS Code with ABAP FS installed and configured with at least one SAP system connection.
+> **前置条件：** 先完成[安装步骤](#安装步骤)。你需要安装并配置了 ABAP FS、且至少有一个 SAP 系统连接的 VS Code。
 
-> **Note:** ABAP FS has 40+ AI tools. When using GitHub Copilot in VS Code, all tools are available natively once a SAP system is connected — no MCP server needed. The MCP server is only for external AI clients.
+> **注意：** ABAP FS 有 40+ 个 AI 工具。使用 VS Code 中的 GitHub Copilot 时，连接 SAP 系统后所有工具都可原生使用——不需要 MCP 服务器。MCP 服务器只用于外部 AI 客户端。
 
-## What Is This and Why Would You Need It?
+## 这是什么，为什么需要它？
 
-**MCP (Model Context Protocol)** is an open standard that lets AI tools call external services. ABAP FS exposes its 39 SAP tools (search, read code, run tests, query data, etc.) via a local MCP server so that AI assistants outside of VS Code can use them.
+**MCP（模型上下文协议）** 是一个开放标准，让 AI 工具可以调用外部服务。ABAP FS 通过本地 MCP 服务器暴露其 39 个 SAP 工具（搜索、读代码、跑测试、查询数据等），让 VS Code 之外的 AI 助手也能使用。
 
-> **Note:** MCP now supports both reading and writing ABAP code. See [Write Support](#write-support) for details.
+> **注意：** MCP 现在同时支持读取和写入 ABAP 代码。详见[写支持](#写支持)。
 
-**Use this if** you work with AI tools like Cursor, Claude Desktop, Claude Code, or Windsurf and want them to have the same SAP access that GitHub Copilot has inside VS Code.
-Also applies to AI agents plugins for vscode like Cline/Continue/Roo code/... unless they support the [virtual filesystem API](https://code.visualstudio.com/api/extension-guides/virtual-workspaces) AFAIK only copilot does at the moment
+**如果你使用** Cursor、Claude Desktop、Claude Code 或 Windsurf 等 AI 工具，并希望它们拥有与 VS Code 内 GitHub Copilot 相同的 SAP 访问权限，请使用此功能。
+也适用于 Cline/Continue/Roo code 等 VS Code AI 代理插件……除非它们支持[虚拟文件系统 API](https://code.visualstudio.com/api/extension-guides/virtual-workspaces)——据我所知目前只有 Copilot 支持。
 
-**Don't need this if** you only use GitHub Copilot in VS Code — tools are already available there natively.
+**如果你只用 VS Code 中的 GitHub Copilot，则不需要** ——工具已原生可用。
 
 ```text
-┌─────────────────┐     MCP Protocol      ┌──────────────────┐     VS Code API     ┌─────────────┐
-│  Cursor/Claude  │ ◄───────────────────► │  MCP Server      │ ◄─────────────────► │  ABAP FS    │
-│  Desktop/etc.   │    localhost:4847     │  (in VS Code)    │                     │  Tools      │
-└─────────────────┘                       └──────────────────┘                     └─────────────┘
+┌─────────────────┐     MCP 协议      ┌──────────────────┐     VS Code API     ┌─────────────┐
+│  Cursor/Claude  │ ◄───────────────► │  MCP 服务器      │ ◄─────────────────► │  ABAP FS    │
+│  桌面端等       │   localhost:4847  │  （在 VS Code 中）│                     │  工具       │
+└─────────────────┘                   └──────────────────┘                     └─────────────┘
 ```
 
-**VS Code must remain open.** The MCP server runs inside VS Code — closing VS Code stops the server.
+**VS Code 必须保持打开。** MCP 服务器在 VS Code 内运行——关闭 VS Code 会停止服务器。
 
-## Setup
+## 设置
 
-### 1. Start the MCP Server
+### 1. 启动 MCP 服务器
 
-Press `Ctrl+Shift+P` and run: **ABAP FS: Start MCP Server**
+按 `Ctrl+Shift+P` 并运行：**ABAP FS: Start MCP Server**
 
-That's it — the server starts immediately on the default port (4847). A notification confirms it's running.
+就这样——服务器在默认端口（4847）上立即启动。通知会确认它正在运行。
 
-> If you have GitHub Copilot installed, ABAP FS will ask whether you actually need the MCP server (Copilot already has native access to all tools). You can choose to start anyway or cancel.
+> 如果你安装了 GitHub Copilot，ABAP FS 会询问你是否真的需要 MCP 服务器（Copilot 已原生拥有所有工具）。你可以选择照常启动或取消。
 
-### 2. (Optional) Change Port or Add API Key
+### 2.（可选）更改端口或添加 API 密钥
 
-Running the command automatically enables `autoStart` — VS Code will start the MCP server on every launch going forward. You don't need to touch settings for that.
+运行该命令会自动启用 `autoStart`——以后每次启动 VS Code 都会启动 MCP 服务器。你不需要为此修改设置。
 
-If you need to change the port or secure the server with an API key:
+如果需要更改端口或用 API 密钥保护服务器：
 
-Open VS Code Settings (`Ctrl+,`) and search for `abapfs.mcpServer`:
+打开 VS Code 设置（`Ctrl+,`）并搜索 `abapfs.mcpServer`：
 
-| Setting                      | Description                                                                 |
+| 设置 | 描述 |
 | ---------------------------- | --------------------------------------------------------------------------- |
-| `abapfs.mcpServer.port`      | Default `4847` — change if there's a port conflict                          |
-| `abapfs.mcpServer.apiKey`    | Optional. Recommended on shared machines to prevent unauthorized SAP access |
+| `abapfs.mcpServer.port` | 默认 `4847`——端口冲突时更改 |
+| `abapfs.mcpServer.apiKey` | 可选。共享机器上建议设置，防止未授权的 SAP 访问 |
 
-Or add directly to your `settings.json`:
+或直接添加到 `settings.json`：
 
 ```json
 {
@@ -241,15 +241,15 @@ Or add directly to your `settings.json`:
 }
 ```
 
-### 2. Connect to Your SAP System
+### 2. 连接你的 SAP 系统
 
-Use the command `ABAP FS: Connect to an SAP system` (`Ctrl+Shift+P` to open the Command Palette). The MCP server needs an active SAP connection to serve tool requests.
+使用命令 `ABAP FS: Connect to an SAP system`（`Ctrl+Shift+P` 打开命令面板）。MCP 服务器需要活动的 SAP 连接才能服务工具请求。
 
-### 3. Configure Your AI Tool
+### 3. 配置你的 AI 工具
 
-Add the following to your AI tool's MCP configuration. The URL is the same for all clients:
+在 AI 工具的 MCP 配置中添加以下内容。所有客户端的 URL 相同：
 
-**Cursor** — `~/.cursor/mcp.json` or project `.cursor/mcp.json`:
+**Cursor** — `~/.cursor/mcp.json` 或工程 `.cursor/mcp.json`：
 
 ```json
 {
@@ -261,13 +261,13 @@ Add the following to your AI tool's MCP configuration. The URL is the same for a
 }
 ```
 
-**Claude Desktop** — see Claude's documentation for the config file location, then add the same block.
+**Claude Desktop** — 参见 Claude 文档了解配置文件位置，然后添加同样的配置块。
 
-**Other MCP clients** — use the Streamable HTTP endpoint: `http://localhost:4847/mcp`
+**其他 MCP 客户端** — 使用 Streamable HTTP 端点：`http://localhost:4847/mcp`
 
-#### With API Key Authentication
+#### 使用 API 密钥认证
 
-If you set `abapfs.mcpServer.apiKey`, clients must send it as a Bearer token:
+如果你设置了 `abapfs.mcpServer.apiKey`，客户端必须将其作为 Bearer token 发送：
 
 ```json
 {
@@ -282,403 +282,402 @@ If you set `abapfs.mcpServer.apiKey`, clients must send it as a Bearer token:
 }
 ```
 
-Without a matching key, requests return `401 Unauthorized`. The `/health` endpoint is always accessible without authentication.
+没有匹配的密钥时请求返回 `401 Unauthorized`。`/health` 端点始终无需认证即可访问。
 
-### 4. Verify
+### 4. 验证
 
-In your AI tool, ask something SAP-related, for example:
+在 AI 工具中问一些 SAP 相关的问题，例如：
 
-- _"Search for classes containing 'USER'"_
-- _"Show me the code for CL_ABAP_TYPEDESCR"_
-- _"Run unit tests for ZCL_MY_CLASS"_
+- _“搜索包含 'USER' 的类”_
+- _“显示 CL_ABAP_TYPEDESCR 的代码”_
+- _“为 ZCL_MY_CLASS 运行单元测试”_
 
-## Available Tools
+## 可用工具
 
-All 40 ABAP FS tools are exposed, including:
+暴露全部 40 个 ABAP FS 工具，包括：
 
-| Tool                        | What It Does                       |
+| 工具 | 作用 |
 | --------------------------- | ---------------------------------- |
-| `search_abap_objects`       | Search for objects by name pattern |
-| `get_abap_object_lines`     | Read source code                   |
-| `find_where_used`           | Where-used analysis                |
-| `run_unit_tests`            | Execute ABAP unit tests            |
-| `run_atc_analysis`          | Run ATC code checks                |
-| `execute_data_query`        | Run SQL queries against SAP tables |
-| `manage_transport_requests` | Read transport data                |
-| `abap_activate`             | Activate ABAP objects              |
-| `replace_string_in_abap_object` | Edit ABAP source code (find & replace) |
-| `get_abap_diagnostics`      | Get syntax errors/warnings for a file  |
+| `search_abap_objects` | 按名称模式搜索对象 |
+| `get_abap_object_lines` | 读取源代码 |
+| `find_where_used` | Where-used 分析 |
+| `run_unit_tests` | 执行 ABAP 单元测试 |
+| `run_atc_analysis` | 运行 ATC 代码检查 |
+| `execute_data_query` | 对 SAP 表运行 SQL 查询 |
+| `manage_transport_requests` | 读取传输数据 |
+| `abap_activate` | 激活 ABAP 对象 |
+| `replace_string_in_abap_object` | 编辑 ABAP 源代码（查找并替换） |
+| `get_abap_diagnostics` | 获取文件的语法错误/警告 |
 
-## Write Support
+## 写支持
 
-MCP clients can now edit ABAP source code directly. The workflow:
+MCP 客户端现在可以直接编辑 ABAP 源代码。工作流：
 
-1. **Get the file URI** — call `get_abap_object_workspace_uri` with object name/type/connection
-2. **Read current code** — call `get_abap_object_lines` or `search_abap_object_lines`
-3. **Edit** — call `replace_string_in_abap_object` with the URI, old text, and new text
-4. **Verify** — call `get_abap_diagnostics` with the same URI to check for syntax errors
+1. **获取文件 URI** — 用对象名称/类型/连接调用 `get_abap_object_workspace_uri`
+2. **读取当前代码** — 调用 `get_abap_object_lines` 或 `search_abap_object_lines`
+3. **编辑** — 用 URI、旧文本和新文本调用 `replace_string_in_abap_object`
+4. **验证** — 用相同 URI 调用 `get_abap_diagnostics` 检查语法错误
 
-Edits are immediately synced to SAP (ABAP FS handles locking, saving, and unlocking automatically). There is no keep/undo UI — changes are applied directly.
+编辑会立即同步到 SAP（ABAP FS 自动处理锁定、保存和解锁）。没有 keep/undo 界面——变更直接生效。
 
+## 限制
 
-## Limitations
+- **VS Code 必须保持打开** — 服务器在 VS Code 内运行
+- **需要活动 SAP 连接** — 工具需要已连接的系统
+- **WebView 输出出现在 VS Code 中** — 数据查询或 Mermaid 图表等工具的结果作为 VS Code 面板打开，而不是在外部工具中
+- **无导航功能** — 转到定义、查找引用和悬停文档需要 VS Code ABAP FS 集成
+- **调试需要 VS Code** — ABAP 调试器是 VS Code 专属功能
 
-- **VS Code must stay open** — the server runs inside VS Code
-- **Active SAP connection required** — tools need a connected system
-- **Webview outputs appear in VS Code** — results from tools like data queries or Mermaid diagrams open as VS Code panels, not in the external tool
-- **No navigation features** — Go to Definition, Find References, and hover documentation require the VS Code ABAP FS integration
-- **Debugging requires VS Code** — the ABAP debugger is VS Code-specific
+## 故障排查
 
-## Troubleshooting
+### 服务器无法启动
 
-### Server not starting
+- 从命令面板运行 `ABAP FS: Start MCP Server` 手动启动
+- 如果你之前选择了“禁用 MCP”，重新运行该命令——它会启动并重新启用自动启动
+- 打开 VS Code 输出面板（`Ctrl+Shift+U`）并选择“ABAP FS”查看错误消息
+- 如果 4847 已被占用，换一个端口（设置中的 `abapfs.mcpServer.port`）
 
-- Run `ABAP FS: Start MCP Server` from the Command Palette to start it manually
-- If you previously chose "Disable MCP", re-run the command — it will start and re-enable auto-start
-- Open the VS Code Output panel (`Ctrl+Shift+U`) and select "ABAP FS" for error messages
-- Try a different port if 4847 is already in use (`abapfs.mcpServer.port` in settings)
+### 工具不工作
 
-### Tools not working
+- 确认 VS Code 已连接 SAP 系统
+- 检查 VS Code 启动时是否出现了启动通知
+- 确认 AI 工具配置中的 URL 与配置的端口匹配
 
-- Confirm VS Code is connected to an SAP system
-- Check that the startup notification appeared when VS Code launched
-- Verify the URL in your AI tool's config matches the configured port
+### 401 未授权
 
-### 401 Unauthorized
+- 检查 MCP 客户端是否配置了 `Authorization: Bearer <key>`
+- 确认客户端中的密钥与 VS Code 设置中的 `abapfs.mcpServer.apiKey` 完全一致
 
-- Check that `Authorization: Bearer <key>` is configured in your MCP client
-- Confirm the key in the client exactly matches `abapfs.mcpServer.apiKey` in VS Code settings
+# ABAP 语言模型工具（AI 助手功能）
 
-# ABAP Language Model Tools (AI Assistant Features)
+语言模型工具是 GitHub Copilot 在你于聊天中提问时自动使用的内置能力。你不直接调用这些工具——Copilot 根据你的问题选择并运行正确的工具。
 
-Language Model Tools are the built-in capabilities that GitHub Copilot uses automatically when you ask it questions in chat. You don't call these tools yourself — Copilot selects and runs the right tool based on what you ask.
+**如何打开 Copilot 聊天：** `Ctrl+Shift+I`（新聊天）或 `Ctrl+L`（内联聊天）
 
-**How to open Copilot Chat:** `Ctrl+Shift+I` (new chat) or `Ctrl+L` (inline chat)
+确保你处于**代理模式**（不是 Ask 或 Edit）以获得完整工具访问。
 
-Make sure you are in **Agent mode** (not Ask or Edit) for full tool access.
+## 连接要求
 
-## Connection Requirement
+大多数工具需要活动中的 SAP 连接。未连接 SAP 系统时，工具会从 Copilot 隐藏以节省上下文 token。**abap_fs_documentation** 工具无论连接状态如何始终可用——用它询问功能和设置。
 
-Most tools require an active SAP connection. When no SAP system is connected, tools are hidden from Copilot to save context tokens. The **abap_fs_documentation** tool is always available regardless of connection status — use it to ask about features and setup.
+连接 SAP 系统（`Ctrl+Shift+P` → **ABAP FS: Connect to an ABAP system**）启用全部 40+ 个工具。
 
-Connect to a SAP system (`Ctrl+Shift+P` → **ABAP FS: Connect to an ABAP system**) to enable all 40+ tools.
+## 工作原理
 
-## How it works
+输入问题时，Copilot 在后台选择合适的工具：
 
-When you type a question, Copilot picks the appropriate tool behind the scenes:
-
-| What you ask | Tool Copilot uses |
+| 你问什么 | Copilot 使用的工具 |
 |---|---|
-| "Where is BAPI_USER_GET_DETAIL used?" | `find_where_used` |
-| "Show me the code for ZCL_MY_CLASS" | `get_abap_object_lines` |
-| "Find all classes with 'pricing' in the name" | `search_abap_objects` |
-| "Create a new class ZCL_TEST" | `create_object_programmatically` |
-| "Run ATC on ZTEST_PROG" | `run_atc_analysis` |
+| “BAPI_USER_GET_DETAIL 用在哪里？” | `find_where_used` |
+| “给我看看 ZCL_MY_CLASS 的代码” | `get_abap_object_lines` |
+| “查找所有名称含 'pricing' 的类” | `search_abap_objects` |
+| “创建一个新类 ZCL_TEST” | `create_object_programmatically` |
+| “对 ZTEST_PROG 运行 ATC” | `run_atc_analysis` |
 
-## Available Tools
+## 可用工具
 
-### Search & Navigation
+### 搜索与导航
 
-1. **search_abap_objects** — Search for objects by name pattern using wildcards (e.g. `Z*PRICING*`, `BAPI_USER*`)
-2. **get_abap_object_lines** — Read source code from any ABAP object. Use `methodName` to extract a single method (e.g. "Show me the FACTORY method from CL_SALV_TABLE")
-3. **search_abap_object_lines** — Search for text within source code; supports regex and can list all methods in a class
-4. **get_abap_object_info** — Get metadata about an object (type, line count, cache status)
-5. **get_batch_lines** — Read source code from multiple objects in one call
-6. **get_object_by_uri** — Access an object directly using its ADT URI path
-7. **find_where_used** — Find all places where an object, method, or symbol is referenced
-8. **get_connected_systems** — List the SAP system connection IDs currently active in VS Code
+1. **search_abap_objects** — 使用通配符按名称模式搜索对象（例如 `Z*PRICING*`、`BAPI_USER*`）
+2. **get_abap_object_lines** — 从任意 ABAP 对象读取源代码。用 `methodName` 提取单个方法（例如 “显示 CL_SALV_TABLE 的 FACTORY 方法”）
+3. **search_abap_object_lines** — 在源代码中搜索文本；支持正则，可列出类中的所有方法
+4. **get_abap_object_info** — 获取对象元数据（类型、行数、缓存状态）
+5. **get_batch_lines** — 一次调用读取多个对象的源代码
+6. **get_object_by_uri** — 用 ADT URI 路径直接访问对象
+7. **find_where_used** — 查找对象、方法或符号被引用的所有位置
+8. **get_connected_systems** — 列出当前在 VS Code 中活动的 SAP 系统连接 ID
 
-### Object Management
+### 对象管理
 
-9. **create_object_programmatically** — Create new ABAP objects (classes, reports, function groups, etc.). Note: transport dialogs still appear during creation.
-10. **get_abap_object_url** — Generate a SAP GUI WebGUI URL for an object (useful for browser automation)
-11. **get_abap_object_workspace_uri** — Get the VS Code `adt://` URI for an object (needed before editing it)
-12. **open_object** — Open an object in the VS Code editor
-13. **abap_activate** — Activate ABAP objects after editing (similar to pressing the Activate button in SE80)
+9. **create_object_programmatically** — 创建新的 ABAP 对象（类、报表、函数组等）。注意：创建时仍会出现传输对话框。
+10. **get_abap_object_url** — 为对象生成 SAP GUI WebGUI URL（对浏览器自动化有用）
+11. **get_abap_object_workspace_uri** — 获取对象的 VS Code `adt://` URI（编辑前需要）
+12. **open_object** — 在 VS Code 编辑器中打开对象
+13. **abap_activate** — 编辑后激活 ABAP 对象（类似按 SE80 中的激活按钮）
 
-### Code Quality & Testing
+### 代码质量与测试
 
-14. **run_unit_tests** — Run ABAP unit tests and show results in the Testing panel
-15. **create_test_include** — Create a unit test class include for an existing class
-16. **run_atc_analysis** — Run ATC (ABAP Test Cockpit) code quality checks on an object
-17. **get_atc_decorations** — Read the current ATC warning/error highlights visible in the editor
+14. **run_unit_tests** — 运行 ABAP 单元测试并在测试面板显示结果
+15. **create_test_include** — 为现有类创建单元测试类 include
+16. **run_atc_analysis** — 对对象运行 ATC（ABAP Test Cockpit）代码质量检查
+17. **get_atc_decorations** — 读取编辑器中当前可见的 ATC 警告/错误高亮
 
-### Transport & Text
+### 传输与文本
 
-18. **manage_transport_requests** — Get transport details, list user transports, compare transports. Falls back to direct SQL on older systems.
-19. **manage_text_elements** — Read, create, or update text elements in programs, classes, or function groups. READ works on all systems; CREATE/UPDATE requires a newer system.
+18. **manage_transport_requests** — 获取传输详情、列出用户传输、比较传输。旧系统自动降级为直接 SQL。
+19. **manage_text_elements** — 在程序、类或函数组中读取、创建或更新文本元素。所有系统支持 READ；CREATE/UPDATE 需要新版系统。
 
-### Data & SQL
+### 数据与 SQL
 
-20. **execute_data_query** — Run ABAP SQL queries and display results in an interactive table view
-21. **get_abap_sql_syntax** — Get ABAP SQL syntax rules (Copilot calls this before writing queries to avoid syntax errors)
+20. **execute_data_query** — 运行 ABAP SQL 查询并在交互式表格视图中显示结果
+21. **get_abap_sql_syntax** — 获取 ABAP SQL 语法规则（Copilot 在编写查询前调用，避免语法错误）
 
-### Diagrams
+### 图表
 
-22. **create_mermaid_diagram** — Generate and display flowcharts, sequence diagrams, ER diagrams, and more
-23. **validate_mermaid_syntax** — Check Mermaid diagram code for syntax errors
-24. **get_mermaid_documentation** — Retrieve Mermaid syntax reference for a specific diagram type
-25. **detect_mermaid_diagram_type** — Auto-detect the type of a Mermaid diagram from its code
+22. **create_mermaid_diagram** — 生成并显示流程图、时序图、ER 图等
+23. **validate_mermaid_syntax** — 检查 Mermaid 图表代码的语法错误
+24. **get_mermaid_documentation** — 获取特定图表类型的 Mermaid 语法参考
+25. **detect_mermaid_diagram_type** — 从代码自动检测 Mermaid 图表类型
 
-### Runtime Analysis
+### 运行时分析
 
-26. **analyze_abap_dumps** — List and analyze ST22 runtime errors
-27. **analyze_abap_traces** — Analyze performance traces; detects bottlenecks automatically
-28. **get_version_history** — View version history, retrieve source code at a past version, or compare two versions of an object
+26. **analyze_abap_dumps** — 列出并分析 ST22 运行时错误
+27. **analyze_abap_traces** — 分析性能跟踪；自动检测瓶颈
+28. **get_version_history** — 查看版本历史、获取过去版本的源代码，或比较对象的两个版本
 
-### Debugging
+### 调试
 
-29. **abap_debug_session** — Start or stop an ABAP debugging session
-30. **abap_debug_breakpoint** — Set or remove breakpoints (supports conditions)
-31. **abap_debug_step** — Step over, step into, step return, or continue execution
-32. **abap_debug_variable** — Inspect variable values and internal table contents during a debug session
-33. **abap_debug_stack** — View the current call stack
-34. **abap_debug_status** — Check whether a debug session is active
+29. **abap_debug_session** — 启动或停止 ABAP 调试会话
+30. **abap_debug_breakpoint** — 设置或移除断点（支持条件）
+31. **abap_debug_step** — 单步跳过、单步进入、单步返回或继续执行
+32. **abap_debug_variable** — 在调试会话中检查变量值和内表内容
+33. **abap_debug_stack** — 查看当前调用栈
+34. **abap_debug_status** — 检查调试会话是否活动
 
-### System & Extension
+### 系统与扩展
 
-35. **get_sap_system_info** — Get SAP system details: client, release, system type (S/4HANA vs ECC), timezone. Results are cached for 24 hours. Use the **Refresh SAP System Info Cache** command to clear the cache.
-36. **abap_fs_documentation** — Search the ABAP FS extension documentation and settings reference
-37. **adt_discovery_export** — Export the full ADT discovery tree from a connected SAP system to markdown files for API investigation
-38. **manage_subagents** — Configure AI subagents that delegate tasks to cheaper/faster models to reduce API costs
-39. **manage_heartbeat** — Control the background heartbeat monitoring service (add monitoring tasks, set reminders, check status)
+35. **get_sap_system_info** — 获取 SAP 系统详情：client、版本、系统类型（S/4HANA vs ECC）、时区。结果缓存 24 小时。用**刷新 SAP 系统信息缓存**命令清除缓存。
+36. **abap_fs_documentation** — 搜索 ABAP FS 扩展文档和设置参考
+37. **adt_discovery_export** — 把已连接 SAP 系统的完整 ADT 发现树导出为 markdown 文件，用于 API 调研
+38. **manage_subagents** — 配置 AI 子代理，把任务委派给更便宜/更快的模型以降低 API 成本
+39. **manage_heartbeat** — 控制后台心跳监控服务（添加监控任务、设置提醒、查看状态）
 
-### Documentation
+### 文档
 
-40. **create_test_documentation** — Generate a Word document from Playwright test screenshots, organized by scenario
+40. **create_test_documentation** — 从 Playwright 测试截图生成 Word 文档，按场景组织
 
-# AI Subagents for Optimized ABAP Development
+# 用于优化 ABAP 开发的 AI 子代理
 
-AI Subagents are specialized AI assistants, each focused on one type of ABAP task (finding objects, reading code, running analysis, etc.). Instead of one general AI doing everything, subagents split work across focused specialists.
+AI 子代理是专用的 AI 助手，每个专注于一种 ABAP 任务（查找对象、读取代码、运行分析等）。不同于让一个通用 AI 做所有事，子代理将工作拆分给专注的专家。
 
-**Why this matters:**
+**为什么重要：**
 
-- **Better results** — a dedicated code reviewer catches more issues than a general assistant juggling multiple goals
-- **Longer conversations** — heavy operations run in separate context windows, so your main chat stays responsive
-- **Lower cost** — simple tasks (search, read) use cheaper/faster models; complex tasks use smarter ones
+- **更好的结果** — 专门的代码审查者比同时处理多个目标的通用助手能发现更多问题
+- **更长的对话** — 重操作在独立的上下文中运行，你的主聊天保持流畅
+- **更低的成本** — 简单任务（搜索、读取）使用更便宜/更快的模型；复杂任务使用更聪明的模型
 
-## Available Subagents
+## 可用子代理
 
-| Agent | What it does | Tier |
+| 代理 | 职责 | 层级 |
 |-------|-------------|------|
-| `abap-orchestrator` | Routes tasks, writes all code, coordinates other agents | 3 (Premium) |
-| `abap-code-reviewer` | Deep code review — security, performance, best practices | 3 (Premium) |
-| `abap-usage-analyzer` | Where-used analysis, dependencies, change impact | 2 (Mid-tier) |
-| `abap-quality-checker` | ATC analysis, unit tests, code health | 2 (Mid-tier) |
-| `abap-historian` | Version history, transport requests | 2 (Mid-tier) |
-| `abap-debugger` | Runtime debugging — breakpoints, stepping | 2 (Mid-tier) |
-| `abap-troubleshooter` | Analyze dumps, traces, performance issues | 2 (Mid-tier) |
-| `abap-data-analyst` | Query SAP tables, analyze data patterns | 2 (Mid-tier) |
-| `abap-discoverer` | Find ABAP objects by name/pattern | 1 (Cheap/Fast) |
-| `abap-reader` | Read and extract info from source code | 1 (Cheap/Fast) |
-| `abap-creator` | Create new ABAP objects (shells) | 1 (Cheap/Fast) |
-| `abap-visualizer` | Create diagrams from code | 1 (Cheap/Fast) |
-| `abap-documenter` | Generate technical documentation | 1 (Cheap/Fast) |
+| `abap-orchestrator` | 任务路由、编写所有代码、协调其他代理 | 3（高级） |
+| `abap-code-reviewer` | 深度代码审查——安全、性能、最佳实践 | 3（高级） |
+| `abap-usage-analyzer` | Where-used 分析、依赖、变更影响 | 2（中级） |
+| `abap-quality-checker` | ATC 分析、单元测试、代码健康度 | 2（中级） |
+| `abap-historian` | 版本历史、传输请求 | 2（中级） |
+| `abap-debugger` | 运行时调试——断点、单步执行 | 2（中级） |
+| `abap-troubleshooter` | 分析 Dump、跟踪、性能问题 | 2（中级） |
+| `abap-data-analyst` | 查询 SAP 表、分析数据模式 | 2（中级） |
+| `abap-discoverer` | 按名称/模式查找 ABAP 对象 | 1（便宜/快速） |
+| `abap-reader` | 读取并从源码中提取信息 | 1（便宜/快速） |
+| `abap-creator` | 创建新的 ABAP 对象（骨架） | 1（便宜/快速） |
+| `abap-visualizer` | 从代码创建图表 | 1（便宜/快速） |
+| `abap-documenter` | 生成技术文档 | 1（便宜/快速） |
 
-## How to Use Subagents
+## 如何使用子代理
 
-In GitHub Copilot Chat, type `@abap-orchestrator` to start. The orchestrator is the only agent exposed directly in the chat dropdown — it calls other agents automatically as needed.
+在 GitHub Copilot 聊天中输入 `@abap-orchestrator` 开始。orchestrator 是唯一直接在聊天下拉框中暴露的代理——它会按需自动调用其他代理。
 
 ```
 @abap-orchestrator analyze ZCL_ARTICLE_HANDLER and suggest improvements
 ```
 
-For example, the orchestrator might:
+例如，orchestrator 可能会：
 
-1. Delegate "find related classes" → `abap-discoverer` (cheap, fast)
-2. Delegate "read the code" → `abap-reader` (cheap, fast)
-3. Delegate "usage analysis" → `abap-usage-analyzer` (mid-tier)
-4. Synthesize findings and write recommendations itself (premium)
+1. 委派“查找相关类” → `abap-discoverer`（便宜、快速）
+2. 委派“读取代码” → `abap-reader`（便宜、快速）
+3. 委派“用量分析” → `abap-usage-analyzer`（中级）
+4. 自己综合发现并编写建议（高级）
 
-You can also invoke other subagents directly with `@agent-name` if needed. Ask Copilot to make an agent available in the dropdown — it can update the agent's `.agent.md` file to enable this.
+需要时你也可以直接用 `@agent-name` 调用其他子代理。让 Copilot 把某个代理加到下拉框中——它可以更新该代理的 `.agent.md` 文件来启用。
 
-## Setup
+## 设置
 
-> Subagent configuration is stored at the **workspace level** in `.vscode/settings.json` and `.github/agents/`. Each project can have its own configuration.
+> 子代理配置存储在工作区级别的 `.vscode/settings.json` 和 `.github/agents/` 中。每个工程可以有独立配置。
 
-In normal usage, you do not need to edit these files manually. Copilot can configure models, generate/update agent files, validate them, and enable/disable subagents through chat commands.
+正常使用中，你不需要手动编辑这些文件。Copilot 可以通过聊天命令配置模型、生成/更新代理文件、校验它们，以及启用/禁用子代理。
 
-### Step 1 — Configure models
+### 第 1 步 — 配置模型
 
-Ask Copilot:
+让 Copilot 执行：
 
 ```
 Configure subagents for ABAP development
 ```
 
-Copilot will suggest models for each tier and ask for confirmation before applying. Recommended assignments:
+Copilot 会为每个层级建议模型，并在应用前征求确认。推荐分配：
 
-| Tier | Agents | Example models |
+| 层级 | 代理 | 示例模型 |
 |------|--------|---------------|
-| 1 — Cheap/Fast | discoverer, reader, creator, visualizer, documenter | Claude Haiku 4.5, Gemini 3 Flash |
-| 2 — Mid-tier | usage-analyzer, quality-checker, historian, debugger, troubleshooter, data-analyst | GPT-4o, Claude Sonnet 4 |
-| 3 — Premium | orchestrator, code-reviewer | Claude Sonnet/Opus 4.6, GPT-5.4 |
+| 1 — 便宜/快速 | discoverer、reader、creator、visualizer、documenter | Claude Haiku 4.5、Gemini 3 Flash |
+| 2 — 中级 | usage-analyzer、quality-checker、historian、debugger、troubleshooter、data-analyst | GPT-4o、Claude Sonnet 4 |
+| 3 — 高级 | orchestrator、code-reviewer | Claude Sonnet/Opus 4.6、GPT-5.4 |
 
-**Avoid assigning premium models to Tier 1 agents** — it eliminates the cost benefit without improving results for simple tasks.
+**避免给第 1 层代理分配高级模型**——这会消除成本优势，且对简单任务没有效果提升。
 
-### Step 2 — Enable subagents
+### 第 2 步 — 启用子代理
 
-Ask Copilot:
+让 Copilot 执行：
 
 ```
 Enable subagents
 ```
 
-This creates agent files in `.github/agents/` and validates them.
+这会在 `.github/agents/` 中创建代理文件并验证它们。
 
-### Step 3 — Allow agent delegation (if prompted)
+### 第 3 步 — 允许代理委派（如果提示）
 
-You may see a notification asking to enable `chat.customAgentInSubagent.enabled`. Click **Enable Setting** — this allows the orchestrator to call other agents.
+你可能会看到要求启用 `chat.customAgentInSubagent.enabled` 的通知。点击**启用设置**——这允许 orchestrator 调用其他代理。
 
-## Managing Subagents
+## 管理子代理
 
-All management is done through Copilot chat:
+所有管理都通过 Copilot 聊天完成：
 
-| What you want | What to ask |
+| 你想做什么 | 怎么问 |
 |---------------|-------------|
-| Check current status | `Show subagent status` |
-| Disable all agents | `Disable subagents` |
-| Re-enable agents | `Enable subagents` |
-| Change a model | `Change abap-discoverer to use GPT-4o` |
-| See available models | `What models can I use for subagents?` |
-| See available tools | `List available tools for subagents` |
+| 查看当前状态 | `Show subagent status` |
+| 禁用所有代理 | `Disable subagents` |
+| 重新启用代理 | `Enable subagents` |
+| 更换模型 | `Change abap-discoverer to use GPT-4o` |
+| 查看可用模型 | `What models can I use for subagents?` |
+| 查看可用工具 | `List available tools for subagents` |
 
-When you disable subagents, agent files move to `agents_disabled/` (not deleted). Re-enabling restores them with your customizations intact.
+禁用子代理时，代理文件会移到 `agents_disabled/`（不会删除）。重新启用会恢复它们并保留你的自定义配置。
 
-## Customizing Agent Tools
+## 自定义代理工具
 
-Each agent's `.agent.md` file in `.github/agents/` defines which tools it can use. You can edit these files directly or ask Copilot to do it:
+`.github/agents/` 中每个代理的 `.agent.md` 文件定义了它能使用的工具。你可以直接编辑这些文件，或让 Copilot 来做：
 
 ```
 Add the abap-trace tool to abap-troubleshooter
 ```
 
-Changes survive disable/re-enable cycles — only the `model:` line is updated when you change models.
+修改在禁用/重新启用循环中保留——更换模型时只会更新 `model:` 行。
 
-✅ **User Control**: You decide which models to use for each agent tier
+✅ **用户控制**：你决定每个代理层级使用哪些模型
 
-## What to Be Aware Of
+## 需要注意的事
 
-⚠️ **Model Availability**: Some models shown in the list may not work (e.g., "GPT-4o mini"). The system validates and auto-disables if errors are detected.
+⚠️ **模型可用性**：列表中显示的某些模型可能不可用（例如 “GPT-4o mini”）。系统会验证，检测到错误时自动禁用。
 
-⚠️ **VS Code Setting Required**: `chat.customAgentInSubagent.enabled` must be true for delegation to work, otherwise main agent's model may be used for all subagents which can result in a lot of premium request usage.
+⚠️ **需要 VS Code 设置**：委派必须启用 `chat.customAgentInSubagent.enabled`，否则主代理的模型可能被用于所有子代理，导致大量高级请求用量。
 
-⚠️ **Workspace-Specific**: Settings and agent files are per-workspace, not global
+⚠️ **工作区专属**：设置和代理文件是按工作区的，不是全局的。
 
-⚠️ **Agent Files in Git**: The `.github/agents/` folder will appear in your version control - add to `.gitignore` if you don't want to share
+⚠️ **代理文件在 Git 中**：`.github/agents/` 文件夹会出现在你的版本控制中——不想共享就加入 `.gitignore`。
 
-⚠️ **Frequently-Used Agents**: Agents like `abap-discoverer` and `abap-reader` get called often - using expensive models for these defeats the cost benefit
+⚠️ **常用代理**：像 `abap-discoverer` 和 `abap-reader` 这样的代理调用频繁——给它们用昂贵模型会抵消成本优势。
 
-## Troubleshooting
+## 故障排查
 
-### "Cannot enable subagents - missing models"
-All 13 agents must have models configured. Ask Copilot to configure missing agents.
+### “无法启用子代理 - 缺少模型”
+所有 13 个代理都必须配置模型。让 Copilot 配置缺失的代理。
 
-### Agent files show validation errors
-Some model names aren't valid for agent files. Try a different model (e.g., use `Claude Haiku 4.5` instead of `GPT-4o mini`).
+### 代理文件显示验证错误
+某些模型名称对代理文件无效。换一个模型试试（例如用 `Claude Haiku 4.5` 代替 `GPT-4o mini`）。
 
-### Subagents auto-disabled
-This happens when configured models become unavailable. Reconfigure with available models.
+### 子代理被自动禁用
+当配置的模型不可用时会发生。用可用模型重新配置。
 
-### Ghost files in explorer after disable
-This is a VS Code refresh issue. The extension refreshes the explorer automatically, but occasionally you may need to collapse/expand the folder.
+### 禁用后资源管理器中仍有幽灵文件
+这是 VS Code 刷新问题。扩展会自动刷新资源管理器，但偶尔你可能需要折叠/展开文件夹。
 
-### Delegation not using custom agents
-Make sure `chat.customAgentInSubagent.enabled` is set to `true` in your VS Code settings.
+### 委派没有使用自定义代理
+确保你的 VS Code 设置中 `chat.customAgentInSubagent.enabled` 为 `true`。
 
-# AI Skills
+# AI 技能包
 
-Skills are built-in "cheat sheets" that Copilot reads automatically when your question or task matches their domain. They contain ABAP-specific knowledge — coding standards, performance rules, SAP navigation techniques — so you don't have to explain that context yourself.
+技能包是内置的“速查表”，当你的问题或任务与其领域匹配时，Copilot 会自动读取它们。它们包含 ABAP 专属知识——编码规范、性能规则、SAP 导航技巧——这样你就不必自己解释这些上下文。
 
-Copilot only loads a skill's full content when relevant, so having many skills does not slow down unrelated conversations.
+Copilot 只在相关时加载技能包的完整内容，所以技能包再多也不会拖慢无关对话。
 
-## Using Skills
+## 使用技能包
 
-**Automatic:** Skills load on their own when Copilot detects a match. Nothing to do.
+**自动：** 当 Copilot 检测到匹配时，技能包会自动加载。无需任何操作。
 
-**Manual:** Type `/` in the Copilot Chat input to see all skills as slash commands. Select one to invoke it explicitly, for example:
+**手动：** 在 Copilot 聊天输入框中输入 `/`，查看所有技能包的斜杠命令。选择其中一个显式调用，例如：
 
 - `/clean-abap review this method`
 - `/abap-research find the transaction for this screen`
 
-## Available Skills
+## 可用技能包
 
-| Skill | Slash command | When it loads |
+| 技能包 | 斜杠命令 | 何时加载 |
 |---|---|---|
-| [Clean ABAP](#clean-abap) | `/clean-abap` | Writing or reviewing ABAP code |
-| [Code Writing Process](#code-writing-process) | `/abap-code-writing` | Building any ABAP solution |
-| [Performance (ECC)](#performance-ecc) | `/abap-performance-ecc` | Non-HANA systems (Oracle, DB2, MSSQL) |
-| [Performance (HANA)](#performance-hana) | `/abap-performance-hana` | S/4HANA / HANA DB systems |
-| [SAP Research](#sap-research) | `/abap-research` | Searching for objects, transactions, messages |
-| [System Personality Report](#system-personality-report) | `/sap-system-personality-report` | Analyzing a system's custom code landscape |
-| [SAP Customizing](#sap-customizing) | `/sap-customizing` | SPRO/IMG settings and configuration tables |
-| [SAP Data Workbook](#sap-data-workbook) | `/sap-data-workbook` | Multi-step SAP data analysis |
+| [Clean ABAP](#clean-abap) | `/clean-abap` | 编写或审查 ABAP 代码时 |
+| [代码编写流程](#代码编写流程) | `/abap-code-writing` | 构建任何 ABAP 解决方案时 |
+| [性能（ECC）](#性能ecc) | `/abap-performance-ecc` | 非 HANA 系统（Oracle、DB2、MSSQL） |
+| [性能（HANA）](#性能hana) | `/abap-performance-hana` | S/4HANA / HANA DB 系统 |
+| [SAP 研究](#sap-研究) | `/abap-research` | 搜索对象、事务、消息时 |
+| [系统画像报告](#系统画像报告) | `/sap-system-personality-report` | 分析系统的自定义代码版图时 |
+| [SAP 定制](#sap-定制) | `/sap-customizing` | SPRO/IMG 设置和配置表 |
+| [SAP 数据工作簿](#sap-数据工作簿) | `/sap-data-workbook` | 多步骤 SAP 数据分析 |
 
 ---
 
 ### Clean ABAP
 
-SAP's official [Clean ABAP Style Guide](https://github.com/SAP/styleguides) condensed into AI-optimized rules. Covers naming conventions, modern syntax, class/method design, error handling, formatting, and unit testing patterns.
+SAP 官方的 [Clean ABAP 风格指南](https://github.com/SAP/styleguides) 浓缩为 AI 优化规则。涵盖命名规范、现代语法、类/方法设计、错误处理、格式化和单元测试模式。
 
-### Code Writing Process
+### 代码编写流程
 
-A structured process for building ABAP solutions: validate requirements → explore the system → plan architecture → research existing objects → design → write code. Prevents the AI from guessing at parameters or reimplementing standard SAP functionality that already exists.
+构建 ABAP 解决方案的结构化流程：验证需求 → 探索系统 → 规划架构 → 调研现有对象 → 设计 → 编写代码。防止 AI 猜测参数，或重新实现 SAP 标准中已存在的功能。
 
-### Performance (ECC)
+### 性能（ECC）
 
-Performance patterns for traditional databases (Oracle, DB2, MSSQL, MaxDB). Covers simple SQL, buffering, index usage, and internal table optimization. Copilot checks the system type automatically and loads this skill only on non-HANA systems.
+传统数据库（Oracle、DB2、MSSQL、MaxDB）的性能模式。涵盖简单 SQL、缓冲、索引使用和内部表优化。Copilot 会自动检查系统类型，只在非 HANA 系统上加载此技能包。
 
-### Performance (HANA)
+### 性能（HANA）
 
-Performance patterns for S/4HANA. Covers code pushdown, CDS views, AMDP, and complex SQL aggregations. Copilot checks the system type automatically and loads this skill only on HANA-based systems.
+S/4HANA 的性能模式。涵盖代码下推、CDS 视图、AMDP 和复杂 SQL 聚合。Copilot 会自动检查系统类型，只在基于 HANA 的系统上加载此技能包。
 
-### SAP Research
+### SAP 研究
 
-Teaches Copilot to find anything in an unfamiliar SAP system — the way a senior developer would. Covers which metadata tables to query for what (TSTCT for transactions, T100 for messages, TADIR for all objects, DD03L for table fields), wildcard strategies, package clustering, and tracing error messages back to code.
+教会 Copilot 在陌生的 SAP 系统中找到任何东西——就像资深开发人员那样。涵盖针对不同目标应查询哪些元数据表（事务用 TSTCT、消息用 T100、所有对象用 TADIR、表字段用 DD03L）、通配符策略、包聚类，以及把错误消息追溯到代码。
 
-### System Personality Report
+### 系统画像报告
 
-Generates a structured overview of any connected SAP system: number of custom objects, most-developed business areas, recent dump activity, and more. Useful for quickly understanding an unfamiliar system.
+生成任意已连接 SAP 系统的结构化概览：自定义对象数量、开发最多的业务领域、近期 Dump 活动等。有助于快速了解陌生系统。
 
-### SAP Customizing
+### SAP 定制
 
-Teaches Copilot to navigate SPRO/IMG configuration. Uses systematic lookup procedures to trace from an SPRO activity to its storage tables (via `CUS_IMGACH`, `CUS_ACTH`, `CUS_ACTOBJ`), reverse-look up tables to their SPRO path, and resolve domain fixed values (`DD07T`).
+教会 Copilot 导航 SPRO/IMG 配置。使用系统化的查找流程，从 SPRO 活动追溯到其存储表（通过 `CUS_IMGACH`、`CUS_ACTH`、`CUS_ACTOBJ`），反向查找表对应的 SPRO 路径，并解析域固定值（`DD07T`）。
 
-### SAP Data Workbook
+### SAP 数据工作簿
 
-Teaches Copilot to create `.sapwb` files — VS Code notebooks combining ABAP SQL and JavaScript cells for multi-step SAP data analysis. See [SAP Data Workbooks](#sap-data-workbooks-sapwb) for details on the workbook feature itself.
+教会 Copilot 创建 `.sapwb` 文件——结合 ABAP SQL 和 JavaScript 单元格的 VS Code 笔记本，用于多步骤 SAP 数据分析。关于工作簿功能本身的详细信息，参见 [SAP 数据工作簿](#sap-数据工作簿sapwb)。
 
-# Heartbeat - Background Monitoring & Reminders
+# 心跳服务 — 后台监控与提醒
 
-> ⚠️ **BETA FEATURE** - Please report any issues.
+> ⚠️ **测试版功能** — 如有问题请报告。
 
-Heartbeat is a background service that runs an AI agent at a set interval to monitor your SAP systems and send you reminders. You configure what to watch; the agent checks it quietly in the background and only notifies you when something happens.
+心跳是一个后台服务，按设定间隔运行 AI 代理来监控你的 SAP 系统并发送提醒。你配置要监控的内容；代理在后台安静地检查，只在有事发生时通知你。
 
-**Common uses:**
+**常见用途：**
 
-- "Alert me when new ST22 dumps appear in DEV"
-- "Watch transport DEVK900001 until it's released"
-- "Remind me tomorrow at 10am to review the batch job"
+- “DEV 中出现新的 ST22 Dump 时提醒我”
+- “盯着传输 DEVK900001，直到它被释放”
+- “明天上午 10 点提醒我审查批处理作业”
 
 ---
 
-## Setup
+## 设置
 
-Heartbeat settings are stored at the **workspace level** (`.vscode/settings.json`), not globally. Each project can have its own configuration.
+心跳设置存储在工作区级别（`.vscode/settings.json`），不是全局的。每个工程可以有独立配置。
 
-### Step 1: Configure with Copilot (recommended)
+### 第 1 步：用 Copilot 配置（推荐）
 
-You do not need to edit settings manually in most cases. Ask Copilot:
+大多数情况下你不需要手动编辑设置。让 Copilot 执行：
 
 ```
 Set up heartbeat with model GPT-4o mini, every 5 minutes, and start it
 ```
 
-Copilot uses the heartbeat tools to configure and start the service for you.
+Copilot 会用心跳工具为你配置并启动服务。
 
-### Step 2: Manual settings (optional)
+### 第 2 步：手动设置（可选）
 
-Open VS Code Settings (`Ctrl+,`) and add:
+打开 VS Code 设置（`Ctrl+,`）并添加：
 
 ```json
 {
@@ -688,29 +687,29 @@ Open VS Code Settings (`Ctrl+,`) and add:
 }
 ```
 
-| Setting | Description | Default |
+| 设置 | 描述 | 默认 |
 |---------|-------------|---------|
-| `abapfs.heartbeat.enabled` | Enable/disable the service | `false` |
-| `abapfs.heartbeat.model` | AI model for background checks — use a cheap model | Required |
-| `abapfs.heartbeat.every` | Check interval (`"5m"`, `"1h"`, `"30s"`) | `"5m"` |
-| `abapfs.heartbeat.activeHours` | Only run during these hours | `"08:00-18:00"` |
-| `abapfs.heartbeat.maxConsecutiveErrors` | Auto-pause after N errors | `20` |
+| `abapfs.heartbeat.enabled` | 启用/禁用服务 | `false` |
+| `abapfs.heartbeat.model` | 后台检查用的 AI 模型——用便宜模型 | 必填 |
+| `abapfs.heartbeat.every` | 检查间隔（`"5m"`、`"1h"`、`"30s"`） | `"5m"` |
+| `abapfs.heartbeat.activeHours` | 只在这些时段运行 | `"08:00-18:00"` |
+| `abapfs.heartbeat.maxConsecutiveErrors` | 连续 N 次错误后自动暂停 | `20` |
 
-**Recommended models (cost-effective):**
+**推荐模型（经济高效）：**
 
-- `GPT-4o mini` ⭐ most reliable for background tasks
+- `GPT-4o mini` ⭐ 后台任务最可靠
 - `Claude Haiku 4`
 - `GPT-4o`
 
-### Step 3: Start the service
+### 第 3 步：启动服务
 
-Ask Copilot: `"Start the heartbeat service"`
+让 Copilot：`"Start the heartbeat service"`
 
-Or set `abapfs.heartbeat.enabled` to `true` in settings — the service starts automatically.
+或在设置中把 `abapfs.heartbeat.enabled` 设为 `true`——服务自动启动。
 
-### Step 3: Add tasks
+### 第 4 步：添加任务
 
-Ask Copilot in plain language:
+用自然语言让 Copilot 执行：
 
 ```
 "Remind me tomorrow at 10am to review transport K900123"
@@ -718,76 +717,76 @@ Ask Copilot in plain language:
 "Watch transport DEVK900001 until it's released"
 ```
 
-Copilot creates the task definitions and saves them to `heartbeat.json` in your workspace root.
+Copilot 创建任务定义并保存到工作区根目录的 `heartbeat.json`。
 
 ---
 
-## Status Bar
+## 状态栏
 
-When heartbeat is running, a heart ❤️ appears in the VS Code status bar.
+心跳运行时，VS Code 状态栏会出现一颗心 ❤️。
 
-| Status | Meaning |
+| 状态 | 含义 |
 |--------|---------|
-| ❤️ (pulsing) | Active, waiting for next check |
-| ❤️ beat... | Running a check now |
-| ❤️ zzz | Paused (errors or outside active hours) |
-| (hidden) | Stopped |
+| ❤️（脉冲） | 运行中，等待下次检查 |
+| ❤️ beat... | 正在执行检查 |
+| ❤️ zzz | 已暂停（出错或在非活跃时段） |
+| （隐藏） | 已停止 |
 
-**Click the heart** to open `heartbeat.json` directly.
+**点击这颗心**直接打开 `heartbeat.json`。
 
 ---
 
-## Task Types
+## 任务类型
 
-### Reminders (one-time)
+### 提醒（一次性）
 
-Notifies you once at the scheduled time, then removes itself.
+在预定时间通知一次，然后自动移除。
 
 ```
 "Remind me in 2 hours to check the batch job"
 "Remind me tomorrow at 9am about the deployment"
 ```
 
-Uses `reminderOnly: true` and a `startAt` timestamp. The heartbeat agent ignores the task until `startAt` passes.
+使用 `reminderOnly: true` 和 `startAt` 时间戳。心跳代理在 `startAt` 之前忽略该任务。
 
-### Monitoring Tasks (recurring)
+### 监控任务（循环）
 
-Checks a condition every interval and alerts only when something **new** is found.
+每个间隔检查一次条件，只在发现**新**内容时提醒。
 
 ```
 "Monitor for new ST22 dumps in QA100"
 "Alert me when transport K900123 is released"
 ```
 
-The agent stores what it already reported in `lastNotifiedFindings` and only triggers a new alert for changes.
+代理把已报告的内容存储在 `lastNotifiedFindings` 中，只对变化触发新提醒。
 
 ---
 
-## Task Properties Reference
+## 任务属性参考
 
-| Property | Description |
+| 属性 | 描述 |
 |----------|-------------|
-| `id` | Unique identifier |
-| `description` | What this task monitors or reminds |
-| `connectionId` | SAP system ID (e.g. `"dev100"`) |
-| `enabled` | Whether the task is active |
-| `category` | `transport`, `dump`, `job`, `reminder`, `custom` |
-| `priority` | `high`, `medium`, `low` |
-| `sampleQuery` | SQL query for the agent to run |
-| `checkInstructions` | Step-by-step instructions for the agent |
-| `startAt` | ISO timestamp — don't check before this time |
-| `reminderOnly` | Notify once and auto-remove |
-| `removeWhenDone` | Auto-remove when the condition is met |
-| `cooldownMinutes` | Don't re-notify within this period |
-| `alertThreshold` | Only alert if count exceeds this value |
+| `id` | 唯一标识 |
+| `description` | 此任务监控或提醒的内容 |
+| `connectionId` | SAP 系统 ID（例如 `"dev100"`） |
+| `enabled` | 任务是否激活 |
+| `category` | `transport`、`dump`、`job`、`reminder`、`custom` |
+| `priority` | `high`、`medium`、`low` |
+| `sampleQuery` | 代理要运行的 SQL 查询 |
+| `checkInstructions` | 给代理的分步指令 |
+| `startAt` | ISO 时间戳——此时间之前不检查 |
+| `reminderOnly` | 通知一次后自动移除 |
+| `removeWhenDone` | 条件满足时自动移除 |
+| `cooldownMinutes` | 此时间段内不重复通知 |
+| `alertThreshold` | 只有计数超过此值才提醒 |
 
 ---
 
-## Example Task Definitions
+## 示例任务定义
 
-These are the JSON entries stored in `heartbeat.json`. You can let Copilot generate them, or write them manually.
+这些是存储在 `heartbeat.json` 中的 JSON 条目。可以让 Copilot 生成，也可以手动编写。
 
-### Monitor ST22 dumps
+### 监控 ST22 Dump
 
 ```json
 {
@@ -806,7 +805,7 @@ These are the JSON entries stored in `heartbeat.json`. You can let Copilot gener
 }
 ```
 
-### Watch a transport until released
+### 盯传输直到释放
 
 ```json
 {
@@ -824,7 +823,7 @@ These are the JSON entries stored in `heartbeat.json`. You can let Copilot gener
 }
 ```
 
-### Scheduled reminder
+### 定时提醒
 
 ```json
 {
@@ -838,251 +837,251 @@ These are the JSON entries stored in `heartbeat.json`. You can let Copilot gener
 
 ---
 
-## Managing Heartbeat via Copilot
+## 通过 Copilot 管理心跳
 
-| What you want | Ask Copilot |
+| 你想做什么 | 让 Copilot |
 |---------------|-------------|
-| Check status | `"What's the heartbeat status?"` |
-| List tasks | `"Show me the heartbeat watchlist"` |
-| Add a task | `"Monitor DEV for stuck jobs"` |
-| Remove a task | `"Remove the transport monitoring task"` |
-| Run check now | `"Trigger a heartbeat check now"` |
-| Stop service | `"Stop the heartbeat service"` |
+| 查看状态 | `"What's the heartbeat status?"` |
+| 列出任务 | `"Show me the heartbeat watchlist"` |
+| 添加任务 | `"Monitor DEV for stuck jobs"` |
+| 移除任务 | `"Remove the transport monitoring task"` |
+| 立即运行检查 | `"Trigger a heartbeat check now"` |
+| 停止服务 | `"Stop the heartbeat service"` |
 
 ---
 
-## Timezone Handling
+## 时区处理
 
-When you say something like "remind me tomorrow at 10am", Copilot:
+当你说“明天上午 10 点提醒我”时，Copilot：
 
-1. Queries the SAP system's timezone using `get_sap_system_info`
-2. Converts your local time to the correct UTC timestamp
-3. Stores the result in `startAt` (e.g. `"2026-02-05T08:00:00.000Z"` for UTC+2)
+1. 用 `get_sap_system_info` 查询 SAP 系统的时区
+2. 把你的本地时间转换为正确的 UTC 时间戳
+3. 把结果存储在 `startAt`（例如 UTC+2 对应 `"2026-02-05T08:00:00.000Z"`）
 
-This ensures reminders fire at the right time relative to your SAP system.
-
----
-
-## Deduplication
-
-The agent tracks what it has already alerted on to avoid repeated notifications:
-
-- `cooldownMinutes` — minimum gap between re-alerts for the same task
-- `lastNotifiedFindings` — IDs or summaries of what was already reported
-
-**Example flow for dump monitoring:**
-
-- Check 1: 5 dumps → Alert: "5 new dumps found"
-- Check 2: Same 5 dumps → No alert (already reported)
-- Check 3: 7 dumps → Alert: "2 new dumps found"
+这确保提醒相对于你的 SAP 系统在正确时间触发。
 
 ---
 
-## Troubleshooting
+## 去重
 
-**Service won't start**
+代理会跟踪已提醒过的内容，避免重复通知：
 
-- Confirm `abapfs.heartbeat.model` is set in workspace settings
-- Confirm `abapfs.heartbeat.enabled` is `true`
-- Check VS Code Output panel → "ABAP FS" for errors
+- `cooldownMinutes` — 同一任务两次提醒之间的最小间隔
+- `lastNotifiedFindings` — 已报告的 ID 或摘要
 
-**Tasks not being checked**
+**Dump 监控示例流程：**
 
-- Confirm `heartbeat.json` exists in the workspace root (created automatically when you add your first task)
-- Confirm the task has `"enabled": true`
-- Check whether `startAt` is in the future
-- Check whether current time is within `activeHours`
+- 检查 1：5 个 Dump → 提醒：“发现 5 个新 Dump”
+- 检查 2：同样 5 个 → 不提醒（已报告）
+- 检查 3：7 个 Dump → 提醒：“发现 2 个新 Dump”
 
-**Too many alerts**
+---
 
-- Increase `cooldownMinutes` on the task
-- Set `alertThreshold` to filter low-count issues
-- Add more specific conditions in `checkInstructions`
+## 故障排查
 
-**Model errors**
+**服务无法启动**
 
-- Try `GPT-4o mini` — most reliable for background tasks
-- Some models handle tool calls inconsistently in background mode
+- 确认工作区设置中已设置 `abapfs.heartbeat.model`
+- 确认 `abapfs.heartbeat.enabled` 为 `true`
+- 检查 VS Code 输出面板 → “ABAP FS”查看错误
 
-# Enhanced Hover Information
+**任务未被检查**
 
-When you move your mouse cursor over ABAP code in the editor and pause, a popup appears with information about the symbol under the cursor. This is called a **hover**.
+- 确认工作区根目录存在 `heartbeat.json`（添加第一个任务时自动创建）
+- 确认任务 `"enabled": true`
+- 检查 `startAt` 是否在未来
+- 检查当前时间是否在 `activeHours` 内
 
-## How to trigger a hover
+**提醒太多**
 
-Move your mouse over any ABAP keyword, variable, system field, or object name and wait about 700ms (just under a second). The popup appears automatically — no click needed.
+- 增加任务的 `cooldownMinutes`
+- 设置 `alertThreshold` 过滤低数量问题
+- 在 `checkInstructions` 中添加更具体的条件
 
-## What the hover shows
+**模型错误**
 
-Depending on what you hover over, you may see:
+- 试试 `GPT-4o mini`——后台任务最可靠
+- 某些模型在后台模式下调用工具不稳定
 
-| Symbol type | Information shown |
+# 增强的悬停信息
+
+当你在编辑器中将鼠标光标移到 ABAP 代码上并停留时，会弹出一个显示光标下符号信息的弹窗。这叫做**悬停**。
+
+## 如何触发悬停
+
+把鼠标移到任意 ABAP 关键字、变量、系统字段或对象名称上，等待约 700 毫秒（不到一秒）。弹窗自动出现——无需点击。
+
+## 悬停显示什么
+
+取决于你悬停的内容，你可能会看到：
+
+| 符号类型 | 显示的信息 |
 |---|---|
-| System fields (`sy-subrc`, `sy-tabix`, etc.) | Plain-language explanation of the field's purpose |
-| Built-in types | Type description and length |
-| Variables and data objects | Type, length, and declaration context |
-| Function modules | Parameter list (importing, exporting, exceptions) |
-| Classes and methods | Signature and visibility |
-| Other objects | Metadata from the SAP system |
+| 系统字段（`sy-subrc`、`sy-tabix` 等） | 字段用途的通俗解释 |
+| 内置类型 | 类型描述和长度 |
+| 变量和数据对象 | 类型、长度和声明上下文 |
+| 函数模块 | 参数列表（导入、导出、异常） |
+| 类和方法 | 签名和可见性 |
+| 其他对象 | 来自 SAP 系统的元数据 |
 
-## Configuration
+## 配置
 
-The hover delay is configurable. If the popup appears too quickly or too slowly, search for `abapfs hover` in VS Code settings (`File → Preferences → Settings`) to adjust the delay.
+悬停延迟可配置。如果弹窗出现得太快或太慢，在 VS Code 设置（**文件 → 首选项 → 设置**）中搜索 `abapfs hover` 调整延迟。
 
-# Enhanced Views & Panels
+# 增强的视图与面板
 
-ABAP FS adds several views and panels to the VS Code interface. Here's a quick orientation to VS Code's layout:
+ABAP FS 为 VS Code 界面添加了多个视图和面板。先快速了解一下 VS Code 的布局：
 
-- **Activity Bar** — the vertical strip of icons on the far left. Click an icon to open the corresponding view in the sidebar.
-- **Explorer** — the file/folder tree, opened via the top Activity Bar icon. ABAP FS adds extra sections here.
-- **Panel** — the area at the bottom of the editor (same area as the Terminal). ABAP FS adds a documentation panel here.
+- **活动栏** — 最左侧的垂直图标条。点击图标在侧边栏中打开对应视图。
+- **资源管理器** — 文件/文件夹树，通过顶部活动栏图标打开。ABAP FS 在这里添加了额外部分。
+- **面板** — 编辑器底部区域（与终端同一区域）。ABAP FS 在这里添加了文档面板。
 
 ---
 
-## Activity Bar Views
+## 活动栏视图
 
-These appear as icons in the Activity Bar. Click them to open the view in the sidebar.
+它们以图标形式出现在活动栏中。点击即可在侧边栏中打开视图。
 
-| View | Purpose |
+| 视图 | 用途 |
 |------|---------|
-| **Object Search** | Search ABAP objects by name, type, or package with filters |
-| **Transports** | Browse and manage transport requests |
-| **Dumps** | View and analyze runtime errors (ST22) |
-| **ATC Finds** | Review results from ABAP Test Cockpit code quality checks |
-| **Traces** | Analyze performance traces |
-| **S/4HANA Readiness** | Dashboard showing S/4HANA compatibility findings for your code |
-| **abapGit** | Manage abapGit repositories linked to the system |
-| **Feed Inbox** | Subscribe to and view ADT feed notifications |
-| **RAP Generator** | Generate RAP (RESTful ABAP Programming) services from a database table, similar to Eclipse |
-| **Object Property** | Shows properties, assigned transport, and revision history for the currently open ABAP object |
+| **对象搜索** | 按名称、类型或包搜索 ABAP 对象，支持过滤 |
+| **传输** | 浏览和管理传输请求 |
+| **Dump** | 查看和分析运行时错误（ST22） |
+| **ATC 结果** | 查看 ABAP Test Cockpit 代码质量检查的结果 |
+| **跟踪** | 分析性能跟踪 |
+| **S/4HANA 就绪** | 显示代码 S/4HANA 兼容性发现的仪表盘 |
+| **abapGit** | 管理与系统链接的 abapGit 仓库 |
+| **Feed 收件箱** | 订阅并查看 ADT feed 通知 |
+| **RAP 生成器** | 从数据库表生成 RAP（RESTful ABAP 编程）服务，类似 Eclipse |
+| **对象属性** | 显示当前打开的 ABAP 对象的属性、分配的传输和修订历史 |
 
-## Explorer Views
+## 资源管理器视图
 
-These appear as collapsible sections inside the Explorer sidebar (the file tree).
+它们以可折叠部分的形式出现在资源管理器侧边栏（文件树）中。
 
-| View | Purpose |
+| 视图 | 用途 |
 |------|---------|
-| **Favorites** | Pin frequently accessed objects for quick access |
+| **收藏夹** | 固定常用对象以便快速访问 |
 
-## Panel Views
+## 面板视图
 
-These appear in the bottom panel area, alongside the Terminal.
+它们出现在底部面板区域，与终端并列。
 
-| View | Purpose |
+| 视图 | 用途 |
 |------|---------|
-| **ATC Documentation** | Displays the detailed SAP documentation for the ATC finding selected in the ATC Finds view |
+| **ATC 文档** | 显示在 ATC 结果视图中选中的 ATC 检查结果的详细 SAP 文档 |
 
-# Object Property View
+# 对象属性视图
 
-The Object Property View shows metadata and history for whichever ABAP object is currently open in the editor — similar to the Properties view in ABAP Development Tools (Eclipse).
+对象属性视图显示当前在编辑器中打开的 ABAP 对象的元数据和历史——类似 ABAP Development Tools（Eclipse）中的属性视图。
 
-## Opening the View
+## 打开视图
 
-Click the ABAP FS icon in the **Activity Bar** (left sidebar), then select the **Object Property** panel. The view updates automatically as you switch between ABAP files.
+点击**活动栏**（左侧边栏）中的 ABAP FS 图标，然后选择**对象属性**面板。切换 ABAP 文件时视图会自动更新。
 
-## What It Shows
+## 显示什么
 
-| Section | Details |
+| 部分 | 详情 |
 |---|---|
-| **Object metadata** | Type, package, responsible user, creation date, object URI |
-| **Lock status** | Whether the object is locked and by whom |
-| **Transport history** | All transport requests that contain this object |
-| **Revision history** | Each saved version — author, date, and transport number |
+| **对象元数据** | 类型、包、负责人、创建日期、对象 URI |
+| **锁定状态** | 对象是否被锁定，被谁锁定 |
+| **传输历史** | 包含此对象的所有传输请求 |
+| **修订历史** | 每个已保存的版本——作者、日期和传输编号 |
 
-## Comparing Revisions
+## 比较修订
 
-1. In the **Revision history** section, tick the checkboxes next to any two versions.
-2. A side-by-side diff opens in the editor, showing exactly what changed between them.
+1. 在**修订历史**部分勾选任意两个版本旁的复选框。
+2. 编辑器中打开并排 diff，精确显示两者之间的变化。
 
-## Performance Note
+## 性能说明
 
-Property data is cached after the first load. If you switch back to an object you already viewed, the extension reuses the cached data instead of querying SAP again.
+属性数据在首次加载后缓存。如果切回已查看过的对象，扩展会复用缓存数据而不是再次查询 SAP。
 
-# Custom Editors
+# 自定义编辑器
 
-ABAP FS provides custom visual editors for certain SAP object types. Instead of editing raw XML, you get a purpose-built UI tailored to that object.
+ABAP FS 为某些 SAP 对象类型提供自定义的可视化编辑器。无需编辑原始 XML，你会得到一个为该对象量身定制的专用界面。
 
-Custom editors open automatically when you navigate to a supported object type. You can also open them manually via **Open With** (right-click the file in the Explorer).
+导航到支持的对象类型时，自定义编辑器会自动打开。你也可以通过**打开方式**（在资源管理器中右键文件）手动打开。
 
-## Supported Editors
+## 支持的编辑器
 
-### Message Class Editor (`*.msagn.xml`)
+### 消息类编辑器（`*.msagn.xml`）
 
-A table-based editor for SAP message classes (MSAG). Lets you add, edit, and delete messages without touching XML.
+用于 SAP 消息类（MSAG）的基于表格的编辑器。无需接触 XML 即可添加、编辑和删除消息。
 
-See [Message Class Editor](#message-class-editor) for full details.
+完整详情见[消息类编辑器](#消息类编辑器)。
 
-### HTTP Service Editor (`*.http.xml`)
+### HTTP 服务编辑器（`*.http.xml`）
 
-A form-based editor for configuring SAP HTTP services (SICF nodes).
+用于配置 SAP HTTP 服务（SICF 节点）的基于表单的编辑器。
 
-## Common Actions
+## 常用操作
 
-| Action | How |
+| 操作 | 方式 |
 |--------|-----|
-| Save changes | `Ctrl+S` |
-| Switch to raw XML | Right-click file → **Open With** → **Text Editor** |
-| Revert unsaved changes | `File` → **Revert File** |
+| 保存修改 | `Ctrl+S` |
+| 切换到原始 XML | 右键文件 → **打开方式** → **文本编辑器** |
+| 还原未保存的修改 | **文件** → **还原文件** |
 
-# Message Class Editor
+# 消息类编辑器
 
-Message classes (transaction SE91) open in a custom table editor instead of raw XML, making it easy to view and maintain messages directly in VS Code.
+消息类（事务 SE91）在自定义表格编辑器中打开，而不是原始 XML，让你可以直接在 VS Code 中轻松查看和维护消息。
 
-## Opening a Message Class
+## 打开消息类
 
-Search for your message class (e.g. `ZMY_MESSAGES`) using the ABAP FS file explorer — it opens automatically in the table editor. You can also open any `.msagn.xml` file directly.
+使用 ABAP FS 文件资源管理器搜索你的消息类（例如 `ZMY_MESSAGES`）——它会自动在表格编辑器中打开。你也可以直接打开任意 `.msagn.xml` 文件。
 
-## Working with Messages
+## 处理消息
 
-| Action | How |
+| 操作 | 方式 |
 |--------|-----|
-| **Add** | Click the ➕ button — the next available number is suggested automatically |
-| **Edit** | Double-click the message text, or click ✏️ |
-| **Delete** | Click 🗑️ next to the message |
-| **Save** | **Ctrl+S** — all pending adds, edits, and deletes are sent to SAP together |
+| **添加** | 点击 ➕ 按钮——自动建议下一个可用编号 |
+| **编辑** | 双击消息文本，或点击 ✏️ |
+| **删除** | 点击消息旁的 🗑️ |
+| **保存** | **Ctrl+S**——所有待处理的添加、编辑和删除一起发送到 SAP |
 
-Validation runs as you type: message text is limited to **72 characters** and the number field is required.
+输入时会实时校验：消息文本限制为 **72 个字符**，编号字段必填。
 
-## Notes
+## 注意事项
 
-- Message numbers are zero-padded (`001`, `002`, …).
-- Deleted messages are flagged and removed on save; skipped numbers are not reused when suggesting the next number.
-- **Long text editing is not supported** — use SE91 for long texts.
-- Only applies to message class objects (`MSAG/N` type).
+- 消息编号零填充（`001`、`002`……）。
+- 删除的消息会在保存时标记并移除；建议下一个编号时不会重用跳过的编号。
+- **不支持长文本编辑**——长文本请使用 SE91。
+- 仅适用于消息类对象（`MSAG/N` 类型）。
 
-# Embedded SAP GUI (WebView)
+# 嵌入式 SAP GUI（WebView）
 
-Run SAP GUI transactions directly inside VS Code — no need to switch between windows. The SAP WebGUI renders inside a **WebView**: an embedded browser tab hosted within VS Code itself.
+直接在 VS Code 中运行 SAP GUI 事务——无需在窗口之间切换。SAP WebGUI 渲染在**WebView**中：一个托管在 VS Code 内部的嵌入式浏览器标签页。
 
-## Opening the Embedded SAP GUI
+## 打开嵌入式 SAP GUI
 
-Three ways to open it:
+三种打开方式：
 
-| Method | Action |
+| 方法 | 操作 |
 |--------|--------|
-| Keyboard shortcut | **Ctrl+Shift+F7** (with an ABAP file open) |
-| Editor toolbar | Click the **Embedded GUI** button in the editor toolbar |
-| Command Palette | `ABAP FS: Open SAP GUI in embedded WebView` |
+| 键盘快捷键 | **Ctrl+Shift+F7**（打开 ABAP 文件时） |
+| 编辑器工具栏 | 点击编辑器工具栏中的**嵌入式 GUI**按钮 |
+| 命令面板 | `ABAP FS: Open SAP GUI in embedded WebView` |
 
-## Requirements
+## 要求
 
-- WebGUI enabled on your SAP system
-- The connection configured in your ABAP FS settings
+- 你的 SAP 系统启用了 WebGUI
+- 在 ABAP FS 设置中配置了连接
 
-## How It Works
+## 工作原理
 
-By default, the extension opens SAP GUI in VS Code's **Integrated Browser** (Simple Browser) rather than a raw iframe WebView. The Integrated Browser does not wrap the page in an iframe, which avoids a common blank-page issue described below.
+默认情况下，扩展在 VS Code 的**集成浏览器**（Simple Browser）中打开 SAP GUI，而不是原始 iframe WebView。集成浏览器不把页面包裹在 iframe 中，这避免了下文描述的常见白屏问题。
 
-## Blank Page / Clickjacking Issues
+## 白屏 / 点击劫持问题
 
-If you see a **blank white page**, your SAP system has clickjacking frame protection enabled (`ClickjackingFramingProtection.js`). This is a SAP server-side security feature that blocks SAP WebGUI from loading inside an iframe — the extension cannot override it.
+如果你看到**空白白页**，说明你的 SAP 系统启用了点击劫持框架保护（`ClickjackingFramingProtection.js`）。这是 SAP 服务端安全功能，会阻止 SAP WebGUI 在 iframe 中加载——扩展无法覆盖它。
 
-You may also see these browser console errors:
+你也可能看到这些浏览器控制台错误：
 
 - `ClickjackingFramingProtection.js: Ignored call to 'alert()'. The document is sandboxed`
 - `Potential permissions policy violation: fullscreen is not allowed in this document`
 
-**Solution:** The setting `abapfs.sapGui.useIntegratedBrowser` is **enabled by default** and resolves this. If you previously disabled it, re-enable it:
+**解决方案：** `abapfs.sapGui.useIntegratedBrowser` 设置**默认启用**，可以解决此问题。如果你之前禁用了它，请重新启用：
 
 ```json
 {
@@ -1090,7 +1089,7 @@ You may also see these browser console errors:
 }
 ```
 
-To fall back to the raw embedded WebView (for example, if the Integrated Browser causes problems in your environment):
+要回退到原始嵌入式 WebView（例如集成浏览器在你的环境中引起问题时）：
 
 ```json
 {
@@ -1098,1103 +1097,1123 @@ To fall back to the raw embedded WebView (for example, if the Integrated Browser
 }
 ```
 
-This setting applies to all entry points: the toolbar button, command palette, and Run Transaction command.
+此设置适用于所有入口：工具栏按钮、命令面板和运行事务命令。
 
-> **VS Code tip:** The VS Code setting `simpleBrowser.useIntegratedBrowser` (marked experimental) controls whether Simple Browser uses VS Code's built-in browser engine. Enabling it may improve compatibility on desktop. This is a VS Code setting, not an ABAP FS setting.
+> **VS Code 提示：** VS Code 设置 `simpleBrowser.useIntegratedBrowser`（标记为实验性）控制 Simple Browser 是否使用 VS Code 内置浏览器引擎。启用它可能提高桌面端兼容性。这是 VS Code 设置，不是 ABAP FS 设置。
 
-# Native Desktop SAP GUI
+# 原生桌面 SAP GUI
 
-Open the currently active ABAP object directly in your locally installed SAP GUI application, giving you access to the full transaction UI without leaving your VS Code workflow.
+在本地安装的 SAP GUI 应用中直接打开当前活动的 ABAP 对象，让你无需离开 VS Code 工作流即可访问完整的事务界面。
 
-## Requirements
+## 要求
 
-- SAP GUI for Windows installed on your machine
-- A configured ABAP FS connection to your SAP system
+- 机器上安装了 Windows 版 SAP GUI
+- 配置了到 SAP 系统的 ABAP FS 连接
 
-## How to Open
+## 如何打开
 
-With an ABAP file open in the editor, use any of these methods:
+在编辑器中打开 ABAP 文件后，可以使用以下任一方法：
 
-| Method | Action |
+| 方法 | 操作 |
 |---|---|
-| Keyboard shortcut | `Ctrl+Shift+F5` |
-| Editor toolbar | Click the **Open in SAP GUI** icon |
-| Command Palette | `Ctrl+Shift+P` → `ABAP FS: Open in native SAP GUI desktop application` |
+| 键盘快捷键 | `Ctrl+Shift+F5` |
+| 编辑器工具栏 | 点击**在 SAP GUI 中打开**图标 |
+| 命令面板 | `Ctrl+Shift+P` → `ABAP FS: Open in native SAP GUI desktop application` |
 
-## When to Use
+## 何时使用
 
-Prefer native SAP GUI when you need:
+在以下情况优先使用原生 SAP GUI：
 
-- Transactions that are not available in the browser-based GUI
-- Better performance for complex or data-heavy screens
-- Full SAP GUI functionality (e.g., ALV grids, custom controls, scripting)
+- 浏览器版 GUI 中没有的事务
+- 复杂或数据密集型界面需要更好的性能
+- 需要完整的 SAP GUI 功能（例如 ALV 网格、自定义控件、脚本）
 
-# Web Browser SAP GUI
+# 网页浏览器 SAP GUI
 
-Opens the currently active ABAP object in SAP GUI running inside your default web browser (SAP WebGUI). Useful when you need to interact with an object in its native SAP GUI interface without leaving your development workflow.
+在默认网页浏览器中运行 SAP GUI（SAP WebGUI），打开当前活动的 ABAP 对象。当你需要以原生 SAP GUI 界面与对象交互、又不离开开发工作流时很有用。
 
-## Prerequisites
+## 前置条件
 
-- SAP WebGUI must be enabled on the target SAP system (ask your Basis team if unsure).
+- 目标 SAP 系统必须启用 SAP WebGUI（不确定的话问问你的 Basis 团队）。
 
-## How to Open
+## 如何打开
 
-With an ABAP file open in the editor, use any of the following:
+在编辑器中打开 ABAP 文件后，可以使用以下任一方式：
 
-| Method | Action |
+| 方法 | 操作 |
 |---|---|
-| Keyboard shortcut | `Ctrl+Shift+F6` |
-| Editor toolbar | Click the **Open in Browser GUI** icon |
-| Command Palette | `Ctrl+Shift+P` → `ABAP FS: Open SAP GUI in external web browser` |
+| 键盘快捷键 | `Ctrl+Shift+F6` |
+| 编辑器工具栏 | 点击**在浏览器 GUI 中打开**图标 |
+| 命令面板 | `Ctrl+Shift+P` → `ABAP FS: Open SAP GUI in external web browser` |
 
-The object opens in your default browser. The URL can be copied and shared with other users who have access to the same system.
+对象在默认浏览器中打开。URL 可以复制并分享给有权访问同一系统的其他用户。
 
-# Run SAP Transaction
+# 运行 SAP 事务
 
-Execute SAP transaction codes directly from VS Code without switching to the SAP GUI window.
+直接从 VS Code 执行 SAP 事务码，无需切换到 SAP GUI 窗口。
 
-## How to Use
+## 使用方法
 
-1. Open the Command Palette (`Ctrl+Shift+P`)
-2. Run **ABAP Copilot: Run SAP Transaction**
-3. If multiple systems are connected, select the target system
-4. Type a transaction code (e.g., `MM43`, `SE38`)
-5. Press `Enter` — the transaction opens in your configured GUI
+1. 打开命令面板（`Ctrl+Shift+P`）
+2. 运行 **ABAP Copilot: Run SAP Transaction**
+3. 如果连接了多个系统，选择目标系统
+4. 输入事务码（例如 `MM43`、`SE38`）
+5. 按 `Enter`——事务在你配置的 GUI 中打开
 
-## GUI Configuration
+## GUI 配置
 
-Set your preferred GUI type per connection in settings (`sapGui.guiType`).
+在设置中按连接设置你偏好的 GUI 类型（`sapGui.guiType`）。
 
-## Limitations
+## 限制
 
-- **Native SAP GUI** — Windows only
-- **Embedded WebView** — no SSO; requires manual login
-- Some transactions may not work correctly in embedded mode
+- **原生 SAP GUI** — 仅 Windows
+- **嵌入式 WebView** — 不支持 SSO；需要手动登录
+- 某些事务在嵌入式模式下可能无法正常工作
 
-# Object Search
+# 对象搜索
 
-Search for ABAP objects by name — like the SE80 object search, but directly inside VS Code without opening SAP GUI.
+按名称搜索 ABAP 对象——类似 SE80 的对象搜索，但直接在 VS Code 内完成，无需打开 SAP GUI。
 
-## How to Search
+## 如何搜索
 
-1. Open the Command Palette (`Ctrl+Shift+P`)
-2. Run **ABAP FS: Search for object**
-3. Enter a name pattern using wildcards (e.g. `ZCL_*`, `*USER*`)
-4. Select one or more object types to filter results
-5. Press `Enter` — results open in a quick-pick list for instant navigation
+1. 打开命令面板（`Ctrl+Shift+P`）
+2. 运行 **ABAP FS: Search for object**
+3. 使用通配符输入名称模式（例如 `ZCL_*`、`*USER*`）
+4. 选择一个或多个对象类型过滤结果
+5. 按 `Enter`——结果在快速选择列表中打开，即时导航
 
-> **Tip:** Save your preferred object types as defaults so you don't have to re-select them every time.
+> **提示：** 把你常用的对象类型保存为默认值，这样不用每次都重新选择。
 
-## Wildcard Patterns
+## 通配符模式
 
-| Pattern | Matches |
+| 模式 | 匹配内容 |
 |---------|---------|
-| `ZCL_*` | All custom classes starting with ZCL_ |
-| `*USER*` | Anything containing USER |
-| `BAPI_MATERIAL_*` | All BAPIs starting with BAPI_MATERIAL_ |
+| `ZCL_*` | 所有以 ZCL_ 开头的自定义类 |
+| `*USER*` | 所有包含 USER 的内容 |
+| `BAPI_MATERIAL_*` | 所有以 BAPI_MATERIAL_ 开头的 BAPI |
 
-## Supported Object Types
+## 支持的对象类型
 
-| Type | Description |
+| 类型 | 描述 |
 |------|-------------|
-| `CLAS` | Classes |
-| `INTF` | Interfaces |
-| `PROG` | Programs / Reports |
-| `FUNC` | Function Modules |
-| `FUGR` | Function Groups |
-| `TABL` | Database Tables |
-| `VIEW` | Views |
-| `DTEL` | Data Elements |
-| `DOMA` | Domains |
-| `TTYP` | Table Types |
-| `DDLS` | CDS Views |
-| `ENQU` | Lock Objects |
-| `MSAG` | Message Classes |
-| `DEVC` | Packages |
-| `TRAN` | Transactions |
-| `ENHC` / `ENHS` | Enhancement Implementations / Spots |
-| `BADI` | BAdI Definitions |
-| + 30 more | — |
+| `CLAS` | 类 |
+| `INTF` | 接口 |
+| `PROG` | 程序 / 报表 |
+| `FUNC` | 函数模块 |
+| `FUGR` | 函数组 |
+| `TABL` | 数据库表 |
+| `VIEW` | 视图 |
+| `DTEL` | 数据元素 |
+| `DOMA` | 域 |
+| `TTYP` | 表类型 |
+| `DDLS` | CDS 视图 |
+| `ENQU` | 锁对象 |
+| `MSAG` | 消息类 |
+| `DEVC` | 包 |
+| `TRAN` | 事务 |
+| `ENHC` / `ENHS` | 增强实现 / 增强点 |
+| `BADI` | BAdI 定义 |
+| + 30 多种 | — |
 
-> **Note:** Object types not natively supported by the extension open automatically in SAP GUI.
+> **注意：** 扩展原生不支持的对象类型会自动在 SAP GUI 中打开。
 
-# Create Objects
+# 创建对象
 
-Create new ABAP development objects directly from VS Code without opening SAP GUI.
+直接在 VS Code 中创建新的 ABAP 开发对象，无需打开 SAP GUI。
 
-## How to Create an Object
+## 如何创建对象
 
-**Option 1 — Command Palette:**
+**方式 1 — 命令面板：**
 
-1. Press `Ctrl+Shift+P` to open the Command Palette.
-2. Type and select **ABAP FS: Create object**.
-3. Follow the wizard prompts (object type, name, description, package).
+1. 按 `Ctrl+Shift+P` 打开命令面板。
+2. 输入并选择 **ABAP FS: Create object**。
+3. 跟随向导提示（对象类型、名称、描述、包）。
 
-**Option 2 — Explorer context menu:**
+**方式 2 — 资源管理器右键菜单：**
 
-1. Right-click a package or folder in the ABAP Explorer.
-2. Select **Create object**.
-3. Follow the wizard prompts.
+1. 在 ABAP 资源管理器中右键点击包或文件夹。
+2. 选择**创建对象**。
+3. 跟随向导提示。
 
-**Option 3 — Via Copilot:**
+**方式 3 — 通过 Copilot：**
 
-Ask Copilot in natural language, for example:
+用自然语言让 Copilot 执行，例如：
 
-> *"Create a new class ZCL_MY_CLASS with description 'My class'"*
+> *“创建一个新类 ZCL_MY_CLASS，描述为 'My class'”*
 
-Copilot fills in the object details automatically. You will still be prompted to select a transport request.
+Copilot 会自动填写对象详情。你仍然会被提示选择传输请求。
 
-## Supported Object Types
+## 支持的对象类型
 
-| Object type | Type code |
+| 对象类型 | 类型代码 |
 |---|---|
-| Report / Program | `PROG/P` |
-| Class | `CLAS/OC` |
-| Interface | `INTF/OI` |
-| Function Group | `FUGR/F` |
-| Data Element | `DTEL/DE` |
-| Domain | `DOMA` |
-| Database Table | `TABL/DT` |
-| CDS View | `DDLS` |
-| Message Class | `MSAG/N` |
-| Package | `DEVC/K` |
+| 报表 / 程序 | `PROG/P` |
+| 类 | `CLAS/OC` |
+| 接口 | `INTF/OI` |
+| 函数组 | `FUGR/F` |
+| 数据元素 | `DTEL/DE` |
+| 域 | `DOMA` |
+| 数据库表 | `TABL/DT` |
+| CDS 视图 | `DDLS` |
+| 消息类 | `MSAG/N` |
+| 包 | `DEVC/K` |
 
-Many additional types are supported. If the object type you need is not listed, try the wizard — it shows all types available in your connected system.
+还支持许多其他类型。如果列表中没有你需要的对象类型，试试向导——它会显示已连接系统中所有可用的类型。
 
-## Notes
+## 注意事项
 
-- A **transport request** dialog always appears for objects that require transport. This step cannot be skipped.
-- The new object opens in the editor automatically after creation.
-- Objects must be **activated** before they can be used at runtime.
+- 需要传输的对象**总会**出现**传输请求**对话框。此步骤不能跳过。
+- 创建后新对象会自动在编辑器中打开。
+- 对象必须先**激活**才能在运行时使用。
 
-# Open Objects
+# 打开对象
 
-Open any ABAP object from your connected SAP system directly in the VS Code editor for viewing and editing.
+从已连接的 SAP 系统打开任意 ABAP 对象，直接在 VS Code 编辑器中查看和编辑。
 
-## How to Open an Object
+## 如何打开对象
 
-**Option 1 — Search command (recommended)**
+**方式 1 — 搜索命令（推荐）**
 
-1. Press `Ctrl+Shift+P` to open the Command Palette.
-2. Run **ABAP FS: Search for object**.
-3. Type part of the object name and select it from the list.
+1. 按 `Ctrl+Shift+P` 打开命令面板。
+2. 运行 **ABAP FS: Search for object**。
+3. 输入对象名称的一部分，从列表中选择。
 
-**Option 2 — File Explorer**
+**方式 2 — 文件资源管理器**
 
-- Expand your SAP system in the Explorer panel (`Ctrl+Shift+E`) and double-click any object.
+- 在资源管理器面板（`Ctrl+Shift+E`）中展开你的 SAP 系统，双击任意对象。
 
-**Option 3 — Ask Copilot**
+**方式 3 — 让 Copilot 执行**
 
-- In the Copilot chat, type: *"Open ZCL_MY_CLASS"* — the object opens automatically.
+- 在 Copilot 聊天中输入：*“打开 ZCL_MY_CLASS”* — 对象自动打开。
 
-## What You Get
+## 你得到什么
 
-Once open, the object behaves like any other file in VS Code:
+打开后，该对象在 VS Code 中表现得像任何其他文件一样：
 
-- Syntax highlighting for ABAP
-- Full editing with save and activation support
-- Navigation via breadcrumbs and Go to Definition (`F12`)
-- Visible in the Explorer and in **Open Editors**
+- ABAP 语法高亮
+- 完整的编辑、保存和激活支持
+- 面包屑导航和转到定义（`F12`）
+- 显示在资源管理器和**打开的编辑器**中
 
-# Object Activation
+# 对象激活
 
-Activation compiles your ABAP code and makes it executable — the equivalent of pressing the **Activate** button (or `Ctrl+F3`) in SE80/SE24.
+激活会编译你的 ABAP 代码并使其可执行——相当于在 SE80/SE24 中点击**激活**按钮（或 `Ctrl+F3`）。
 
-> Unlike SE80, the extension auto-saves the file before activating, so you don't need a separate save step.
+> 与 SE80 不同，扩展在激活前会自动保存文件，所以不需要单独的保存步骤。
 
-## How to Activate
+## 如何激活
 
-| Method | Action |
+| 方法 | 操作 |
 |--------|--------|
-| Keyboard shortcut | **Alt+Shift+F3** |
-| Editor toolbar | Click the activation button (lightning icon) |
-| On save | Automatic, if **Auto-activate on save** is enabled in settings |
+| 键盘快捷键 | **Alt+Shift+F3** |
+| 编辑器工具栏 | 点击激活按钮（闪电图标） |
+| 保存时 | 如果在设置中启用了**保存时自动激活**，则自动激活 |
 
-## Mass Activation
+## 批量激活
 
-When you edit an object that has related inactive objects (e.g. a program with includes, or a class with methods), the extension detects them automatically and shows a selection dialog:
+当你编辑的对象有关联的未激活对象时（例如带 include 的程序，或带方法的类），扩展会自动检测并显示选择对话框：
 
-1. A list of all inactive related objects appears, all pre-selected.
-2. Deselect any objects you do **not** want to activate.
-3. Confirm — all selected objects are activated together.
+1. 出现所有未激活关联对象的列表，全部预先选中。
+2. 取消选择你**不**想激活的对象。
+3. 确认——所有选中的对象一起激活。
 
-This mirrors the mass activation dialog in SE80 that appears when dependent objects are out of sync.
+这与 SE80 中依赖对象不同步时出现的批量激活对话框一致。
 
-# Favorites Management
+# 收藏夹管理
 
-Favorites let you bookmark frequently used ABAP objects for quick access across sessions.
+收藏夹让你可以书签标记常用的 ABAP 对象，跨会话快速访问。
 
-## Adding a Favorite
+## 添加收藏
 
-1. In the Explorer sidebar, locate the ABAP object.
-2. Right-click it and select **Add to Favorites**.
+1. 在资源管理器侧边栏中找到 ABAP 对象。
+2. 右键点击并选择**添加到收藏夹**。
 
-## Viewing and Opening Favorites
+## 查看和打开收藏
 
-- Open the **Favorites** view in the Explorer sidebar.
-- Click any entry to open the object in the editor.
+- 在资源管理器侧边栏中打开**收藏夹**视图。
+- 点击任意条目在编辑器中打开对象。
 
-## Removing a Favorite
+## 移除收藏
 
-- Right-click the entry in the **Favorites** view and select **Remove from Favorites**.
+- 在**收藏夹**视图中右键点击条目，选择**从收藏夹移除**。
 
-## Notes
+## 注意事项
 
-- Favorites persist across VS Code sessions.
-- The **Favorites** view is in the Explorer sidebar (same panel as the file tree).
+- 收藏夹在 VS Code 会话之间持久保存。
+- **收藏夹**视图在资源管理器侧边栏中（与文件树同一面板）。
 
-# Show Table Contents
+# 显示表内容
 
-View the contents of any database table directly in VS Code — similar to **SE16 / SE16N** in SAP GUI.
+直接在 VS Code 中查看任意数据库表的内容——类似 SAP GUI 中的 **SE16 / SE16N**。
 
-## Opening Table Contents
+## 打开表内容
 
-1. Open a database table (e.g. from the object explorer or via `Ctrl+Shift+A` to search by name)
-2. Click the **Show table contents** button in the editor toolbar, **or** right-click the table → **Show table contents**
+1. 打开一个数据库表（例如从对象资源管理器，或按 `Ctrl+Shift+A` 按名称搜索）
+2. 点击编辑器工具栏中的**显示表内容**按钮，或右键表 → **显示表内容**
 
-## Working with the Data Grid
+## 使用数据网格
 
-The results open in an interactive grid with the following capabilities:
+结果在交互式网格中打开，支持以下功能：
 
-| Feature | How to use |
+| 功能 | 使用方法 |
 |---|---|
-| **Sort** | Click a column header |
-| **Filter** | Use the filter row below the header |
-| **Paginate** | Navigate pages using the controls at the bottom |
-| **Export** | Use the export button to download results |
+| **排序** | 点击列标题 |
+| **过滤** | 使用标题下方的过滤行 |
+| **分页** | 使用底部的控件翻页 |
+| **导出** | 使用导出按钮下载结果 |
 
-## Notes
+## 注意事项
 
-- Only the first **1 000 rows** are fetched by default — add filters to narrow results for large tables.
-- For more complex queries (JOINs, aggregations, custom WHERE clauses), use the [Data Query](#sql-query-execution) feature instead.
+- 默认只获取前 **1,000 行**——大表请添加过滤条件缩小范围。
+- 更复杂的查询（JOIN、聚合、自定义 WHERE 子句）请改用[数据查询](#sql-查询执行)功能。
 
-# Compare Objects Across Systems
+# 跨系统比较对象
 
-Compare the same ABAP object side-by-side between two connected SAP systems — useful for verifying transports, investigating system-specific behaviour, or checking what's in production before a deployment.
+在两个已连接的 SAP 系统之间并排比较同一个 ABAP 对象——用于验证传输、调查系统特定行为，或在部署前检查生产环境中的内容。
 
-## Prerequisites
+## 前置条件
 
-- At least 2 SAP systems connected in VS Code
-- The object must exist in both systems
+- 在 VS Code 中至少连接 2 个 SAP 系统
+- 对象必须同时存在于两个系统中
 
-## How to Compare
+## 如何比较
 
-1. Open or locate the ABAP object in the Explorer or editor.
-2. Trigger the command using one of:
-   - **Explorer:** right-click the file → **Compare With another SAP System**
-   - **Editor:** right-click inside the file → **Compare With another SAP System**
-   - **Command Palette** (`Ctrl+Shift+P`): `ABAP FS: Compare With another SAP System`
-3. Select the target system from the quick pick list (shows only connected systems).
-4. VS Code opens a diff view titled `OBJECT_NAME: DEV100 ↔ QA100`.
+1. 在资源管理器或编辑器中打开/定位 ABAP 对象。
+2. 用以下任一方式触发命令：
+   - **资源管理器：** 右键文件 → **与另一个 SAP 系统比较**
+   - **编辑器：** 在文件内右键 → **与另一个 SAP 系统比较**
+   - **命令面板**（`Ctrl+Shift+P`）：`ABAP FS: Compare With another SAP System`
+3. 从快速选择列表中选择目标系统（只显示已连接的系统）。
+4. VS Code 打开标题为 `OBJECT_NAME: DEV100 ↔ QA100` 的 diff 视图。
 
-## Notes
+## 注意事项
 
-- The diff opens as a standard VS Code side-by-side comparison — all editor shortcuts (e.g. `F7`/`Shift+F7` to jump between changes) work as normal.
-- Path differences between SAP versions are handled automatically (`Source Code Library` for newer systems, `Source Library` for older ones).
-- If the object does not exist in the target system, an error is shown.
+- diff 以标准 VS Code 并排比较打开——所有编辑器快捷键（例如 `F7`/`Shift+F7` 在变更之间跳转）都正常工作。
+- SAP 版本之间的路径差异会自动处理（新版系统为 `Source Code Library`，旧版为 `Source Library`）。
+- 如果对象在目标系统中不存在，会显示错误。
 
-# ABAP Test Cockpit (ATC) Analysis
+# ABAP Test Cockpit（ATC）分析
 
-ATC is SAP's built-in code quality framework — the same checks you run in SE80 or Eclipse ADT, but integrated directly into VS Code. It scans your ABAP objects for coding violations, security issues, performance problems, and (optionally) S/4HANA compatibility.
+ATC 是 SAP 内置的代码质量框架——与你在 SE80 或 Eclipse ADT 中运行的检查相同，但直接集成到 VS Code 中。它会扫描你的 ABAP 对象，检查编码违规、安全问题、性能问题，以及（可选）S/4HANA 兼容性。
 
-## Running ATC
+## 运行 ATC
 
-With an ABAP file open, use any of these methods:
+打开 ABAP 文件后，可以使用以下任一方法：
 
-- **Keyboard:** `Ctrl+Shift+F2`
-- **Command Palette:** `ABAP FS: Run ABAP Test Cockpit`
-- **Copilot chat:** *"Run ATC on this file"*
+- **键盘：** `Ctrl+Shift+F2`
+- **命令面板：** `ABAP FS: Run ABAP Test Cockpit`
+- **Copilot 聊天：** “Run ATC on this file”
 
-Findings appear immediately as colored underlines in the editor, and in the **ATC Findings** panel (Activity Bar → ABAP FS → ATC Finds).
+检查结果会立即以彩色下划线显示在编辑器中，并出现在 **ATC 检查结果** 面板中（活动栏 → ABAP FS → ATC Finds）。
 
-## Working with Results
+## 处理结果
 
-Click any finding in the ATC panel to jump to the affected line. From there you can:
+点击 ATC 面板中的任何检查结果，跳转到受影响的代码行。在那里你可以：
 
-| Action | How |
+| 操作 | 方式 |
 |---|---|
-| Read check documentation | Click **Show documentation** on the finding |
-| Apply a quick fix | Click the lightbulb / use `Ctrl+.` on the underlined code |
-| Get an AI-suggested fix | Ask Copilot: *"Fix this ATC finding"* |
-| Request an exemption | Right-click a finding → **Request exemption** (single or bulk) |
-| Hide exempted findings | Toggle **Filter exempted** in the panel toolbar |
-| Re-run after saving | Toggle **Auto-refresh** in the panel toolbar |
+| 阅读检查文档 | 点击检查结果上的**显示文档** |
+| 应用快速修复 | 点击灯泡 / 在下划线上按 `Ctrl+.` |
+| 获取 AI 建议的修复 | 让 Copilot：*“Fix this ATC finding”* |
+| 申请豁免 | 右键检查结果 → **申请豁免**（单个或批量） |
+| 隐藏已豁免的结果 | 在面板工具栏中切换**过滤已豁免** |
+| 保存后重新运行 | 在面板工具栏中切换**自动刷新** |
 
-## Enhancement Decorations
+## 增强装饰标记
 
-When viewing standard SAP code, 🎯 markers show where customer enhancements (BADIs, implicit enhancements, etc.) are active. Hover for details, or click the link to open the enhancement source directly.
+查看 SAP 标准代码时，🎯 标记显示客户增强（BADI、隐式增强等）在哪些位置生效。悬停查看详情，或点击链接直接打开增强源码。
 
-## Configuring the Check Variant
+## 配置检查变式
 
-The check variant controls which rules ATC applies — just like choosing a variant in transaction `ATC` or SE80. To set a default variant per connection:
+检查变式控制 ATC 应用哪些规则——就像在事务 `ATC` 或 SE80 中选择变式一样。要为每个连接设置默认变式：
 
-1. Open **ABAP FS: Connection Manager**
-2. Edit the connection
-3. Set the **ATC Variant** field (e.g., `DEFAULT`, `S4HANA_READINESS`, or your custom variant)
+1. 打开 **ABAP FS: Connection Manager**
+2. 编辑连接
+3. 设置 **ATC Variant** 字段（例如 `DEFAULT`、`S4HANA_READINESS` 或你的自定义变式）
 
-Or add it directly to `settings.json`:
+或直接添加到 `settings.json`：
 
 ```json
 "atcVariant": "S4HANA_READINESS"
 ```
 
-## S/4HANA Migration Workflow
+## S/4HANA 迁移工作流
 
-To check custom code for S/4HANA compatibility, set the variant to `S4HANA_READINESS`. ATC will then flag removed APIs, changed interfaces, and deprecated features on every run.
+要检查自定义代码的 S/4HANA 兼容性，将变式设置为 `S4HANA_READINESS`。ATC 之后每次运行都会标记已移除的 API、变更的接口和弃用的功能。
 
-Recommended workflow:
+推荐工作流：
 
-1. Use the [S/4HANA Readiness Dashboard](#s4hana-readiness-dashboard) to identify all affected objects
-2. Open each object and run ATC (`Ctrl+Shift+F2`) for detailed findings
-3. Ask Copilot to fix the flagged issues based on the ATC documentation
+1. 使用 [S/4HANA 就绪仪表盘](#s4hana-就绪仪表盘) 识别所有受影响的对象
+2. 打开每个对象并运行 ATC（`Ctrl+Shift+F2`）查看详细结果
+3. 让 Copilot 根据 ATC 文档修复被标记的问题
 
-# ABAP Cleaner Integration
+# ABAP Cleaner 集成
 
-ABAP Cleaner automatically formats and cleans up ABAP code — fixing indentation, modernizing syntax, and applying configurable cleanup rules in one step.
+ABAP Cleaner 自动格式化和清理 ABAP 代码——一步完成缩进修正、语法现代化和可配置的清理规则。
 
-## Setup
+## 设置
 
-ABAP Cleaner requires its standalone command-line tool (`abap-cleanerc.exe`).
+ABAP Cleaner 需要其独立的命令行工具（`abap-cleanerc.exe`）。
 
-1. Download ABAP Cleaner from [github.com/SAP/abap-cleaner](https://github.com/SAP/abap-cleaner) and extract it to a folder.
-2. Open the Command Palette (`Ctrl+Shift+P`) and run **ABAP FS: Setup ABAP Cleaner Integration**.
-3. Enter the path to `abap-cleanerc.exe` when prompted.
+1. 从 [github.com/SAP/abap-cleaner](https://github.com/SAP/abap-cleaner) 下载 ABAP Cleaner 并解压到文件夹。
+2. 打开命令面板（`Ctrl+Shift+P`）并运行 **ABAP FS: Setup ABAP Cleaner Integration**。
+3. 提示时输入 `abap-cleanerc.exe` 的路径。
 
-## Cleaning Code
+## 清理代码
 
-With an ABAP file open, use any of these methods:
+打开 ABAP 文件后，可以使用以下任一方法：
 
-| Method | Action |
+| 方法 | 操作 |
 |---|---|
-| Keyboard shortcut | `Ctrl+Shift+Alt+F` |
-| Format on save | `Shift+Alt+F` (standard VS Code format — triggers ABAP Cleaner if configured as formatter) |
-| Command Palette | **ABAP FS: Clean ABAP Code with ABAP Cleaner** |
-| Toolbar button | Click the Cleaner button in the editor toolbar |
+| 键盘快捷键 | `Ctrl+Shift+Alt+F` |
+| 保存时格式化 | `Shift+Alt+F`（标准 VS Code 格式化——如果配置了 ABAP Cleaner 作为格式化器，会触发它） |
+| 命令面板 | **ABAP FS: Clean ABAP Code with ABAP Cleaner** |
+| 工具栏按钮 | 点击编辑器工具栏中的 Cleaner 按钮 |
 
-To clean only selected lines, select the code first, then trigger the command.
+只清理选中行：先选中代码，再触发命令。
 
-## What It Does
+## 它的作用
 
-- Applies all configured ABAP Cleaner rules to the file
-- Respects a custom cleanup profile if one is configured
-- Targets the ABAP release you specify (avoids using syntax unavailable on your system)
-- Reports which rules were applied and how many lines changed
+- 对文件应用所有已配置的 ABAP Cleaner 规则
+- 如果配置了自定义清理配置文件，则遵守该配置
+- 以你指定的 ABAP 版本为目标（避免使用你系统上不可用的语法）
+- 报告应用了哪些规则以及修改了多少行
 
-## Configuration
+## 配置
 
-In VS Code settings (`Ctrl+,`), search for **ABAP Cleaner** to configure:
+在 VS Code 设置（`Ctrl+,`）中搜索 **ABAP Cleaner** 进行配置：
 
-- **Executable path** — path to `abap-cleanerc.exe`
-- **Profile** — custom cleanup profile file (optional)
-- **Target release** — ABAP release to target (e.g. `757`)
-- **Clean on save** — automatically clean every time you save an ABAP file
+- **可执行文件路径** — `abap-cleanerc.exe` 的路径
+- **配置文件** — 自定义清理配置文件（可选）
+- **目标版本** — 目标 ABAP 版本（例如 `757`）
+- **保存时清理** — 每次保存 ABAP 文件时自动清理
 
-# Syntax Validation
+# 语法验证
 
-ABAP FS validates your code in real time — no need to run a separate syntax check. Errors appear as you type, directly in the editor and in the Problems panel.
+ABAP FS 实时验证你的代码——无需单独运行语法检查。错误会在输入时直接显示在编辑器和问题面板中。
 
-## When it runs
+## 何时运行
 
-Syntax checking triggers automatically on:
+语法检查在以下时机自动触发：
 
-- **Open** — when you open an ABAP file
-- **Edit** — as you type
-- **Save** — when you save changes
-- **Activate** — when activating the object
+- **打开** — 打开 ABAP 文件时
+- **编辑** — 输入时
+- **保存** — 保存修改时
+- **激活** — 激活对象时
 
-## Viewing errors
+## 查看错误
 
-| Where | How to open |
+| 位置 | 如何打开 |
 |---|---|
-| Inline underlines | Hover over the underlined code for details |
-| Problems panel | `Ctrl+Shift+M` |
-| Error lens (inline) | Shown automatically next to the offending line |
+| 内联下划线 | 悬停下划线代码查看详情 |
+| 问题面板 | `Ctrl+Shift+M` |
+| 错误透镜（内联） | 自动显示在出错行旁边 |
 
-## Fixing errors
+## 修复错误
 
-- **Quick Fix** — press `Ctrl+.` on an error to see available fixes
-- **AI Chat fix** — click the sparkle icon next to an error to open an inline AI chat for a suggested fix
-- **Jump to next error** — `F8` / `Shift+F8` to cycle through problems
+- **快速修复** — 在错误上按 `Ctrl+.` 查看可用修复
+- **AI 聊天修复** — 点击错误旁边的✨图标，打开内联 AI 聊天获取建议修复
+- **跳转到下一个错误** — `F8` / `Shift+F8` 循环浏览问题
 
-# Where-Used Analysis
+# Where-Used 分析
 
-The VS Code equivalent of **Ctrl+Shift+F3** (Where-Used List) in SAP GUI. Finds every place an object, method, variable, or symbol is referenced across the entire system.
+这是 SAP GUI 中 **Ctrl+Shift+F3**（Where-Used List）的 VS Code 等价功能。查找对象、方法、变量或符号在整个系统中被引用的每一个位置。
 
-## How to Use
+## 使用方法
 
-**Option 1 — Editor shortcut:**
-1. Place the cursor on any symbol (class name, method, variable, etc.)
-2. Press `Shift+F12` (Find All References) or right-click → **Find All References**
-3. Results appear in the References panel with file locations and code snippets
+**方式 1 — 编辑器快捷键：**
+1. 将光标放在任意符号上（类名、方法、变量等）
+2. 按 `Shift+F12`（查找所有引用）或右键 → **查找所有引用**
+3. 结果出现在引用面板中，包含文件位置和代码片段
 
-**Option 2 — Ask Copilot:**
-> "Where is `BAPI_USER_GET_DETAIL` used?"
-> "Find all usages of method `FACTORY` in `ZCL_MY_CLASS`"
+**方式 2 — 让 Copilot 执行：**
+> “BAPI_USER_GET_DETAIL 用在哪里？”
+> “查找 `ZCL_MY_CLASS` 中方法 `FACTORY` 的所有用法”
 
-## Filtering Results
+## 过滤结果
 
-For large result sets (1,000+ references), filters prevent having to page through SAP standard objects to find your custom code:
+对于大型结果集（1000+ 引用），过滤器可以避免在 SAP 标准对象中翻页查找自定义代码：
 
-| Filter | What it does |
+| 过滤器 | 作用 |
 |--------|-------------|
-| Exclude standard objects | Shows only Z\* / Y\* custom code |
-| Object type | Restrict to programs, classes, interfaces, etc. |
-| Object name pattern | e.g. `Z*INVOICE*` to narrow by naming convention |
+| 排除标准对象 | 只显示 Z\* / Y\* 自定义代码 |
+| 对象类型 | 限定为程序、类、接口等 |
+| 对象名称模式 | 例如 `Z*INVOICE*`，按命名规范缩小范围 |
 
-> **Tip:** Custom Z/Y objects often appear at the end of large result sets. Apply the "exclude standard objects" filter to jump straight to them.
+> **提示：** 自定义 Z/Y 对象通常出现在大型结果集的末尾。应用“排除标准对象”过滤器可以直接跳转到它们。
 
-## Compared to SAP GUI
+## 与 SAP GUI 对比
 
-| SAP GUI (Ctrl+Shift+F3) | VS Code |
+| SAP GUI（Ctrl+Shift+F3） | VS Code |
 |-------------------------|---------|
-| Modal dialog, one object at a time | Inline results panel, stays open |
-| No snippet preview | Shows code context around each reference |
-| No pattern filtering | Filter by type, name pattern, custom-only |
-| Paginated per transaction | Pagination + filters in one view |
+| 模态对话框，一次一个对象 | 内联结果面板，保持打开 |
+| 无代码片段预览 | 显示每个引用周围的代码上下文 |
+| 无模式过滤 | 按类型、名称模式、仅自定义过滤 |
+| 每个事务分页 | 一个视图内分页 + 过滤 |
 
-# ABAP Debugging
+# ABAP 调试
 
-Debug ABAP programs directly inside VS Code — no SAP GUI required. You get the same core capabilities as the SAP GUI debugger (breakpoints, stepping, variable inspection, call stack) with a modern editor experience and Copilot integration.
+直接在 VS Code 中调试 ABAP 程序——无需 SAP GUI。你拥有与 SAP GUI 调试器相同的核心能力（断点、单步执行、变量检查、调用栈），外加现代编辑器体验和 Copilot 集成。
 
-> 💡 **See also:** [Debug Recording & Replay](#recording-a-session) — record a session and replay it offline with step-back support.
+> 💡 **另见：** [调试录制与回放](#调试录制与回放) — 录制会话并离线回放，支持回退。
 
 ---
 
-## vs. SAP GUI Debugger
+## 与 SAP GUI 调试器对比
 
-| Feature | SAP GUI Debugger | VS Code (ABAP FS) |
+| 功能 | SAP GUI 调试器 | VS Code（ABAP FS） |
 |---|---|---|
-| Breakpoints | Click in editor | Click in gutter or via Copilot |
-| Conditional breakpoints | ✅ | ✅ |
-| Variable inspection | Manual navigation | Pattern filtering, auto-expand |
-| Step controls | Toolbar buttons | Keyboard shortcuts (F5–F8) |
-| Call stack | ✅ | ✅ |
-| Multi-thread | Limited | Up to 20 concurrent threads |
-| AI assistance | ❌ | ✅ via Copilot |
+| 断点 | 在编辑器中点击 | 点击装订线或通过 Copilot |
+| 条件断点 | ✅ | ✅ |
+| 变量检查 | 手动导航 | 模式过滤、自动展开 |
+| 单步控制 | 工具栏按钮 | 键盘快捷键（F5–F8） |
+| 调用栈 | ✅ | ✅ |
+| 多线程 | 有限 | 最多 20 个并发线程 |
+| AI 辅助 | ❌ | ✅ 通过 Copilot |
 
 ---
 
-## Starting a Debug Session
+## 启动调试会话
 
-1. Open the ABAP object in VS Code.
-2. Set at least one breakpoint (see below).
-3. Ask Copilot **"Start debugging session"** — or use the Debug panel.
-4. Trigger execution in the SAP system (run the transaction, report, etc.).
-5. VS Code halts at the first breakpoint.
+1. 在 VS Code 中打开 ABAP 对象。
+2. 至少设置一个断点（见下文）。
+3. 让 Copilot **“启动调试会话”** — 或使用调试面板。
+4. 在 SAP 系统中触发执行（运行事务、报表等）。
+5. VS Code 在第一个断点处暂停。
 
-> ⚠️ **Production systems:** Starting a debug session on a production system prompts a confirmation dialog. Production debugging risks data exposure and performance impact. Use SAP GUI instead.
-
----
-
-## Breakpoints
-
-**Setting a breakpoint:** Click in the left gutter next to a line number — a red dot appears, identical to any VS Code language.
-
-**Conditional breakpoints:** Right-click the gutter → *Add Conditional Breakpoint* → enter an ABAP expression. Execution pauses only when the condition is true.
-
-**Jump to cursor:** Press **Shift+F12** to resume execution and halt at the current cursor position (equivalent to *Breakpoint at Cursor* in SAP GUI).
+> ⚠️ **生产系统：** 在生产系统上启动调试会话会弹出确认对话框。生产调试有数据暴露和性能影响风险。请改用 SAP GUI。
 
 ---
 
-## Step Controls
+## 断点
 
-| Action | Shortcut | SAP GUI Equivalent |
+**设置断点：** 点击行号左侧的装订线——出现红点，与任何 VS Code 语言一致。
+
+**条件断点：** 右键装订线 → *添加条件断点* → 输入 ABAP 表达式。只有条件为真时执行才会暂停。
+
+**跳转到光标：** 按 **Shift+F12** 恢复执行并在当前光标位置暂停（相当于 SAP GUI 中的 *Breakpoint at Cursor*）。
+
+---
+
+## 单步控制
+
+| 操作 | 快捷键 | SAP GUI 等价 |
 |---|---|---|
-| Continue (run to next breakpoint) | **F5** | F8 |
-| Step Over (execute line, skip into calls) | **F6** | F6 |
-| Step Into (enter method/function) | **F7** | F5 |
-| Step Return (finish current method) | **F8** | — |
-| Jump to Line | — | *Goto Line* |
+| 继续（运行到下一个断点） | **F5** | F8 |
+| 单步跳过（执行本行，不进入调用） | **F6** | F6 |
+| 单步进入（进入方法/函数） | **F7** | F5 |
+| 单步返回（完成当前方法） | **F8** | — |
+| 跳转到行 | — | *Goto Line* |
 
 ---
 
-## Variable Inspection
+## 变量检查
 
-Open the **Variables** panel in the Debug sidebar. Variables are grouped by scope: *Local Variables*, *Global Variables*, *SY fields*, etc.
+在调试侧边栏中打开**变量**面板。变量按作用域分组：*局部变量*、*全局变量*、*SY 字段* 等。
 
-**Filtering by pattern** — useful in large programs:
+**按模式过滤** — 在大型程序中很有用：
 
-- `LT_*` — show all internal tables
-- `LS_*` — show all structures
-- `GV_*` — show all global variables
+- `LT_*` — 显示所有内表
+- `LS_*` — 显示所有结构
+- `GV_*` — 显示所有全局变量
 
-**Auto-expand:** Structures and tables expand inline so you can see component values without navigating into each one.
+**自动展开：** 结构和表内联展开，无需逐个进入即可看到组件值。
 
-**Expression evaluation:** Type any ABAP variable or expression in the *Watch* panel or Debug Console to evaluate it at the current breakpoint.
+**表达式求值：** 在*监视*面板或调试控制台中输入任意 ABAP 变量或表达式，在当前断点处求值。
 
-**Via Copilot:** Ask naturally — *"Show me the value of lt_data"*, *"Expand ls_header"*, *"Show all variables starting with LT\_"*.
-
----
-
-## Call Stack
-
-The **Call Stack** panel lists every active stack frame with the program name, method, and line number. Click any frame to inspect local variables at that level — equivalent to navigating frames in the SAP GUI debugger.
+**通过 Copilot：** 自然语言提问 — *“显示 lt_data 的值”*、*“展开 ls_header”*、*“显示所有以 LT\_ 开头的变量”*。
 
 ---
 
-## Multi-Thread Debugging
+## 调用栈
 
-VS Code supports up to **20 concurrent debug threads** (configurable). Each thread appears as a separate entry in the Call Stack panel. This is useful when debugging background jobs or parallel processing scenarios that are difficult to debug in SAP GUI.
-
-﻿# Debug Recording & Replay
-
-> ⚠️ **BETA FEATURE** — Please report any issues.
-
-Record a live ABAP debug session and replay it offline — forward and backward — like a DVR. No SAP connection needed during replay.
-
-**When is this useful?**
-
-- You stepped too far and want to go back without restarting
-- You want to share a bug reproduction with a colleague
-- You need to analyse a complex execution path at your own pace
+**调用栈**面板列出每个活动的栈帧，包含程序名、方法和行号。点击任意帧可检查该层的局部变量——相当于在 SAP GUI 调试器中切换帧。
 
 ---
 
-## Recording a Session
+## 多线程调试
 
-> Each step takes ~1–3 seconds longer than normal because the extension captures all variable data before SAP discards it.
+VS Code 支持最多 **20 个并发调试线程**（可配置）。每个线程在调用栈面板中显示为独立条目。这在调试后台作业或 SAP GUI 难以调试的并行处理场景时很有用。
 
-1. Start a debug session as usual (set breakpoints, attach to user/terminal)
-2. Open the Command Palette (`Ctrl+Shift+P`) → **ABAP: Start Debug Recording**
-3. Step through your code normally — every step is captured
-4. `Ctrl+Shift+P` → **ABAP: Stop Debug Recording**
-5. At the prompt, choose **Save** (plain `.abaprecord`) or **Compress & Save** (`.abaprecord.gz`, ~80–95% smaller)
+# 调试录制与回放
 
-**What is captured per step:**
+> ⚠️ **测试版功能** — 如有问题请报告。
 
-- Full call stack with source references
-- All variables across all scopes (Local, Global, SY) — structures expanded, tables up to 2,000 rows
-- Source file contents for offline viewing
+录制实时 ABAP 调试会话并离线回放——前进和后退都可以——就像 DVR。回放时无需 SAP 连接。
+
+**什么时候有用？**
+
+- 你步进得太远，想不重启就回去
+- 你想和同事分享 bug 复现过程
+- 你需要按自己的节奏分析复杂的执行路径
 
 ---
 
-## Replaying a Recording
+## 录制会话
 
-1. `Ctrl+Shift+P` → **ABAP: Replay Debug Recording**
-2. Select a `.abaprecord` or `.abaprecord.gz` file — both are handled automatically
-3. The replay session opens showing code, stack, and variables exactly as recorded
+> 每步比正常慢约 1–3 秒，因为扩展要在 SAP 丢弃数据前捕获所有变量数据。
 
-**Replay controls:**
+1. 照常启动调试会话（设置断点、附加到用户/终端）
+2. 打开命令面板（`Ctrl+Shift+P`）→ **ABAP FS: Start Debug Recording**
+3. 正常单步执行——每一步都会被捕获
+4. `Ctrl+Shift+P` → **ABAP FS: Stop Debug Recording**
+5. 在提示时选择**保存**（纯 `.abaprecord`）或**压缩并保存**（`.abaprecord.gz`，约小 80–95%）
 
-| Action | Shortcut |
+**每步捕获的内容：**
+
+- 带源码引用的完整调用栈
+- 所有作用域的变量（局部、全局、SY）——结构展开，表最多 2,000 行
+- 供离线查看的源文件内容
+
+---
+
+## 回放录制
+
+1. `Ctrl+Shift+P` → **ABAP FS: Replay Debug Recording**
+2. 选择 `.abaprecord` 或 `.abaprecord.gz` 文件——两者都会自动处理
+3. 回放会话打开，显示与录制时完全相同的代码、栈和变量
+
+**回放控制：**
+
+| 操作 | 快捷键 |
 |--------|----------|
-| Step forward (next snapshot) | `F7`, `F10`, or `F11` |
-| Step back (previous snapshot) | `Shift+F7` or `Shift+F11` |
-| Jump to end | `F5` (Continue) |
-| Jump to start | Reverse Continue |
-| Close session | Terminate |
+| 前进（下一个快照） | `F7`、`F10` 或 `F11` |
+| 后退（上一个快照） | `Shift+F7` 或 `Shift+F11` |
+| 跳到末尾 | `F5`（继续） |
+| 跳到开头 | 反向继续 |
+| 关闭会话 | 终止 |
 
-> In replay mode all three step buttons (Step Over / Into / Out) do the same thing: move to the next recorded snapshot.
+> 在回放模式下，三个单步按钮（跳过/进入/返回）作用相同：移动到下一个录制的快照。
 
-You can inspect variables, expand structures, browse table rows, evaluate expressions, and hover over variables — all without a SAP connection.
+你可以检查变量、展开结构、浏览表行、求值表达式、悬停查看变量——全部无需 SAP 连接。
 
 ---
 
-## Compression
+## 压缩
 
-Large sessions can produce files tens of MB in size. Use gzip to reduce storage and sharing size.
+大型会话可能产生几十 MB 的文件。使用 gzip 减小存储和共享大小。
 
-| Command | Description |
+| 命令 | 描述 |
 |---------|-------------|
-| **ABAP: Compress Debug Recording** | Compress an existing `.abaprecord` → `.abaprecord.gz` |
-| **ABAP: Decompress Debug Recording** | Convert `.abaprecord.gz` back to plain JSON |
+| **ABAP FS: Compress Debug Recording** | 压缩现有 `.abaprecord` → `.abaprecord.gz` |
+| **ABAP FS: Decompress Debug Recording** | 将 `.abaprecord.gz` 转回纯 JSON |
 
-After compression the extension shows the size reduction (e.g. *42 MB → 3.2 MB, 92% smaller*). Both formats are fully interchangeable.
+压缩后扩展会显示体积缩减（例如 *42 MB → 3.2 MB，小 92%*）。两种格式完全可互换。
 
 ---
 
-## All Commands
+## 全部命令
 
-| Command | Description |
+| 命令 | 描述 |
 |---------|-------------|
-| `ABAP: Start Debug Recording` | Begin recording the active debug session |
-| `ABAP: Stop Debug Recording` | Stop and save (plain or compressed) |
-| `ABAP: Replay Debug Recording` | Open and replay a recording file |
-| `ABAP: Compress Debug Recording` | Compress an existing `.abaprecord` file |
-| `ABAP: Decompress Debug Recording` | Decompress a `.abaprecord.gz` file |
+| `ABAP FS: Start Debug Recording` | 开始录制活动调试会话 |
+| `ABAP FS: Stop Debug Recording` | 停止并保存（纯格式或压缩格式） |
+| `ABAP FS: Replay Debug Recording` | 打开并回放录制文件 |
+| `ABAP FS: Compress Debug Recording` | 压缩现有 `.abaprecord` 文件 |
+| `ABAP FS: Decompress Debug Recording` | 解压 `.abaprecord.gz` 文件 |
 
 ---
 
-## Limitations
+## 限制
 
-| Limitation | Detail |
+| 限制 | 详情 |
 |------------|--------|
-| Table rows | First 2,000 rows captured; remainder skipped (marked in replay) |
-| Variable depth | Structures/tables beyond 4 levels deep are not expanded |
-| Source unavailable | Shows `[source unavailable]` if caching failed during recording |
-| No conditional breakpoints | Replay only steps through what was recorded |
-| Step speed | ~1–3 seconds per step during recording (variable capture overhead) |
+| 表行 | 只捕获前 2,000 行；其余跳过（回放中会标记） |
+| 变量深度 | 超过 4 层的结构/表不展开 |
+| 源码不可用 | 录制时缓存失败则显示 `[source unavailable]` |
+| 无条件断点 | 回放只能按录制内容步进 |
+| 步进速度 | 录制时每步约 1–3 秒（变量捕获开销） |
 
-# SQL Query Execution
+# SQL 查询执行
 
-Query SAP tables directly from VS Code — the equivalent of SE16N or DBACOCKPIT, but driven by natural language and integrated with Copilot.
+直接从 VS Code 查询 SAP 表——相当于 SE16N 或 DBACOCKPIT，但由自然语言驱动并与 Copilot 集成。
 
-## How to Use
+## 使用方法
 
-Open the Copilot chat (`Ctrl+Alt+I`) and describe what you want:
+打开 Copilot 聊天（`Ctrl+Alt+I`）并描述你的需求：
 
-- *"Show me the first 10 records from MARA"*
-- *"Query USR02 where the username starts with Z"*
-- *"Compare open purchase orders in EKKO for vendor 1000"*
+- *“显示 MARA 的前 10 条记录”*
+- *“查询 USR02 中用户名以 Z 开头的记录”*
+- *“比较供应商 1000 在 EKKO 中的未结采购订单”*
 
-Copilot builds and executes the ABAP SQL query, then displays results in an interactive table in the editor.
+Copilot 构建并执行 ABAP SQL 查询，然后在编辑器中的交互式表格里显示结果。
 
-## Working with Results
+## 处理结果
 
-The result table supports:
+结果表格支持：
 
-| Action | How |
+| 操作 | 方式 |
 |---|---|
-| Sort by column | Click a column header (click again to reverse) |
-| Multi-column sort | Hold `Shift` and click additional headers |
-| Filter rows | Type in the filter box — supports wildcards `*` and `?` |
-| Export | Use the export button in the result toolbar |
+| 按列排序 | 点击列标题（再点一次反向） |
+| 多列排序 | 按住 `Shift` 点击其他列标题 |
+| 过滤行 | 在过滤框中输入——支持通配符 `*` 和 `?` |
+| 导出 | 使用结果工具栏中的导出按钮 |
 
-You can also ask Copilot to refine results after the initial query: *"Now filter by plant 1000"* or *"Sort by creation date descending"*.
+你也可以在初次查询后让 Copilot 优化结果：*“现在按工厂 1000 过滤”* 或 *“按创建日期降序排序”*。
 
-## Display Modes
+## 显示模式
 
-**UI mode** (default) — results appear in a webview for you to explore interactively. Data stays in VS Code.
+**UI 模式**（默认）— 结果出现在 WebView 中，供你交互式探索。数据留在 VS Code 中。
 
-**Internal mode** — results are sent back to Copilot for further analysis (e.g., *"find duplicates"*, *"summarize by material type"*). Copilot automatically selects this mode when analysis is needed.
+**内部模式** — 结果发送回 Copilot 做进一步分析（例如 *“查找重复项”*、*“按物料类型汇总”*）。Copilot 在需要分析时自动选择此模式。
 
-## Production System Protection
+## 生产系统保护
 
-When Copilot would send data back to itself from a **production system**, a confirmation dialog appears:
+当 Copilot 要从**生产系统**把数据发回给自己时，会出现确认对话框：
 
-- **Run & send to Copilot** — proceed with analysis
-- **Run & show in UI only** — display results without sharing data with Copilot
-- **Cancel**
+- **运行并发送给 Copilot** — 继续分析
+- **运行且仅在 UI 中显示** — 显示结果但不与 Copilot 共享数据
+- **取消**
 
-This prevents sensitive production data from being inadvertently included in the AI context.
+这可以防止敏感的生产数据无意中进入 AI 上下文。
 
-## Notes
+## 注意事项
 
-- **Row limit:** Default 1000 rows, maximum 50,000. Copilot manages this automatically — the ABAP SQL `UP TO x ROWS` clause is not supported via ADT, so use natural language like *"limit to 500 rows"* instead.
-- **Not just SAP data:** The same result viewer can display any structured data — JIRA issues, task lists, comparison tables — that Copilot assembles during a conversation.
+- **行数限制：** 默认 1000 行，最大 50,000。Copilot 自动管理——ADT 不支持 ABAP SQL 的 `UP TO x ROWS` 子句，所以请改用自然语言，例如 *“限制为 500 行”*。
+- **不只是 SAP 数据：** 同一个结果查看器可以显示 Copilot 在对话中整理的任意结构化数据——JIRA 问题、任务列表、对比表等。
 
-# SAP Data Workbooks (.sapwb)
+# SAP 数据工作簿（.sapwb）
 
-SAP Data Workbooks are VS Code notebooks that combine ABAP SQL queries, JavaScript processing, and Markdown in a single reusable `.sapwb` file. Use them for multi-step data analysis, data quality checks, and cross-system comparisons.
+SAP 数据工作簿是 VS Code 笔记本，将 ABAP SQL 查询、JavaScript 处理和 Markdown 组合在单个可复用的 `.sapwb` 文件中。用于多步骤数据分析、数据质量检查和跨系统比较。
 
-## Creating a Workbook
+## 创建工作簿
 
-1. Open the Command Palette (`Ctrl+Shift+P`)
-2. Run **ABAP FS: New SAP Data Workbook**
+1. 打开命令面板（`Ctrl+Shift+P`）
+2. 运行 **ABAP FS: New SAP Data Workbook**
 
-Alternatively, create any file with the `.sapwb` extension, or ask Copilot: *"Create a workbook to analyze material master data quality."*
+或者，创建任何带 `.sapwb` 扩展名的文件，或让 Copilot：*“创建一个分析物料主数据质量的工作簿。”*
 
-## Cell Types
+## 单元格类型
 
-| Type | Purpose |
+| 类型 | 用途 |
 |------|---------|
-| **Markdown** | Section headers, notes, documentation |
-| **ABAP SQL** | Query SAP tables (`SELECT` and `WITH` only — no DML) |
-| **JavaScript** | Process, filter, or compare results from earlier cells |
+| **Markdown** | 章节标题、备注、文档 |
+| **ABAP SQL** | 查询 SAP 表（仅 `SELECT` 和 `WITH`——不支持 DML） |
+| **JavaScript** | 处理、过滤或比较前面单元格的结果 |
 
-## Key Concepts
+## 核心概念
 
-**Running cells**
+**运行单元格**
 
-- Run a single cell with the run button or `Shift+Enter`. You are prompted to select a SAP system.
-- **Run All** (`Ctrl+Shift+Enter`) prompts once and uses that system for all SQL cells.
+- 用运行按钮或 `Shift+Enter` 运行单个单元格。会提示你选择 SAP 系统。
+- **全部运行**（`Ctrl+Shift+Enter`）只提示一次，所有 SQL 单元格都使用该系统。
 
-**Referencing results between cells**
+**在单元格之间引用结果**
 
-- In **JavaScript**: access a previous cell's rows via `cells[N].result` (0-indexed, so cell 2 is `cells[1]`).
-- In **ABAP SQL**: interpolate earlier results using `${...}`. Strings are auto-quoted; arrays are auto-joined for `IN` clauses.
+- 在 **JavaScript** 中：通过 `cells[N].result` 访问前一个单元格的行（从 0 开始，所以单元格 2 是 `cells[1]`）。
+- 在 **ABAP SQL** 中：使用 `${...}` 插值前面的结果。字符串自动加引号；数组自动连接用于 `IN` 子句。
 
 ```sql
--- Use results from cell 2 (index 1) as a filter
+-- 使用单元格 2（索引 1）的结果作为过滤条件
 SELECT matnr, werks FROM marc
   WHERE matnr IN (${cells[1].result.map(r => r.MATNR)})
 ```
 
-**Row limits**
+**行数限制**
 
-Each SQL cell has a configurable row limit (default: 1000). Adjust with **ABAP FS: Set Cell Max Rows**.
+每个 SQL 单元格有可配置的行数限制（默认：1000）。用 **ABAP FS: Set Cell Max Rows** 调整。
 
-## Example: Data Quality Check
-
-```
-Cell 1 (Markdown):   # Material Data Quality Check
-Cell 2 (ABAP SQL):   SELECT matnr, mtart, meins FROM mara WHERE mtart = 'FERT'
-Cell 3 (JavaScript): const rows = cells[1].result;
-                     return rows.filter(r => !r.MEINS).length + " materials missing UoM";
-Cell 4 (ABAP SQL):   SELECT matnr, werks FROM marc
-                       WHERE matnr IN (${cells[1].result.map(r => r.MATNR)})
-```
-
-## Example: Cross-System Comparison
-
-Run the same query against two systems by executing cells individually and selecting a different system each time. A JavaScript cell then diffs the results.
+## 示例：数据质量检查
 
 ```
-Cell 1 (Markdown):   # Pricing Condition Comparison: DEV vs QAS
-Cell 2 (ABAP SQL):   SELECT KSCHL, VKORG, MATNR, KBETR FROM A005 WHERE KSCHL = 'ZPR1'
-                     → Run, select DEV
-Cell 3 (ABAP SQL):   SELECT KSCHL, VKORG, MATNR, KBETR FROM A005 WHERE KSCHL = 'ZPR1'
-                     → Run, select QAS
-Cell 4 (JavaScript): const devMap = new Map(
-                       cells[1].result.map(r => [r.KSCHL + r.VKORG + r.MATNR, r])
-                     );
-                     return cells[2].result
-                       .filter(r => {
-                         const d = devMap.get(r.KSCHL + r.VKORG + r.MATNR);
-                         return d && d.KBETR !== r.KBETR;
-                       })
-                       .map(r => ({
-                         ...r,
-                         DEV_KBETR: devMap.get(r.KSCHL + r.VKORG + r.MATNR).KBETR
-                       }));
+单元格 1（Markdown）：   # 物料数据质量检查
+单元格 2（ABAP SQL）：   SELECT matnr, mtart, meins FROM mara WHERE mtart = 'FERT'
+单元格 3（JavaScript）： const rows = cells[1].result;
+                         return rows.filter(r => !r.MEINS).length + " materials missing UoM";
+单元格 4（ABAP SQL）：   SELECT matnr, werks FROM marc
+                         WHERE matnr IN (${cells[1].result.map(r => r.MATNR)})
 ```
 
-Workbook files store no system IDs, so they can be shared with colleagues who use different system names.
+## 示例：跨系统比较
 
-## Limitations
+通过单独执行单元格并每次选择不同系统，对两个系统运行相同查询。然后用 JavaScript 单元格对比结果。
 
-- SQL supports `SELECT` and `WITH` only — no `INSERT`, `UPDATE`, or `DELETE`
-- String literals are limited to 255 characters (SAP ADT constraint)
-- Avoid interpolating more than ~10 values into an `IN` clause — filter in a JavaScript cell instead
-- Cancelling a cell shows "Interrupted" immediately, but the query continues running on the SAP side
+```
+单元格 1（Markdown）：   # 定价条件对比：DEV vs QAS
+单元格 2（ABAP SQL）：   SELECT KSCHL, VKORG, MATNR, KBETR FROM A005 WHERE KSCHL = 'ZPR1'
+                         → 运行，选择 DEV
+单元格 3（ABAP SQL）：   SELECT KSCHL, VKORG, MATNR, KBETR FROM A005 WHERE KSCHL = 'ZPR1'
+                         → 运行，选择 QAS
+单元格 4（JavaScript）： const devMap = new Map(
+                         cells[1].result.map(r => [r.KSCHL + r.VKORG + r.MATNR, r])
+                       );
+                         return cells[2].result
+                         .filter(r => {
+                           const d = devMap.get(r.KSCHL + r.VKORG + r.MATNR);
+                           return d && d.KBETR !== r.KBETR;
+                         })
+                         .map(r => ({
+                           ...r,
+                           DEV_KBETR: devMap.get(r.KSCHL + r.VKORG + r.MATNR).KBETR
+                         }));
+```
 
-## Commands
+工作簿文件不存储系统 ID，因此可以和使用不同系统名的同事共享。
 
-| Command | Shortcut / Notes |
+## 限制
+
+- SQL 仅支持 `SELECT` 和 `WITH`——不支持 `INSERT`、`UPDATE` 或 `DELETE`
+- 字符串字面量限制为 255 个字符（SAP ADT 限制）
+- 避免向 `IN` 子句插值超过约 10 个值——改用 JavaScript 单元格过滤
+- 取消单元格会立即显示“已中断”，但查询仍会在 SAP 端继续运行
+
+## 命令
+
+| 命令 | 快捷键 / 说明 |
 |---------|-----------------|
-| `ABAP FS: New SAP Data Workbook` | Creates a new `.sapwb` file |
-| `ABAP FS: Set Cell Max Rows` | Sets row limit for the current SQL cell |
+| `ABAP FS: New SAP Data Workbook` | 创建新的 `.sapwb` 文件 |
+| `ABAP FS: Set Cell Max Rows` | 设置当前 SQL 单元格的行数限制 |
 
-# Transport Request View
+# 传输请求视图
 
-The Transport Request View is the VS Code equivalent of **SE09/SE10**. It lets you manage workbench and customising transports without leaving the editor.
+传输请求视图是 **SE09/SE10** 的 VS Code 等价功能。它让你无需离开编辑器即可管理工作台和定制传输。
 
-**Open it:** Activity Bar → ABAP FS icon → **Transports** panel.
-
----
-
-## What you can do
-
-| Action | How |
-|---|---|
-| List your open transports | Panel opens automatically filtered to your user |
-| List another user's transports | Click the filter icon and enter a username |
-| Browse objects in a transport | Expand a transport node |
-| Compare two transports | Right-click a transport → **Compare** |
-| Copy transport number | Right-click → **Copy transport number** |
-| Run ATC quality check | Right-click → **Run ATC** |
-| Open in SAP GUI (SE09) | Right-click → **Open in GUI** |
-| Release a transport | Right-click → **Release** |
-| Delete a transport | Right-click → **Delete** |
-| Change owner / add user | Right-click → **Change owner** / **Add user** |
-| Link to source control | Right-click → **Add to source control** |
-| Refresh the list | Click the refresh icon or press `F5` |
+**打开方式：** 活动栏 → ABAP FS 图标 → **传输**面板。
 
 ---
 
-## Using Copilot to query transports
+## 你能做什么
 
-You can also ask Copilot in natural language:
-
-- *"Show me my transports"*
-- *"Get details for transport DEVK900123"*
-- *"What objects are in DEVK900123?"*
-- *"Compare transports DEVK900123 and DEVK900124"*
+| 操作 | 方式 |
+|---|---|
+| 列出自己的未释放传输 | 面板自动打开并按你的用户过滤 |
+| 列出其他用户的传输 | 点击过滤图标并输入用户名 |
+| 浏览传输中的对象 | 展开传输节点 |
+| 比较两个传输 | 右键传输 → **比较** |
+| 复制传输编号 | 右键 → **复制传输编号** |
+| 运行 ATC 质量检查 | 右键 → **运行 ATC** |
+| 在 SAP GUI（SE09）中打开 | 右键 → **在 GUI 中打开** |
+| 释放传输 | 右键 → **释放** |
+| 删除传输 | 右键 → **删除** |
+| 更改所有者 / 添加用户 | 右键 → **更改所有者** / **添加用户** |
+| 链接到源代码管理 | 右键 → **添加到源代码管理** |
+| 刷新列表 | 点击刷新图标或按 `F5` |
 
 ---
 
-## Older SAP systems
+## 用 Copilot 查询传输
 
-If the ADT transport API is unavailable, the extension falls back to direct SQL queries against tables `E070`, `E071`, and `E071K` automatically — no configuration needed.
+你也可以用自然语言让 Copilot 执行：
 
-# Transport Object Operations
+- *“显示我的传输”*
+- *“获取传输 DEVK900123 的详细信息”*
+- *“DEVK900123 里有什么对象？”*
+- *“比较传输 DEVK900123 和 DEVK900124”*
 
-Work with individual objects inside a transport request directly from the **Transports** view in the sidebar.
+---
 
-## Accessing Object Actions
+## 旧版 SAP 系统
 
-Right-click any object listed under a transport request to see available actions.
+如果 ADT 传输 API 不可用，扩展会自动降级为直接对表 `E070`、`E071` 和 `E071K` 执行 SQL 查询——无需任何配置。
 
-## Available Actions
+# 传输对象操作
 
-| Action | What it does |
+直接在侧边栏的**传输**视图中操作传输请求内的单个对象。
+
+## 访问对象操作
+
+右键点击传输请求下列出的任意对象，查看可用操作。
+
+## 可用操作
+
+| 操作 | 作用 |
 |---|---|
-| **Open** | Opens the object in the editor |
-| **Diff with current version** | Shows a side-by-side diff between the transported version and the current active version |
-| **Reveal in Explorer** | Navigates to the object in the ABAP file explorer |
+| **打开** | 在编辑器中打开对象 |
+| **与当前版本比较** | 显示传输版本与当前活动版本之间的并排 diff |
+| **在资源管理器中显示** | 在 ABAP 文件资源管理器中导航到该对象 |
 
-## Adding Objects to a Transport
+## 向传输添加对象
 
-Objects are added to a transport automatically when you save changes to an ABAP object that is assigned to a transport request. You can also manually assign an object:
+当你保存分配给传输请求的 ABAP 对象的修改时，对象会自动添加到传输中。你也可以手动分配对象：
 
-1. Right-click the object in the explorer
-2. Select **Add to Transport**
-3. Choose the target transport request from the list
+1. 在资源管理器中右键对象
+2. 选择**添加到传输**
+3. 从列表中选择目标传输请求
 
-## Removing Objects from a Transport
+## 从传输中移除对象
 
-1. Open the **Transports** view
-2. Expand the transport request
-3. Right-click the object you want to remove
-4. Select **Remove from Transport**
+1. 打开**传输**视图
+2. 展开传输请求
+3. 右键要移除的对象
+4. 选择**从传输中移除**
 
-> **Note:** Removing an object from a transport does not revert its source code — it only unlinks the object from that transport request.
+> **注意：** 从传输中移除对象不会还原其源代码——只是把对象与该传输请求解除关联。
 
-# abapGit Integration
+# abapGit 集成
 
-abapGit integration lets you manage Git version control for ABAP objects directly in VS Code, without leaving the editor.
+abapGit 集成让你无需离开编辑器，直接在 VS Code 中管理 ABAP 对象的 Git 版本控制。
 
-## Opening the abapGit Panel
+## 打开 abapGit 面板
 
-1. Click the **ABAP FS** icon in the Activity Bar (left sidebar).
-2. Expand the **abapGit** section.
+1. 点击活动栏（左侧边栏）中的 **ABAP FS** 图标。
+2. 展开 **abapGit** 部分。
 
-## Common Tasks
+## 常见操作
 
-### Link an existing repository
-1. In the abapGit panel, click **Link Repository**.
-2. Enter the Git URL and select the SAP package to link.
+### 链接现有仓库
+1. 在 abapGit 面板中点击**链接仓库**。
+2. 输入 Git URL 并选择要链接的 SAP 包。
 
-### Create a new repository
-1. Click **Create Repository**.
-2. Provide the Git URL and target package.
+### 创建新仓库
+1. 点击**创建仓库**。
+2. 提供 Git URL 和目标包。
 
-### View staged/unstaged changes
-The abapGit panel lists all changed ABAP objects. Each entry shows whether it is staged or unstaged.
+### 查看暂存/未暂存变更
+abapGit 面板列出所有已变更的 ABAP 对象。每个条目显示其处于暂存或未暂存状态。
 
-### Stage and commit (Push)
-1. Select objects to stage, or stage all changes.
-2. Click **Push** — this commits and pushes to the remote Git repository.
-3. Enter a commit message when prompted.
+### 暂存和提交（推送）
+1. 选择要暂存的对象，或暂存所有变更。
+2. 点击**推送**——这会提交并推送到远程 Git 仓库。
+3. 提示时输入提交信息。
 
-### Pull (update from Git)
-1. Click **Pull** on the linked repository.
-2. **Note:** Pull overwrites local ABAP objects with the version from Git. Unsaved local changes will be lost.
+### 拉取（从 Git 更新）
+1. 在已链接的仓库上点击**拉取**。
+2. **注意：** 拉取会用 Git 中的版本覆盖本地 ABAP 对象。未保存的本地修改会丢失。
 
-### Register with VS Code Source Control
-Click **Register in VS Code SCM** to surface the repository in VS Code's built-in Source Control view (`Ctrl+Shift+G`), enabling diffs and history browsing alongside the ABAP FS panel.
+### 注册到 VS Code 源代码管理
+点击**注册到 VS Code SCM**，把仓库显示到 VS Code 内置的源代码管理视图中（`Ctrl+Shift+G`），在 ABAP FS 面板旁边支持 diff 和历史浏览。
 
-### Unlink a repository
-Click the **Unlink** icon next to the repository to remove the connection without deleting any code.
+### 取消链接仓库
+点击仓库旁边的**取消链接**图标，移除连接而不删除任何代码。
 
-## Tips
+## 提示
 
-- Use **Pull** to sync a fresh system with an existing codebase stored in Git.
-- The abapGit panel respects the active SAP connection — switch connections in the ABAP FS panel first if you work with multiple systems.
+- 用**拉取**把全新系统与 Git 中的现有代码库同步。
+- abapGit 面板遵循当前活动的 SAP 连接——使用多个系统时先在 ABAP FS 面板中切换连接。
 
-# ABAP Revision History
+# ABAP 修订历史
 
-Every time an ABAP object is activated, SAP stores a version snapshot — the same history you see in SE80 via **Utilities → Versions**. This extension brings that history directly into VS Code with a visual diff editor.
+每次激活 ABAP 对象时，SAP 都会存储一个版本快照——与你在 SE80 中通过**实用程序 → 版本**看到的历史相同。此扩展在 **VS Code 内置的源代码管理视图**中显示该历史，并带并排 diff 编辑器。
 
-## Opening Revision History
+## 打开修订历史
 
-**Option 1 — Command Palette** (`Ctrl+Shift+P`):
-> `ABAP: Show object history`
+修订显示在标准的**源代码管理视图**（`Ctrl+Shift+G`）中，位于名为 `ABAP <连接ID>` 的提供器下（每个已连接系统一个）。
 
-**Option 2 — Explorer context menu:**
-Right-click any ABAP object → **Show object history**
+对象出现在那里有四种方式：
 
-**Option 3 — Ask Copilot:**
-> "Show version history for ZCL_MY_CLASS"
+1. **自动 — 最近分组。** 在编辑器中打开任意 ABAP 对象。它会添加到其连接 SCM 提供器的**最近**分组中，并带有与上一次激活版本的 diff 装饰。
+2. **整个传输。** 在**传输**面板（ABAP FS 活动栏）中，右键传输 → **将传输添加到源代码管理**。该传输中的每个对象都作为独立的 SCM 分组添加。
+3. **对象属性视图。** ABAP FS 活动栏 → **对象属性**面板 → **修订历史**部分列出当前打开对象的每个存储版本。
+4. **让 Copilot 执行。** > “显示 ZCL_MY_CLASS 的版本历史”或要求比较任意两个版本——使用 `get_version_history` 工具（见下文）。
 
-## Comparing Versions
+## 比较版本
 
-Once the history panel is open:
+### 从源代码管理视图
 
-1. Select any revision from the list — it shows date, author, and transport number.
-2. Click a revision to open a **side-by-side diff** against the current active version.
-3. Use the **previous/next** arrows to step through revisions one at a time.
-4. Toggle **Code Normalization** to strip formatting differences (like SE80's normalized comparison), so only meaningful changes are highlighted.
+点击 `ABAP <连接ID>` 分组中的资源打开默认 diff（当前活动版本 vs 上一个修订），或使用行上的内联图标：
 
-## Restoring an Old Version
-
-1. Open the revision you want to restore.
-2. Copy the content from the left pane into your editor, or use the restore action if prompted.
-3. Save and activate as normal.
-
-## vs. SE80 Version Management
-
-| SE80 (Utilities → Versions) | This Extension |
+| 命令 | 作用 |
 |---|---|
-| Opens in SAP GUI | Opens inside VS Code |
-| Text-based diff | Syntax-highlighted side-by-side diff |
-| Normalized compare available | Normalization toggle available |
-| Manual copy to restore | Copy from diff pane |
+| `打开修订 diff` | 并排 diff，活动版本 vs 上一个修订 |
+| `打开规范化 diff` | 相同 diff，但去掉格式/注释差异（SE80 风格规范化比较） |
+| `打开当前版本` | 只打开当前源码，无 diff |
 
-## Using Copilot for Version History
+内联分组操作：
 
-The `get_version_history` tool supports three actions. Version numbers are **1-based**, where **1 = most recent**.
+- **过滤未更改** — 隐藏没有差异的对象。
+- **清空** — 清空分组。
 
-| Action | What it does |
+### 在 diff 编辑器中逐步浏览修订
+
+修订 diff 打开时，编辑器工具栏提供：
+
+| 命令 | 作用范围 |
 |---|---|
-| `list_versions` | Lists all versions with date, author, and transport |
-| `get_version_source` | Returns full source code at a specific version number |
-| `compare_versions` | Shows added/removed lines between two version numbers |
+| `上一修订（左窗格）` / `下一修订（左窗格）` | 在历史中前后移动左侧（较旧）版本 |
+| `上一修订（右窗格）` / `下一修订（右窗格）` | 在历史中前后移动右侧（较新）版本 |
+| `切换代码规范化` | 即时剥离格式/注释差异 |
 
-**Example questions:**
+### 从对象属性视图
 
-- "Show version history for ZCL_MY_CLASS"
-- "Who last changed ZCL_MY_CLASS and when?"
-- "Get the code from version 2 of ZCL_MY_CLASS"
-- "Compare version 1 and version 3 of ZTEST_PROGRAM"
-- "What changed between the last two versions of ZTEST_PROGRAM?"
+在**修订历史**部分，勾选任意两个版本旁的复选框，即可打开恰好这两个版本之间的 diff。
 
-# Blame Gutter
+## 恢复旧版本
 
-Shows who last changed each line of an ABAP file — author, date, and transport number — displayed inline in the editor, similar to GitLens for Git repositories.
+没有一键恢复。打开到你要的版本的 diff，把保存旧版本的窗格中的内容复制到当前活动源码的编辑器中，然后照常保存并激活。
 
-## Activating Blame
+## 与 SE80 版本管理对比
 
-With an ABAP file open, use any of:
+| SE80（实用程序 → 版本） | 此扩展 |
+|---|---|
+| 在 SAP GUI 中打开 | 标准 VS Code 源代码管理 + diff 编辑器 |
+| 基于文本的 diff | 语法高亮的并排 diff |
+| 可用的规范化比较 | diff 工具栏中的`切换代码规范化` |
+| 手动复制恢复 | 从 diff 窗格复制 |
 
-| Method | Action |
+## 用 Copilot 处理版本历史
+
+`get_version_history` 工具支持三个操作。版本号从 **1** 开始，**1 = 最近**。
+
+| 操作 | 作用 |
+|---|---|
+| `list_versions` | 列出所有版本，含日期、作者和传输 |
+| `get_version_source` | 返回指定版本号的完整源代码 |
+| `compare_versions` | 显示两个版本号之间新增/删除的行 |
+
+**示例问题：**
+
+- “显示 ZCL_MY_CLASS 的版本历史”
+- “谁最后修改了 ZCL_MY_CLASS？什么时候？”
+- “获取 ZCL_MY_CLASS 版本 2 的代码”
+- “比较 ZTEST_PROGRAM 的版本 1 和版本 3”
+- “ZTEST_PROGRAM 最后两个版本之间改了什么？”
+
+# Blame 侧边注释
+
+显示 ABAP 文件每一行的最后修改者——作者、日期和传输编号——内联显示在编辑器中，类似 Git 仓库的 GitLens。
+
+## 激活 Blame
+
+打开 ABAP 文件后，可以使用以下任一方式：
+
+| 方法 | 操作 |
 |--------|--------|
-| Keyboard | **Ctrl+Alt+B** (toggles on/off) |
-| Editor title bar | Click the blame icon ($(git-commit)) |
-| Command Palette | `ABAP FS: Show Blame` |
+| 键盘 | **Ctrl+Alt+B**（切换开/关） |
+| 编辑器标题栏 | 点击 blame 图标（$(git-commit)） |
+| 命令面板 | `ABAP FS: Show Blame` |
 
-> Blame is per-file — it can be active on one file while other files show no annotations.
+> Blame 是按文件的——可以在一个文件上激活，而其他文件不显示注释。
 
-## Reading the Annotations
+## 阅读注释
 
-Each annotated line shows: `AUTHOR · DATE · TRANSPORT — Transport description`
+每个被注释的行显示：`作者 · 日期 · 传输编号 — 传输描述`
 
-Example: `JSMITH · Jan 15, 2026 · KD1K900123 — S 8000005926: Fix pricing logic`
+示例：`JSMITH · Jan 15, 2026 · KD1K900123 — S 8000005926: Fix pricing logic`
 
-- **Color-coded left border** — each author gets a distinct color for quick visual grouping
-- **`│` continuation marker** — consecutive lines from the same author/transport are grouped
-- **All annotations are column-aligned** — regardless of line length
-- **Hover over an annotation** for full date and transport details
+- **颜色编码的左边框** — 每个作者有不同颜色，便于快速视觉分组
+- **`│` 连续标记** — 同一作者/传输的连续行会被分组
+- **所有注释按列对齐** — 无论行长如何
+- **悬停注释**可查看完整日期和传输详情
 
-## Render Modes
+## 渲染模式
 
-Control the layout with the `abapfs.blame.renderMode` setting:
+用 `abapfs.blame.renderMode` 设置控制布局：
 
-| Value | Layout |
+| 值 | 布局 |
 |-------|--------|
-| `classic` | Blame text appears inline after each line of code |
-| `gitlens` | Blame moves into a fixed lane to the left of the code |
+| `classic` | Blame 文本内联显示在每行代码之后 |
+| `gitlens` | Blame 移入代码左侧的固定通道 |
 
-Change via **File > Preferences > Settings**, search for `abapfs blame`.
+通过**文件 > 首选项 > 设置**修改，搜索 `abapfs blame`。
 
-## Requirements
+## 要求
 
-- Object must have SAP version history — objects in `$TMP` with no transports have no versions
-- File must be saved (no unsaved changes); blame auto-hides when you start editing
-- ABAP files only (`.abap`)
+- 对象必须有 SAP 版本历史——`$TMP` 中无传输的对象没有版本
+- 文件必须已保存（无未保存修改）；开始编辑时 blame 自动隐藏
+- 仅 ABAP 文件（`.abap`）
 
-## Performance Notes
+## 性能说明
 
-- **Cached** — re-opening blame on the same file is instant
-- **Cache clears on save** — ensures fresh results after transport releases
-- **Progress notification** shown while fetching; click **Cancel** to abort
+- **有缓存** — 对同一文件重新打开 blame 是即时的
+- **保存时清缓存** — 确保传输释放后结果是最新的
+- 获取时显示进度通知；点击**取消**可中止
 
-## How It Works
+## 工作原理
 
-Blame walks backward through SAP version history (same algorithm as `git blame`):
+Blame 反向遍历 SAP 版本历史（与 `git blame` 相同的算法）：
 
-1. Fetches all versions of the object from SAP (in parallel batches)
-2. Diffs each consecutive pair, newest-to-oldest
-3. Lines added/changed in a newer version → attributed to that version's author
-4. Unchanged lines → checked against the next older version
-5. Lines still unattributed after all versions → attributed to the oldest version
+1. 从 SAP 获取对象的所有版本（并行批量）
+2. 对每对连续版本做 diff，从新到旧
+3. 在较新版本中添加/修改的行 → 归因于该版本的作者
+4. 未更改的行 → 与下一个更旧的版本比对
+5. 遍历所有版本后仍未归因的行 → 归因于最旧版本
 
-# Run Unit Tests
+# 运行单元测试
 
-Run ABAP unit tests directly from VS Code — no need to open SE80 or ADT.
+直接从 VS Code 运行 ABAP 单元测试——无需打开 SE80 或 ADT。
 
-## How to Run Tests
+## 如何运行测试
 
-**Option 1 — VS Code Testing panel (recommended)**
+**方式 1 — VS Code 测试面板（推荐）**
 
-1. Click the **beaker icon** in the Activity Bar (left sidebar) to open the Testing view.
-2. Browse to your class or program in the test tree.
-3. Click the **Run** (▶) button next to any test class or individual method.
+1. 点击活动栏（左侧边栏）中的**烧杯图标**打开测试视图。
+2. 在测试树中浏览到你的类或程序。
+3. 点击任意测试类或单个方法旁的**运行**（▶）按钮。
 
-**Option 2 — Command Palette**
+**方式 2 — 命令面板**
 
-1. Press `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (macOS).
-2. Type `ABAP FS: Run ABAP Unit Tests` and press `Enter`.
+1. 按 `Ctrl+Shift+P`（Windows/Linux）或 `Cmd+Shift+P`（macOS）。
+2. 输入 `ABAP FS: Run ABAP Unit Tests` 并按 `Enter`。
 
-**Option 3 — Ask Copilot**
+**方式 3 — 让 Copilot 执行**
 
-> "Run unit tests for ZCL_MY_CLASS"  
-> "Run tests and fix any failures"  
-> "Check if ZCL_PRICING tests pass"
+> “为 ZCL_MY_CLASS 运行单元测试”
+> “运行测试并修复所有失败”
+> “检查 ZCL_PRICING 的测试是否通过”
 
-## Results
+## 结果
 
-Results appear in the **VS Code Testing panel** with:
+结果显示在 **VS Code 测试面板**中，包含：
 
-| Info | Detail |
+| 信息 | 详情 |
 |---|---|
-| Pass/Fail | Green ✓ / Red ✗ per test method |
-| Test counts | Total, passed, failed |
-| Execution time | Per method and total |
-| Coverage | Test coverage percentage (when available) |
+| 通过/失败 | 每个测试方法绿色 ✓ / 红色 ✗ |
+| 测试计数 | 总数、通过数、失败数 |
+| 执行时间 | 每个方法和总时间 |
+| 覆盖率 | 测试覆盖率百分比（可用时） |
 
-Failed tests show the error message inline — click a failure to jump to the relevant line.
+失败的测试会内联显示错误消息——点击失败项跳转到相关代码行。
 
-## Compared to SE80 / ADT
+## 与 SE80 / ADT 对比
 
-| | SE80 / ADT | VS Code (ABAP FS) |
+| | SE80 / ADT | VS Code（ABAP FS） |
 |---|---|---|
-| Run tests | Menu → Unit Test | Beaker icon or `Ctrl+Shift+P` |
-| See results | Dialog / tab | Native Testing panel |
-| Copilot analysis | No | Yes — Copilot can explain failures and suggest fixes |
-| Jump to failure | Manual | Click failure to navigate |
+| 运行测试 | 菜单 → 单元测试 | 烧杯图标或 `Ctrl+Shift+P` |
+| 查看结果 | 对话框 / 标签页 | 原生测试面板 |
+| Copilot 分析 | 无 | 有——Copilot 可以解释失败并建议修复 |
+| 跳转到失败 | 手动 | 点击失败项导航 |
 
-## Requirements
+## 要求
 
-- The target object must contain ABAP unit test classes (`FOR TESTING`).
-- You must be connected to the SAP system in VS Code.
+- 目标对象必须包含 ABAP 单元测试类（`FOR TESTING`）。
+- 必须在 VS Code 中连接到 SAP 系统。
 
-# Create Test Classes
+# 创建测试类
 
-Add an ABAP unit test include to an existing class — the extension creates the skeleton and opens it in the editor.
+为现有类添加 ABAP 单元测试 include——扩展会创建骨架并在编辑器中打开它。
 
-## Requirements
+## 要求
 
-- The target object must be a class (`*.clas.abap`)
-- The class must already exist on the SAP system
+- 目标对象必须是类（`*.clas.abap`）
+- 该类必须已存在于 SAP 系统上
 
-## How to Create a Test Include
+## 如何创建测试 include
 
-**Option 1 — Context menu**
+**方式 1 — 右键菜单**
 
-Right-click the class file in the Explorer → **Create test class include**
+在资源管理器中右键类文件 → **创建测试类 include**
 
-**Option 2 — Command Palette**
+**方式 2 — 命令面板**
 
-1. Press `Ctrl+Shift+P`
-2. Type `ABAP FS: Create test class include`
-3. Press `Enter`
+1. 按 `Ctrl+Shift+P`
+2. 输入 `ABAP FS: Create test class include`
+3. 按 `Enter`
 
-**Option 3 — Ask Copilot**
+**方式 3 — 让 Copilot 执行**
 
-Open the Copilot chat and ask:
+打开 Copilot 聊天并提问：
 
-- *"Create test class for ZCL_MY_CLASS"*
-- *"Add unit tests to ZCL_PRICING"*
-- *"Set up testing for this class"*
+- *“为 ZCL_MY_CLASS 创建测试类”*
+- *“给 ZCL_PRICING 添加单元测试”*
+- *“为这个类设置测试”*
 
-## What Gets Created
+## 创建了什么
 
-- A test include linked to the main class
-- A skeleton test class with `FOR TESTING` and `RISK LEVEL HARMLESS`
-- The new include opens automatically in the editor
+- 一个链接到主类的测试 include
+- 带 `FOR TESTING` 和 `RISK LEVEL HARMLESS` 的骨架测试类
+- 新 include 自动在编辑器中打开
 
-## Next Steps
+## 后续步骤
 
-After the include is created, add your test methods and run them with the [Run Unit Tests](#run-unit-tests) command.
+include 创建后，添加你的测试方法，并用[运行单元测试](#运行单元测试)命令运行它们。
 
-# Test Documentation Generator
+# 测试文档生成器
 
-Generate a professional Word document from test screenshots — organized by scenario, with descriptions and a custom title. Useful for Playwright test reports, manual QA evidence, and sign-off documentation.
+从测试截图生成专业的 Word 文档——按场景组织，带描述和自定义标题。适用于 Playwright 测试报告、手动 QA 证据和签字确认文档。
 
-## How to Use
+## 使用方法
 
-Open the Copilot Chat panel (`Ctrl+Alt+I`) and describe your scenarios with the full paths to your screenshots:
+打开 Copilot 聊天面板（`Ctrl+Alt+I`），描述你的场景并附上截图的完整路径：
 
 ```
 Create test documentation with these screenshots:
@@ -2209,314 +2228,314 @@ Scenario 2: Error Handling
 - C:\tests\error1.png - Invalid credentials message shown
 ```
 
-Copilot calls the generator and saves a `.docx` file to your workspace.
+Copilot 调用生成器并把 `.docx` 文件保存到你的工作区。
 
-## What the Document Contains
+## 文档包含什么
 
-| Element | Details |
+| 元素 | 详情 |
 |---|---|
-| Title | Custom report title (defaults to "Test Documentation Report") |
-| Date | Test date in DD-MM-YYYY format (defaults to today) |
-| Scenarios | Each scenario gets its own section with a name and description |
-| Screenshots | Embedded images with per-screenshot captions |
+| 标题 | 自定义报告标题（默认 “Test Documentation Report”） |
+| 日期 | DD-MM-YYYY 格式的测试日期（默认今天） |
+| 场景 | 每个场景有独立章节，包含名称和描述 |
+| 截图 | 嵌入的图片，每个截图带说明 |
 
-## Tips
+## 提示
 
-- Use **absolute paths** for screenshots (e.g. `C:\tests\...`), not relative paths
-- You can include as many scenarios and screenshots per scenario as needed
-- Specify a custom title or date in your prompt if the defaults don't fit: *"Use title 'Regression Test April' and date 30-04-2026"*
+- 截图请使用**绝对路径**（例如 `C:\tests\...`），不要用相对路径
+- 每个场景的截图数量和场景数量都不限
+- 默认值不合适时，可以在提示中指定自定义标题或日期：*“使用标题 'Regression Test April' 和日期 30-04-2026”*
 
-# Mermaid Diagram Creation
+# Mermaid 图表创建
 
-[Mermaid](https://mermaid.js.org/) is a text-based diagramming language that lets you describe diagrams as simple text — no drawing tools needed. ABAP FS can generate and display Mermaid diagrams directly in VS Code via Copilot chat.
+[Mermaid](https://mermaid.js.org/) 是一种基于文本的图表语言，让你用简单文本描述图表——无需绘图工具。ABAP FS 可以通过 Copilot 聊天直接在 VS Code 中生成和显示 Mermaid 图表。
 
-## How to Create a Diagram
+## 如何创建图表
 
-1. Open Copilot Chat (`Ctrl+Alt+I`).
-2. Describe the diagram you want. Examples:
-   - *"Create a flowchart showing the flow of method `PROCESS_DATA`"*
-   - *"Generate a class diagram for `ZCL_MY_CLASS`"*
-   - *"Show a sequence diagram for the BAPI call in `ZMY_PROGRAM`"*
-3. The diagram renders in an interactive webview at 200% zoom.
+1. 打开 Copilot 聊天（`Ctrl+Alt+I`）。
+2. 描述你想要的图表。例如：
+   - *“创建一个流程图，展示方法 `PROCESS_DATA` 的流程”*
+   - *“为 `ZCL_MY_CLASS` 生成类图”*
+   - *“显示 `ZMY_PROGRAM` 中 BAPI 调用的时序图”*
+3. 图表在交互式 WebView 中以 200% 缩放渲染。
 
-## Working with the Diagram Viewer
+## 使用图表查看器
 
-| Action | How |
+| 操作 | 方式 |
 |--------|-----|
-| Zoom in / out | Use the zoom controls in the webview (20% increments) |
-| Save diagram | Click the save button in the webview |
+| 放大 / 缩小 | 使用 WebView 中的缩放控件（20% 步进） |
+| 保存图表 | 点击 WebView 中的保存按钮 |
 
-## Supported Diagram Types
+## 支持的图表类型
 
-Flowchart · Sequence · Class · State · ER · User Journey · Gantt · Pie · Git Graph · Mind Map · Timeline · Sankey · XY Chart · Block · Packet
+流程图 · 时序图 · 类图 · 状态图 · ER 图 · 用户旅程 · 甘特图 · 饼图 · Git 图 · 思维导图 · 时间线 · 桑基图 · XY 图 · 方块图 · 数据包图
 
-## Themes
+## 主题
 
 `default` · `dark` · `forest` · `neutral`
 
-Specify a theme in your prompt: *"Create a flowchart … using the dark theme"*
+在提示中指定主题：*“创建一个流程图……使用 dark 主题”*
 
-# ABAP Documentation
+# ABAP 文档
 
-Look up SAP help for any ABAP keyword directly in VS Code, without leaving the editor.
+直接在 VS Code 中查找任意 ABAP 关键字的 SAP 帮助，无需离开编辑器。
 
-## How to Use
+## 使用方法
 
-1. Open an ABAP file in the editor.
-2. Place your cursor on the keyword you want to look up (e.g., `SELECT`, `LOOP`, `MODIFY`).
-3. Press **F1** — the SAP documentation for that keyword opens immediately.
+1. 在编辑器中打开 ABAP 文件。
+2. 把光标放在要查询的关键字上（例如 `SELECT`、`LOOP`、`MODIFY`）。
+3. 按 **F1** — 该关键字的 SAP 文档立即打开。
 
-Alternatively, run **ABAP FS: Show ABAP documentation** from the Command Palette (`Ctrl+Shift+P`).
+或者，从命令面板（`Ctrl+Shift+P`）运行 **ABAP FS: Show ABAP documentation**。
 
-## What to Expect
+## 预期效果
 
-- The help content is context-sensitive: it reflects the keyword under the cursor.
-- Documentation is fetched from SAP's official help portal and displayed inside VS Code.
+- 帮助内容与上下文相关：反映光标下的关键字。
+- 文档从 SAP 官方帮助门户获取，并显示在 VS Code 中。
 
-# ABAP Dumps Analysis
+# ABAP Dump 分析
 
-Analyze ST22 runtime dumps directly in VS Code — no SAP GUI required.
+直接在 VS Code 中分析 ST22 运行时 Dump——无需 SAP GUI。
 
-## What This Replaces
+## 这替代了什么
 
-In SAP GUI, you'd use **transaction ST22** to find and read dumps. Here, the same data is available in VS Code with AI-powered root cause analysis and fix suggestions.
+在 SAP GUI 中，你用**事务 ST22** 查找和阅读 Dump。在这里，相同的数据在 VS Code 中即可获得，并带 AI 驱动的根因分析和修复建议。
 
-## Opening the Dumps Panel
+## 打开 Dump 面板
 
-**Activity Bar → ABAP FS icon → Dumps**
+**活动栏 → ABAP FS 图标 → Dumps**
 
-Or ask Copilot directly (see [Using Copilot](#using-copilot) below).
+或直接让 Copilot 执行（见下文[使用 Copilot](#使用-copilot)）。
 
-## Step-by-Step Workflow
+## 分步工作流
 
-1. **Open the Dumps panel** — the list shows each dump's ID, error type, timestamp, and size.
-2. **Click a dump** to open the detailed view.
-3. **Review the structured analysis** — the extension parses the raw HTML dump content and presents it in a readable format.
-4. **Ask Copilot for help** — Copilot can identify the root cause and suggest a fix based on the dump data.
+1. **打开 Dump 面板** — 列表显示每个 Dump 的 ID、错误类型、时间戳和大小。
+2. **点击 Dump** 打开详细视图。
+3. **查看结构化分析** — 扩展解析原始 HTML Dump 内容，以可读格式呈现。
+4. **请 Copilot 帮忙** — Copilot 可以基于 Dump 数据识别根因并建议修复。
 
-## Using Copilot
+## 使用 Copilot
 
-Type any of these in the Copilot chat:
+在 Copilot 聊天中输入以下任一内容：
 
-| Prompt | What it does |
+| 提示 | 作用 |
 |---|---|
-| `Analyze the latest dumps` | Lists recent dumps and analyzes the most recent one |
-| `Show me dumps from today` | Filters to today's dumps |
-| `What caused the RABAX error?` | AI root cause analysis on the current dump |
-| `Analyze dump with ID xyz123` | Analyzes a specific dump by ID |
+| `Analyze the latest dumps` | 列出最近的 Dump 并分析最新一个 |
+| `Show me dumps from today` | 过滤为今天的 Dump |
+| `What caused the RABAX error?` | 对当前 Dump 做 AI 根因分析 |
+| `Analyze dump with ID xyz123` | 按 ID 分析特定 Dump |
 
-## Compared to ST22
+## 与 ST22 对比
 
-| ST22 (SAP GUI) | VS Code Dumps panel |
+| ST22（SAP GUI） | VS Code Dump 面板 |
 |---|---|
-| Manual navigation through raw HTML | Structured, parsed output |
-| No AI assistance | Copilot explains cause and suggests fix |
-| Separate tool from your editor | Inline with your code |
+| 手动浏览原始 HTML | 结构化、解析后的输出 |
+| 无 AI 辅助 | Copilot 解释原因并建议修复 |
+| 与编辑器分离的工具 | 与你的代码内联 |
 
-# Performance Traces
+# 性能跟踪
 
-Analyze ABAP runtime performance directly in VS Code — the equivalent of **SAT** (ABAP Trace) and **ST05** (SQL Trace) in the SAP GUI, but without leaving your editor.
+直接在 VS Code 中分析 ABAP 运行时性能——相当于 SAP GUI 中的 **SAT**（ABAP 跟踪）和 **ST05**（SQL 跟踪），但无需离开编辑器。
 
-## Opening the Traces Panel
+## 打开跟踪面板
 
-**Activity Bar → ABAP FS icon → Traces**
+**活动栏 → ABAP FS 图标 → Traces**
 
-Or ask Copilot (Ctrl+Alt+I): *"Show me recent trace runs"*
+或让 Copilot（Ctrl+Alt+I）：*“显示最近的跟踪运行”*
 
-## Workflow
+## 工作流
 
-1. **Record a trace** in the SAP system first (via SAT or ST05 as usual).
-2. In VS Code, open the **Traces** panel to see your recorded runs.
-3. Click a trace run to open it, then choose an analysis action.
-4. Ask Copilot to interpret results: *"Analyze this trace for bottlenecks"*
+1. 先在 SAP 系统中**记录跟踪**（照常用 SAT 或 ST05）。
+2. 在 VS Code 中打开**跟踪**面板查看你记录的执行。
+3. 点击跟踪运行打开，然后选择分析操作。
+4. 让 Copilot 解读结果：*“分析这个跟踪的瓶颈”*
 
-## Analysis Actions
+## 分析操作
 
-| Action | What it shows | Equivalent in SAP GUI |
+| 操作 | 显示内容 | SAP GUI 等价 |
 |---|---|---|
-| **List runs** | Recent trace executions with summary | SAT / ST05 hit list |
-| **Analyze run** | Automatic bottleneck detection | SAT summary screen |
-| **Get statements** | Statement-level timing (non-aggregated traces) | ST05 statement list |
-| **Get hitlist** | Hit counts and total timing (aggregated traces) | SAT aggregated view |
-| **List configurations** | Available trace configs on the system | SAT configuration |
+| **列出运行** | 最近的跟踪执行及摘要 | SAT / ST05 命中列表 |
+| **分析运行** | 自动瓶颈检测 | SAT 摘要界面 |
+| **获取语句** | 语句级耗时（非聚合跟踪） | ST05 语句列表 |
+| **获取命中列表** | 命中次数和总耗时（聚合跟踪） | SAT 聚合视图 |
+| **列出配置** | 系统上可用的跟踪配置 | SAT 配置 |
 
-> **Note:** For aggregated traces, *Get statements* automatically falls back to the hitlist.
+> **注意：** 对于聚合跟踪，*获取语句*会自动回退到命中列表。
 
-## What Copilot Can Do
+## Copilot 能做什么
 
-Ask Copilot directly instead of navigating the panel:
+无需浏览面板，直接让 Copilot 执行：
 
-- *"Show me trace runs from today"*
-- *"Analyze trace [name] for bottlenecks"*
-- *"What are the slowest SQL statements in the last trace?"*
-- *"Is there a database bottleneck in trace [name]?"*
+- *“显示今天的跟踪运行”*
+- *“分析跟踪 [name] 的瓶颈”*
+- *“最后一次跟踪中最慢的 SQL 语句是什么？”*
+- *“跟踪 [name] 中有数据库瓶颈吗？”*
 
-Copilot automatically identifies:
+Copilot 自动识别：
 
-- **Database bottlenecks** — expensive or repeated SELECT statements
-- **ABAP processing hotspots** — slow internal table operations or loops
-- **Performance outliers** — statements disproportionate to total runtime
+- **数据库瓶颈** — 昂贵或重复的 SELECT 语句
+- **ABAP 处理热点** — 慢的内部表操作或循环
+- **性能异常** — 与总运行时间不成比例的语句
 
-## When to Use This vs. SAT/ST05
+## 何时用这个 vs SAT/ST05
 
-Use the VS Code Traces panel when you are already working in VS Code and want to stay in context, or when you want Copilot to interpret results for you. Use SAT/ST05 in the SAP GUI when you need to configure detailed trace settings or record a new trace interactively.
+当你已经在 VS Code 中工作、想保持上下文，或想让 Copilot 为你解读结果时，使用 VS Code 跟踪面板。需要配置详细的跟踪设置或以交互方式记录新跟踪时，在 SAP GUI 中使用 SAT/ST05。
 
-# Text Elements Management
+# 文本元素管理
 
-Manage translatable text elements (symbols) in ABAP programs, classes, and function groups — the VS Code equivalent of the **Text Elements** tab in SE38/SE24.
+管理 ABAP 程序、类和函数组中可翻译的文本元素（符号）——这是 SE38/SE24 中**文本元素**选项卡的 VS Code 等价功能。
 
-**Supported object types:** Programs · Classes · Function Groups
+**支持的对象类型：** 程序 · 类 · 函数组
 
 ---
 
-## Opening the Text Elements Manager
+## 打开文本元素管理器
 
-Three ways to open it for the active file:
+为当前文件打开它有三种方式：
 
-| Method | Steps |
+| 方法 | 步骤 |
 |--------|-------|
-| Command Palette | `Ctrl+Shift+P` → **ABAP FS: Text Elements Manager** |
-| Context menu | Right-click an ABAP file in Explorer → **Text Elements Manager** |
-| Copilot | Ask: *"Show me text elements for ZTEST_PROGRAM"* |
+| 命令面板 | `Ctrl+Shift+P` → **ABAP FS: Text Elements Manager** |
+| 右键菜单 | 在资源管理器中右键 ABAP 文件 → **文本元素管理器** |
+| Copilot | 提问：*“显示 ZTEST_PROGRAM 的文本元素”* |
 
 ---
 
-## What You Can Do
+## 你能做什么
 
-### Read text elements
-Works on **all SAP systems**. Displays existing text element IDs and their translations in an interactive webview.
+### 读取文本元素
+适用于**所有 SAP 系统**。在交互式 WebView 中显示现有文本元素 ID 及其翻译。
 
-### Create / Update text elements
-Available on **newer systems** with ADT text elements API support. Lets you add new symbols or change existing text directly in VS Code — no SAP GUI needed.
+### 创建 / 更新文本元素
+适用于支持 ADT 文本元素 API 的**新版系统**。可以直接在 VS Code 中添加新符号或修改现有文本——无需 SAP GUI。
 
-> **Older systems fallback:** If the ADT API is not available, the extension automatically opens the text element editor in SAP GUI instead.
-
----
-
-## Step-by-Step: Editing Text Elements
-
-1. Open an ABAP program, class, or function group in the editor.
-2. Press `Ctrl+Shift+P` and run **ABAP FS: Text Elements Manager**.
-3. The webview shows all existing text elements for the object.
-4. To **add** a new element, enter the ID (e.g. `001`) and text value, then confirm.
-5. To **change** an existing element, edit the text inline and save.
-6. Changes are applied to the active object on the server.
+> **旧系统降级：** 如果 ADT API 不可用，扩展会自动在 SAP GUI 中打开文本元素编辑器。
 
 ---
 
-## Compared to SE38 Text Elements
+## 分步：编辑文本元素
 
-| SE38 / SE24 | VS Code (ABAP FS) |
+1. 在编辑器中打开 ABAP 程序、类或函数组。
+2. 按 `Ctrl+Shift+P` 运行 **ABAP FS: Text Elements Manager**。
+3. WebView 显示该对象的所有现有文本元素。
+4. **添加**新元素：输入 ID（例如 `001`）和文本值，然后确认。
+5. **修改**现有元素：内联编辑文本并保存。
+6. 变更应用到服务器上的活动对象。
+
+---
+
+## 与 SE38 文本元素对比
+
+| SE38 / SE24 | VS Code（ABAP FS） |
 |-------------|-------------------|
-| Navigate to program → Goto → Text Elements | Command Palette or right-click |
-| Edit in ABAP editor screen | Interactive webview |
-| Save with `Ctrl+S` | Save within the webview |
-| Requires SAP GUI | Works directly in VS Code (newer systems) |
+| 导航到程序 → 转到 → 文本元素 | 命令面板或右键 |
+| 在 ABAP 编辑器界面中编辑 | 交互式 WebView |
+| 用 `Ctrl+S` 保存 | 在 WebView 内保存 |
+| 需要 SAP GUI | 直接在 VS Code 中操作（新版系统） |
 
 ---
 
-## System Compatibility
+## 系统兼容性
 
-| Operation | Older systems | Newer systems (ADT API) |
+| 操作 | 旧系统 | 新版系统（ADT API） |
 |-----------|--------------|------------------------|
-| Read | Yes | Yes |
-| Create / Update | Opens SAP GUI fallback | Yes, in VS Code |
+| 读取 | 支持 | 支持 |
+| 创建 / 更新 | 打开 SAP GUI 降级 | 支持，在 VS Code 中 |
 
-# Regex Search in Code
+# 代码正则搜索
 
-Search ABAP source code using plain text or regular expressions (regex). Regex is a pattern language that lets you match variable text — for example, finding any method name that starts with "get", or any word boundary match.
+使用纯文本或正则表达式（regex）搜索 ABAP 源代码。正则表达式是一种模式语言，可以匹配变化的文本——例如查找任何以 “get” 开头的方法名，或任何词边界匹配。
 
-> **Note:** This searches **committed code only**. Unsaved local edits are not visible — use the standard VS Code search (`Ctrl+Shift+F`) for those.
-
----
-
-## How to Search
-
-Just ask Copilot in plain language:
-
-- *"Find all usages of COMMIT WORK in ZCL_MY_CLASS"*
-- *"Search for methods matching 'get_\*' in ZREPORT_ORDERS"*
-- *"List all methods in CL_SALV_TABLE"*
-
-Copilot determines whether to use literal or regex matching automatically.
+> **注意：** 只搜索**已提交的代码**。未保存的本地修改不可见——这些请使用标准 VS Code 搜索（`Ctrl+Shift+F`）。
 
 ---
 
-## Literal vs. Regex Mode
+## 如何搜索
 
-| Mode | When to use | Example |
+直接用自然语言让 Copilot 执行：
+
+- *“查找 ZCL_MY_CLASS 中所有 COMMIT WORK 的用法”*
+- *“在 ZREPORT_ORDERS 中搜索匹配 'get_\*' 的方法”*
+- *“列出 CL_SALV_TABLE 中的所有方法”*
+
+Copilot 自动决定使用字面匹配还是正则匹配。
+
+---
+
+## 字面模式 vs 正则模式
+
+| 模式 | 何时使用 | 示例 |
 |------|-------------|---------|
-| **Literal** (default) | Exact text match, fast | `COMMIT WORK` |
-| **Regex** | Patterns, wildcards, boundaries | `METHOD.*get` |
+| **字面**（默认） | 精确文本匹配，快速 | `COMMIT WORK` |
+| **正则** | 模式、通配符、边界 | `METHOD.*get` |
 
-### Common Regex Patterns
+### 常用正则模式
 
-| Pattern | What it matches | Example |
+| 模式 | 匹配内容 | 示例 |
 |---------|-----------------|---------|
-| `\bICT\b` | Whole word `ICT` only (not `DICT`) | Word boundary |
-| `METHOD.*restrict` | `METHOD` followed by anything then `restrict` | Pattern match |
-| `[A-Z]+` | One or more uppercase letters | Character class |
-| `^\s*(CLASS-)?METHODS?\s+\w+` | Any method declaration | Class structure |
+| `\bICT\b` | 只匹配完整单词 `ICT`（不匹配 `DICT`） | 词边界 |
+| `METHOD.*restrict` | `METHOD` 后面跟任意内容再跟 `restrict` | 模式匹配 |
+| `[A-Z]+` | 一个或多个大写字母 | 字符类 |
+| `^\s*(CLASS-)?METHODS?\s+\w+` | 任意方法声明 | 类结构 |
 
 ---
 
-## Searching Multiple Objects
+## 搜索多个对象
 
-Use wildcard patterns to search across several objects at once:
+使用通配符模式一次跨多个对象搜索：
 
-- *"Find SELECT \* in all Z\* reports"* — searches up to 10 matching objects
-- Copilot limits the scope automatically (1–10 objects) to keep results manageable
-
----
-
-## Viewing Class Structure
-
-To list all methods in a class with their line numbers:
-
-- *"List all methods in ZCL_MY_CLASS"*
-
-Copilot returns each method name and the line where it's declared — useful for navigating large classes.
+- *“在所有 Z\* 报表中查找 SELECT \*”* — 最多搜索 10 个匹配对象
+- Copilot 自动限制范围（1–10 个对象），让结果可控
 
 ---
 
-## Extracting a Single Method
+## 查看类结构
 
-To see the complete code of one method:
+列出类中所有方法及其行号：
 
-- *"Show me the FACTORY method in CL_SALV_TABLE"*
+- *“列出 ZCL_MY_CLASS 中的所有方法”*
 
-Returns everything from `METHOD FACTORY.` to `ENDMETHOD.`, including interface method syntax like `IF_SALV_TABLE~FACTORY`.
+Copilot 返回每个方法名及其声明所在行——对浏览大型类很有用。
 
 ---
 
-## Context Lines
+## 提取单个方法
 
-By default, Copilot shows 3 lines before and after each match. Ask for more or fewer:
+查看一个方法的完整代码：
 
-- *"Find RAISE EXCEPTION in ZCL_ORDERS, show 5 lines of context"*
+- *“显示 CL_SALV_TABLE 中的 FACTORY 方法”*
 
-# S/4HANA Readiness Dashboard
+返回从 `METHOD FACTORY.` 到 `ENDMETHOD.` 的所有内容，包括 `IF_SALV_TABLE~FACTORY` 这类接口方法语法。
 
-Visualize custom code compatibility with S/4HANA using data from SAP's Custom Code Migration tool (transaction SYCM).
+---
 
-## Prerequisites
+## 上下文行
 
-- Run transaction **SYCM** on your SAP system first — the dashboard reads the analysis tables it populates (`sycm_sitem`, `sycm_cust_refs`, and related tables)
-- Works on ECC systems being analyzed for S/4HANA migration
+默认情况下，Copilot 显示每个匹配前后 3 行。可以要求更多或更少：
 
-## Opening the Dashboard
+- *“在 ZCL_ORDERS 中查找 RAISE EXCEPTION，显示 5 行上下文”*
 
-Three ways to load it:
+# S/4HANA 就绪仪表盘
 
-| Method | Steps |
+使用 SAP 自定义代码迁移工具（事务 SYCM）的数据，可视化自定义代码与 S/4HANA 的兼容性。
+
+## 前置条件
+
+- 先在 SAP 系统上运行事务 **SYCM**——仪表盘读取它填充的分析表（`sycm_sitem`、`sycm_cust_refs` 及相关表）
+- 适用于正在评估 S/4HANA 迁移的 ECC 系统
+
+## 打开仪表盘
+
+三种加载方式：
+
+| 方法 | 步骤 |
 |--------|-------|
-| Activity Bar | **ABAP FS** panel → **S/4HANA Readiness** section → click **Load Dashboard** |
-| Command Palette | `Ctrl+Shift+P` → `ABAP FS: S/4HANA Readiness - Load` |
-| Copilot Chat | Ask: *"Load the S/4HANA readiness dashboard"* |
+| 活动栏 | **ABAP FS** 面板 → **S/4HANA 就绪**部分 → 点击**加载仪表盘** |
+| 命令面板 | `Ctrl+Shift+P` → `ABAP FS: S/4HANA Readiness - Load` |
+| Copilot 聊天 | 提问：*“加载 S/4HANA 就绪仪表盘”* |
 
-## Reading the Results
+## 阅读结果
 
-The dashboard shows a tree grouped by **simplification item** (SAP Note):
+仪表盘显示按**简化项**（SAP Note）分组的树：
 
 ```
 DRS310 — 156 references in 42 items
@@ -2529,369 +2548,369 @@ DRS310 — 156 references in 42 items
 └── Unlinked References
 ```
 
-- **Root node** — your connection ID with a total count
-- **Simplification Item nodes** — each SAP Note that affects your code, with reference count
-- **Custom object nodes** — your Z/Y objects that need to be changed
-- **Unlinked References** — references that couldn't be matched to a simplification item
+- **根节点** — 你的连接 ID，带总数
+- **简化项节点** — 影响你代码的每个 SAP Note，带引用数
+- **自定义对象节点** — 需要修改的 Z/Y 对象
+- **未链接引用** — 无法匹配到简化项的引用
 
-## Working with Results
+## 处理结果
 
-**Open an object for editing**
-Click any custom object node — it opens directly in the editor.
+**打开对象进行编辑**
+点击任意自定义对象节点——它直接在编辑器中打开。
 
-**Run ATC analysis on an object**
-Right-click a reference → **Run ATC** — runs ATC checks scoped to that object.
+**对对象运行 ATC 分析**
+右键引用 → **运行 ATC** — 运行限定到该对象的 ATC 检查。
 
-**Get a Copilot fix suggestion**
-Right-click a reference → **Ask Copilot to Fix** — opens a Copilot prompt pre-loaded with the compatibility issue details.
+**获取 Copilot 修复建议**
+右键引用 → **让 Copilot 修复** — 打开预填了兼容性问题详情的 Copilot 提示。
 
-**Open the linked SAP Note**
-Right-click a simplification item → **Open SAP Note** — opens the note in your browser.
+**打开链接的 SAP Note**
+右键简化项 → **打开 SAP Note** — 在浏览器中打开该 Note。
 
-**Filter by name pattern**
-Use the filter icon and enter a wildcard pattern, e.g. `Z*PRICING*` or `Y*`, to narrow the list.
+**按名称模式过滤**
+使用过滤图标并输入通配符模式，例如 `Z*PRICING*` 或 `Y*`，缩小列表范围。
 
-**Refresh / Clear**
-Use the **Refresh** button to reload from SAP, or **Clear** to remove the dashboard data.
+**刷新 / 清空**
+使用**刷新**按钮从 SAP 重新加载，或**清空**移除仪表盘数据。
 
-**Multiple systems**
-Load dashboards from several connected systems simultaneously — each appears under its own root node.
+**多个系统**
+可以同时加载多个已连接系统的仪表盘——每个系统显示在自己的根节点下。
 
-## ATC Integration
+## ATC 集成
 
-For full readiness analysis, combine the dashboard with ATC:
+要获得完整的就绪分析，把仪表盘与 ATC 结合：
 
-1. Set your ATC check variant to an S/4HANA readiness variant (e.g. `S4HANA_READINESS`)
-2. In your connection settings, set the `atcVariant` property to run this variant by default
-3. Use the dashboard to spot affected objects, then right-click → **Run ATC** for detailed per-object findings
+1. 把你的 ATC 检查变式设置为 S/4HANA 就绪变式（例如 `S4HANA_READINESS`）
+2. 在连接设置中设置 `atcVariant` 属性，默认运行此变式
+3. 用仪表盘定位受影响的对象，然后右键 → **运行 ATC** 获取每个对象的详细结果
 
-# RAP Generator
+# RAP 生成器
 
-RAP (RESTful ABAP Programming model) is SAP's modern framework for building OData services on S/4HANA. Building a RAP service manually requires creating many interdependent objects — CDS views, behavior definitions, service definitions, and bindings. The RAP Generator creates the entire stack from a single database table in one step.
+RAP（RESTful ABAP 编程模型）是 SAP 在 S/4HANA 上构建 OData 服务的现代框架。手动构建 RAP 服务需要创建许多相互依赖的对象——CDS 视图、行为定义、服务定义和绑定。RAP 生成器可以一步从单个数据库表创建完整的技术栈。
 
-## Requirements
+## 要求
 
-- S/4HANA or BTP system with ADT RAP Generator API support
-- The source database table must already exist on the system
+- 支持 ADT RAP Generator API 的 S/4HANA 或 BTP 系统
+- 源数据库表必须已存在于系统上
 
-## Open the RAP Generator
+## 打开 RAP 生成器
 
-Three ways to open it:
+三种打开方式：
 
-- **Activity Bar** → ABAP FS icon → **RAP Generator** panel
-- **Right-click** a database table in the editor → **Generate RAP Service**
-- **Command Palette** (`Ctrl+Shift+P`) → `ABAP FS: Generate RAP Service`
+- **活动栏** → ABAP FS 图标 → **RAP 生成器**面板
+- **右键**编辑器中的数据库表 → **生成 RAP 服务**
+- **命令面板**（`Ctrl+Shift+P`）→ `ABAP FS: Generate RAP Service`
 
-## Generate a Service
+## 生成服务
 
-1. Select your SAP system from the dropdown
-2. Enter the source **database table name** — default artifact names are fetched automatically from SAP
-3. Review and adjust the generated names (CDS view, behavior definition, service binding, etc.)
-4. Set the **package** (leave `$TMP` for local objects; a transport request will be prompted for other packages)
-5. Click **Preview** to see the full list of objects that will be created
-6. Click **Generate** — all artifacts are created on the server in a single operation
+1. 从下拉框选择你的 SAP 系统
+2. 输入源**数据库表名**——默认工件名称会自动从 SAP 获取
+3. 查看并调整生成的名称（CDS 视图、行为定义、服务绑定等）
+4. 设置**包**（本地对象留 `$TMP`；其他包会提示传输请求）
+5. 点击**预览**查看将创建的对象完整列表
+6. 点击**生成**——所有工件在服务器上一次操作创建
 
-After generation, the service binding opens automatically in the editor.
+生成后，服务绑定会自动在编辑器中打开。
 
-## Generated Artifacts
+## 生成的工件
 
-| Artifact | Purpose |
+| 工件 | 用途 |
 |----------|---------|
-| CDS Interface View | Data model layer |
-| CDS Projection View | Service projection / field selection |
-| Behavior Definition | CRUD operations and validations |
-| Behavior Implementation Class | ABAP class implementing the behavior |
-| Service Definition | Exposes the CDS view as a service |
-| Service Binding | Binds to OData V2 or V4 protocol |
-| Draft Table | Created for managed scenarios with draft enabled |
+| CDS 接口视图 | 数据模型层 |
+| CDS 投影视图 | 服务投影 / 字段选择 |
+| 行为定义 | CRUD 操作和校验 |
+| 行为实现类 | 实现行为的 ABAP 类 |
+| 服务定义 | 把 CDS 视图作为服务暴露 |
+| 服务绑定 | 绑定到 OData V2 或 V4 协议 |
+| 草稿表 | 为启用草稿的托管场景创建 |
 
-## Publish and Test
+## 发布和测试
 
-After generating, the service must be **published** before it can be consumed.
+生成后，服务必须先**发布**才能被消费。
 
-- **Publish**: Click **Publish Service** in the panel, or use `ABAP FS: Publish Service Binding`
-- **Test**: Click **Test Service** to open the OData URL in the browser — the extension detects whether the service is published and offers to publish it if not, then builds the correct V2/V4 URL with authentication parameters. Or use `ABAP FS: Test Service Binding`
+- **发布：** 点击面板中的**发布服务**，或使用 `ABAP FS: Publish Service Binding`
+- **测试：** 点击**测试服务**在浏览器中打开 OData URL——扩展会检测服务是否已发布，未发布则提供发布选项，然后构建带认证参数的正确 V2/V4 URL。或使用 `ABAP FS: Test Service Binding`
 
-# ADT Feed Reader
+# ADT Feed 阅读器
 
-Monitor SAP system events in real-time directly within VS Code — without opening SAP GUI or checking ST22 manually.
+直接在 VS Code 内实时监控 SAP 系统事件——无需打开 SAP GUI 或手动检查 ST22。
 
-## Setup
+## 设置
 
-1. Open the Command Palette (`Ctrl+Shift+P`)
-2. Run **ABAP FS: Configure ADT Feeds**
-3. Select the system and choose which feeds to subscribe to
-4. Open the **Feed Inbox** view in the Activity Bar sidebar
+1. 打开命令面板（`Ctrl+Shift+P`）
+2. 运行 **ABAP FS: Configure ADT Feeds**
+3. 选择系统并选择要订阅的 feed
+4. 在活动栏侧边栏中打开 **Feed 收件箱**视图
 
-## Supported Feeds
+## 支持的 Feed
 
-| Feed | Description |
+| Feed | 描述 |
 |------|-------------|
-| ABAP Runtime Errors | Dumps (equivalent to ST22) |
-| ATC Findings | Code quality check results |
-| System Messages | Broadcasts sent via SM02 |
-| URI Creation Errors | ADT object resolution failures |
+| ABAP 运行时错误 | Dump（相当于 ST22） |
+| ATC 检查结果 | 代码质量检查结果 |
+| 系统消息 | 通过 SM02 发送的广播 |
+| URI 创建错误 | ADT 对象解析失败 |
 
-> **Note:** Available feeds depend on the SAP system version. Older systems may not support all types.
+> **注意：** 可用的 feed 取决于 SAP 系统版本。旧系统可能不支持所有类型。
 
-## Configuration
+## 配置
 
-Each feed can be configured independently per connected system:
+每个 feed 都可以按已连接系统独立配置：
 
-- **Polling interval** — how often VS Code checks for new entries (default: 120 seconds; ATC: 24 hours)
-- **Notifications** — enable/disable VS Code pop-up alerts for new entries
-- **Query filter** — use a built-in template or write a custom OData filter to narrow results
+- **轮询间隔** — VS Code 检查新条目的频率（默认：120 秒；ATC：24 小时）
+- **通知** — 为新条目启用/禁用 VS Code 弹窗提醒
+- **查询过滤** — 使用内置模板或编写自定义 OData 过滤器缩小结果范围
 
-## Working with Entries
+## 处理条目
 
-- Click an entry to open its details in a WebView panel
-- Mark entries as **read** or **unread** to track what you've reviewed
-- All feeds appear in a unified **Feed Inbox** — no need to switch between views
+- 点击条目在 WebView 面板中打开详情
+- 把条目标记为**已读**或**未读**，跟踪你已查看的内容
+- 所有 feed 显示在统一的 **Feed 收件箱**中——无需在视图之间切换
 
-## Requirements
+## 要求
 
-The target SAP system must support the ADT Feeds API. Check with your Basis team if feeds are unavailable.
+目标 SAP 系统必须支持 ADT Feeds API。如果 feed 不可用，请咨询你的 Basis 团队。
 
-# Dependency Graph Visualizer
+# 依赖关系图可视化
 
-Visualize where any ABAP object is used across the system as an interactive, expandable graph.
+把任意 ABAP 对象在整个系统中的使用情况可视化为交互式、可展开的图。
 
-## Opening the Graph
+## 打开图表
 
-1. Open an ABAP file in the editor
-2. *(Optional)* Place your cursor on a specific method or variable for symbol-level analysis
-3. Right-click → **Visualize Dependency Graph**
+1. 在编辑器中打开 ABAP 文件
+2. *（可选）* 把光标放在特定方法或变量上进行符号级分析
+3. 右键 → **可视化依赖关系图**
 
-For graphs with fewer than 100 nodes, the graph renders immediately. For larger graphs, adjust the filters first, then click **Build Graph**.
+少于 100 个节点的图会立即渲染。更大的图先调整过滤器，再点击**构建图**。
 
-## Reading the Graph
+## 阅读图表
 
-| Color | Meaning |
+| 颜色 | 含义 |
 |---|---|
-| Red | Root object (your starting point) |
-| Purple | Nodes you have expanded |
-| Other colors | Auto-assigned per object type |
+| 红色 | 根对象（你的起点） |
+| 紫色 | 你已展开的节点 |
+| 其他颜色 | 按对象类型自动分配 |
 
-A **double border** on a node means it has more dependencies available to explore.
+节点上的**双边框**表示它有更多可探索的依赖。
 
-## Exploring Dependencies
+## 探索依赖
 
-- **Double-click a node** — opens the object in the editor at the exact usage location
-- **Right-click a node** — shows a context menu with Open / Expand / Focus options
-- **Right-click → Expand Dependencies** — fetches where that object is used and merges results into the graph
-- **Hover** — shows object details: type, package, responsible developer, parent class (for methods)
+- **双击节点** — 在编辑器中打开对象，精确定位到使用位置
+- **右键节点** — 显示包含打开/展开/聚焦选项的上下文菜单
+- **右键 → 展开依赖** — 获取该对象的使用位置并把结果合并到图中
+- **悬停** — 显示对象详情：类型、包、负责人、父类（方法）
 
-You can expand nodes as many levels deep as needed. Use **Reset to Root** to restore the original graph and clear all expansions.
+你可以按需展开任意层级。使用**重置到根**恢复原始图并清除所有展开。
 
-## Filtering
+## 过滤
 
-Use the filter panel to reduce large graphs to what matters:
+使用过滤面板把大图缩小到关键内容：
 
-- **Custom/Standard toggle** — show only Z\*/Y\* objects or only SAP standard objects
-- **Object type** — show only CLAS, PROG, FUNC, etc.
-- **Name pattern** — wildcards supported (e.g., `Z*MD*`)
-- **Usage type** — filter by edge relationship type
+- **自定义/标准切换** — 只显示 Z\*/Y\* 对象或只显示 SAP 标准对象
+- **对象类型** — 只显示 CLAS、PROG、FUNC 等
+- **名称模式** — 支持通配符（例如 `Z*MD*`）
+- **使用类型** — 按边的关系类型过滤
 
-Real-time counts show how many objects match each filter. Click **Reset Filters** to clear all.
+实时计数显示每个过滤器匹配多少对象。点击**重置过滤器**清除全部。
 
-## Layout Options
+## 布局选项
 
-| Layout | Best for |
+| 布局 | 最适合 |
 |---|---|
-| **Cose** *(default)* | General use — physics-based clustering |
-| **Concentric** | Seeing distance from root object |
-| **Breadthfirst** | Tree-shaped dependency chains |
-| **Circle** | Compact overview |
-| **Grid** | Ordered comparison |
+| **Cose** *（默认）* | 一般用途——基于物理的聚类 |
+| **Concentric** | 查看与根对象的距离 |
+| **Breadthfirst** | 树形依赖链 |
+| **Circle** | 紧凑概览 |
+| **Grid** | 有序比较 |
 
-## Exporting
+## 导出
 
-Click **Export SVG** to save the current graph as a static image file.
+点击**导出 SVG** 把当前图保存为静态图片文件。
 
-## Requirements
+## 要求
 
-- An ABAP file open in the editor
-- An active SAP connection
+- 编辑器中打开 ABAP 文件
+- 活动的 SAP 连接
 
-# ADT Communication Log
+# ADT 通信日志
 
-Captures and displays every HTTP request and response between VS Code and SAP ADT in real time. Use it to diagnose slow operations, trace connection errors, or understand which ADT APIs the extension calls.
+实时捕获并显示 VS Code 与 SAP ADT 之间的每个 HTTP 请求和响应。用于诊断慢操作、追踪连接错误，或了解扩展调用了哪些 ADT API。
 
-## Start Logging
+## 开始记录
 
-1. Open the Command Palette (`Ctrl+Shift+P`)
-2. Run **ABAP FS: Activate Communication Log**
-3. Select the SAP connection to monitor
+1. 打开命令面板（`Ctrl+Shift+P`）
+2. 运行 **ABAP FS: Activate Communication Log**
+3. 选择要监控的 SAP 连接
 
-The **Communication Log** panel opens at the bottom of the screen and immediately begins capturing traffic.
+**通信日志**面板在屏幕底部打开，并立即开始捕获流量。
 
-## Stop Logging
+## 停止记录
 
-Run **ABAP FS: Deactivate Communication Log** from the Command Palette.
+从命令面板运行 **ABAP FS: Deactivate Communication Log**。
 
-> **Note:** The log is held in memory only (up to 2000 entries). Entries are lost when you deactivate logging or close VS Code.
+> **注意：** 日志只保存在内存中（最多 2000 条）。停用记录或关闭 VS Code 后条目会丢失。
 
-## Reading the Log
+## 阅读日志
 
-Click any entry to expand it and see:
+点击任意条目展开查看：
 
-- Query parameters
-- Request and response headers
-- Request and response bodies (XML and JSON are syntax-highlighted)
-- Duration in milliseconds
+- 查询参数
+- 请求和响应头
+- 请求和响应体（XML 和 JSON 有语法高亮）
+- 耗时（毫秒）
 
-## Filtering Entries
+## 过滤条目
 
-| Filter | How |
+| 过滤 | 方式 |
 |--------|-----|
-| By SAP system | Dropdown — select from all logged connections |
-| By HTTP status | Buttons: **Success** (2xx), **Errors** (4xx/5xx), **Pending** |
-| By URL | Text search field (200ms debounce) |
+| 按 SAP 系统 | 下拉框——从所有已记录的连接中选择 |
+| 按 HTTP 状态 | 按钮：**成功**（2xx）、**错误**（4xx/5xx）、**进行中** |
+| 按 URL | 文本搜索框（200ms 防抖） |
 
-## Other Controls
+## 其他控件
 
-- **Auto-scroll** — Toggle to keep the view pinned to the latest entry
-- **Export** — Save all visible entries or a single entry as JSON (useful for bug reports)
-- **Clear** — Remove all entries from the current view
+- **自动滚动** — 切换视图是否固定在最新条目
+- **导出** — 把所有可见条目或单个条目保存为 JSON（对 bug 报告很有用）
+- **清空** — 从当前视图移除所有条目
 
-## Common Use Cases
+## 常见用途
 
-- **Slow operations** — Check which API calls take the longest
-- **Connection errors** — See the exact HTTP status code and error body returned by SAP
-- **Bug reports** — Export the log as JSON and attach it to a GitHub issue
-- **Learning the API** — See exactly which ADT endpoints are called for any extension action
+- **慢操作** — 检查哪些 API 调用耗时最长
+- **连接错误** — 查看 SAP 返回的确切 HTTP 状态码和错误体
+- **Bug 报告** — 把日志导出为 JSON 并附加到 GitHub issue
+- **学习 API** — 查看扩展的每个操作实际调用了哪些 ADT 端点
 
-# Virtual Tool Grouping Fix
+# 虚拟工具分组修复
 
-VS Code has an experimental setting (`github.copilot.chat.virtualTools.threshold`) that collapses extension tools into virtual groups when their count exceeds a threshold. When active, Copilot often fails to discover these groups — making all 39 ABAP FS AI tools invisible and unusable.
+VS Code 有一个实验性设置（`github.copilot.chat.virtualTools.threshold`），当扩展工具数量超过阈值时会把它们折叠成虚拟分组。该功能生效时，Copilot 常常无法发现这些分组——导致全部 39 个 ABAP FS AI 工具不可见、不可用。
 
-ABAP FS detects this condition after your first SAP connection and prompts you to fix it.
+ABAP FS 会在你首次连接 SAP 后检测此状况，并提示你修复。
 
-## When the Prompt Appears
+## 提示何时出现
 
-The check runs after you first connect to a SAP system (not at extension activation). It only fires when:
+检查在你首次连接 SAP 系统后运行（不是扩展激活时）。只在以下条件满足时触发：
 
-- The virtual tools threshold is greater than `0`
-- AI models are available (GitHub Copilot is signed in and active)
-- You haven't previously dismissed the prompt
+- 虚拟工具阈值大于 `0`
+- AI 模型可用（GitHub Copilot 已登录且激活）
+- 你之前没有关闭过该提示
 
-A non-modal notification appears with three options:
+会出现一个非模态通知，带三个选项：
 
-| Option | Effect |
+| 选项 | 效果 |
 |---|---|
-| **Disable & Reload** | Sets the threshold to `0` globally and in your workspace, then reloads VS Code |
-| **Later** | Skips the prompt this session; asks again on next connection |
-| **Don't Ask Again** | Permanently suppresses the prompt |
+| **禁用并重新加载** | 把阈值全局和工作区都设为 `0`，然后重新加载 VS Code |
+| **稍后** | 本次会话跳过提示；下次连接时再次询问 |
+| **不再询问** | 永久抑制该提示 |
 
-Choose **Disable & Reload** unless you have a specific reason to keep grouping enabled.
+除非你有特殊原因要保留分组，否则选择**禁用并重新加载**。
 
-## Fixing It Manually
+## 手动修复
 
-If you dismissed the prompt and AI tools are still not working:
+如果你关闭了提示且 AI 工具仍然不可用：
 
-1. Open Settings (`Ctrl+,`)
-2. Search for `virtualTools.threshold`
-3. Set `github.copilot.chat.virtualTools.threshold` to `0`
-4. Reload VS Code (`Ctrl+Shift+P` → **Developer: Reload Window**)
+1. 打开设置（`Ctrl+,`）
+2. 搜索 `virtualTools.threshold`
+3. 把 `github.copilot.chat.virtualTools.threshold` 设为 `0`
+4. 重新加载 VS Code（`Ctrl+Shift+P` → **开发者：重新加载窗口**）
 
-## Why This Matters
+## 为什么重要
 
-ABAP FS registers 39 specialized tools covering object search, code reading, unit tests, SQL queries, transport management, and more. If Copilot cannot see these tools, all AI-powered features stop working. Setting the threshold to `0` disables grouping entirely and keeps all tools available.
+ABAP FS 注册了 39 个专用工具，涵盖对象搜索、代码读取、单元测试、SQL 查询、传输管理等。如果 Copilot 看不到这些工具，所有 AI 功能都会停止工作。把阈值设为 `0` 会完全禁用分组，保持所有工具可用。
 
-> **Note:** This prompt only appears if the experimental grouping feature is active. Most users will never see it.
+> **注意：** 只有当实验性分组功能激活时才会出现此提示。大多数用户永远不会看到它。
 
-# Important Considerations
+# 重要注意事项
 
-| Feature | Limitation |
+| 功能 | 限制 |
 |---|---|
-| **Create Objects** | Transport request dialogs still appear — object creation is not fully automated. |
-| **Text Elements** | Create/Update actions require ADT API support (newer SAP systems only). |
-| **Transport Management** | On older systems, some actions fall back to direct table queries. |
-| **Code Search** | Searches committed code only — unsaved local changes are not visible. |
-| **Mass Activation** | You must select objects from a dialog; activation is not automatic. |
+| **创建对象** | 传输请求对话框仍然会出现——对象创建并非全自动。 |
+| **文本元素** | 创建/更新操作需要 ADT API 支持（仅限新版 SAP 系统）。 |
+| **传输管理** | 旧系统上某些操作会降级为直接查询表。 |
+| **代码搜索** | 只搜索已提交的代码——未保存的本地修改不可见。 |
+| **批量激活** | 必须从对话框中选择对象；激活不是自动的。 |
 
-## AI Agent Code Changes
+## AI 代理代码变更
 
-When Copilot edits ABAP code in Agent mode, changes are written to SAP **immediately** — before you accept them. The virtual filesystem locks the object, writes the content, and unlocks it in one step.
+当 Copilot 在代理模式下编辑 ABAP 代码时，变更会**立即**写入 SAP——在你接受之前。虚拟文件系统会锁定对象、写入内容并解锁，一步完成。
 
-- **Keep** — triggers a second save with the accepted content.
-- **Undo** — reverts the changes on the server, just like undoing any file edit.
+- **Keep** — 用接受的内容触发第二次保存。
+- **Undo** — 在服务器上还原变更，就像撤销任何文件编辑一样。
 
-> **Review AI-generated code carefully.** It is live on the SAP server the moment it is written, not only after you click Keep.
+> **仔细审查 AI 生成的代码。** 它在写入的那一刻就已在 SAP 服务器上生效，而不只是在你点击 Keep 之后。
 
-# Key Differences: Commands vs Tools
+# 关键区别：命令 vs 工具
 
-The extension exposes two types of functionality: **commands** you invoke yourself, and **tools** that GitHub Copilot invokes on your behalf.
+扩展暴露两种类型的功能：**命令**由你自己调用，**工具**由 GitHub Copilot 代表你调用。
 
-## Commands — You invoke them
+## 命令——你调用它们
 
-Commands are discrete actions you trigger directly in VS Code.
+命令是你在 VS Code 中直接触发的离散操作。
 
-**How to run a command:**
+**如何运行命令：**
 
-- Open the Command Palette with `Ctrl+Shift+P` and type `ABAP FS`
-- Click a button in the VS Code UI (e.g., editor toolbar, explorer context menu)
-- Use a keyboard shortcut
+- 用 `Ctrl+Shift+P` 打开命令面板并输入 `ABAP FS`
+- 点击 VS Code 界面中的按钮（例如编辑器工具栏、资源管理器右键菜单）
+- 使用键盘快捷键
 
-**Examples:**
+**示例：**
 
-| Command | What it does |
+| 命令 | 作用 |
 |---|---|
-| `ABAP FS: Create object` | Opens a dialog to create a new ABAP object |
-| `ABAP FS: Run ABAP Unit Tests` | Runs unit tests for the current object |
-| `ABAP FS: Text Elements Manager` | Opens the text elements editor |
+| `ABAP FS: Create object` | 打开对话框创建新的 ABAP 对象 |
+| `ABAP FS: Run ABAP Unit Tests` | 运行当前对象的单元测试 |
+| `ABAP FS: Text Elements Manager` | 打开文本元素编辑器 |
 
-## Language Model Tools — Copilot invokes them
+## 语言模型工具——Copilot 调用它们
 
-Tools are capabilities the extension exposes to GitHub Copilot. You don't call them directly — instead, you describe what you want in the Copilot chat panel, and Copilot selects and calls the right tool automatically.
+工具是扩展提供给 GitHub Copilot 的能力。你不直接调用它们——而是在 Copilot 聊天面板中描述需求，Copilot 自动选择并调用正确的工具。
 
-**How to use them:**
+**如何使用：**
 
-- Open the Copilot chat panel (`Ctrl+Alt+I`)
-- Ask in plain language
+- 打开 Copilot 聊天面板（`Ctrl+Alt+I`）
+- 用自然语言提问
 
-**Examples:**
+**示例：**
 
-| What you type | Tool Copilot calls |
+| 你输入的内容 | Copilot 调用的工具 |
 |---|---|
-| "Where is `BAPI_USER_GET_DETAIL` used?" | `find_where_used` |
-| "Show me the code for `ZCL_MY_CLASS`" | `get_abap_object_lines` |
-| "Run ATC checks on this file" | `run_atc_analysis` |
+| “BAPI_USER_GET_DETAIL 用在哪里？” | `find_where_used` |
+| “给我看看 `ZCL_MY_CLASS` 的代码” | `get_abap_object_lines` |
+| “对这个文件运行 ATC 检查” | `run_atc_analysis` |
 
-> **New to VS Code?** Start with commands for direct actions. Use Copilot chat when you want to explore or analyze SAP objects without knowing the exact steps.
+> **刚接触 VS Code？** 直接操作请从命令开始。想探索或分析 SAP 对象但不知道具体步骤时，用 Copilot 聊天。
 
-# Privacy & Telemetry
+# 隐私与遥测
 
-**This extension does not send any data to external servers.** Nothing leaves your machine.
+**此扩展不会向外部服务器发送任何数据。** 没有任何数据离开你的机器。
 
-## What is collected
+## 收集什么
 
-A local CSV file records basic usage statistics — which tools and commands you use, and how many lines of code Copilot changed. This file is stored on your machine only and is never uploaded anywhere.
+本地 CSV 文件记录基本使用统计——你使用了哪些工具和命令，以及 Copilot 修改了多少行代码。该文件只存储在你的机器上，永远不会上传到任何地方。
 
-**File location:**
+**文件位置：**
 ```
-<VS Code Global Storage>/extension-path/telemetry-<date>.csv
+<VS Code 全局存储>/extension-path/telemetry-<date>.csv
 ```
 
-You can delete these files at any time without affecting the extension.
+你可以随时删除这些文件，不影响扩展。
 
-## Central telemetry for organizations
+## 面向组织的中心化遥测
 
-If your organization wants to aggregate telemetry internally, you can fork the public repository, add your own Azure Application Insights connection string, build a custom VSIX, and distribute it. You retain full control over what is collected, where it is stored, and who can access it.
+如果你的组织想在内部聚合遥测，可以 fork 公共仓库、添加你自己的 Azure Application Insights 连接字符串、构建自定义 VSIX 并分发。你完全掌控收集什么、存储在哪里、谁能访问。
 
-# Organization Administration
+# 组织管理
 
-To deploy ABAP FS internally, configure the optional features below before building and distributing your own VSIX.
+要在企业内部部署 ABAP FS，请先配置以下可选功能，然后再构建和分发你自己的 VSIX。
 
 ---
 
-## SAP System Whitelist (Optional)
+## SAP 系统白名单（可选）
 
-Restrict which SAP systems and users can connect — for example, to block production connections or limit access to approved developers.
+限制哪些 SAP 系统和用户可以连接——例如，阻止生产连接或限制为经过审批的开发人员。
 
-### 1. Create the whitelist file
+### 1. 创建白名单文件
 
-Base it on `client/src/services/whitelist.example.json`:
+以 `client/src/services/whitelist.example.json` 为基础：
 
 ```json
 {
@@ -2912,89 +2931,89 @@ Base it on `client/src/services/whitelist.example.json`:
 }
 ```
 
-**`developers` structure:** Each object represents **one person**. List all of that person's SAP user IDs (across different systems) in the same `userIds` array — they will be treated as the same individual in telemetry. Do not mix different people into one object.
+**`developers` 结构：** 每个对象代表**一个人**。把同一个人的所有 SAP 用户 ID（跨不同系统）列在同一个 `userIds` 数组中——在遥测中它们被视为同一个人。不要把不同的人混在一个对象里。
 
-### 2. Host the file
+### 2. 托管文件
 
-Deploy it to an internal HTTP/HTTPS URL with no authentication required. Users need read access only.
+部署到内网 HTTP/HTTPS 地址，不需要认证。用户只需要读权限。
 
-### 3. Configure the URL
+### 3. 配置 URL
 
-Edit `client/src/services/sapSystemValidator.ts`:
+编辑 `client/src/services/sapSystemValidator.ts`：
 
 ```typescript
 private readonly WHITELIST_URL = 'https://your-internal-server.com/whitelist.json';
 ```
 
-### 4. Enable validation
+### 4. 启用校验
 
-Both flags default to `true` (whitelist is skipped). Set to `false` to enforce restrictions:
+两个标志默认都是 `true`（跳过白名单）。设为 `false` 以强制限制：
 
 ```typescript
-private readonly ALLOW_ALL_SYSTEMS = true;  // false = validate against allowedDomains
-private readonly ALLOW_ALL_USERS = true;    // false = validate against developers.userIds
+private readonly ALLOW_ALL_SYSTEMS = true;  // false = 按 allowedDomains 校验
+private readonly ALLOW_ALL_USERS = true;    // false = 按 developers.userIds 校验
 ```
 
-### How it works
+### 工作原理
 
-- The extension fetches the whitelist on startup and every 2 hours.
-- `allowedDomains` patterns use wildcards (e.g., `*dev*`) matched against the SAP system hostname.
-- `userIds` are checked across all developer entries. Both system and user must pass for a connection to succeed.
-- If the fetch fails, a hardcoded backup whitelist is used.
-- On corporate VPN, the extension retries for up to 10 minutes after startup; a status bar notification is shown during retries.
+- 扩展在启动时获取白名单，之后每 2 小时获取一次。
+- `allowedDomains` 模式使用通配符（例如 `*dev*`），与 SAP 系统主机名匹配。
+- `userIds` 会在所有开发者条目中检查。系统和用户都必须通过，连接才能成功。
+- 如果获取失败，使用硬编码的备份白名单。
+- 在公司 VPN 上，扩展启动后会重试最多 10 分钟；重试期间会显示状态栏通知。
 
 ---
 
-## Telemetry with Application Insights (Optional)
+## 使用 Application Insights 的遥测（可选）
 
-**The VS Code Marketplace version sends no telemetry anywhere.** All usage data is written to local CSV files only (`telemetry-YYYY-MM-DD.csv` in extension storage). Nothing leaves the machine.
+**VS Code Marketplace 版本不向任何地方发送遥测。** 所有使用数据只写入本地 CSV 文件（扩展存储中的 `telemetry-YYYY-MM-DD.csv`）。数据不会离开机器。
 
-This section applies only if you want **central analytics** for your organization.
+本节仅适用于想为组织做**中心化分析**的情况。
 
-### What is collected
+### 收集什么
 
-Each event is an action string (e.g., `command_activate_called`, `tool_search_abap_objects_called`) plus:
+每个事件是一个动作字符串（例如 `command_activate_called`、`tool_search_abap_objects_called`），外加：
 
-| Field | Description |
+| 字段 | 描述 |
 |---|---|
-| Anonymous user ID | SHA hash of `hostname + username + platform` — cannot be reversed |
-| Session ID | Random ID per VS Code session |
-| Extension version | Version number |
-| VS Code version | VS Code version number |
-| Platform | Windows / Linux / Mac |
-| SAP system | System accessed (if applicable) |
-| Manager / Team | From whitelist `developers` mapping (if configured) |
+| 匿名用户 ID | `主机名 + 用户名 + 平台` 的 SHA 哈希——不可逆 |
+| 会话 ID | 每次 VS Code 会话的随机 ID |
+| 扩展版本 | 版本号 |
+| VS Code 版本 | 版本号 |
+| 平台 | Windows / Linux / Mac |
+| SAP 系统 | 访问的系统（如适用） |
+| 经理 / 团队 | 来自白名单 `developers` 映射（如配置） |
 
-**Not collected:** credentials, source code, object names, business data, error messages, performance metrics, HTTP requests, dependencies, or console logs. All Application Insights auto-collection features are disabled by default.
+**不收集：** 凭证、源代码、对象名、业务数据、错误消息、性能指标、HTTP 请求、依赖或控制台日志。所有 Application Insights 自动收集功能默认禁用。
 
-### Setup steps
+### 设置步骤
 
-1. **Fork the repository** on GitHub.
+1. 在 GitHub 上 **fork 本仓库**。
 
-2. **Create an Azure Application Insights resource** in your Azure subscription.
+2. 在你的 Azure 订阅中**创建 Azure Application Insights 资源**。
 
-3. **Copy the connection string** from Azure Portal → Application Insights → Overview → Connection String.
+3. 从 Azure 门户**复制连接字符串**：Application Insights → 概述 → 连接字符串。
 
-4. **Set the connection string** in `client/src/services/appInsightsService.ts`:
+4. 在 `client/src/services/appInsightsService.ts` 中**设置连接字符串**：
 
    ```typescript
    const connectionString = "InstrumentationKey=YOUR-KEY;IngestionEndpoint=https://..."
    ```
 
-5. **Build and distribute** your VSIX (see [Building and Distributing](#building-and-distributing) below).
+5. **构建并分发**你的 VSIX（见下方[构建与分发](#构建与分发)）。
 
-### Enabling additional auto-collection
+### 启用额外的自动收集
 
-All auto-collection is off by default. To enable any of the following, edit the `initialize()` method in `client/src/services/appInsightsService.ts`:
+所有自动收集默认关闭。要启用以下任何一项，请编辑 `client/src/services/appInsightsService.ts` 中的 `initialize()` 方法：
 
-| Feature | Change |
+| 功能 | 修改 |
 |---|---|
-| Exception tracking | `.setAutoCollectExceptions(false)` → `(true)` |
-| Performance metrics (CPU/memory) | `.setAutoCollectPerformance(false, false)` → `(true, true)` |
-| HTTP request tracking | `.setAutoCollectRequests(false)` → `(true)` |
-| Dependency tracking | `.setAutoCollectDependencies(false)` → `(true)` |
+| 异常跟踪 | `.setAutoCollectExceptions(false)` → `(true)` |
+| 性能指标（CPU/内存） | `.setAutoCollectPerformance(false, false)` → `(true, true)` |
+| HTTP 请求跟踪 | `.setAutoCollectRequests(false)` → `(true)` |
+| 依赖跟踪 | `.setAutoCollectDependencies(false)` → `(true)` |
 
-You can also add custom tracking anywhere in your code:
+你也可以在代码的任何位置添加自定义跟踪：
 
 ```typescript
 appInsights.defaultClient.trackEvent({ name: 'my_event' });
@@ -3002,38 +3021,38 @@ appInsights.defaultClient.trackException({ exception: error });
 appInsights.defaultClient.trackMetric({ name: 'my_metric', value: 42 });
 ```
 
-### Telemetry + whitelist integration
+### 遥测与白名单集成
 
-When the whitelist `developers` structure is configured, telemetry automatically groups multiple SAP user IDs belonging to the same person. The `manager` field enables team-level analytics (e.g., "which team uses debugging most?") while keeping individual users anonymous.
+配置了白名单 `developers` 结构后，遥测会自动把属于同一个人的多个 SAP 用户 ID 分组。`manager` 字段支持团队级分析（例如“哪个团队调试用得最多？”），同时保持个人匿名。
 
-### How events are stored and sent
+### 事件如何存储和发送
 
-- Events are logged to local CSV files first.
-- If an App Insights connection string is configured, events are also sent to Azure (batched every 30 seconds).
-- If the network is unavailable, events are stored locally and retried.
-- Local storage flushes every 5 minutes or when the buffer reaches 25 entries.
+- 事件首先记录到本地 CSV 文件。
+- 如果配置了 App Insights 连接字符串，事件也会发送到 Azure（每 30 秒批量发送一次）。
+- 如果网络不可用，事件存储在本地并重试。
+- 本地存储每 5 分钟刷新一次，或缓冲区达到 25 条时刷新。
 
 ---
 
-## Building and Distributing
+## 构建与分发
 
-After completing configuration above:
+完成以上配置后：
 
-1. **Install dependencies:**
+1. **安装依赖：**
 
    ```bash
    npm install
    ```
 
-2. **Build and package:**
+2. **构建并打包：**
 
    ```bash
-   # Windows (recommended)
+   # Windows（推荐）
    build-and-install.bat
 
-   # Or manually:
+   # 或手动：
    npm run compile
    npx vsce package
    ```
 
-3. **Distribute** the generated `.vsix` file to your users. They can install it via Extensions → `...` → **Install from VSIX...**
+3. **分发**生成的 `.vsix` 文件给你的用户。他们可以通过扩展 → `...` → **从 VSIX 安装...** 安装。
