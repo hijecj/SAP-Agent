@@ -1,11 +1,11 @@
 /**
- * 💓 Heartbeat Module
+ * 💓 心跳模块
  *
- * Periodic LLM agent turns for background monitoring.
- * The LLM reads heartbeat.json watchlist and uses available tools to check tasks.
+ * 用于后台监控的周期性 LLM 代理轮次。
+ * LLM 读取 heartbeat.json 监控列表并使用可用工具检查任务。
  */
 
-// Types
+// 类型
 export {
   HeartbeatConfig,
   HeartbeatRunResult,
@@ -22,21 +22,21 @@ export {
   parseHeartbeatResponse
 } from "./heartbeatTypes"
 
-// Watchlist
+// 监控列表
 export { HeartbeatWatchlist, WatchlistTask, HeartbeatWatchlistFile } from "./heartbeatWatchlist"
 
-// State Manager
+// 状态管理器
 export { HeartbeatStateManager } from "./heartbeatStateManager"
 
-// LM Client
+// LM 客户端
 export { runHeartbeatLM, HeartbeatLMResult } from "./heartbeatLmClient"
 
-// Service
+// 服务
 export {
   HeartbeatService,
   initializeHeartbeatService,
   getHeartbeatService
 } from "./heartbeatService"
 
-// Tool
+// 工具
 export { HeartbeatTool, registerHeartbeatTool, HeartbeatToolParams } from "./heartbeatTool"
