@@ -1,9 +1,9 @@
 /**
- * Mermaid Diagram Tools for ABAP Language Model
- * - Create diagrams in webview
- * - Validate syntax
- * - Get documentation
- * - Detect diagram types
+ * 面向 ABAP 语言模型的 Mermaid 图表工具
+ * - 在 Webview 中创建图表
+ * - 校验语法
+ * - 获取文档
+ * - 检测图表类型
  */
 
 import * as vscode from "vscode"
@@ -13,7 +13,7 @@ import { MERMAID_DOCUMENTATION } from "../MermaidDocumentation"
 import { logTelemetry } from "../telemetry"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 // ============================================================================
-// INTERFACES
+// 接口
 // ============================================================================
 
 export interface ICreateMermaidDiagramParameters {
@@ -69,11 +69,11 @@ export interface IDetectMermaidDiagramTypeParameters {
 }
 
 // ============================================================================
-// TOOL CLASSES
+// 工具类
 // ============================================================================
 
 /**
- * 🎨 CREATE MERMAID DIAGRAM TOOL - Using Webview Manager
+ * 🎨 创建 MERMAID 图表工具 - 使用 Webview 管理器
  */
 export class CreateMermaidDiagramTool implements vscode.LanguageModelTool<ICreateMermaidDiagramParameters> {
   async prepareInvocation(
@@ -102,10 +102,10 @@ export class CreateMermaidDiagramTool implements vscode.LanguageModelTool<ICreat
   ): Promise<vscode.LanguageModelToolResult> {
     assertToolInvocationAuthorized(options)
     let { code, theme = "forest" } = options.input
-    logTelemetry("tool_create_mermaid_diagram_called") // No connectionId available
+    logTelemetry("tool_create_mermaid_diagram_called") // 无可用 connectionId
 
     try {
-      // Get the webview manager instance (it's already initialized)
+      // 获取 Webview 管理器实例（已初始化）
       const webviewManager = MermaidWebviewManager.getInstance()
       const renderResult = await webviewManager.renderDiagram(code, theme)
 
@@ -137,7 +137,7 @@ export class CreateMermaidDiagramTool implements vscode.LanguageModelTool<ICreat
 }
 
 /**
- * ✅ VALIDATE MERMAID SYNTAX TOOL - Using Webview Manager
+ * ✅ 校验 MERMAID 语法工具 - 使用 Webview 管理器
  */
 export class ValidateMermaidSyntaxTool implements vscode.LanguageModelTool<IValidateMermaidSyntaxParameters> {
   async prepareInvocation(
@@ -165,10 +165,10 @@ export class ValidateMermaidSyntaxTool implements vscode.LanguageModelTool<IVali
   ): Promise<vscode.LanguageModelToolResult> {
     assertToolInvocationAuthorized(options)
     const { code } = options.input
-    logTelemetry("tool_validate_mermaid_syntax_called") // No connectionId available
+    logTelemetry("tool_validate_mermaid_syntax_called") // 无可用 connectionId
 
     try {
-      // Get the webview manager instance (it's already initialized)
+      // 获取 Webview 管理器实例（已初始化）
       const webviewManager = MermaidWebviewManager.getInstance()
       const validationResult = await webviewManager.validateSyntax(code)
 
@@ -203,7 +203,7 @@ export class ValidateMermaidSyntaxTool implements vscode.LanguageModelTool<IVali
 }
 
 /**
- * 📚 GET MERMAID DOCUMENTATION TOOL - Using Local Documentation
+ * 📚 获取 MERMAID 文档工具 - 使用本地文档
  */
 export class GetMermaidDocumentationTool implements vscode.LanguageModelTool<IGetMermaidDocumentationParameters> {
   async prepareInvocation(
@@ -232,13 +232,13 @@ export class GetMermaidDocumentationTool implements vscode.LanguageModelTool<IGe
   ): Promise<vscode.LanguageModelToolResult> {
     assertToolInvocationAuthorized(options)
     const { diagramType = "all", includeExamples = true } = options.input
-    logTelemetry("tool_get_mermaid_documentation_called") // No connectionId available
+    logTelemetry("tool_get_mermaid_documentation_called") // 无可用 connectionId
 
     try {
-      // Use local documentation data
+      // 使用本地文档数据
       const documentation = MERMAID_DOCUMENTATION
 
-      // Build response based on request
+      // 按请求构建响应
       if (diagramType === "all") {
         const supportedTypes = Object.keys(documentation)
 
@@ -320,7 +320,7 @@ export class GetMermaidDocumentationTool implements vscode.LanguageModelTool<IGe
 }
 
 /**
- * 🔍 DETECT MERMAID DIAGRAM TYPE TOOL - Using Webview Manager
+ * 🔍 检测 MERMAID 图表类型工具 - 使用 Webview 管理器
  */
 export class DetectMermaidDiagramTypeTool implements vscode.LanguageModelTool<IDetectMermaidDiagramTypeParameters> {
   async prepareInvocation(
@@ -348,10 +348,10 @@ export class DetectMermaidDiagramTypeTool implements vscode.LanguageModelTool<ID
   ): Promise<vscode.LanguageModelToolResult> {
     assertToolInvocationAuthorized(options)
     const { code } = options.input
-    logTelemetry("tool_detect_mermaid_diagram_type_called") // No connectionId available
+    logTelemetry("tool_detect_mermaid_diagram_type_called") // 无可用 connectionId
 
     try {
-      // Get the webview manager instance (it's already initialized)
+      // 获取 Webview 管理器实例（已初始化）
       const webviewManager = MermaidWebviewManager.getInstance()
       const detectionResult = await webviewManager.detectDiagramType(code)
 
@@ -366,7 +366,7 @@ export class DetectMermaidDiagramTypeTool implements vscode.LanguageModelTool<ID
       if (detectedType !== "unknown") {
         resultText += `Success — diagram appears to be a ${detectedType} diagram.\n\n`
 
-        // Add type-specific guidance from documentation
+        // 从文档添加类型专属指导
         const docs = MERMAID_DOCUMENTATION
         if (docs[detectedType]) {
           const docInfo = docs[detectedType]
@@ -391,7 +391,7 @@ export class DetectMermaidDiagramTypeTool implements vscode.LanguageModelTool<ID
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerMermaidTools(context: vscode.ExtensionContext): void {
