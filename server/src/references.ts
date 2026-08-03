@@ -38,7 +38,7 @@ async function cdsDefinition(params: TextDocumentPositionParams): Promise<Locati
   const target = cdsNavigationTarget(co.source, pos)
   if (!target) return
 
-  // resolve the target to an ADT object URI
+  // 把目标解析为 ADT 对象 URI
   try {
     switch (target.kind) {
       case "source":
@@ -98,7 +98,7 @@ async function cdsDefinition(params: TextDocumentPositionParams): Promise<Locati
         } catch (e) {
           log("cdsDefinition field lookup failed:", caughtToString(e))
         }
-        // fallback: navigate to the source itself
+        // 回退：导航到源码本身
         const sourceRef = await ddicRepositoryAccessSource(co.client.statelessClone, target.source)
         if (sourceRef) {
           const sourceUri = await vscUrl(co.confKey, sourceRef.uri, true)
@@ -129,7 +129,7 @@ async function cdsDefinition(params: TextDocumentPositionParams): Promise<Locati
 }
 
 /**
- * Resolve the definition target for ABAP or CDS documents, including CDS-specific navigation.
+ * 为 ABAP 或 CDS 文档解析定义目标，包括 CDS 专属导航。
  */
 export async function findDefinition(impl: boolean, params: TextDocumentPositionParams) {
   if (!isAbapOrCds(params.textDocument.uri)) return
@@ -160,7 +160,7 @@ export async function findDefinition(impl: boolean, params: TextDocumentPosition
     let uri
     let source = ""
     if (result.url === co.obj.url) {
-      // same file
+      // 同一文件
       uri = params.textDocument.uri
       source = co.source
     } else {
@@ -249,7 +249,7 @@ class LocationManager {
     }
   }
   private async findLine(reg: RegExp, uri: string) {
-    // hack for protected and private in older systems
+    // 旧系统中 protected 和 private 的临时方案
     if (reg) {
       const source = await this.sources(uri)
       const lines = source.split("\n")
@@ -276,7 +276,7 @@ class LocationManager {
           include = main.components.find(
             c => c["adtcore:name"] === name && c["adtcore:type"] === type
           )
-          // hack for method references in older systems
+          // 旧系统中方法引用的临时方案
           if (!include && type === "CLAS/OM")
             include = main.components.find(
               c => c["adtcore:name"] === name && c["adtcore:type"] === "CLAS/OO"
@@ -301,7 +301,7 @@ const fullname = (usageReference: UsageReference) => {
 let lastSearch: CancellationTokenSource | undefined
 
 /**
- * Cancel the current reference search so the server stops reporting progress for stale requests.
+ * 取消当前引用搜索，让服务器停止为过期请求报告进度。
  */
 export function cancelSearch() {
   if (lastSearch) {
@@ -312,14 +312,14 @@ export function cancelSearch() {
 }
 
 async function startSearch() {
-  // Reset any prior search state before starting a new query.
+  // 开始新查询前重置任何先前的搜索状态。
   await cancelSearch()
   await setSearchProgress({ ended: false, hits: 0, progress: 0 })
   lastSearch = new CancellationTokenSource()
   return lastSearch
 }
 /**
- * Collect usage references for the symbol at the requested cursor position.
+ * 收集请求光标位置处符号的使用引用。
  */
 export async function findReferences(params: ReferenceParams, token: CancellationToken) {
   if (!isAbapOrCds(params.textDocument.uri)) return
@@ -353,7 +353,7 @@ export async function findReferences(params: ReferenceParams, token: Cancellatio
                 const loc = await manager.locationFromRef(ref)
                 if (loc) locations.push(loc)
               } catch (e) {
-                warn("no reference found for", s.objectIdentifier) // ignore
+                warn("no reference found for", s.objectIdentifier) // 忽略
               }
           }
           for (const sn of s.snippets) {
@@ -366,7 +366,7 @@ export async function findReferences(params: ReferenceParams, token: Cancellatio
           }
         }
       } catch (e) {
-        warn("Exception in reference search:", caughtToString(e)) // ignore
+        warn("Exception in reference search:", caughtToString(e)) // 忽略
       }
       processed = processed + groups[group].length
       if (!cancelled()) {
@@ -378,8 +378,8 @@ export async function findReferences(params: ReferenceParams, token: Cancellatio
       }
     }
   } catch (e) {
-    warn("Exception in reference search:", caughtToString(e)) // ignore
+    warn("Exception in reference search:", caughtToString(e)) // 忽略
   }
-  cancelSearch() // just for cleanup
+  cancelSearch() // 仅为清理
   return locations
 }
