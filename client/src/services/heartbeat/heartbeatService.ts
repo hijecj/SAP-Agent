@@ -1,8 +1,8 @@
 /**
- * 💓 Heartbeat Service
+ * 💓 心跳服务
  *
- * Periodic LLM agent turns for background monitoring.
- * Runs the LLM at configurable intervals, reads heartbeat.json watchlist, uses tools.
+ * 用于后台监控的周期性 LLM 代理轮次。
+ * 按可配置间隔运行 LLM，读取 heartbeat.json 监控列表，使用工具。
  */
 
 import * as vscode from "vscode"
@@ -22,9 +22,9 @@ import { log } from "../../lib"
 import { funWindow as window } from "../funMessenger"
 
 /**
- * 💓 Heartbeat Service
+ * 💓 心跳服务
  *
- * Manages periodic LLM runs for background monitoring
+ * 管理用于后台监控的周期性 LLM 运行
  */
 export class HeartbeatService {
   private context: vscode.ExtensionContext
@@ -36,7 +36,7 @@ export class HeartbeatService {
   private cancellationTokenSource: vscode.CancellationTokenSource | null = null
   private eventListeners: HeartbeatEventListener[] = []
 
-  // Status bar animation
+  // 状态栏动画
   private statusBarItem: vscode.StatusBarItem | null = null
   private heartbeatAnimationTimer: NodeJS.Timeout | null = null
   private heartbeatFrame = 0
@@ -49,8 +49,8 @@ export class HeartbeatService {
   }
 
   /**
-   * Initialize global config listener (always active, even when service is stopped)
-   * Handles all config changes by stopping/restarting the service as needed
+   * 初始化全局配置监听器（始终激活，即使服务已停止）
+   * 通过按需停止/重启服务处理所有配置变化
    */
   private initGlobalConfigListener(): void {
     const disposable = vscode.workspace.onDidChangeConfiguration(e => {
@@ -60,9 +60,9 @@ export class HeartbeatService {
         const model = config.get<string>("model", "")
 
         if (enabled && !this.isRunning) {
-          // Check if model is configured before starting
+          // 启动前检查是否已配置模型
           if (!model || model.trim().length === 0) {
-            // No model configured - disable and notify user
+            // 未配置模型 - 禁用并通知用户
             config.update("enabled", false, vscode.ConfigurationTarget.Workspace)
             window
               .showWarningMessage(
@@ -79,13 +79,13 @@ export class HeartbeatService {
               })
             return
           }
-          // Enabling - start the service
+          // 启用 - 启动服务
           this.start()
         } else if (!enabled && this.isRunning) {
-          // Disabling - stop the service
+          // 禁用 - 停止服务
           this.stop()
         } else if (enabled && this.isRunning) {
-          // Config changed while running - restart to pick up changes
+          // 运行中配置变化 - 重启以应用更改
           this.stop()
           this.start()
         }
@@ -95,7 +95,7 @@ export class HeartbeatService {
   }
 
   /**
-   * Initialize the status bar item
+   * 初始化状态栏项
    */
   private initStatusBar(): void {
     this.statusBarItem = window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)
@@ -105,19 +105,19 @@ export class HeartbeatService {
   }
 
   /**
-   * Start the beating heart animation
+   * 开始心跳动画
    */
   private startHeartAnimation(): void {
     if (this.heartbeatAnimationTimer) return
 
-    // Heart pulse animation: ♡ → ♥ (empty to filled)
+    // 心跳脉冲动画：♡ → ♥（空心到实心）
     const frames = ["$(heart)", "$(heart-filled)"]
 
     this.heartbeatFrame = 0
     this.updateStatusBar()
     this.statusBarItem?.show()
 
-    // Pulse every 1 second (like a heartbeat)
+    // 每秒脉冲一次（像心跳一样）
     this.heartbeatAnimationTimer = setInterval(() => {
       this.heartbeatFrame = (this.heartbeatFrame + 1) % frames.length
       this.updateStatusBar()
@@ -125,7 +125,7 @@ export class HeartbeatService {
   }
 
   /**
-   * Stop the heart animation
+   * 停止心跳动画
    */
   private stopHeartAnimation(): void {
     if (this.heartbeatAnimationTimer) {
@@ -136,7 +136,7 @@ export class HeartbeatService {
   }
 
   /**
-   * Update status bar text
+   * 更新状态栏文本
    */
   private updateStatusBar(): void {
     if (!this.statusBarItem) return
@@ -148,7 +148,7 @@ export class HeartbeatService {
       this.statusBarItem.text = "$(heart) zzz"
       this.statusBarItem.backgroundColor = new vscode.ThemeColor("statusBarItem.warningBackground")
     } else if (this.currentRun) {
-      // Currently running a check - show thinking
+      // 正在运行检查 - 显示思考中
       this.statusBarItem.text = `${heart} beat...`
       this.statusBarItem.backgroundColor = undefined
     } else {
@@ -158,7 +158,7 @@ export class HeartbeatService {
   }
 
   /**
-   * Start the heartbeat service
+   * 启动心跳服务
    */
   async start(): Promise<void> {
     if (this.isRunning && !this.isPaused) {
@@ -171,7 +171,7 @@ export class HeartbeatService {
       return
     }
 
-    // Model must be configured
+    // 必须配置模型
     if (!config.model || config.model.trim().length === 0) {
       return
     }
@@ -181,25 +181,25 @@ export class HeartbeatService {
       return
     }
 
-    // Reset error count when starting fresh
+    // 全新启动时重置错误计数
     this.stateManager.resetErrors()
 
     this.isRunning = true
     this.isPaused = false
     this.stateManager.setRunning(true)
 
-    // Start status bar animation
+    // 启动状态栏动画
     this.startHeartAnimation()
 
-    // Emit event
+    // 发出事件
     this.emit({ type: "started" })
 
-    // Schedule first beat
+    // 安排第一次心跳
     this.scheduleNextBeat(intervalMs)
   }
 
   /**
-   * Stop the heartbeat service
+   * 停止心跳服务
    */
   stop(): void {
     if (!this.isRunning) return
@@ -209,16 +209,16 @@ export class HeartbeatService {
     this.stateManager.setRunning(false)
     this.stateManager.setNextRunTime(undefined)
 
-    // Stop status bar animation
+    // 停止状态栏动画
     this.stopHeartAnimation()
 
-    // Cancel any running beat
+    // 取消任何正在运行的心跳
     if (this.cancellationTokenSource) {
       this.cancellationTokenSource.cancel()
       this.cancellationTokenSource = null
     }
 
-    // Clear timer
+    // 清除定时器
     if (this.timer) {
       clearTimeout(this.timer)
       this.timer = null
@@ -228,7 +228,7 @@ export class HeartbeatService {
   }
 
   /**
-   * Pause heartbeat (keeps timer but skips runs)
+   * 暂停心跳（保留定时器但跳过运行）
    */
   pause(): void {
     if (!this.isRunning || this.isPaused) return
@@ -240,7 +240,7 @@ export class HeartbeatService {
   }
 
   /**
-   * Resume heartbeat from pause
+   * 从暂停恢复心跳
    */
   resume(): void {
     if (!this.isRunning || !this.isPaused) return
@@ -252,14 +252,14 @@ export class HeartbeatService {
   }
 
   /**
-   * Trigger an immediate heartbeat (manual wake)
+   * 触发立即心跳（手动唤醒）
    */
   async triggerNow(reason?: string): Promise<HeartbeatRunResult> {
     return await this.runBeat()
   }
 
   /**
-   * Get current status
+   * 获取当前状态
    */
   getStatus(): {
     isRunning: boolean
@@ -279,7 +279,7 @@ export class HeartbeatService {
   }
 
   /**
-   * Subscribe to heartbeat events
+   * 订阅心跳事件
    */
   onEvent(listener: HeartbeatEventListener): vscode.Disposable {
     this.eventListeners.push(listener)
@@ -294,7 +294,7 @@ export class HeartbeatService {
   }
 
   /**
-   * Emit event to all listeners
+   * 向所有监听器发出事件
    */
   private emit(event: HeartbeatEvent): void {
     for (const listener of this.eventListeners) {
@@ -307,12 +307,12 @@ export class HeartbeatService {
   }
 
   /**
-   * Schedule the next heartbeat
+   * 安排下一次心跳
    */
   private scheduleNextBeat(intervalMs: number): void {
     if (!this.isRunning) return
 
-    // Clear any existing timer first to prevent duplicates
+    // 先清除任何现有定时器以防止重复
     if (this.timer) {
       clearTimeout(this.timer)
       this.timer = null
@@ -322,14 +322,14 @@ export class HeartbeatService {
     this.stateManager.setNextRunTime(nextRunTime)
 
     this.timer = setTimeout(async () => {
-      // Clear timer reference immediately
+      // 立即清除定时器引用
       this.timer = null
 
       const result = await this.runBeat()
 
-      // Only schedule next beat if:
-      // 1. Still running
-      // 2. The beat actually ran (not skipped due to already-running)
+      // 只在以下情况安排下一次心跳：
+      // 1. 仍在运行
+      // 2. 心跳实际运行了（不是因为已在运行而跳过）
       if (this.isRunning && result.status !== "skipped") {
         const config = this.stateManager.getConfig()
         const newIntervalMs = parseDurationMs(config.every)
@@ -341,10 +341,10 @@ export class HeartbeatService {
         result.status === "skipped" &&
         result.reason === "already-running"
       ) {
-        // If skipped because already running, try again in 30 seconds
+        // 如果因已在运行而跳过，30 秒后重试
         this.scheduleNextBeat(30000)
       } else if (this.isRunning) {
-        // For other skip reasons (paused, outside hours), schedule normal interval
+        // 对其他跳过原因（暂停、非活跃时段），按正常间隔安排
         const config = this.stateManager.getConfig()
         const newIntervalMs = parseDurationMs(config.every)
         if (newIntervalMs && newIntervalMs > 0) {
@@ -355,7 +355,7 @@ export class HeartbeatService {
   }
 
   /**
-   * Run a single heartbeat
+   * 运行一次心跳
    */
   private async runBeat(): Promise<HeartbeatRunResult> {
     if (this.currentRun) {
@@ -368,7 +368,7 @@ export class HeartbeatService {
 
     const config = this.stateManager.getConfig()
 
-    // Check active hours
+    // 检查活跃时段
     if (!isWithinActiveHours(config.activeHours)) {
       await this.recordRun({
         timestamp: new Date(),
@@ -379,7 +379,7 @@ export class HeartbeatService {
       return { status: "skipped", reason: "outside-active-hours" }
     }
 
-    // Check consecutive errors
+    // 检查连续错误
     const state = this.stateManager.getState()
     if (state.consecutiveErrors >= config.maxConsecutiveErrors) {
       log(`💓 Too many consecutive errors (${state.consecutiveErrors}), pausing`)
@@ -387,11 +387,11 @@ export class HeartbeatService {
       return { status: "skipped", reason: "too-many-errors" }
     }
 
-    // Create cancellation token
+    // 创建取消令牌
     this.cancellationTokenSource = new vscode.CancellationTokenSource()
 
     this.emit({ type: "beat_started" })
-    this.updateStatusBar() // Show "checking..." status
+    this.updateStatusBar() // 显示“检查中...”状态
 
     const startTime = Date.now()
 
@@ -399,7 +399,7 @@ export class HeartbeatService {
       this.currentRun = (async () => {
         const result = await runHeartbeatLM(config, this.cancellationTokenSource?.token)
 
-        // Record the run
+        // 记录本次运行
         const record: HeartbeatRunRecord = {
           timestamp: new Date(),
           durationMs: result.durationMs,
@@ -410,7 +410,7 @@ export class HeartbeatService {
         }
         await this.recordRun(record)
 
-        // Handle result
+        // 处理结果
         if (result.status === "alert") {
           this.emit({ type: "alert", message: result.response })
 
@@ -456,14 +456,14 @@ export class HeartbeatService {
   }
 
   /**
-   * Record a run to history
+   * 把运行记录到历史
    */
   private async recordRun(record: HeartbeatRunRecord): Promise<void> {
     await this.stateManager.recordRun(record)
   }
 
   /**
-   * Show VS Code notification
+   * 显示 VS Code 通知
    */
   private showNotification(message: string, type: "alert" | "error"): void {
     const truncated = message.length > 200 ? message.substring(0, 200) + "..." : message
@@ -475,7 +475,7 @@ export class HeartbeatService {
         .showInformationMessage(`💓 Heartbeat Alert: ${truncated}`, "View Details")
         .then(selection => {
           if (selection === "View Details") {
-            // Open output channel or show full message
+            // 打开输出通道或显示完整消息
             window.showInformationMessage(message, { modal: true })
           }
         })
@@ -484,13 +484,13 @@ export class HeartbeatService {
 }
 
 // ============================================================================
-// SINGLETON INSTANCE
+// 单例实例
 // ============================================================================
 
 let heartbeatServiceInstance: HeartbeatService | undefined
 
 /**
- * Initialize the heartbeat service
+ * 初始化心跳服务
  */
 export function initializeHeartbeatService(context: vscode.ExtensionContext): HeartbeatService {
   const stateManager = new HeartbeatStateManager(context)
@@ -499,7 +499,7 @@ export function initializeHeartbeatService(context: vscode.ExtensionContext): He
 }
 
 /**
- * Get the heartbeat service instance
+ * 获取心跳服务实例
  */
 export function getHeartbeatService(): HeartbeatService | undefined {
   return heartbeatServiceInstance
