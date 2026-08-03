@@ -1,6 +1,6 @@
 /**
- * ABAP Create Object Tool
- * Programmatic creation of ABAP objects
+ * ABAP 创建对象工具
+ * 编程式创建 ABAP 对象
  */
 
 import * as vscode from "vscode"
@@ -9,7 +9,7 @@ import { logTelemetry } from "../telemetry"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface ICreateObjectParameters {
@@ -35,11 +35,11 @@ export interface ICreateObjectParameters {
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 🏗️ CREATE ABAP OBJECT TOOL - Programmatic object creation
+ * 🏗️ 创建 ABAP 对象工具 - 编程式对象创建
  */
 export class CreateABAPObjectTool implements vscode.LanguageModelTool<ICreateObjectParameters> {
   async prepareInvocation(
@@ -157,7 +157,7 @@ export class CreateABAPObjectTool implements vscode.LanguageModelTool<ICreateObj
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerCreateObjectTool(context: vscode.ExtensionContext): void {
