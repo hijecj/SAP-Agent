@@ -6,8 +6,8 @@ import { CapturedVariable, CapturedScope, DebugSnapshot } from "./types"
 const HANDLE_BASE = 1000
 
 /**
- * Serves variable data from a recorded snapshot.
- * Maps CapturedVariable trees to DAP variable references using Handles.
+ * 从录制快照提供变量数据。
+ * 使用 Handles 把 CapturedVariable 树映射到 DAP 变量引用。
  */
 export class ReplayVariableManager {
   private handles = new Handles<CapturedVariable[]>(HANDLE_BASE)
@@ -16,7 +16,7 @@ export class ReplayVariableManager {
     this.handles.reset()
   }
 
-  /** Build DAP Scopes from a snapshot's captured scopes */
+  /** 从快照的捕获作用域构建 DAP Scopes */
   getScopes(snapshot: DebugSnapshot): DebugProtocol.Scope[] {
     return snapshot.scopes.map(scope => {
       const ref = this.handles.create(scope.variables)
@@ -24,7 +24,7 @@ export class ReplayVariableManager {
     })
   }
 
-  /** Get variables for a given variablesReference (scope or expanded child) */
+  /** 获取给定 variablesReference（作用域或展开的子项）的变量 */
   getVariables(reference: number): DebugProtocol.Variable[] {
     const children = this.handles.get(reference)
     if (!children) return []
@@ -34,7 +34,7 @@ export class ReplayVariableManager {
       if (v.children && v.children.length > 0 && !v.skipped) {
         variablesReference = this.handles.create(v.children)
       } else if (debugMetaIsComplex(v.metaType) && !v.skipped) {
-        // complex with no captured children — show as non-expandable
+        // 复杂但未捕获子项 — 显示为不可展开
         variablesReference = 0
       }
 
@@ -47,7 +47,7 @@ export class ReplayVariableManager {
     })
   }
 
-  /** Simple expression evaluation against the current snapshot */
+  /** 对当前快照的简单表达式求值 */
   evaluate(
     expression: string,
     snapshot: DebugSnapshot
