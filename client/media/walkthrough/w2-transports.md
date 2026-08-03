@@ -1,11 +1,11 @@
-### Transport Management
+### 传输管理
 
-**Location:** Abap FS panel (Activity Bar) → Transports view
+**位置：** ABAP FS 面板（活动栏）→ Transports 视图
 
-The Abap FS panel also contains: Dumps, ATC Finds, Traces, abapGit, Feed Inbox, Object Property.
+ABAP FS 面板还包含：Dumps、ATC 结果、Traces、abapGit、Feed 收件箱、对象属性。
 
-**Actions:** Release (with optional ATC check), Diff objects, Copy transport number, Change owner, Run ATC on transport.
+**操作：** 释放（带可选的 ATC 检查）、对象 diff、复制传输编号、更改所有者、对传输运行 ATC。
 
-Transports are selected or created when saving to non-local packages — you pick an existing one or create a new one.
+保存到非本地包时选择或创建传输——你选择现有或创建新的。
 
-**Ctrl/Cmd+Shift+P** → **Refresh transports** to reload.
+**Ctrl/Cmd+Shift+P** → **Refresh transports** 重新加载。

@@ -1,13 +1,13 @@
-### Activate
+### 激活
 
-**Ctrl/Cmd+Shift+P** → **Activate current object** (or **Alt+Shift+F3**, or toolbar icon)
+**Ctrl/Cmd+Shift+P** → **激活当前对象**（或 **Alt+Shift+F3**，或工具栏图标）
 
-**What happens:**
-1. Unsaved changes saved first
-2. Transport request prompt (for non-local packages) — select existing or create new
-3. Related inactive objects shown in multi-select dialog
-4. Compiled on the SAP server
+**会发生什么：**
+1. 未保存的修改先保存
+2. 传输请求提示（非本地包）——选择现有或创建新的
+3. 相关的未激活对象显示在多选对话框中
+4. 在 SAP 服务器上编译
 
-**Syntax errors** appear as you type (red squiggles). **Ctrl+Shift+M** opens Problems panel.
+**语法错误**在输入时出现（红色波浪线）。**Ctrl+Shift+M** 打开问题面板。
 
-Objects are auto-locked while editing.
+编辑时对象自动锁定。

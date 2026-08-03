@@ -1,12 +1,12 @@
-### Set Up AI Access
+### 设置 AI 访问
 
-**Using GitHub Copilot:**
-1. Click the **Copilot icon** in the sidebar
-2. Switch mode dropdown to **Agent** (top of chat panel)
-3. Type a question — AI calls tools on your behalf
+**使用 GitHub Copilot：**
+1. 点击侧边栏中的 **Copilot 图标**
+2. 把模式下拉框切换到 **Agent**（聊天面板顶部）
+3. 输入问题——AI 代表你调用工具
 
-**Tool permissions:** Allow once, for the session, or always.
+**工具权限：** 允许一次、本次会话或始终允许。
 
-**Multiple systems:** Tell the AI which system you're on. It passes the connection ID. You can use multiple systems in the same chat.
+**多个系统：** 告诉 AI 你当前在哪个系统上。它会传递连接 ID。你可以在同一个聊天中使用多个系统。
 
-**Not using Copilot?** See **MCP Server** in the Advanced walkthrough for Cursor, Claude, etc.
+**不用 Copilot？** 有关 Cursor、Claude 等，请参阅高级引导中的 **MCP 服务器**。

@@ -1,8 +1,8 @@
-### View Transports via AI
+### 通过 AI 查看传输
 
-**Try:**
-- *"Show my open transport requests"*
-- *"What objects are in my latest transport?"*
-- *"Compare the objects in transport A with transport B"*
+**试试：**
+- *“显示我未释放的传输请求”*
+- *“我最近的传输里有什么对象？”*
+- *“比较传输 A 和传输 B 中的对象”*
 
-> The AI can view and compare transports, but cannot release or modify them.
+> AI 可以查看和比较传输，但不能释放或修改它们。

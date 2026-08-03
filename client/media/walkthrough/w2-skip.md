@@ -1,7 +1,7 @@
-### Other Walkthroughs
+### 其他引导
 
-- **AI Tools** — Copilot with live SAP access: search, read, query, debug, visualize
-- **Advanced** — MCP server, debug recording, subagents, heartbeat
-- **Getting Started** — Connect, search, edit, activate, browse data
+- **AI 工具** — 带实时 SAP 访问的 Copilot：搜索、读取、查询、调试、可视化
+- **高级** — MCP 服务器、调试录制、子代理、心跳
+- **入门** — 连接、搜索、编辑、激活、浏览数据
 
-**Help** menu → **Welcome** to reopen anytime.
+**帮助**菜单 → **欢迎**随时重新打开。

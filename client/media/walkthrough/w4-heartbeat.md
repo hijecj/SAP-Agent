@@ -1,15 +1,15 @@
-### Heartbeat Monitoring
+### 心跳监控
 
-**Setup:** Ask Copilot *"Set up heartbeat monitoring"*
-- AI configures model (`abapfs.heartbeat.model`) and adds tasks
+**设置：** 让 Copilot *“设置心跳监控”*
+- AI 配置模型（`abapfs.heartbeat.model`）并添加任务
 
-> Requires model configuration before starting. Let Copilot handle it.
+> 启动前需要先配置模型。让 Copilot 处理。
 
-**Task categories:** transport, dump, job, idoc, performance, reminder, custom.
+**任务类别：** transport、dump、job、idoc、performance、reminder、custom。
 
-**Examples:**
-- *"Alert me if new dumps appear"*
-- *"Monitor transport DEVK900123 until released"*
-- *"Remind me to take a break every 2 hours"*
+**示例：**
+- *“出现新 Dump 时提醒我”*
+- *“监控传输 DEVK900123 直到释放”*
+- *“每 2 小时提醒我休息一下”*
 
-Status bar shows heartbeat state (active/paused).
+状态栏显示心跳状态（运行中/已暂停）。

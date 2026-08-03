@@ -1,11 +1,11 @@
-### Generate Diagrams from Code
+### 从代码生成图表
 
-**Try:**
-- *"Create a class diagram showing CL_ABAP_TYPEDESCR and its subclasses"*
-- *"Draw a sequence diagram for IDoc inbound processing"*
-- *"Create an ER diagram for tables EDIDC, EDIDS, EDID4"*
-- *"Create a flowchart of RBDAPP01's main logic"*
+**试试：**
+- *“创建显示 CL_ABAP_TYPEDESCR 及其子类的类图”*
+- *“绘制 IDoc 入站处理的时序图”*
+- *“为表 EDIDC、EDIDS、EDID4 创建 ER 图”*
+- *“创建 RBDAPP01 主要逻辑的流程图”*
 
-**Supported types:** flowchart, sequence, class, state, ER, journey, gantt, pie, gitgraph, mindmap, timeline, and more.
+**支持的类型：** 流程图、时序图、类图、状态图、ER 图、用户旅程、甘特图、饼图、Git 图、思维导图、时间线等。
 
-Renders in interactive webview with zoom and SVG export.
+在带缩放和 SVG 导出的交互式 WebView 中渲染。

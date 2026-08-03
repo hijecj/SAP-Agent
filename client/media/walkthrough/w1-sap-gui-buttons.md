@@ -1,11 +1,11 @@
-### SAP GUI Toolbar Buttons
+### SAP GUI 工具栏按钮
 
-Visible when an ABAP file is open in the editor:
+编辑器中有 ABAP 文件打开时可见：
 
-- **Play circle** — Embedded WebGUI inside VS Code (**Ctrl+Shift+F7**)
-- **Desktop** — Native SAP GUI for Windows (**Ctrl+Shift+F5**)
-- **Globe** — WebGUI in browser (**Ctrl+Shift+F6**)
+- **播放圆圈** — VS Code 内嵌入式 WebGUI（**Ctrl+Shift+F7**）
+- **桌面** — Windows 原生 SAP GUI（**Ctrl+Shift+F5**）
+- **地球** — 浏览器中的 WebGUI（**Ctrl+Shift+F6**）
 
-Opens the **current object** (e.g. SE38 for a program, SE24 for a class).
+打开**当前对象**（例如程序用 SE38、类用 SE24）。
 
-**GUI Type** setting in Connection Manager controls the default mode per system.
+连接管理器中的 **GUI 类型** 设置控制每个系统的默认模式。

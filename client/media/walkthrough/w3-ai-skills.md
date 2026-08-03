@@ -1,12 +1,12 @@
-### AI Skills — Built-in Expertise
+### AI 技能包 — 内置专业知识
 
-**How to use:** Type **/** in Copilot Chat (Agent mode) to see skills, or just ask a relevant question.
+**如何使用：** 在 Copilot 聊天（Agent 模式）中输入 **/** 查看技能包，或直接问相关问题。
 
-**Skills:**
-- **Clean ABAP** — style guide rules for naming, structure, formatting
-- **ABAP Code Writing** — requirements → exploration → design → code
-- **ABAP Performance (ECC)** — ECC optimization
-- **ABAP Performance (HANA)** — S/4HANA optimization
-- **ABAP Research** — navigate unfamiliar systems, find objects
-- **SAP System Personality Report** — system configuration report
-- **SAP Customizing** — trace SPRO/IMG activities to tables
+**技能包：**
+- **Clean ABAP** — 命名、结构、格式化的风格指南规则
+- **ABAP 代码编写** — 需求 → 探索 → 设计 → 代码
+- **ABAP 性能（ECC）** — ECC 优化
+- **ABAP 性能（HANA）** — S/4HANA 优化
+- **ABAP 研究** — 在陌生系统中导航、查找对象
+- **SAP 系统画像报告** — 系统配置报告
+- **SAP 定制** — 把 SPRO/IMG 活动追溯到表

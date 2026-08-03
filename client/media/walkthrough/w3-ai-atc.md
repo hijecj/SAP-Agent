@@ -1,9 +1,9 @@
-### Run ATC via AI
+### 通过 AI 运行 ATC
 
-**Try** (use your own Z*/Y* objects for meaningful findings):
-- *"Run ATC on ZMY_PROGRAM and explain the findings"*
-- *"What are the critical ATC findings in package ZPACKAGE?"*
+**试试**（使用你自己的 Z*/Y* 对象以获得有意义的检查结果）：
+- *“对 ZMY_PROGRAM 运行 ATC 并解释检查结果”*
+- *“包 ZPACKAGE 中有哪些关键 ATC 检查结果？”*
 
-The AI explains each finding — severity, root cause, how to fix it.
+AI 解释每个检查结果——严重级别、根因、如何修复。
 
-> Standard SAP objects typically won't have meaningful ATC findings.
+> 标准 SAP 对象通常不会有有意义的 ATC 检查结果。

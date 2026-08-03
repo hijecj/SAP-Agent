@@ -1,14 +1,14 @@
-### Query SAP Tables
+### 查询 SAP 表
 
-**Try:** *"Show me the last 10 entries in table EDIDC sorted by CREDAT descending"*
+**试试：** *“按 CREDAT 降序显示表 EDIDC 的最后 10 条记录”*
 
-**Two modes:**
-- **Internal** — text results for AI analysis and follow-up
-- **UI** — interactive data grid webview with sorting, filtering, export
+**两种模式：**
+- **内部** — 文本结果供 AI 分析和后续追问
+- **UI** — 带排序、过滤、导出的交互式数据网格 WebView
 
-AI picks the right mode. All queries **read-only** (SELECT only).
+AI 选择合适的模式。所有查询**只读**（仅 SELECT）。
 
-**More:**
-- *"How many entries are in table USR02?"*
-- *"Query table T000 and list all clients"*
-- *"Show me the structure of table VBAK"*
+**更多：**
+- *“表 USR02 中有多少条记录？”*
+- *“查询表 T000 并列出所有 client”*
+- *“显示表 VBAK 的结构”*

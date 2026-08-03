@@ -1,8 +1,8 @@
-### Performance Traces (SAT/SE30)
+### 性能跟踪（SAT/SE30）
 
-**Location:** Abap FS panel → Traces view
+**位置：** ABAP FS 面板 → Traces 视图
 
-- Create trace configurations, start/stop trace runs
-- View execution statistics: time per call, database calls, record counts
-- Identify slow methods and bottleneck queries
-- Delete old traces
+- 创建跟踪配置、启动/停止跟踪运行
+- 查看执行统计：每次调用耗时、数据库调用、记录数
+- 识别慢方法和瓶颈查询
+- 删除旧跟踪

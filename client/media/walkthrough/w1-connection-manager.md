@@ -1,15 +1,15 @@
-### Connection Manager
+### 连接管理器
 
 **Ctrl/Cmd+Shift+P** → **ABAP FS: Connection Manager**
 
-**What you enter:** Server URL, Client, Username.
+**你要输入的内容：** 服务器 URL、Client、用户名。
 
-**Password** is asked when you connect — not here. Stored in OS credential manager.
+**密码**在连接时询问——不在这里。存储在操作系统凭据管理器中。
 
-**Supports:** Username/password, OAuth, BTP service keys, custom CA certificates.
+**支持：** 用户名/密码、OAuth、BTP 服务密钥、自定义 CA 证书。
 
-**Team sharing:** A teammate can **export** their connections to a JSON file and send it to you. You **import** it — all systems set up instantly, no manual entry. Usernames and Passwords are stripped on export for security.
+**团队共享：** 同事可以把他们的连接**导出**为 JSON 文件发给你。你**导入**它——所有系统立即配置好，无需手动输入。出于安全，导出时用户名和密码会被剥离。
 
-**Bulk operations:** Edit username across multiple connections, bulk delete.
+**批量操作：** 跨多个连接编辑用户名、批量删除。
 
-You can add multiple systems — they all appear in the Explorer simultaneously.
+你可以添加多个系统——它们全部同时显示在资源管理器中。

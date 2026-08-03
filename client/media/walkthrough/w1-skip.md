@@ -1,7 +1,7 @@
-### Other Walkthroughs
+### 其他引导
 
-- **Views & Tools** — Transports, debugging, ATC, tests, dumps, traces, blame
-- **AI Tools** — Copilot with live SAP access: search, read, query, debug, visualize
-- **Advanced** — MCP server, debug recording, subagents, heartbeat
+- **视图与工具** — 传输、调试、ATC、测试、Dump、跟踪、blame
+- **AI 工具** — 带实时 SAP 访问的 Copilot：搜索、读取、查询、调试、可视化
+- **高级** — MCP 服务器、调试录制、子代理、心跳
 
-**Help** menu → **Welcome** to reopen anytime.
+**帮助**菜单 → **欢迎**随时重新打开。

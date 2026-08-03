@@ -1,14 +1,14 @@
-### AI Subagents
+### AI 子代理
 
-**13 agents:** discoverer, reader, creator, code-reviewer, debugger, data-analyst, quality-checker, historian, documenter, troubleshooter, usage-analyzer, visualizer, orchestrator.
+**13 个代理：** discoverer、reader、creator、code-reviewer、debugger、data-analyst、quality-checker、historian、documenter、troubleshooter、usage-analyzer、visualizer、orchestrator。
 
-**3 cost tiers:** Simple (cheap), Medium, Complex (premium).
+**3 个成本层级：** 简单（便宜）、中等、复杂（高级）。
 
-**Setup:** Ask Copilot *"Set up ABAP subagents"*
-1. AI lists available models
-2. Assigns models to all agents
-3. Enables subagents
+**设置：** 让 Copilot *“设置 ABAP 子代理”*
+1. AI 列出可用模型
+2. 为所有代理分配模型
+3. 启用子代理
 
-> Cannot enable until all agents have models. Let Copilot handle it.
+> 所有代理都有模型前无法启用。让 Copilot 处理。
 
-Files auto-generated in `.github/agents/` folder.
+文件自动生成在 `.github/agents/` 文件夹中。

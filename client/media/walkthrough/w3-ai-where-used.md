@@ -1,7 +1,7 @@
-### Where-Used Analysis
+### Where-Used 分析
 
-**Try:** *"Where is function module IDOC_INBOUND_ASYNCHRONOUS called from?"*
+**试试：** *“函数模块 IDOC_INBOUND_ASYNCHRONOUS 从哪里被调用？”*
 
-**More:**
-- *"What programs call BAPI_MATERIAL_GET_DETAIL?"*
-- *"Where is method CONSTRUCTOR used in ZCL_MY_CLASS?"*
+**更多：**
+- *“哪些程序调用 BAPI_MATERIAL_GET_DETAIL？”*
+- *“ZCL_MY_CLASS 中方法 CONSTRUCTOR 用在哪里？”*

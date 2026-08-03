@@ -1,10 +1,10 @@
-### Navigation
+### 导航
 
-**Shortcuts:**
-- **Ctrl+Click** or **F12** — Go to Definition
-- **Alt+F12** — Peek Definition (inline)
-- **Shift+F12** — Find All References
+**快捷键：**
+- **Ctrl+Click** 或 **F12** — 转到定义
+- **Alt+F12** — 预览定义（内联）
+- **Shift+F12** — 查找所有引用
 
-**Hover:** Move mouse over any symbol for method signatures, function parameters, DDIC metadata (table structures, data elements, domains).
+**悬停：** 把鼠标移到任意符号上，查看方法签名、函数参数、DDIC 元数据（表结构、数据元素、域）。
 
-**Class Hierarchy:** CodeLens above class definitions shows inheritance chain — click to navigate.
+**类层次：** 类定义上方的 CodeLens 显示继承链——点击导航。

@@ -1,7 +1,7 @@
-### Other Walkthroughs
+### 其他引导
 
-- **Advanced** — MCP server, debug recording, subagents, heartbeat
-- **Getting Started** — Connect, search, edit, activate, browse data
-- **Views & Tools** — Transports, debugging, ATC, tests, dumps, traces, blame
+- **高级** — MCP 服务器、调试录制、子代理、心跳
+- **入门** — 连接、搜索、编辑、激活、浏览数据
+- **视图与工具** — 传输、调试、ATC、测试、Dump、跟踪、blame
 
-**Help** menu → **Welcome** to reopen anytime.
+**帮助**菜单 → **欢迎**随时重新打开。

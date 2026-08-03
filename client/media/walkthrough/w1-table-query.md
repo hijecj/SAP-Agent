@@ -1,11 +1,11 @@
-### Data Browser (like SE16)
+### 数据浏览器（类似 SE16）
 
-Open a **table, view, or CDS view** → click **database icon** in toolbar.
+打开**表、视图或 CDS 视图** → 点击工具栏中的**数据库图标**。
 
-**Two modes:**
-- **Search mode** (default) — field-based filters, operators, values, column selection, row count
-- **SQL Mode** — click **SQL Mode** button for raw SELECT/WITH queries
+**两种模式：**
+- **搜索模式**（默认）— 基于字段的过滤器、运算符、值、列选择、行数
+- **SQL 模式** — 点击 **SQL 模式**按钮使用原始 SELECT/WITH 查询
 
-**Features:** Interactive grid, sorting, filtering, **Export CSV**, **Copy Rows**, **Show SQL Query** (preview generated SQL), **Technical Field Names** toggle.
+**功能：** 交互式网格、排序、过滤、**导出 CSV**、**复制行**、**显示 SQL 查询**（预览生成的 SQL）、**技术字段名**切换。
 
-Completely **read-only** — only SELECT allowed.
+完全**只读**——只允许 SELECT。

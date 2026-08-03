@@ -1,6 +1,6 @@
-### Run Unit Tests via AI
+### 通过 AI 运行单元测试
 
-**Try:**
-- *"Run unit tests for CL_ABAP_UNIT_ASSERT and show results"*
-- *"Run tests for ZCL_MY_CLASS and explain any failures"*
-- *"Create a test include for ZCL_MY_CLASS"*
+**试试：**
+- *“为 CL_ABAP_UNIT_ASSERT 运行单元测试并显示结果”*
+- *“为 ZCL_MY_CLASS 运行测试并解释任何失败”*
+- *“为 ZCL_MY_CLASS 创建测试 include”*

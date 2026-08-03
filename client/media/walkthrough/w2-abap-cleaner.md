@@ -1,11 +1,11 @@
-### ABAP Cleaner — Code Formatting
+### ABAP Cleaner — 代码格式化
 
-**Setup:** **Ctrl/Cmd+Shift+P** → **ABAP FS: Setup ABAP Cleaner Integration**
-- **Browse** — select `abap-cleanerc.exe` (command-line version, note the **c**)
-- **Download** — opens GitHub releases page (download manually, then re-run wizard)
-- Optionally choose formatting profile and target release
+**设置：** **Ctrl/Cmd+Shift+P** → **ABAP FS: Setup ABAP Cleaner Integration**
+- **浏览** — 选择 `abap-cleanerc.exe`（命令行版本，注意是 **c**）
+- **下载** — 打开 GitHub releases 页面（手动下载，然后重新运行向导）
+- 可选选择格式化配置文件和目标版本
 
-**After setup:**
-- **Ruler icon** appears in editor toolbar (next to Activate)
+**设置后：**
+- **标尺图标**出现在编辑器工具栏中（激活按钮旁边）
 - **Ctrl/Cmd+Shift+P** → **ABAP FS: Clean ABAP Code with ABAP Cleaner**
-- Shortcut: **Ctrl+Shift+Alt+F**
+- 快捷键：**Ctrl+Shift+Alt+F**

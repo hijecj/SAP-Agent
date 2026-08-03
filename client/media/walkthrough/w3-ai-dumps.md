@@ -1,9 +1,9 @@
-### Dump & Trace Analysis
+### Dump 与跟踪分析
 
-**Dumps — try:**
-- *"Analyze the most recent dumps in this system"*
-- *"What caused the last GETWA_NOT_ASSIGNED error?"*
+**Dump — 试试：**
+- *“分析此系统中最近的 Dump”*
+- *“上次 GETWA_NOT_ASSIGNED 错误是什么原因？”*
 
-**Traces — try:**
-- *"Show the latest performance traces"*
-- *"Which method took the longest in the last trace?"*
+**跟踪 — 试试：**
+- *“显示最新的性能跟踪”*
+- *“上次跟踪中哪个方法耗时最长？”*

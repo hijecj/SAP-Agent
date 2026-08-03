@@ -1,11 +1,11 @@
-### Search & Read Objects
+### 搜索与读取对象
 
-**Try:** *"Find report RBDMANI2 and explain what it does"*
+**试试：** *“查找报表 RBDMANI2 并解释它的作用”*
 
-The AI uses the **search**, **read**, and **object info** tools to find, read source code, and explain.
+AI 使用**搜索**、**读取**和**对象信息**工具查找、读取源代码并解释。
 
-> RBDMANI2 — standard ALE/IDoc reprocessing report, on every SAP system.
+> RBDMANI2 — 标准 ALE/IDoc 重新处理报表，每个 SAP 系统上都有。
 
-**More:**
-- *"Search for all programs starting with RBDAPP"*
-- *"Read function module BAPI_USER_GET_DETAIL and list its parameters"*
+**更多：**
+- *“搜索所有以 RBDAPP 开头的程序”*
+- *“读取函数模块 BAPI_USER_GET_DETAIL 并列出其参数”*

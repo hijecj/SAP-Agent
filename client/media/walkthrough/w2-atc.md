@@ -1,11 +1,11 @@
-### ATC — Code Quality Checks
+### ATC — 代码质量检查
 
-**Ctrl/Cmd+Shift+P** → **ABAP FS: Run ABAP Test cockpit** (or **Ctrl+Shift+F2**)
+**Ctrl/Cmd+Shift+P** → **ABAP FS: Run ABAP Test cockpit**（或 **Ctrl+Shift+F2**）
 
-**Results in two places:**
-- Inline squiggles in editor — hover for details
-- **ATC Finds** view in Abap FS panel — click to jump to finding
+**结果显示在两个地方：**
+- 编辑器中的内联波浪线 — 悬停查看详情
+- ABAP FS 面板中的 **ATC 结果** 视图 — 点击跳转到检查结果
 
-Right-click a finding → view documentation or request exemption.
+右键检查结果 → 查看文档或申请豁免。
 
-**Tip:** Enable auto-refresh to run ATC every time you activate.
+**提示：** 启用自动刷新，每次激活时自动运行 ATC。

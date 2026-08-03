@@ -1,9 +1,9 @@
-### Version History via AI
+### 通过 AI 查看版本历史
 
-**Try** (with your own Z*/Y* objects for best results):
-- *"Show the version history for ZMY_REPORT"*
-- *"What changed between the last two versions?"*
-- *"Who changed this most recently?"*
-- *"Compare the current version with 3 versions ago"*
+**试试**（使用你自己的 Z*/Y* 对象效果最佳）：
+- *“显示 ZMY_REPORT 的版本历史”*
+- *“最后两个版本之间改了什么？”*
+- *“谁最近修改了它？”*
+- *“把当前版本与 3 个版本前比较”*
 
-> Standard SAP objects may have limited history after upgrades.
+> 标准 SAP 对象在升级后可能历史有限。

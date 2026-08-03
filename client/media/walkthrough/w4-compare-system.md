@@ -1,8 +1,8 @@
-### Cross-System Comparison
+### 跨系统比较
 
-Right-click ABAP object → **Compare With Other System**
-Or: **Ctrl/Cmd+Shift+P** → **ABAP FS: ABAP Compare With another SAP System**
+右键 ABAP 对象 → **与其他系统比较**
+或：**Ctrl/Cmd+Shift+P** → **ABAP FS: ABAP Compare With another SAP System**
 
-Compare across **any** connected systems — DEV vs QAS, PRD1 vs PRD2, or any other combination. Opens side-by-side diff.
+在**任意**已连接系统之间比较——DEV vs QAS、PRD1 vs PRD2 或任何其他组合。打开并排 diff。
 
-Requires at least two connected systems.
+需要至少两个已连接的系统。

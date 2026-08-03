@@ -1,7 +1,7 @@
-### Text Elements Manager
+### 文本元素管理器
 
-**Ctrl/Cmd+Shift+P** → **ABAP FS: Text Elements Manager** (or right-click → Manage Text Elements)
+**Ctrl/Cmd+Shift+P** → **ABAP FS: Text Elements Manager**（或右键 → 管理文本元素）
 
-Create and edit selection texts, text symbols, and message class texts — without SE32/SE91.
+无需 SE32/SE91 即可创建和编辑选择文本、文本符号和消息类文本。
 
-> On older systems where ADT API is unavailable, falls back to SAP GUI automatically.
+> 在 ADT API 不可用的旧系统上，自动降级到 SAP GUI。

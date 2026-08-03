@@ -1,14 +1,14 @@
-### ABAP Debugging
+### ABAP 调试
 
-**Setup:**
-1. Open an ABAP object, click gutter to set breakpoints
-2. **Ctrl+Shift+D** → Run & Debug panel
-3. Select **ABAP on server** → pick system if multiple connected
-4. **F5** to attach — debugger listens for breakpoint hits
-5. Trigger program from SAP GUI, embedded GUI, or another session
+**设置：**
+1. 打开 ABAP 对象，点击装订线设置断点
+2. **Ctrl+Shift+D** → 运行与调试面板
+3. 选择 **ABAP on server** → 连接多个时选择系统
+4. **F5** 附加——调试器监听断点命中
+5. 从 SAP GUI、嵌入式 GUI 或其他会话触发程序
 
-**While debugging:**
-- **F10** Step Over, **F11** Step Into, **Shift+F11** Step Out
-- Variables panel, Call Stack, Watch expressions
+**调试时：**
+- **F10** 单步跳过、**F11** 单步进入、**Shift+F11** 单步返回
+- 变量面板、调用栈、监视表达式
 
-Max debug threads configurable per system in Connection Manager (default: 4).
+最大调试线程数可在连接管理器中按系统配置（默认：4）。

@@ -1,9 +1,9 @@
-### MCP Server Setup
+### MCP 服务器设置
 
-**Ctrl+,** → Workspace tab → search `abapfs.mcpServer`
+**Ctrl+,** → 工作区选项卡 → 搜索 `abapfs.mcpServer`
 
-1. Enable `autoStart`, set port (default: 4847)
-2. In your AI client config:
+1. 启用 `autoStart`，设置端口（默认：4847）
+2. 在 AI 客户端配置中：
 ```json
 {
   "mcpServers": {
@@ -12,6 +12,6 @@
 }
 ```
 
-**Works with:** Cursor, Claude Desktop, Claude Code, Windsurf. Same tools as Copilot.
+**支持：** Cursor、Claude Desktop、Claude Code、Windsurf。与 Copilot 相同的工具。
 
-**Security:** Set `abapfs.mcpServer.apiKey` for authenticated access.
+**安全：** 设置 `abapfs.mcpServer.apiKey` 进行认证访问。
