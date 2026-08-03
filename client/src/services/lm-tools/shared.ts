@@ -2,19 +2,19 @@ import { getClient } from "../../adt/conections"
 import { getObjectTypeConfig } from "abapobject"
 
 /**
- * Shared utilities and types for ABAP Language Model Tools
+ * ABAP 语言模型工具的共享工具和类型
  */
 
 // ============================================================================
-// SQL INJECTION PROTECTION
+// SQL 注入防护
 // ============================================================================
 
 /**
- * Sanitize SAP object names to prevent SQL injection.
- * SAP object names are alphanumeric with underscores and slashes (for namespaces).
- * This function validates and sanitizes the input to ensure it's safe for SQL queries.
+ * 清理 SAP 对象名以防止 SQL 注入。
+ * SAP 对象名由字母数字、下划线和斜杠（命名空间）组成。
+ * 此函数校验并清理输入，确保它可安全用于 SQL 查询。
  *
- * @throws Error if the name contains invalid characters
+ * @throws 名称包含无效字符时抛出错误
  */
 export function sanitizeObjectName(name: string): string {
   if (!name || typeof name !== "string") {
@@ -23,8 +23,8 @@ export function sanitizeObjectName(name: string): string {
 
   const sanitized = name.trim().toUpperCase()
 
-  // SAP object names: alphanumeric, underscore, forward slash (namespaces), percent (wildcards for LIKE)
-  // Max length is typically 30 characters for most objects, but some can be longer
+  // SAP 对象名：字母数字、下划线、正斜杠（命名空间）、百分号（LIKE 通配符）
+  // 大多数对象的最大长度通常为 30 个字符，但有些可以更长
   const validPattern = /^[A-Z0-9_/%]+$/
 
   if (!validPattern.test(sanitized)) {
@@ -37,17 +37,17 @@ export function sanitizeObjectName(name: string): string {
     throw new Error(`Object name too long: "${name}". Maximum length is 120 characters.`)
   }
 
-  // Additional check: no SQL keywords or suspicious patterns
+  // 附加检查：无 SQL 关键字或可疑模式
   const suspiciousPatterns = [
-    /'/, // Single quotes (SQL string delimiter)
-    /--/, // SQL comment
-    /;/, // Statement terminator
-    /\bOR\b/i, // OR keyword
-    /\bAND\b/i, // AND keyword
-    /\bDROP\b/i, // DROP keyword
-    /\bDELETE\b/i, // DELETE keyword
-    /\bUPDATE\b/i, // UPDATE keyword
-    /\bINSERT\b/i // INSERT keyword
+    /'/, // 单引号（SQL 字符串定界符）
+    /--/, // SQL 注释
+    /;/, // 语句终止符
+    /\bOR\b/i, // OR 关键字
+    /\bAND\b/i, // AND 关键字
+    /\bDROP\b/i, // DROP 关键字
+    /\bDELETE\b/i, // DELETE 关键字
+    /\bUPDATE\b/i, // UPDATE 关键字
+    /\bINSERT\b/i // INSERT 关键字
   ]
 
   for (const pattern of suspiciousPatterns) {
@@ -60,11 +60,11 @@ export function sanitizeObjectName(name: string): string {
 }
 
 // ============================================================================
-// DATA DICTIONARY QUERY HELPERS
+// 数据字典查询辅助
 // ============================================================================
 
 /**
- * Get table type information from DD40L/DD40T
+ * 从 DD40L/DD40T 获取表类型信息
  */
 export async function getTableTypeFromDD(client: any, typeName: string): Promise<string> {
   const sanitizedName = sanitizeObjectName(typeName)
@@ -95,7 +95,7 @@ export async function getTableTypeFromDD(client: any, typeName: string): Promise
 }
 
 /**
- * Get table structure from DD03M
+ * 从 DD03M 获取表结构
  */
 export async function getTableStructureFromDD(client: any, objectName: string): Promise<string> {
   const sanitizedName = sanitizeObjectName(objectName)
@@ -134,7 +134,7 @@ export async function getTableStructureFromDD(client: any, objectName: string): 
 }
 
 /**
- * Get append structures from DD02L
+ * 从 DD02L 获取追加结构
  */
 export async function getAppendStructuresFromDD(
   client: any,
@@ -154,7 +154,7 @@ export async function getAppendStructuresFromDD(
   for (const row of result.values) {
     const appendName = row.TABNAME || ""
     if (appendName) {
-      // Count fields in this append structure - appendName is already from DB, but sanitize for safety
+      // 统计此追加结构中的字段 - appendName 已来自数据库，但为安全仍清理
       const sanitizedAppendName = sanitizeObjectName(appendName)
       const fieldCountSql = `SELECT COUNT(*) AS CNT FROM DD03L WHERE TABNAME = '${sanitizedAppendName}' AND AS4LOCAL = 'A' AND FIELDNAME <> '.INCLUDE'`
       try {
@@ -171,7 +171,7 @@ export async function getAppendStructuresFromDD(
 }
 
 /**
- * Get data element information from DD04L
+ * 从 DD04L 获取数据元素信息
  */
 export async function getDataElementFromDD(client: any, dataElementName: string): Promise<string> {
   const sanitizedName = sanitizeObjectName(dataElementName)
@@ -196,7 +196,7 @@ export async function getDataElementFromDD(client: any, dataElementName: string)
 }
 
 /**
- * Get domain information from DD01L
+ * 从 DD01L 获取域信息
  */
 export async function getDomainFromDD(client: any, domainName: string): Promise<string> {
   const sanitizedName = sanitizeObjectName(domainName)
@@ -218,7 +218,7 @@ export async function getDomainFromDD(client: any, domainName: string): Promise<
 }
 
 /**
- * Get complete table structure including append structures
+ * 获取包括追加结构的完整表结构
  */
 export async function getCompleteTableStructure(
   connectionId: string,
@@ -247,7 +247,7 @@ export async function getCompleteTableStructure(
           return completeStructure
         }
       } catch (fallbackError) {
-        // Ignore
+        // 忽略
       }
     }
 
@@ -264,7 +264,7 @@ export async function getCompleteTableStructure(
         }
       }
     } catch (appendError) {
-      // Append structures are optional
+      // 追加结构是可选的
     }
 
     let completeStructure = `Complete Table Structure for ${sanitizedName} (SE11-like, includes ALL append structures):\n`
@@ -286,19 +286,19 @@ export async function getCompleteTableStructure(
 }
 
 // ============================================================================
-// ENHANCEMENT TYPES AND INTERFACES
+// 增强类型和接口
 // ============================================================================
 
 /**
- * Enhancement types and interfaces
+ * 增强类型和接口
  */
 export interface EnhancementInfo {
   name: string // ENHO implementation name (e.g., 'Z_MY_ENHANCEMENT')
   spot: string // Enhancement spot fullname (e.g., '\PR:<PROG>\EX:<SPOT_NAME>\EI')
   startLine: number
   type: string // e.g., 'ENHANCEMENT'
-  code?: string // Only included if needCode = true
-  uri?: string // SAP enhancement URI for separate access (unique per element)
+  code?: string // 只在 needCode = true 时包含
+  uri?: string // 用于单独访问的 SAP 增强 URI（每个元素唯一）
 }
 
 export interface EnhancementResult {
@@ -308,9 +308,9 @@ export interface EnhancementResult {
 }
 
 /**
- * 🔧 UTILITY: Get optimal URI path based on object type
- * Uses our research findings to determine whether XML metadata is sufficient
- * or if /source/main is needed for actual source code
+ * 🔧 工具：按对象类型获取最优 URI 路径
+ * 使用我们的研究结果判断 XML 元数据是否足够，
+ * 或者实际源码是否需要 /source/main
  */
 export function getOptimalObjectURI(objectType: string, baseUri: string): string {
   const config = getObjectTypeConfig(objectType)
@@ -324,13 +324,13 @@ export function getOptimalObjectURI(objectType: string, baseUri: string): string
     }
   }
 
-  // Unknown or fallback type - try /source/main
+  // 未知或回退类型 - 尝试 /source/main
   const sourceUri = baseUri.endsWith("/source/main") ? baseUri : `${baseUri}/source/main`
   return sourceUri
 }
 
 /**
- * 🔧 UTILITY: Resolve correct URI path using findObjectPath
+ * 🔧 工具：用 findObjectPath 解析正确的 URI 路径
  */
 export async function resolveCorrectURI(
   originalUri: string,
@@ -342,7 +342,7 @@ export async function resolveCorrectURI(
     const pathSteps = await client.findObjectPath(originalUri)
 
     if (pathSteps && pathSteps.length > 0) {
-      // Use the last path step's URI as it should be the most specific/correct
+      // 使用最后一个路径步骤的 URI，因为它应该是最具体/正确的
       const lastStep = pathSteps[pathSteps.length - 1]
       const resolvedUri = lastStep["adtcore:uri"] || originalUri
 
@@ -356,7 +356,7 @@ export async function resolveCorrectURI(
     }
   } catch (pathError) {
     // logCommands.warn(`⚠️ Path resolution failed for ${originalUri}: ${pathError}`);
-    return originalUri // Fallback to original
+    return originalUri // 回退到原始
   }
 }
 
@@ -367,27 +367,27 @@ interface CachedEnhancementResult {
 }
 
 const enhancementCache = new Map<string, CachedEnhancementResult>()
-const ENHANCEMENT_CACHE_TTL = 10 * 60 * 1000 // 10 minutes
-const MAX_CACHE_SIZE = 1000 // Prevent unlimited growth
+const ENHANCEMENT_CACHE_TTL = 10 * 60 * 1000 // 10 分钟
+const MAX_CACHE_SIZE = 1000 // 防止无限增长
 
 setInterval(
   () => {
     const now = Date.now()
     const entriesToDelete: string[] = []
 
-    // First pass: Remove expired entries
+    // 第一遍：移除过期条目
     for (const [key, cached] of enhancementCache.entries()) {
       if (now - cached.timestamp > ENHANCEMENT_CACHE_TTL) {
         entriesToDelete.push(key)
       }
     }
 
-    // Delete expired entries
+    // 删除过期条目
     for (const key of entriesToDelete) {
       enhancementCache.delete(key)
     }
 
-    // Second pass: If still too large, remove oldest entries
+    // 第二遍：如果仍然太大，移除最旧的条目
     if (enhancementCache.size > MAX_CACHE_SIZE) {
       const sortedEntries = Array.from(enhancementCache.entries()).sort(
         ([, a], [, b]) => a.timestamp - b.timestamp
@@ -400,11 +400,11 @@ setInterval(
     }
   },
   5 * 60 * 1000
-) // Cleanup every 5 minutes
+) // 每 5 分钟清理一次
 
 /**
- * Get enhancement information for an ABAP object using SAP's enhancement APIs
- * Called from language model tools, search tools, and editor decorations
+ * 使用 SAP 增强 API 获取 ABAP 对象的增强信息
+ * 从语言模型工具、搜索工具和编辑器装饰调用
  */
 export async function getObjectEnhancements(
   objectUriOrPath: string,
@@ -417,19 +417,19 @@ export async function getObjectEnhancements(
     const now = Date.now()
 
     if (cached && now - cached.timestamp < ENHANCEMENT_CACHE_TTL) {
-      // Cache hit - return cached result
+      // 缓存命中 - 返回缓存结果
       return cached.result
     }
 
     const client = getClient(connectionId)
 
-    // Ensure we have a proper source/main path
+    // 确保我们有正确的 source/main 路径
     let sourceMainPath = objectUriOrPath
     if (!sourceMainPath.includes("/source/main")) {
       if (sourceMainPath.endsWith("/source/main")) {
-        // Already has /source/main
+        // 已有 /source/main
       } else {
-        // Add /source/main to the path
+        // 把 /source/main 添加到路径
         sourceMainPath = sourceMainPath.endsWith("/")
           ? `${sourceMainPath}source/main`
           : `${sourceMainPath}/source/main`
@@ -446,8 +446,8 @@ export async function getObjectEnhancements(
       const apiResult = await client.objectEnhancements(sourceMainPath, undefined, needCode)
       const allEnhancements: EnhancementInfo[] = apiResult.implementations.flatMap(impl =>
         impl.elements.map(el => ({
-          name: impl.name, // ENHO implementation name
-          spot: el.fullname, // Enhancement spot fullname (where it hooks in)
+          name: impl.name, // ENHO 实现名
+          spot: el.fullname, // 增强点完整名称（它钩入的位置）
           startLine: el.position?.startLine ?? 0,
           type: "ENHANCEMENT" as const,
           code: el.source,
