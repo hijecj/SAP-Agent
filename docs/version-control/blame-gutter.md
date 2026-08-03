@@ -1,59 +1,59 @@
-# Blame Gutter
+# Blame 侧边注释
 
-Shows who last changed each line of an ABAP file — author, date, and transport number — displayed inline in the editor, similar to GitLens for Git repositories.
+显示 ABAP 文件每一行的最后修改者——作者、日期和传输编号——内联显示在编辑器中，类似 Git 仓库的 GitLens。
 
-## Activating Blame
+## 激活 Blame
 
-With an ABAP file open, use any of:
+打开 ABAP 文件后，可以使用以下任一方式：
 
-| Method | Action |
+| 方法 | 操作 |
 |--------|--------|
-| Keyboard | **Ctrl+Alt+B** (toggles on/off) |
-| Editor title bar | Click the blame icon ($(git-commit)) |
-| Command Palette | `ABAP FS: Show Blame` |
+| 键盘 | **Ctrl+Alt+B**（切换开/关） |
+| 编辑器标题栏 | 点击 blame 图标（$(git-commit)） |
+| 命令面板 | `ABAP FS: Show Blame` |
 
-> Blame is per-file — it can be active on one file while other files show no annotations.
+> Blame 是按文件的——可以在一个文件上激活，而其他文件不显示注释。
 
-## Reading the Annotations
+## 阅读注释
 
-Each annotated line shows: `AUTHOR · DATE · TRANSPORT — Transport description`
+每个被注释的行显示：`作者 · 日期 · 传输编号 — 传输描述`
 
-Example: `JSMITH · Jan 15, 2026 · KD1K900123 — S 8000005926: Fix pricing logic`
+示例：`JSMITH · Jan 15, 2026 · KD1K900123 — S 8000005926: Fix pricing logic`
 
-- **Color-coded left border** — each author gets a distinct color for quick visual grouping
-- **`│` continuation marker** — consecutive lines from the same author/transport are grouped
-- **All annotations are column-aligned** — regardless of line length
-- **Hover over an annotation** for full date and transport details
+- **颜色编码的左边框** — 每个作者有不同颜色，便于快速视觉分组
+- **`│` 连续标记** — 同一作者/传输的连续行会被分组
+- **所有注释按列对齐** — 无论行长如何
+- **悬停注释**可查看完整日期和传输详情
 
-## Render Modes
+## 渲染模式
 
-Control the layout with the `abapfs.blame.renderMode` setting:
+用 `abapfs.blame.renderMode` 设置控制布局：
 
-| Value | Layout |
+| 值 | 布局 |
 |-------|--------|
-| `classic` | Blame text appears inline after each line of code |
-| `gitlens` | Blame moves into a fixed lane to the left of the code |
+| `classic` | Blame 文本内联显示在每行代码之后 |
+| `gitlens` | Blame 移入代码左侧的固定通道 |
 
-Change via **File > Preferences > Settings**, search for `abapfs blame`.
+通过**文件 > 首选项 > 设置**修改，搜索 `abapfs blame`。
 
-## Requirements
+## 要求
 
-- Object must have SAP version history — objects in `$TMP` with no transports have no versions
-- File must be saved (no unsaved changes); blame auto-hides when you start editing
-- ABAP files only (`.abap`)
+- 对象必须有 SAP 版本历史——`$TMP` 中无传输的对象没有版本
+- 文件必须已保存（无未保存修改）；开始编辑时 blame 自动隐藏
+- 仅 ABAP 文件（`.abap`）
 
-## Performance Notes
+## 性能说明
 
-- **Cached** — re-opening blame on the same file is instant
-- **Cache clears on save** — ensures fresh results after transport releases
-- **Progress notification** shown while fetching; click **Cancel** to abort
+- **有缓存** — 对同一文件重新打开 blame 是即时的
+- **保存时清缓存** — 确保传输释放后结果是最新的
+- 获取时显示进度通知；点击**取消**可中止
 
-## How It Works
+## 工作原理
 
-Blame walks backward through SAP version history (same algorithm as `git blame`):
+Blame 反向遍历 SAP 版本历史（与 `git blame` 相同的算法）：
 
-1. Fetches all versions of the object from SAP (in parallel batches)
-2. Diffs each consecutive pair, newest-to-oldest
-3. Lines added/changed in a newer version → attributed to that version's author
-4. Unchanged lines → checked against the next older version
-5. Lines still unattributed after all versions → attributed to the oldest version
+1. 从 SAP 获取对象的所有版本（并行批量）
+2. 对每对连续版本做 diff，从新到旧
+3. 在较新版本中添加/修改的行 → 归因于该版本的作者
+4. 未更改的行 → 与下一个更旧的版本比对
+5. 遍历所有版本后仍未归因的行 → 归因于最旧版本

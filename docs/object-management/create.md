@@ -1,48 +1,48 @@
-# Create Objects
+# 创建对象
 
-Create new ABAP development objects directly from VS Code without opening SAP GUI.
+直接在 VS Code 中创建新的 ABAP 开发对象，无需打开 SAP GUI。
 
-## How to Create an Object
+## 如何创建对象
 
-**Option 1 — Command Palette:**
+**方式 1 — 命令面板：**
 
-1. Press `Ctrl+Shift+P` to open the Command Palette.
-2. Type and select **ABAP FS: Create object**.
-3. Follow the wizard prompts (object type, name, description, package).
+1. 按 `Ctrl+Shift+P` 打开命令面板。
+2. 输入并选择 **ABAP FS: Create object**。
+3. 跟随向导提示（对象类型、名称、描述、包）。
 
-**Option 2 — Explorer context menu:**
+**方式 2 — 资源管理器右键菜单：**
 
-1. Right-click a package or folder in the ABAP Explorer.
-2. Select **Create object**.
-3. Follow the wizard prompts.
+1. 在 ABAP 资源管理器中右键点击包或文件夹。
+2. 选择**创建对象**。
+3. 跟随向导提示。
 
-**Option 3 — Via Copilot:**
+**方式 3 — 通过 Copilot：**
 
-Ask Copilot in natural language, for example:
+用自然语言让 Copilot 执行，例如：
 
-> *"Create a new class ZCL_MY_CLASS with description 'My class'"*
+> *“创建一个新类 ZCL_MY_CLASS，描述为 'My class'”*
 
-Copilot fills in the object details automatically. You will still be prompted to select a transport request.
+Copilot 会自动填写对象详情。你仍然会被提示选择传输请求。
 
-## Supported Object Types
+## 支持的对象类型
 
-| Object type | Type code |
+| 对象类型 | 类型代码 |
 |---|---|
-| Report / Program | `PROG/P` |
-| Class | `CLAS/OC` |
-| Interface | `INTF/OI` |
-| Function Group | `FUGR/F` |
-| Data Element | `DTEL/DE` |
-| Domain | `DOMA` |
-| Database Table | `TABL/DT` |
-| CDS View | `DDLS` |
-| Message Class | `MSAG/N` |
-| Package | `DEVC/K` |
+| 报表 / 程序 | `PROG/P` |
+| 类 | `CLAS/OC` |
+| 接口 | `INTF/OI` |
+| 函数组 | `FUGR/F` |
+| 数据元素 | `DTEL/DE` |
+| 域 | `DOMA` |
+| 数据库表 | `TABL/DT` |
+| CDS 视图 | `DDLS` |
+| 消息类 | `MSAG/N` |
+| 包 | `DEVC/K` |
 
-Many additional types are supported. If the object type you need is not listed, try the wizard — it shows all types available in your connected system.
+还支持许多其他类型。如果列表中没有你需要的对象类型，试试向导——它会显示已连接系统中所有可用的类型。
 
-## Notes
+## 注意事项
 
-- A **transport request** dialog always appears for objects that require transport. This step cannot be skipped.
-- The new object opens in the editor automatically after creation.
-- Objects must be **activated** before they can be used at runtime.
+- 需要传输的对象**总会**出现**传输请求**对话框。此步骤不能跳过。
+- 创建后新对象会自动在编辑器中打开。
+- 对象必须先**激活**才能在运行时使用。

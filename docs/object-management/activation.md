@@ -1,23 +1,23 @@
-# Object Activation
+# 对象激活
 
-Activation compiles your ABAP code and makes it executable — the equivalent of pressing the **Activate** button (or `Ctrl+F3`) in SE80/SE24.
+激活会编译你的 ABAP 代码并使其可执行——相当于在 SE80/SE24 中点击**激活**按钮（或 `Ctrl+F3`）。
 
-> Unlike SE80, the extension auto-saves the file before activating, so you don't need a separate save step.
+> 与 SE80 不同，扩展在激活前会自动保存文件，所以不需要单独的保存步骤。
 
-## How to Activate
+## 如何激活
 
-| Method | Action |
+| 方法 | 操作 |
 |--------|--------|
-| Keyboard shortcut | **Alt+Shift+F3** |
-| Editor toolbar | Click the activation button (lightning icon) |
-| On save | Automatic, if **Auto-activate on save** is enabled in settings |
+| 键盘快捷键 | **Alt+Shift+F3** |
+| 编辑器工具栏 | 点击激活按钮（闪电图标） |
+| 保存时 | 如果在设置中启用了**保存时自动激活**，则自动激活 |
 
-## Mass Activation
+## 批量激活
 
-When you edit an object that has related inactive objects (e.g. a program with includes, or a class with methods), the extension detects them automatically and shows a selection dialog:
+当你编辑的对象有关联的未激活对象时（例如带 include 的程序，或带方法的类），扩展会自动检测并显示选择对话框：
 
-1. A list of all inactive related objects appears, all pre-selected.
-2. Deselect any objects you do **not** want to activate.
-3. Confirm — all selected objects are activated together.
+1. 出现所有未激活关联对象的列表，全部预先选中。
+2. 取消选择你**不**想激活的对象。
+3. 确认——所有选中的对象一起激活。
 
-This mirrors the mass activation dialog in SE80 that appears when dependent objects are out of sync.
+这与 SE80 中依赖对象不同步时出现的批量激活对话框一致。

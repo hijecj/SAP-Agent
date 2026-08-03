@@ -1,76 +1,76 @@
-# ABAP Revision History
+# ABAP 修订历史
 
-Every time an ABAP object is activated, SAP stores a version snapshot — the same history you see in SE80 via **Utilities → Versions**. This extension surfaces that history in **VS Code's built-in Source Control view**, with a side-by-side diff editor.
+每次激活 ABAP 对象时，SAP 都会存储一个版本快照——与你在 SE80 中通过**实用程序 → 版本**看到的历史相同。此扩展在 **VS Code 内置的源代码管理视图**中显示该历史，并带并排 diff 编辑器。
 
-## Opening Revision History
+## 打开修订历史
 
-Revisions appear in the standard **Source Control view** (`Ctrl+Shift+G`), under a provider named `ABAP <connId>` (one per connected system).
+修订显示在标准的**源代码管理视图**（`Ctrl+Shift+G`）中，位于名为 `ABAP <连接ID>` 的提供器下（每个已连接系统一个）。
 
-There are four ways objects show up there:
+对象出现在那里有四种方式：
 
-1. **Automatic — Recent group.** Open any ABAP object in the editor. It's added to the **Recent** group of its connection's SCM provider, along with a diff decoration against the previous activated version.
-2. **Whole transport.** In the **Transports** panel (ABAP FS activity bar), right-click a transport → **Add transport to source control**. Every object in that transport is added as its own SCM group.
-3. **Object Property View.** ABAP FS activity bar → **Object Property** panel → **Revision history** section lists every stored version for the currently open object.
-4. **Ask Copilot.** > "Show version history for ZCL_MY_CLASS" or ask to compare any two versions — uses the `get_version_history` tool (see below).
+1. **自动 — 最近分组。** 在编辑器中打开任意 ABAP 对象。它会添加到其连接 SCM 提供器的**最近**分组中，并带有与上一次激活版本的 diff 装饰。
+2. **整个传输。** 在**传输**面板（ABAP FS 活动栏）中，右键传输 → **将传输添加到源代码管理**。该传输中的每个对象都作为独立的 SCM 分组添加。
+3. **对象属性视图。** ABAP FS 活动栏 → **对象属性**面板 → **修订历史**部分列出当前打开对象的每个存储版本。
+4. **让 Copilot 执行。** > “显示 ZCL_MY_CLASS 的版本历史”或要求比较任意两个版本——使用 `get_version_history` 工具（见下文）。
 
-## Comparing Versions
+## 比较版本
 
-### From the Source Control view
+### 从源代码管理视图
 
-Click a resource in an `ABAP <connId>` group to open the default diff (current active version vs. previous revision), or use the inline icons on the row:
+点击 `ABAP <连接ID>` 分组中的资源打开默认 diff（当前活动版本 vs 上一个修订），或使用行上的内联图标：
 
-| Command | What it does |
+| 命令 | 作用 |
 |---|---|
-| `Open diff with revision` | Side-by-side diff, active vs. previous revision |
-| `Open diff normalized` | Same diff with formatting/comment differences stripped (SE80-style normalized compare) |
-| `Open current version` | Just opens the current source, no diff |
+| `打开修订 diff` | 并排 diff，活动版本 vs 上一个修订 |
+| `打开规范化 diff` | 相同 diff，但去掉格式/注释差异（SE80 风格规范化比较） |
+| `打开当前版本` | 只打开当前源码，无 diff |
 
-Inline group actions:
+内联分组操作：
 
-- **Filter unchanged** — hides objects with no differences.
-- **Clear** — empties the group.
+- **过滤未更改** — 隐藏没有差异的对象。
+- **清空** — 清空分组。
 
-### Stepping through revisions in the diff editor
+### 在 diff 编辑器中逐步浏览修订
 
-While a revision diff is open, the editor toolbar exposes:
+修订 diff 打开时，编辑器工具栏提供：
 
-| Command | Scope |
+| 命令 | 作用范围 |
 |---|---|
-| `Previous revision (left pane)` / `Next revision (left pane)` | Move the left (older) side back or forward in history |
-| `Previous revision (right pane)` / `Next revision (right pane)` | Move the right (newer) side back or forward in history |
-| `Toggle code normalization` | Strip formatting/comment differences on the fly |
+| `上一修订（左窗格）` / `下一修订（左窗格）` | 在历史中前后移动左侧（较旧）版本 |
+| `上一修订（右窗格）` / `下一修订（右窗格）` | 在历史中前后移动右侧（较新）版本 |
+| `切换代码规范化` | 即时剥离格式/注释差异 |
 
-### From the Object Property View
+### 从对象属性视图
 
-In the **Revision history** section, tick the checkbox next to any two versions to open a diff between exactly those two.
+在**修订历史**部分，勾选任意两个版本旁的复选框，即可打开恰好这两个版本之间的 diff。
 
-## Restoring an Old Version
+## 恢复旧版本
 
-There's no one-click restore. Open the diff to the version you want, copy the content from the pane holding the old version into the editor of the current active source, then save and activate as normal.
+没有一键恢复。打开到你要的版本的 diff，把保存旧版本的窗格中的内容复制到当前活动源码的编辑器中，然后照常保存并激活。
 
-## vs. SE80 Version Management
+## 与 SE80 版本管理对比
 
-| SE80 (Utilities → Versions) | This Extension |
+| SE80（实用程序 → 版本） | 此扩展 |
 |---|---|
-| Opens in SAP GUI | Standard VS Code Source Control + diff editor |
-| Text-based diff | Syntax-highlighted side-by-side diff |
-| Normalized compare available | `Toggle code normalization` in diff toolbar |
-| Manual copy to restore | Copy from diff pane |
+| 在 SAP GUI 中打开 | 标准 VS Code 源代码管理 + diff 编辑器 |
+| 基于文本的 diff | 语法高亮的并排 diff |
+| 可用的规范化比较 | diff 工具栏中的`切换代码规范化` |
+| 手动复制恢复 | 从 diff 窗格复制 |
 
-## Using Copilot for Version History
+## 用 Copilot 处理版本历史
 
-The `get_version_history` tool supports three actions. Version numbers are **1-based**, where **1 = most recent**.
+`get_version_history` 工具支持三个操作。版本号从 **1** 开始，**1 = 最近**。
 
-| Action | What it does |
+| 操作 | 作用 |
 |---|---|
-| `list_versions` | Lists all versions with date, author, and transport |
-| `get_version_source` | Returns full source code at a specific version number |
-| `compare_versions` | Shows added/removed lines between two version numbers |
+| `list_versions` | 列出所有版本，含日期、作者和传输 |
+| `get_version_source` | 返回指定版本号的完整源代码 |
+| `compare_versions` | 显示两个版本号之间新增/删除的行 |
 
-**Example questions:**
+**示例问题：**
 
-- "Show version history for ZCL_MY_CLASS"
-- "Who last changed ZCL_MY_CLASS and when?"
-- "Get the code from version 2 of ZCL_MY_CLASS"
-- "Compare version 1 and version 3 of ZTEST_PROGRAM"
-- "What changed between the last two versions of ZTEST_PROGRAM?"
+- “显示 ZCL_MY_CLASS 的版本历史”
+- “谁最后修改了 ZCL_MY_CLASS？什么时候？”
+- “获取 ZCL_MY_CLASS 版本 2 的代码”
+- “比较 ZTEST_PROGRAM 的版本 1 和版本 3”
+- “ZTEST_PROGRAM 最后两个版本之间改了什么？”

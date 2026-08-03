@@ -1,46 +1,46 @@
-# Object Search
+# 对象搜索
 
-Search for ABAP objects by name — like the SE80 object search, but directly inside VS Code without opening SAP GUI.
+按名称搜索 ABAP 对象——类似 SE80 的对象搜索，但直接在 VS Code 内完成，无需打开 SAP GUI。
 
-## How to Search
+## 如何搜索
 
-1. Open the Command Palette (`Ctrl+Shift+P`)
-2. Run **ABAP FS: Search for object**
-3. Enter a name pattern using wildcards (e.g. `ZCL_*`, `*USER*`)
-4. Select one or more object types to filter results
-5. Press `Enter` — results open in a quick-pick list for instant navigation
+1. 打开命令面板（`Ctrl+Shift+P`）
+2. 运行 **ABAP FS: Search for object**
+3. 使用通配符输入名称模式（例如 `ZCL_*`、`*USER*`）
+4. 选择一个或多个对象类型过滤结果
+5. 按 `Enter`——结果在快速选择列表中打开，即时导航
 
-> **Tip:** Save your preferred object types as defaults so you don't have to re-select them every time.
+> **提示：** 把你常用的对象类型保存为默认值，这样不用每次都重新选择。
 
-## Wildcard Patterns
+## 通配符模式
 
-| Pattern | Matches |
+| 模式 | 匹配内容 |
 |---------|---------|
-| `ZCL_*` | All custom classes starting with ZCL_ |
-| `*USER*` | Anything containing USER |
-| `BAPI_MATERIAL_*` | All BAPIs starting with BAPI_MATERIAL_ |
+| `ZCL_*` | 所有以 ZCL_ 开头的自定义类 |
+| `*USER*` | 所有包含 USER 的内容 |
+| `BAPI_MATERIAL_*` | 所有以 BAPI_MATERIAL_ 开头的 BAPI |
 
-## Supported Object Types
+## 支持的对象类型
 
-| Type | Description |
+| 类型 | 描述 |
 |------|-------------|
-| `CLAS` | Classes |
-| `INTF` | Interfaces |
-| `PROG` | Programs / Reports |
-| `FUNC` | Function Modules |
-| `FUGR` | Function Groups |
-| `TABL` | Database Tables |
-| `VIEW` | Views |
-| `DTEL` | Data Elements |
-| `DOMA` | Domains |
-| `TTYP` | Table Types |
-| `DDLS` | CDS Views |
-| `ENQU` | Lock Objects |
-| `MSAG` | Message Classes |
-| `DEVC` | Packages |
-| `TRAN` | Transactions |
-| `ENHC` / `ENHS` | Enhancement Implementations / Spots |
-| `BADI` | BAdI Definitions |
-| + 30 more | — |
+| `CLAS` | 类 |
+| `INTF` | 接口 |
+| `PROG` | 程序 / 报表 |
+| `FUNC` | 函数模块 |
+| `FUGR` | 函数组 |
+| `TABL` | 数据库表 |
+| `VIEW` | 视图 |
+| `DTEL` | 数据元素 |
+| `DOMA` | 域 |
+| `TTYP` | 表类型 |
+| `DDLS` | CDS 视图 |
+| `ENQU` | 锁对象 |
+| `MSAG` | 消息类 |
+| `DEVC` | 包 |
+| `TRAN` | 事务 |
+| `ENHC` / `ENHS` | 增强实现 / 增强点 |
+| `BADI` | BAdI 定义 |
+| + 30 多种 | — |
 
-> **Note:** Object types not natively supported by the extension open automatically in SAP GUI.
+> **注意：** 扩展原生不支持的对象类型会自动在 SAP GUI 中打开。

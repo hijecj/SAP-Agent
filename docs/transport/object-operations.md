@@ -1,32 +1,32 @@
-# Transport Object Operations
+# 传输对象操作
 
-Work with individual objects inside a transport request directly from the **Transports** view in the sidebar.
+直接在侧边栏的**传输**视图中操作传输请求内的单个对象。
 
-## Accessing Object Actions
+## 访问对象操作
 
-Right-click any object listed under a transport request to see available actions.
+右键点击传输请求下列出的任意对象，查看可用操作。
 
-## Available Actions
+## 可用操作
 
-| Action | What it does |
+| 操作 | 作用 |
 |---|---|
-| **Open** | Opens the object in the editor |
-| **Diff with current version** | Shows a side-by-side diff between the transported version and the current active version |
-| **Reveal in Explorer** | Navigates to the object in the ABAP file explorer |
+| **打开** | 在编辑器中打开对象 |
+| **与当前版本比较** | 显示传输版本与当前活动版本之间的并排 diff |
+| **在资源管理器中显示** | 在 ABAP 文件资源管理器中导航到该对象 |
 
-## Adding Objects to a Transport
+## 向传输添加对象
 
-Objects are added to a transport automatically when you save changes to an ABAP object that is assigned to a transport request. You can also manually assign an object:
+当你保存分配给传输请求的 ABAP 对象的修改时，对象会自动添加到传输中。你也可以手动分配对象：
 
-1. Right-click the object in the explorer
-2. Select **Add to Transport**
-3. Choose the target transport request from the list
+1. 在资源管理器中右键对象
+2. 选择**添加到传输**
+3. 从列表中选择目标传输请求
 
-## Removing Objects from a Transport
+## 从传输中移除对象
 
-1. Open the **Transports** view
-2. Expand the transport request
-3. Right-click the object you want to remove
-4. Select **Remove from Transport**
+1. 打开**传输**视图
+2. 展开传输请求
+3. 右键要移除的对象
+4. 选择**从传输中移除**
 
-> **Note:** Removing an object from a transport does not revert its source code — it only unlinks the object from that transport request.
+> **注意：** 从传输中移除对象不会还原其源代码——只是把对象与该传输请求解除关联。

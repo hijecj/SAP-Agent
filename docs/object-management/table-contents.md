@@ -1,24 +1,24 @@
-# Show Table Contents
+# 显示表内容
 
-View the contents of any database table directly in VS Code — similar to **SE16 / SE16N** in SAP GUI.
+直接在 VS Code 中查看任意数据库表的内容——类似 SAP GUI 中的 **SE16 / SE16N**。
 
-## Opening Table Contents
+## 打开表内容
 
-1. Open a database table (e.g. from the object explorer or via `Ctrl+Shift+A` to search by name)
-2. Click the **Show table contents** button in the editor toolbar, **or** right-click the table → **Show table contents**
+1. 打开一个数据库表（例如从对象资源管理器，或按 `Ctrl+Shift+A` 按名称搜索）
+2. 点击编辑器工具栏中的**显示表内容**按钮，或右键表 → **显示表内容**
 
-## Working with the Data Grid
+## 使用数据网格
 
-The results open in an interactive grid with the following capabilities:
+结果在交互式网格中打开，支持以下功能：
 
-| Feature | How to use |
+| 功能 | 使用方法 |
 |---|---|
-| **Sort** | Click a column header |
-| **Filter** | Use the filter row below the header |
-| **Paginate** | Navigate pages using the controls at the bottom |
-| **Export** | Use the export button to download results |
+| **排序** | 点击列标题 |
+| **过滤** | 使用标题下方的过滤行 |
+| **分页** | 使用底部的控件翻页 |
+| **导出** | 使用导出按钮下载结果 |
 
-## Notes
+## 注意事项
 
-- Only the first **1 000 rows** are fetched by default — add filters to narrow results for large tables.
-- For more complex queries (JOINs, aggregations, custom WHERE clauses), use the [Data Query](../data-query/sql-query.md) feature instead.
+- 默认只获取前 **1,000 行**——大表请添加过滤条件缩小范围。
+- 更复杂的查询（JOIN、聚合、自定义 WHERE 子句）请改用[数据查询](../data-query/sql-query.md)功能。

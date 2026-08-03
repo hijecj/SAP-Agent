@@ -1,24 +1,24 @@
-# Compare Objects Across Systems
+# 跨系统比较对象
 
-Compare the same ABAP object side-by-side between two connected SAP systems — useful for verifying transports, investigating system-specific behaviour, or checking what's in production before a deployment.
+在两个已连接的 SAP 系统之间并排比较同一个 ABAP 对象——用于验证传输、调查系统特定行为，或在部署前检查生产环境中的内容。
 
-## Prerequisites
+## 前置条件
 
-- At least 2 SAP systems connected in VS Code
-- The object must exist in both systems
+- 在 VS Code 中至少连接 2 个 SAP 系统
+- 对象必须同时存在于两个系统中
 
-## How to Compare
+## 如何比较
 
-1. Open or locate the ABAP object in the Explorer or editor.
-2. Trigger the command using one of:
-   - **Explorer:** right-click the file → **Compare With another SAP System**
-   - **Editor:** right-click inside the file → **Compare With another SAP System**
-   - **Command Palette** (`Ctrl+Shift+P`): `ABAP FS: Compare With another SAP System`
-3. Select the target system from the quick pick list (shows only connected systems).
-4. VS Code opens a diff view titled `OBJECT_NAME: DEV100 ↔ QA100`.
+1. 在资源管理器或编辑器中打开/定位 ABAP 对象。
+2. 用以下任一方式触发命令：
+   - **资源管理器：** 右键文件 → **与另一个 SAP 系统比较**
+   - **编辑器：** 在文件内右键 → **与另一个 SAP 系统比较**
+   - **命令面板**（`Ctrl+Shift+P`）：`ABAP FS: Compare With another SAP System`
+3. 从快速选择列表中选择目标系统（只显示已连接的系统）。
+4. VS Code 打开标题为 `OBJECT_NAME: DEV100 ↔ QA100` 的 diff 视图。
 
-## Notes
+## 注意事项
 
-- The diff opens as a standard VS Code side-by-side comparison — all editor shortcuts (e.g. `F7`/`Shift+F7` to jump between changes) work as normal.
-- Path differences between SAP versions are handled automatically (`Source Code Library` for newer systems, `Source Library` for older ones).
-- If the object does not exist in the target system, an error is shown.
+- diff 以标准 VS Code 并排比较打开——所有编辑器快捷键（例如 `F7`/`Shift+F7` 在变更之间跳转）都正常工作。
+- SAP 版本之间的路径差异会自动处理（新版系统为 `Source Code Library`，旧版为 `Source Library`）。
+- 如果对象在目标系统中不存在，会显示错误。

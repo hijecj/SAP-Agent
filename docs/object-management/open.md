@@ -1,28 +1,28 @@
-# Open Objects
+# 打开对象
 
-Open any ABAP object from your connected SAP system directly in the VS Code editor for viewing and editing.
+从已连接的 SAP 系统打开任意 ABAP 对象，直接在 VS Code 编辑器中查看和编辑。
 
-## How to Open an Object
+## 如何打开对象
 
-**Option 1 — Search command (recommended)**
+**方式 1 — 搜索命令（推荐）**
 
-1. Press `Ctrl+Shift+P` to open the Command Palette.
-2. Run **ABAP FS: Search for object**.
-3. Type part of the object name and select it from the list.
+1. 按 `Ctrl+Shift+P` 打开命令面板。
+2. 运行 **ABAP FS: Search for object**。
+3. 输入对象名称的一部分，从列表中选择。
 
-**Option 2 — File Explorer**
+**方式 2 — 文件资源管理器**
 
-- Expand your SAP system in the Explorer panel (`Ctrl+Shift+E`) and double-click any object.
+- 在资源管理器面板（`Ctrl+Shift+E`）中展开你的 SAP 系统，双击任意对象。
 
-**Option 3 — Ask Copilot**
+**方式 3 — 让 Copilot 执行**
 
-- In the Copilot chat, type: *"Open ZCL_MY_CLASS"* — the object opens automatically.
+- 在 Copilot 聊天中输入：*“打开 ZCL_MY_CLASS”* — 对象自动打开。
 
-## What You Get
+## 你得到什么
 
-Once open, the object behaves like any other file in VS Code:
+打开后，该对象在 VS Code 中表现得像任何其他文件一样：
 
-- Syntax highlighting for ABAP
-- Full editing with save and activation support
-- Navigation via breadcrumbs and Go to Definition (`F12`)
-- Visible in the Explorer and in **Open Editors**
+- ABAP 语法高亮
+- 完整的编辑、保存和激活支持
+- 面包屑导航和转到定义（`F12`）
+- 显示在资源管理器和**打开的编辑器**中

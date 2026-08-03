@@ -1,41 +1,41 @@
-# Transport Request View
+# 传输请求视图
 
-The Transport Request View is the VS Code equivalent of **SE09/SE10**. It lets you manage workbench and customising transports without leaving the editor.
+传输请求视图是 **SE09/SE10** 的 VS Code 等价功能。它让你无需离开编辑器即可管理工作台和定制传输。
 
-**Open it:** Activity Bar → ABAP FS icon → **Transports** panel.
+**打开方式：** 活动栏 → ABAP FS 图标 → **传输**面板。
 
 ---
 
-## What you can do
+## 你能做什么
 
-| Action | How |
+| 操作 | 方式 |
 |---|---|
-| List your open transports | Panel opens automatically filtered to your user |
-| List another user's transports | Click the filter icon and enter a username |
-| Browse objects in a transport | Expand a transport node |
-| Compare two transports | Right-click a transport → **Compare** |
-| Copy transport number | Right-click → **Copy transport number** |
-| Run ATC quality check | Right-click → **Run ATC** |
-| Open in SAP GUI (SE09) | Right-click → **Open in GUI** |
-| Release a transport | Right-click → **Release** |
-| Delete a transport | Right-click → **Delete** |
-| Change owner / add user | Right-click → **Change owner** / **Add user** |
-| Link to source control | Right-click → **Add to source control** |
-| Refresh the list | Click the refresh icon or press `F5` |
+| 列出自己的未释放传输 | 面板自动打开并按你的用户过滤 |
+| 列出其他用户的传输 | 点击过滤图标并输入用户名 |
+| 浏览传输中的对象 | 展开传输节点 |
+| 比较两个传输 | 右键传输 → **比较** |
+| 复制传输编号 | 右键 → **复制传输编号** |
+| 运行 ATC 质量检查 | 右键 → **运行 ATC** |
+| 在 SAP GUI（SE09）中打开 | 右键 → **在 GUI 中打开** |
+| 释放传输 | 右键 → **释放** |
+| 删除传输 | 右键 → **删除** |
+| 更改所有者 / 添加用户 | 右键 → **更改所有者** / **添加用户** |
+| 链接到源代码管理 | 右键 → **添加到源代码管理** |
+| 刷新列表 | 点击刷新图标或按 `F5` |
 
 ---
 
-## Using Copilot to query transports
+## 用 Copilot 查询传输
 
-You can also ask Copilot in natural language:
+你也可以用自然语言让 Copilot 执行：
 
-- *"Show me my transports"*
-- *"Get details for transport DEVK900123"*
-- *"What objects are in DEVK900123?"*
-- *"Compare transports DEVK900123 and DEVK900124"*
+- *“显示我的传输”*
+- *“获取传输 DEVK900123 的详细信息”*
+- *“DEVK900123 里有什么对象？”*
+- *“比较传输 DEVK900123 和 DEVK900124”*
 
 ---
 
-## Older SAP systems
+## 旧版 SAP 系统
 
-If the ADT transport API is unavailable, the extension falls back to direct SQL queries against tables `E070`, `E071`, and `E071K` automatically — no configuration needed.
+如果 ADT 传输 API 不可用，扩展会自动降级为直接对表 `E070`、`E071` 和 `E071K` 执行 SQL 查询——无需任何配置。

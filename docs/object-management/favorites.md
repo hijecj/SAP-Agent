@@ -1,22 +1,22 @@
-# Favorites Management
+# 收藏夹管理
 
-Favorites let you bookmark frequently used ABAP objects for quick access across sessions.
+收藏夹让你可以书签标记常用的 ABAP 对象，跨会话快速访问。
 
-## Adding a Favorite
+## 添加收藏
 
-1. In the Explorer sidebar, locate the ABAP object.
-2. Right-click it and select **Add to Favorites**.
+1. 在资源管理器侧边栏中找到 ABAP 对象。
+2. 右键点击并选择**添加到收藏夹**。
 
-## Viewing and Opening Favorites
+## 查看和打开收藏
 
-- Open the **Favorites** view in the Explorer sidebar.
-- Click any entry to open the object in the editor.
+- 在资源管理器侧边栏中打开**收藏夹**视图。
+- 点击任意条目在编辑器中打开对象。
 
-## Removing a Favorite
+## 移除收藏
 
-- Right-click the entry in the **Favorites** view and select **Remove from Favorites**.
+- 在**收藏夹**视图中右键点击条目，选择**从收藏夹移除**。
 
-## Notes
+## 注意事项
 
-- Favorites persist across VS Code sessions.
-- The **Favorites** view is in the Explorer sidebar (same panel as the file tree).
+- 收藏夹在 VS Code 会话之间持久保存。
+- **收藏夹**视图在资源管理器侧边栏中（与文件树同一面板）。

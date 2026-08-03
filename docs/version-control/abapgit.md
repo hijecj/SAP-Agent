@@ -1,41 +1,41 @@
-# abapGit Integration
+# abapGit 集成
 
-abapGit integration lets you manage Git version control for ABAP objects directly in VS Code, without leaving the editor.
+abapGit 集成让你无需离开编辑器，直接在 VS Code 中管理 ABAP 对象的 Git 版本控制。
 
-## Opening the abapGit Panel
+## 打开 abapGit 面板
 
-1. Click the **ABAP FS** icon in the Activity Bar (left sidebar).
-2. Expand the **abapGit** section.
+1. 点击活动栏（左侧边栏）中的 **ABAP FS** 图标。
+2. 展开 **abapGit** 部分。
 
-## Common Tasks
+## 常见操作
 
-### Link an existing repository
-1. In the abapGit panel, click **Link Repository**.
-2. Enter the Git URL and select the SAP package to link.
+### 链接现有仓库
+1. 在 abapGit 面板中点击**链接仓库**。
+2. 输入 Git URL 并选择要链接的 SAP 包。
 
-### Create a new repository
-1. Click **Create Repository**.
-2. Provide the Git URL and target package.
+### 创建新仓库
+1. 点击**创建仓库**。
+2. 提供 Git URL 和目标包。
 
-### View staged/unstaged changes
-The abapGit panel lists all changed ABAP objects. Each entry shows whether it is staged or unstaged.
+### 查看暂存/未暂存变更
+abapGit 面板列出所有已变更的 ABAP 对象。每个条目显示其处于暂存或未暂存状态。
 
-### Stage and commit (Push)
-1. Select objects to stage, or stage all changes.
-2. Click **Push** — this commits and pushes to the remote Git repository.
-3. Enter a commit message when prompted.
+### 暂存和提交（推送）
+1. 选择要暂存的对象，或暂存所有变更。
+2. 点击**推送**——这会提交并推送到远程 Git 仓库。
+3. 提示时输入提交信息。
 
-### Pull (update from Git)
-1. Click **Pull** on the linked repository.
-2. **Note:** Pull overwrites local ABAP objects with the version from Git. Unsaved local changes will be lost.
+### 拉取（从 Git 更新）
+1. 在已链接的仓库上点击**拉取**。
+2. **注意：** 拉取会用 Git 中的版本覆盖本地 ABAP 对象。未保存的本地修改会丢失。
 
-### Register with VS Code Source Control
-Click **Register in VS Code SCM** to surface the repository in VS Code's built-in Source Control view (`Ctrl+Shift+G`), enabling diffs and history browsing alongside the ABAP FS panel.
+### 注册到 VS Code 源代码管理
+点击**注册到 VS Code SCM**，把仓库显示到 VS Code 内置的源代码管理视图中（`Ctrl+Shift+G`），在 ABAP FS 面板旁边支持 diff 和历史浏览。
 
-### Unlink a repository
-Click the **Unlink** icon next to the repository to remove the connection without deleting any code.
+### 取消链接仓库
+点击仓库旁边的**取消链接**图标，移除连接而不删除任何代码。
 
-## Tips
+## 提示
 
-- Use **Pull** to sync a fresh system with an existing codebase stored in Git.
-- The abapGit panel respects the active SAP connection — switch connections in the ABAP FS panel first if you work with multiple systems.
+- 用**拉取**把全新系统与 Git 中的现有代码库同步。
+- abapGit 面板遵循当前活动的 SAP 连接——使用多个系统时先在 ABAP FS 面板中切换连接。
