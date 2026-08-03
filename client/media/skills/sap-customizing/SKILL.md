@@ -1,118 +1,118 @@
 ---
 name: sap-customizing
-description: Navigate and understand SAP Customizing (SPRO/IMG). Use when the user asks about customizing settings, SPRO activities, configuration tables, maintenance views, view clusters, or needs to read/understand any customizing data. This skill teaches how to systematically trace from an SPRO activity to the actual tables where config data is stored, and how to find the SPRO menu path for any activity. Load this skill whenever customizing, SPRO, IMG, configuration, or settings maintenance is involved.
-argument-hint: '[customizing topic or SPRO activity to investigate]'
+description: 导航和理解 SAP 定制（SPRO/IMG）。当用户询问定制设置、SPRO 活动、配置表、维护视图、视图集群，或需要读取/理解任何定制数据时使用。此技能传授如何从 SPRO 活动系统化地追溯到存储配置数据的实际表，以及如何为任何活动找到 SPRO 菜单路径。只要涉及定制、SPRO、IMG、配置或设置维护，就加载此技能包。
+argument-hint: '[要调查的定制主题或 SPRO 活动]'
 user-invocable: true
 disable-model-invocation: false
 ---
 
-# SAP Customizing — Tracing SPRO to Data
+# SAP 定制 — 从 SPRO 追溯到数据
 
-## Critical Warning
+## 重要警告
 
-**Your training data about SAP customizing is almost certainly wrong.** Do NOT guess which tables store which customizing data. Follow the lookup procedures below to discover the truth from the system itself.
+**你关于 SAP 定制的训练数据几乎肯定是错误的。** 不要猜测哪个表存储哪个定制数据。按照下面的查找流程从系统本身发现真相。
 
-**Always read table structures with `get_object_lines` before querying.** Never hardcode field names from memory.
+**查询前始终用 `get_object_lines` 读取表结构。** 绝不要凭记忆硬编码字段名。
 
-**Text fields are case-sensitive.** Use aggressive wildcards: `%aterial%ype%` finds "Material Types", "material type", etc.
+**文本字段区分大小写。** 使用积极的通配符：`%aterial%ype%` 能匹配 "Material Types"、"material type" 等。
 
-**Minimize SQL round-trips.** Use JOINs to combine lookups into single queries.
+**最小化 SQL 往返。** 用 JOIN 把多次查找合并为单次查询。
 
-**Present only useful information to the user.** Internal IDs like activity IDs (`SIMG_CFMENUOLMSOMS2`), tree GUIDs (`368DDFAB...`), and node IDs are technical plumbing — never include them in your answer. Only show the user: SPRO menu path, table names, view/cluster names, transaction codes, and descriptions.
+**只向用户呈现有用的信息。** 活动 ID（`SIMG_CFMENUOLMSOMS2`）、树 GUID（`368DDFAB...`）、节点 ID 这类内部 ID 是技术管道——绝不要包含在回答中。只向用户显示：SPRO 菜单路径、表名、视图/集群名、事务码和描述。
 
 ---
 
-## Metadata Tables
+## 元数据表
 
-### IMG Activity Layer (SPRO tree → activity)
+### IMG 活动层（SPRO 树 → 活动）
 
-| Table | Purpose | Key Fields |
+| 表 | 用途 | 关键字段 |
 |-------|---------|------------|
-| **CUS_IMGACH** | IMG activity header | `activity`, `c_activity` (links to CUS_ACTH), `tcode` |
-| **CUS_IMGACT** | IMG activity texts (language-dependent) | `spras`, `activity`, `text` |
+| **CUS_IMGACH** | IMG 活动头 | `activity`、`c_activity`（链接到 CUS_ACTH）、`tcode` |
+| **CUS_IMGACT** | IMG 活动文本（语言相关） | `spras`、`activity`、`text` |
 
-### Customizing Activity Layer (activity → objects)
+### 定制活动层（活动 → 对象）
 
-| Table | Purpose | Key Fields |
+| 表 | 用途 | 关键字段 |
 |-------|---------|------------|
-| **CUS_ACTH** | Activity header | `act_id`, `act_type`, `tcode` |
-| **CUS_ACTT** | Activity texts (language-dependent) | `spras`, `act_id`, `text` |
-| **CUS_ACTOBJ** | **Core** — links activities to maintenance objects | `act_id`, `objecttype`, `objectname`, `tcode` |
+| **CUS_ACTH** | 活动头 | `act_id`、`act_type`、`tcode` |
+| **CUS_ACTT** | 活动文本（语言相关） | `spras`、`act_id`、`text` |
+| **CUS_ACTOBJ** | **核心** — 把活动链接到维护对象 | `act_id`、`objecttype`、`objectname`、`tcode` |
 
-**CUS_ACTH.act_type:** `C` = customizing (most common), `E` = BAdI definition, `I` = BAdI implementation. Note: filtering by `act_type = 'E'` is unreliable — many BAdI activities use `act_type = 'C'`. To find BAdIs, search CUS_IMGACT text for `%BAdI%` or `%Business Add-In%`. This mainly works for IS solutions (IS-Retail, IS-Utilities, HR). Core modules (MM, FI, SD, PP) often do not register BAdIs in the IMG at all — for those, use SE18 directly with patterns like `MB_*`, `ME_*`, `MM_*`.
+**CUS_ACTH.act_type：** `C` = 定制（最常见），`E` = BAdI 定义，`I` = BAdI 实现。注意：按 `act_type = 'E'` 过滤不可靠——许多 BAdI 活动使用 `act_type = 'C'`。要找 BAdI，在 CUS_IMGACT 文本中搜索 `%BAdI%` 或 `%Business Add-In%`。这主要对行业解决方案（IS-Retail、IS-Utilities、HR）有效。核心模块（MM、FI、SD、PP）通常根本不把 BAdI 注册到 IMG——这些直接用 SE18 并按 `MB_*`、`ME_*`、`MM_*` 等模式查找。
 
-**CUS_ACTOBJ.objecttype** (domain OB_TYP):
+**CUS_ACTOBJ.objecttype**（域 OB_TYP）：
 
-| Value | Meaning | What `objectname` contains |
+| 值 | 含义 | `objectname` 包含 |
 |-------|---------|---------------------------|
-| `V` | **View** | Maintenance view name (e.g., `V_T001W`). Via SM30 or dedicated tcode |
-| `C` | **View Cluster** | Cluster name (e.g., `MTART`). Via SM34 or dedicated tcode |
-| `S` | **Table with Text Table** | Table name directly. Via SM30 |
-| `T` | **Individual Transaction** | Logical object (often `SNUM`). The `tcode` field has the transaction |
-| `L` | **Logical Transport Object** | Transport object type. The `tcode` field has the transaction |
-| `D` | **Dummy Object** | Usually `IMGDUMMY`. The `tcode` field has the transaction |
+| `V` | **视图** | 维护视图名（例如 `V_T001W`）。通过 SM30 或专用事务码 |
+| `C` | **视图集群** | 集群名（例如 `MTART`）。通过 SM34 或专用事务码 |
+| `S` | **带文本表的表** | 直接是表名。通过 SM30 |
+| `T` | **独立事务** | 逻辑对象（通常是 `SNUM`）。`tcode` 字段有事务码 |
+| `L` | **逻辑传输对象** | 传输对象类型。`tcode` 字段有事务码 |
+| `D` | **虚拟对象** | 通常是 `IMGDUMMY`。`tcode` 字段有事务码 |
 
-### View Cluster Resolution
+### 视图集群解析
 
-| Table | Purpose | Key Fields |
+| 表 | 用途 | 关键字段 |
 |-------|---------|------------|
-| **VCLDIR** | Cluster directory | `vclname`, `exitprog` |
-| **VCLSTRUC** | Cluster structure — views inside a cluster | `vclname`, `object`, `objpos`, `dependency`, `startobj` |
+| **VCLDIR** | 集群目录 | `vclname`、`exitprog` |
+| **VCLSTRUC** | 集群结构——集群内的视图 | `vclname`、`object`、`objpos`、`dependency`、`startobj` |
 
-**VCLSTRUC.dependency** (domain OBJDEP): `R` = root/header, `S` = dependent on one parent, `M` = dependent on multiple parents. **startobj** `X` = initial object shown.
+**VCLSTRUC.dependency**（域 OBJDEP）：`R` = 根/头，`S` = 依赖一个父对象，`M` = 依赖多个父对象。**startobj** `X` = 初始显示的对象。
 
-### View → Base Table Resolution
+### 视图 → 基表解析
 
-| Table | Purpose | Key Fields |
+| 表 | 用途 | 关键字段 |
 |-------|---------|------------|
-| **DD26S** | View base tables | `viewname`, `tabname`, `as4local` (use `A`), `tabpos` (1 = primary) |
+| **DD26S** | 视图基表 | `viewname`、`tabname`、`as4local`（用 `A`）、`tabpos`（1 = 主表） |
 
-ABAP FS cannot read view structures, but can read tables. Always resolve views to their base tables via DD26S, then use `get_object_lines` on the table.
+ABAP FS 无法读取视图结构，但可以读取表。始终通过 DD26S 把视图解析为其基表，然后对表使用 `get_object_lines`。
 
-### Transaction Resolution
+### 事务解析
 
-| Table | Purpose | Key Fields |
+| 表 | 用途 | 关键字段 |
 |-------|---------|------------|
-| **TSTC** | Tcode → program | `tcode`, `pgmna` |
-| **TSTCT** | Tcode descriptions | `sprsl`, `tcode`, `ttext` |
-| **TSTCP** | Tcode parameters | `tcode`, `param` |
+| **TSTC** | 事务码 → 程序 | `tcode`、`pgmna` |
+| **TSTCT** | 事务码描述 | `sprsl`、`tcode`、`ttext` |
+| **TSTCP** | 事务码参数 | `tcode`、`param` |
 
-**TSTCP.param** for SM30 wrappers: `/*SM30 VIEWNAME=<view>;UPDATE=X;` — extract `VIEWNAME` to find the maintained view.
+**TSTCP.param** 对 SM30 包装器：`/*SM30 VIEWNAME=<view>;UPDATE=X;` — 提取 `VIEWNAME` 找到被维护的视图。
 
-### SPRO Tree Hierarchy
+### SPRO 树层次
 
-The SPRO tree is stored across multiple linked sub-trees:
+SPRO 树存储在多个相互链接的子树中：
 
-| Table | Purpose | Key Fields |
+| 表 | 用途 | 关键字段 |
 |-------|---------|------------|
-| **TNODEIMG** | Tree nodes (folders + activity leaves) | `tree_id`, `node_id`, `parent_id`, `node_type`, `reftree_id` |
-| **TNODEIMGT** | Node texts — holds **folder/section names**, NOT activity names | `tree_id`, `node_id`, `spras`, `text` |
-| **TNODEIMGR** | Node references — links leaf nodes to IMG activities | `node_id`, `ext_key`, `ref_type`, `ref_object` |
+| **TNODEIMG** | 树节点（文件夹 + 活动叶子） | `tree_id`、`node_id`、`parent_id`、`node_type`、`reftree_id` |
+| **TNODEIMGT** | 节点文本——保存**文件夹/章节名称**，不是活动名 | `tree_id`、`node_id`、`spras`、`text` |
+| **TNODEIMGR** | 节点引用——把叶子节点链接到 IMG 活动 | `node_id`、`ext_key`、`ref_type`、`ref_object` |
 
-**CRITICAL:** TNODEIMGR has **NO `tree_id` column** — it only has `node_id`, `ext_key`, `ref_type`, `ref_object`. Never try to JOIN it with TNODEIMG/TNODEIMGT on tree_id.
+**关键：** TNODEIMGR **没有 `tree_id` 列**——只有 `node_id`、`ext_key`、`ref_type`、`ref_object`。绝不要尝试与 TNODEIMG/TNODEIMGT 按 tree_id JOIN。
 
-**CRITICAL:** TNODEIMGT contains **folder labels** ("Material Types", "Basic Settings"), NOT activity names ("Define Attributes of Material Types"). Activity names live in CUS_IMGACT. To find a leaf node for a known activity, use TNODEIMGR (see Procedure 3).
+**关键：** TNODEIMGT 包含**文件夹标签**（“Material Types”、“Basic Settings”），不是活动名（“Define Attributes of Material Types”）。活动名在 CUS_IMGACT 中。要为已知活动找叶子节点，用 TNODEIMGR（见流程 3）。
 
-**node_type values:** `IMG0` = folder node, `IMG` = activity leaf (text in CUS_IMGACT, not TNODEIMGT), `REF` = reference to a sub-tree (follow `reftree_id`).
+**node_type 值：** `IMG0` = 文件夹节点，`IMG` = 活动叶子（文本在 CUS_IMGACT，不在 TNODEIMGT），`REF` = 对子树的引用（跟随 `reftree_id`）。
 
-**TNODEIMGR.ref_type:** `COBJ` = customizing activity ID (matches CUS_ACTOBJ.act_id), `ACTI` = IMG activity ID (matches CUS_IMGACH.activity, prefixed with `SIMG`).
+**TNODEIMGR.ref_type：** `COBJ` = 定制活动 ID（匹配 CUS_ACTOBJ.act_id），`ACTI` = IMG 活动 ID（匹配 CUS_IMGACH.activity，带 `SIMG` 前缀）。
 
-Main SPRO tree ID is `368DDFAB3AB96CCFE10000009B38F976` ("SAP Customizing Implementation Guide") — this is SAP-delivered and consistent across systems. If unsure, look it up:
+主 SPRO 树 ID 是 `368DDFAB3AB96CCFE10000009B38F976`（“SAP Customizing Implementation Guide”）——这是 SAP 交付的，跨系统一致。不确定时查它：
 ```sql
 SELECT t~id FROM ttree AS t INNER JOIN ttreet AS n ON t~id = n~id
   WHERE n~spras = 'E' AND t~type = 'IMG' AND n~text LIKE '%AP Customizing Implementation Guide'
 ```
-Its top-level children (Logistics - General, Materials Management, FI, etc.) are `REF` nodes pointing to component sub-trees via `reftree_id`.
+它的顶级子节点（Logistics - General、Materials Management、FI 等）是通过 `reftree_id` 指向组件子树的 `REF` 节点。
 
-### Domain Value Lookup
+### 域值查找
 
-**DD07T** decodes any coded field: query with `domname`, `ddlanguage = 'E'`, `as4local = 'A'` to get `domvalue_l` → `ddtext`.
+**DD07T** 解码任何编码字段：用 `domname`、`ddlanguage = 'E'`、`as4local = 'A'` 查询，得到 `domvalue_l` → `ddtext`。
 
 ---
 
-## Lookup Procedures
+## 查找流程
 
-### 1. Find activity by description + get storage objects (combined)
+### 1. 按描述找活动 + 获取存储对象（合并）
 
 ```sql
 SELECT a~activity, t~text, a~c_activity, o~objecttype, o~objectname, o~tcode
@@ -123,17 +123,17 @@ SELECT a~activity, t~text, a~c_activity, o~objecttype, o~objectname, o~tcode
     AND t~text LIKE '%your search%'
 ```
 
-Then branch by `objecttype`:
+然后按 `objecttype` 分支：
 
-**V (View)** → resolve to base table:
+**V（视图）** → 解析为基表：
 ```sql
 SELECT d~viewname, d~tabname, d~tabpos FROM dd26s AS d
   WHERE d~viewname = '<objectname>' AND d~as4local = 'A'
   ORDER BY d~tabpos ASCENDING
 ```
-The `tabpos = 1` row is the primary base table. Run `get_object_lines` on it and query directly.
+`tabpos = 1` 的行是主基表。对它运行 `get_object_lines` 并直接查询。
 
-**C (View Cluster)** → get constituent views, then resolve each:
+**C（视图集群）** → 获取组成视图，然后逐个解析：
 ```sql
 SELECT v~vclname, v~exitprog, s~object, s~objpos, s~dependency, s~startobj
   FROM vcldir AS v
@@ -141,19 +141,19 @@ SELECT v~vclname, v~exitprog, s~object, s~objpos, s~dependency, s~startobj
   WHERE v~vclname = '<objectname>'
   ORDER BY s~objpos ASCENDING
 ```
-Each `s~object` is a view — resolve via DD26S as above.
+每个 `s~object` 是一个视图——按上面方式通过 DD26S 解析。
 
-**S (Table with Text Table)** → `objectname` IS the table. Read with `get_object_lines` directly. Text table is usually `<table>T`.
+**S（带文本表的表）** → `objectname` 就是表。直接用 `get_object_lines` 读取。文本表通常是 `<table>T`。
 
-**T / D / L** → the `tcode` is key. When `objectname = 'SNUM'`, this is a number range activity — data is in table `NRIV` (number range intervals), not a normal config table. The tcode (e.g., `OMH6`, `MMNR`) opens the number range maintenance screen. For other standalone tcodes, check TSTCP to see if it wraps SM30:
+**T / D / L** → `tcode` 是关键。当 `objectname = 'SNUM'` 时，这是编号范围活动——数据在表 `NRIV`（编号范围间隔）中，不是普通配置表。tcode（例如 `OMH6`、`MMNR`）打开编号范围维护界面。对其他独立事务码，检查 TSTCP 看它是否包装了 SM30：
 ```sql
 SELECT t~tcode, t~param FROM tstcp AS t WHERE t~tcode = '<tcode>'
 ```
-If param contains `VIEWNAME=`, extract it and resolve via DD26S. If TSTCP has no entry (standalone transaction), look up the tcode in TSTC for its program — but note that for standalone transactions (objecttype T/D), the underlying table often cannot be determined from metadata alone. You may need to search the program's source code or ask the user.
+如果 param 包含 `VIEWNAME=`，提取它并通过 DD26S 解析。如果 TSTCP 没有条目（独立事务），在 TSTC 中查 tcode 获取程序——但注意对独立事务（objecttype T/D），底层表通常无法仅从元数据确定。你可能需要搜索程序的源代码或询问用户。
 
-### 2. Reverse lookup: table/view → SPRO activity
+### 2. 反向查找：表/视图 → SPRO 活动
 
-Often faster than forward text search (Procedure 1) when you know the table/view name, especially when forward search returns noisy results from many modules.
+当你已知表/视图名时，通常比正向文本搜索（流程 1）更快，尤其当正向搜索从许多模块返回噪音结果时。
 
 ```sql
 SELECT o~act_id, o~objecttype, o~objectname, o~tcode, t~text
@@ -163,35 +163,35 @@ SELECT o~act_id, o~objecttype, o~objectname, o~tcode, t~text
     AND o~objectname LIKE '%<table_or_view>%'
 ```
 
-**If this returns 0 rows**, the table may be a secondary member inside a view cluster (CUS_ACTOBJ stores only the cluster name, not individual member tables). Find the cluster via VCLSTRUC + DD26S:
+**如果返回 0 行**，该表可能是视图集群内的次要成员（CUS_ACTOBJ 只存储集群名，不存单个成员表）。通过 VCLSTRUC + DD26S 找集群：
 ```sql
 SELECT s~vclname, s~object FROM vclstruc AS s
   INNER JOIN dd26s AS d ON d~viewname = s~object
   WHERE d~tabname = '<your_table>' AND d~as4local = 'A'
 ```
-Then search CUS_ACTOBJ for the `vclname` value with `objecttype = 'C'`.
+然后在 CUS_ACTOBJ 中搜索 `vclname` 值，`objecttype = 'C'`。
 
-### 3. Find SPRO menu path for an activity
+### 3. 为活动找 SPRO 菜单路径
 
-The SPRO tree is split into sub-trees linked by REF nodes. Building the full path requires walking upward through multiple sub-trees. Expect 3-4 queries per tree level, and 3-5 tree levels — so roughly 10-15 queries total.
+SPRO 树被 REF 节点拆分成多个子树。构建完整路径需要在多个子树中向上走。每层树大约 3-4 次查询，树深度 3-5 层——总共大约 10-15 次查询。
 
-**Step A** — Find the tree node for a known activity ID (from Procedure 1). Use TNODEIMGR — do NOT search TNODEIMGT by activity name (it only has folder labels).
+**步骤 A** — 为已知活动 ID（来自流程 1）找树节点。使用 TNODEIMGR——不要按活动名搜 TNODEIMGT（它只有文件夹标签）。
 
-**Step A.1** — Get all node_ids for the activity from TNODEIMGR:
+**步骤 A.1** — 从 TNODEIMGR 获取活动的所有 node_id：
 ```sql
 SELECT r~node_id FROM tnodeimgr AS r
   WHERE r~ref_type = 'COBJ' AND r~ref_object = '<activity_id>'
 ```
-This often returns **multiple rows** — the same activity appears in several SPRO locations.
+这通常返回**多行**——同一活动出现在多个 SPRO 位置。
 
-**Step A.2** — For each node_id, look it up in TNODEIMG to get tree_id and parent_id. **Some node_ids from TNODEIMGR are orphans** (they exist in TNODEIMGR but not TNODEIMG) — skip any that return 0 rows:
+**步骤 A.2** — 对每个 node_id，在 TNODEIMG 中查它获取 tree_id 和 parent_id。**TNODEIMGR 中的某些 node_id 是孤儿**（存在于 TNODEIMGR 但不在 TNODEIMG）——跳过任何返回 0 行的：
 ```sql
 SELECT n~node_id, n~parent_id, n~tree_id, n~node_type
   FROM tnodeimg AS n WHERE n~node_id = '<node_id_from_A1>'
 ```
-Pick the node that resolves successfully and belongs to a module-relevant sub-tree. If unsure which, try each until one produces a complete path to the SPRO root.
+选择成功解析且属于模块相关子树的节点。不确定时逐个尝试，直到一个产生通向 SPRO 根的完整路径。
 
-To search by **folder name** instead (not activity name), search TNODEIMGT:
+改为按**文件夹名**搜索（不是活动名）时，搜索 TNODEIMGT：
 ```sql
 SELECT n~node_id, n~parent_id, n~tree_id, t~text
   FROM tnodeimg AS n
@@ -199,30 +199,30 @@ SELECT n~node_id, n~parent_id, n~tree_id, t~text
   WHERE t~spras = 'E' AND t~text LIKE '%folder name%'
 ```
 
-**Step B** — Walk up `parent_id` within the same `tree_id`, collecting folder texts from TNODEIMGT:
+**步骤 B** — 在同一 `tree_id` 内沿 `parent_id` 向上走，从 TNODEIMGT 收集文件夹文本：
 ```sql
 SELECT n~node_id, n~parent_id, t~text
   FROM tnodeimg AS n
   INNER JOIN tnodeimgt AS t ON n~node_id = t~node_id AND n~tree_id = t~tree_id
   WHERE t~spras = 'E' AND n~tree_id = '<tree_id>' AND n~node_id = '<parent_id>'
 ```
-Repeat until `parent_id` is empty (you've hit the sub-tree root).
+重复直到 `parent_id` 为空（已到达子树根）。
 
-**Step C** — Jump to the parent tree. Find which REF node references this sub-tree. First try without text JOIN (some REF nodes lack TNODEIMGT text):
+**步骤 C** — 跳转到父树。找出哪个 REF 节点引用此子树。先尝试不带文本 JOIN（某些 REF 节点没有 TNODEIMGT 文本）：
 ```sql
 SELECT n~node_id, n~parent_id, n~tree_id
   FROM tnodeimg AS n
   WHERE n~reftree_id = '<current_tree_id>' AND n~node_type = 'REF'
 ```
-If this returns **multiple rows**, they are different SPRO locations linking to the same sub-tree — pick the one whose tree_id traces back to the main SPRO root. If this returns **0 rows**, the sub-tree is an orphaned copy with no parent link — go back to Step A and try a different node_id for the same activity.
+如果返回**多行**，它们是链接到同一子树的不同 SPRO 位置——选择 tree_id 能追溯到主 SPRO 根的那个。如果返回 **0 行**，该子树是没有父链接的孤儿副本——回到步骤 A 为同一活动尝试不同的 node_id。
 
-Once you have the REF node, continue walking up `parent_id` in THAT tree (Step B again). Get the REF node's parent folder text from TNODEIMGT to add to your path.
+拿到 REF 节点后，继续在那棵树中沿 `parent_id` 向上走（再次步骤 B）。从 TNODEIMGT 获取 REF 节点的父文件夹文本，加入你的路径。
 
-**Step D** — Repeat Steps B-C until you reach the main SPRO tree root (`368DDFAB3AB96CCFE10000009B38F976`).
+**步骤 D** — 重复步骤 B-C，直到到达主 SPRO 树根（`368DDFAB3AB96CCFE10000009B38F976`）。
 
-Assemble the collected texts in reverse order: `SAP Customizing Implementation Guide > Logistics - General > Material Master > Basic Settings > Material Types > Define Attributes of Material Types`.
+按相反顺序组装收集的文本：`SAP Customizing Implementation Guide > Logistics - General > Material Master > Basic Settings > Material Types > Define Attributes of Material Types`。
 
-### 4. Look up domain coded values
+### 4. 查找域编码值
 
 ```sql
 SELECT d~domvalue_l, d~ddtext FROM dd07t AS d
@@ -231,11 +231,11 @@ SELECT d~domvalue_l, d~ddtext FROM dd07t AS d
 
 ---
 
-## Worked Example: Material Types
+## 完整示例：物料类型
 
-User asks: "Where is material type customizing stored?"
+用户问：“物料类型定制存储在哪里？”
 
-**Find activity + storage:**
+**找活动 + 存储：**
 ```sql
 SELECT a~activity, a~c_activity, t~text, o~objecttype, o~objectname, o~tcode
   FROM cus_imgach AS a
@@ -243,35 +243,35 @@ SELECT a~activity, a~c_activity, t~text, o~objecttype, o~objectname, o~tcode
   INNER JOIN cus_actobj AS o ON a~c_activity = o~act_id
   WHERE t~spras = 'E' AND t~text LIKE '%aterial%ype%'
 ```
-Result: objecttype=`C`, objectname=`MTART` — a view cluster.
+结果：objecttype=`C`、objectname=`MTART` — 一个视图集群。
 
-**Get cluster views:**
+**获取集群视图：**
 ```sql
 SELECT v~vclname, v~exitprog, s~object, s~objpos, s~dependency, s~startobj
   FROM vcldir AS v INNER JOIN vclstruc AS s ON v~vclname = s~vclname
   WHERE v~vclname = 'MTART' ORDER BY s~objpos ASCENDING
 ```
-Result: `T134` (R=root, Material types) and `VT134M` (S=child, Quantity/value updating). Exit program: `MMMTARTEXIT`.
+结果：`T134`（R=根，物料类型）和 `VT134M`（S=子，数量/价值更新）。退出程序：`MMMTARTEXIT`。
 
-**Resolve to base tables:**
+**解析为基表：**
 ```sql
 SELECT d~viewname, d~tabname, d~tabpos FROM dd26s AS d
   WHERE d~viewname IN ('VT134M', 'T134') AND d~as4local = 'A'
 ```
-Result: T134 → `T134` (tabpos=1), VT134M → `T134M` (tabpos=1). Read with `get_object_lines` and query directly.
+结果：T134 → `T134`（tabpos=1），VT134M → `T134M`（tabpos=1）。用 `get_object_lines` 读取并直接查询。
 
-Note: a reverse lookup on `CUS_ACTOBJ` for `objectname LIKE '%T134M%'` returns **0 rows** — because CUS_ACTOBJ stores the cluster name `MTART`, not individual member tables. To find T134M's SPRO entry, search VCLSTRUC+DD26S as shown in Procedure 2.
+注意：对 `CUS_ACTOBJ` 按 `objectname LIKE '%T134M%'` 反向查找返回 **0 行**——因为 CUS_ACTOBJ 存储集群名 `MTART`，不是单个成员表。要找 T134M 的 SPRO 条目，按流程 2 所示搜索 VCLSTRUC+DD26S。
 
 ---
 
-## Tips
+## 提示
 
-- **objecttype V is the most common** (~43k entries). Most customizing is SM30-based view maintenance.
-- When `tcode` = `SM30` in CUS_ACTOBJ, it's generic. A different tcode may be an SM30 wrapper (check TSTCP) or standalone.
-- Some SPRO activities have multiple CUS_ACTOBJ entries — the activity maintains data in multiple places.
-- For `objecttype = S`, text tables conventionally follow `<table>T` (e.g., `T134` → `T134T`), but verify.
-- View cluster exit programs (VCLDIR.exitprog) contain validation logic worth reading.
-- The SPRO tree walk (Procedure 3) requires ~3-4 queries per tree level (TNODEIMGR lookup, TNODEIMG, TNODEIMGT, then REF hop). Typical depth is 3-5 tree levels = 10-15 queries total.
-- Forward text search (Procedure 1) can be noisy — common terms like "payment terms" match HR, payroll, and industry solutions. If you get too many results, switch to reverse lookup (Procedure 2) with a known table/view name.
-- Activities frequently appear in **multiple SPRO locations** (e.g., "Define Plant" appears in 7 places). The canonical path is usually under Enterprise Structure for org-level settings, or under the module-specific tree for functional settings.
-- Forward text search (Procedure 1) can be noisy for common terms — if it returns too many results from unrelated modules, try reverse lookup (Procedure 2) with the table/view name instead.
+- **objecttype V 最常见**（约 4.3 万条）。大多数定制是基于 SM30 的视图维护。
+- 当 CUS_ACTOBJ 中 `tcode` = `SM30` 时是通用值。其他事务码可能是 SM30 包装器（查 TSTCP）或独立事务。
+- 某些 SPRO 活动有多个 CUS_ACTOBJ 条目——活动在多个位置维护数据。
+- 对 `objecttype = S`，文本表按惯例是 `<table>T`（例如 `T134` → `T134T`），但要验证。
+- 视图集群退出程序（VCLDIR.exitprog）包含值得阅读的校验逻辑。
+- SPRO 树遍历（流程 3）每层树需要约 3-4 次查询（TNODEIMGR 查找、TNODEIMG、TNODEIMGT、然后 REF 跳转）。典型深度 3-5 层树 = 总共 10-15 次查询。
+- 正向文本搜索（流程 1）可能很嘈杂——"payment terms" 等常见词会匹配 HR、薪资和行业解决方案。结果太多时，用已知表/视图名切换到反向查找（流程 2）。
+- 活动经常出现在**多个 SPRO 位置**（例如 "Define Plant" 出现在 7 个地方）。规范路径通常在组织级设置的 Enterprise Structure 下，或功能设置的模块专属树下。
+- 正向文本搜索（流程 1）对常见词可能很嘈杂——如果返回太多无关模块的结果，改用带表/视图名的反向查找（流程 2）。
