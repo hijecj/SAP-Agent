@@ -8,7 +8,7 @@ import { AdtObjectFinder } from "../adt/operations/AdtObjectFinder"
 import { getSearchService } from "./abapSearchService"
 
 /**
- * Webview metadata stored in globalState
+ * 存储在 globalState 中的 Webview 元数据
  */
 interface WebviewMetadata {
   id: string
@@ -20,7 +20,7 @@ interface WebviewMetadata {
 }
 
 /**
- * Row range specification for data queries
+ * 数据查询的行范围规范
  */
 export interface RowRange {
   start: number
@@ -28,7 +28,7 @@ export interface RowRange {
 }
 
 /**
- * Column sorting specification
+ * 列排序规范
  */
 export interface SortColumn {
   column: string
@@ -36,7 +36,7 @@ export interface SortColumn {
 }
 
 /**
- * Column filter specification
+ * 列过滤规范
  */
 export interface ColumnFilter {
   column: string
@@ -44,8 +44,8 @@ export interface ColumnFilter {
 }
 
 /**
- * Manages dynamic data query webviews with persistence
- * Handles webview lifecycle, remote control, and state persistence
+ * 管理带持久化的动态数据查询 Webview
+ * 处理 Webview 生命周期、远程控制和状态持久化
  */
 export class WebviewManager {
   private static instance: WebviewManager
@@ -57,12 +57,12 @@ export class WebviewManager {
   private constructor(context: vscode.ExtensionContext) {
     this._context = context
 
-    // Clean up orphaned metadata on startup
+    // 启动时清理孤立的元数据
     this.cleanupOrphanedMetadata()
   }
 
   /**
-   * Get singleton instance
+   * 获取单例实例
    */
   public static getInstance(context?: vscode.ExtensionContext): WebviewManager {
     if (!WebviewManager.instance) {
@@ -75,36 +75,36 @@ export class WebviewManager {
   }
 
   /**
-   * Generate unique webview ID
+   * 生成唯一的 Webview ID
    */
   private generateWebviewId(): string {
     return `data-query-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
   }
 
   /**
-   * Get all webview metadata from globalState
+   * 从 globalState 获取所有 Webview 元数据
    */
   private getWebviewMetadata(): Record<string, WebviewMetadata> {
     return this._context.globalState.get("abap.dataQuery.webviews", {})
   }
 
   /**
-   * Save webview metadata to globalState
+   * 把 Webview 元数据保存到 globalState
    */
   private async saveWebviewMetadata(metadata: Record<string, WebviewMetadata>): Promise<void> {
     await this._context.globalState.update("abap.dataQuery.webviews", metadata)
   }
 
   /**
-   * Clean up metadata for webviews that no longer exist
-   * Also implements periodic cleanup to prevent memory bloat
+   * 清理已不存在 Webview 的元数据
+   * 同时实现定期清理以防止内存膨胀
    */
   private async cleanupOrphanedMetadata(): Promise<void> {
     const metadata = this.getWebviewMetadata()
     const activeIds = Array.from(this._activeWebviews.keys())
     let hasChanges = false
 
-    // Remove metadata for inactive webviews
+    // 移除非活动 Webview 的元数据
     for (const id of Object.keys(metadata)) {
       if (!activeIds.includes(id)) {
         delete metadata[id]
@@ -112,7 +112,7 @@ export class WebviewManager {
       }
     }
 
-    // Performance: Remove old metadata (older than 24 hours)
+    // 性能：移除旧元数据（超过 24 小时）
     const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000
     for (const [id, meta] of Object.entries(metadata)) {
       if (meta.lastAccessed < oneDayAgo) {
@@ -125,13 +125,13 @@ export class WebviewManager {
       await this.saveWebviewMetadata(metadata)
     }
 
-    // Limit total active webviews to prevent memory issues
+    // 限制活动 Webview 总数以防止内存问题
     if (this._activeWebviews.size > 20) {
       const sortedWebviews = Array.from(this._activeWebviews.entries())
         .map(([id, panel]) => ({ id, panel, lastAccessed: metadata[id]?.lastAccessed || 0 }))
         .sort((a, b) => a.lastAccessed - b.lastAccessed)
 
-      // Close oldest webviews beyond limit
+      // 关闭超出限制的最旧 Webview
       const toClose = sortedWebviews.slice(0, this._activeWebviews.size - 10)
       for (const { panel } of toClose) {
         panel.dispose()
@@ -140,7 +140,7 @@ export class WebviewManager {
   }
 
   /**
-   * Create or update a data query webview
+   * 创建或更新数据查询 Webview
    */
   public async createOrUpdateWebview(
     client: ADTClient | { columns: any[]; values: any[] },
@@ -155,12 +155,12 @@ export class WebviewManager {
     resetSorting?: boolean,
     resetFilters?: boolean
   ): Promise<{ webviewId: string; data?: any; state?: any }> {
-    // Detect if we're dealing with direct data input
+    // 检测是否在直接输入数据
     const isDirectData = !("runQuery" in client)
     const directData = isDirectData ? (client as { columns: any[]; values: any[] }) : null
     const actualClient = isDirectData ? null : (client as ADTClient)
 
-    // Only require connectionId for SQL queries, not direct data
+    // 只有 SQL 查询需要 connectionId，直接数据不需要
     if (!isDirectData) {
       connectionId = connectionId.toLowerCase()
     }
@@ -169,15 +169,15 @@ export class WebviewManager {
     let panel: vscode.WebviewPanel
 
     if (targetId && this._activeWebviews.has(targetId)) {
-      // Update existing webview
+      // 更新现有 Webview
       panel = this._activeWebviews.get(targetId)!
 
-      // Update title if provided
+      // 提供了标题则更新
       if (title) {
         panel.title = title
       }
     } else {
-      // Create new webview
+      // 创建新 Webview
       targetId = this.generateWebviewId()
 
       const column = window.activeTextEditor ? window.activeTextEditor.viewColumn : undefined
@@ -209,31 +209,31 @@ export class WebviewManager {
       )
     }
 
-    // Update metadata
+    // 更新元数据
     await this.updateWebviewMetadata(targetId, title || panel.title, sql, connectionId || "direct")
 
-    // Set webview content
+    // 设置 Webview 内容
     panel.webview.html = this.generateWebviewHTML(panel.webview, targetId, title)
 
-    // Get data: either execute SQL query or use provided data
+    // 获取数据：执行 SQL 查询或使用提供的数据
     try {
       let result
 
       if (isDirectData) {
-        // Use provided data directly - no query execution needed
+        // 直接使用提供的数据 - 无需执行查询
         result = directData!
       } else {
-        // Execute SQL query
+        // 执行 SQL 查询
         try {
           result = await this.executeQuery(actualClient!, sql, maxRows)
         } catch (queryError) {
-          // Clean up webview if query fails (webview was already created)
+          // 查询失败时清理 Webview（Webview 已创建）
           this.closeWebview(targetId)
           throw queryError
         }
       }
 
-      // Send original data to webview (no manual filtering/sorting)
+      // 把原始数据发送到 Webview（不做手动过滤/排序）
       panel.webview.postMessage({
         command: "queryResult",
         data: {
@@ -246,9 +246,9 @@ export class WebviewManager {
         }
       })
 
-      // Then apply Tabulator operations if specified
+      // 然后按指定应用 Tabulator 操作
       if (resetSorting || resetFilters) {
-        // Send reset commands to Tabulator
+        // 向 Tabulator 发送重置命令
         if (resetSorting) {
           panel.webview.postMessage({
             command: "clearSorting",
@@ -281,7 +281,7 @@ export class WebviewManager {
 
       const state = {
         totalRows: result.values?.length || 0,
-        returnedRows: result.values?.length || 0, // Tabulator handles filtering, so we return total
+        returnedRows: result.values?.length || 0, // Tabulator 处理过滤，所以返回总数
         appliedSorting: sortColumns || [],
         appliedFilters: filters || []
       }
@@ -293,14 +293,14 @@ export class WebviewManager {
       }
     } catch (error: any) {
       const errorMsg = error?.localizedMessage || error?.message || String(error)
-      // Don't try to send error to webview - it may be disposed already
+      // 不要尝试向 Webview 发送错误 - 它可能已被销毁
       //  log(`[WEBVIEW_MANAGER] Query failed for webview ${targetId}: ${errorMsg}`);
       throw new Error(errorMsg)
     }
   }
 
   /**
-   * Manipulate existing webview using Tabulator's built-in filtering/sorting
+   * 使用 Tabulator 内置的过滤/排序操作现有 Webview
    */
   public async manipulateWebview(
     webviewId: string,
@@ -316,7 +316,7 @@ export class WebviewManager {
     }
 
     try {
-      // Send reset commands to Tabulator if requested
+      // 按请求向 Tabulator 发送重置命令
       if (resetSorting) {
         panel.webview.postMessage({
           command: "clearSorting",
@@ -331,7 +331,7 @@ export class WebviewManager {
         })
       }
 
-      // Apply new sorting via Tabulator
+      // 通过 Tabulator 应用新排序
       if (sortColumns && sortColumns.length > 0) {
         panel.webview.postMessage({
           command: "applySorting",
@@ -339,7 +339,7 @@ export class WebviewManager {
         })
       }
 
-      // Apply new filters via Tabulator
+      // 通过 Tabulator 应用新过滤
       if (filters && filters.length > 0) {
         panel.webview.postMessage({
           command: "applyFilters",
@@ -349,10 +349,10 @@ export class WebviewManager {
 
       // log(`[WEBVIEW_MANAGER] Webview ${webviewId} manipulated via Tabulator successfully`);
 
-      // Get current state from Tabulator to report accurate state
+      // 从 Tabulator 获取当前状态以报告准确状态
       const currentData = await this.getWebviewData(webviewId)
 
-      // For row range requests, get specific range
+      // 对行范围请求，获取特定范围
       let data: any = null
       if (rowRange) {
         data = await this.getWebviewData(webviewId, rowRange)
@@ -379,7 +379,7 @@ export class WebviewManager {
   }
 
   /**
-   * Get data from existing webview (for row ranges)
+   * 从现有 Webview 获取数据（用于行范围）
    */
   public async getWebviewData(webviewId: string, rowRange?: RowRange): Promise<any> {
     const panel = this._activeWebviews.get(webviewId)
@@ -387,7 +387,7 @@ export class WebviewManager {
       throw new Error(`Webview ${webviewId} not found`)
     }
 
-    // Request data from webview
+    // 向 Webview 请求数据
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(new Error("Timeout waiting for webview data"))
@@ -412,7 +412,7 @@ export class WebviewManager {
         }
       })
 
-      // Request data
+      // 请求数据
       panel.webview.postMessage({
         command: "getWebviewData",
         data: { rowRange }
@@ -421,7 +421,7 @@ export class WebviewManager {
   }
 
   /**
-   * List all active webviews
+   * 列出所有活动的 Webview
    */
   public listActiveWebviews(): { id: string; title: string; lastQuery: string }[] {
     const metadata = this.getWebviewMetadata()
@@ -433,17 +433,17 @@ export class WebviewManager {
   }
 
   /**
-   * Close specific webview
+   * 关闭指定 Webview
    */
   public closeWebview(webviewId: string): void {
     const panel = this._activeWebviews.get(webviewId)
     if (panel) {
-      panel.dispose() // This will trigger the disposal handler
+      panel.dispose() // 这会触发销毁处理程序
     }
   }
 
   /**
-   * Close all webviews
+   * 关闭所有 Webview
    */
   public closeAllWebviews(): void {
     for (const panel of this._activeWebviews.values()) {
@@ -452,28 +452,28 @@ export class WebviewManager {
   }
 
   /**
-   * Validate SQL query for security (prevent dangerous operations)
+   * 为安全校验 SQL 查询（防止危险操作）
    */
   private validateSQL(sql: string): void {
     if (!sql || typeof sql !== "string") {
       throw new Error("SQL query must be a non-empty string")
     }
 
-    // Convert to uppercase for checking
+    // 转为大写以便检查
     const upperSQL = sql.toUpperCase().trim()
 
-    // Block dangerous SQL operations (but allow SELECT, WITH)
+    // 阻止危险 SQL 操作（但允许 SELECT、WITH）
     const dangerousPatterns = [
       /\bDROP\s+/i,
-      /\bDELETE\s+(?!.*\bFROM\s+@)/i, // Allow DELETE in subqueries but not standalone
+      /\bDELETE\s+(?!.*\bFROM\s+@)/i, // 允许子查询中的 DELETE，但不允许独立的
       /\bINSERT\s+/i,
       /\bUPDATE\s+/i,
       /\bALTER\s+/i,
       /\bCREATE\s+/i,
       /\bTRUNCATE\s+/i,
-      /;\s*(?!$)/i, // Multiple statements (except trailing semicolon)
-      /--/i, // SQL comments
-      /\/\*/i // Block comments
+      /;\s*(?!$)/i, // 多条语句（尾部分号除外）
+      /--/i, // SQL 注释
+      /\/\*/i // 块注释
     ]
 
     for (const pattern of dangerousPatterns) {
@@ -482,17 +482,17 @@ export class WebviewManager {
       }
     }
 
-    // Ensure it's a SELECT or WITH statement
+    // 确保是 SELECT 或 WITH 语句
     if (!upperSQL.startsWith("SELECT") && !upperSQL.startsWith("WITH")) {
       throw new Error("Only SELECT and WITH statements are allowed")
     }
   }
 
   /**
-   * Execute SQL query using ADT client
+   * 使用 ADT 客户端执行 SQL 查询
    */
   private async executeQuery(client: ADTClient, sql: string, maxRows?: number): Promise<any> {
-    // Validate SQL for security
+    // 为安全校验 SQL
     this.validateSQL(sql)
 
     const actualLimit = maxRows || 1000
@@ -508,7 +508,7 @@ export class WebviewManager {
   }
 
   /**
-   * Extract row range from data (used for internal mode)
+   * 从数据中提取行范围（用于内部模式）
    */
   private extractRowRange(data: any, rowRange: RowRange): any {
     if (!rowRange || !data.values) {
@@ -525,7 +525,7 @@ export class WebviewManager {
   }
 
   /**
-   * Update webview metadata
+   * 更新 Webview 元数据
    */
   private async updateWebviewMetadata(
     id: string,
@@ -549,7 +549,7 @@ export class WebviewManager {
   }
 
   /**
-   * Remove webview metadata
+   * 移除 Webview 元数据
    */
   private async removeWebviewMetadata(id: string): Promise<void> {
     const metadata = this.getWebviewMetadata()
@@ -559,7 +559,7 @@ export class WebviewManager {
   }
 
   /**
-   * Handle messages from webview
+   * 处理来自 Webview 的消息
    */
   private async handleWebviewMessage(message: any, webviewId: string): Promise<void> {
     const panel = this._activeWebviews.get(webviewId)
@@ -588,7 +588,7 @@ export class WebviewManager {
           break
         }
         case "getWebviewData": {
-          // This is handled by the promise in getWebviewData method
+          // 由 getWebviewData 方法中的 Promise 处理
           break
         }
         default:
@@ -602,7 +602,7 @@ export class WebviewManager {
   }
 
   /**
-   * Get webview options
+   * 获取 Webview 选项
    */
   private getWebviewOptions(): vscode.WebviewOptions & vscode.WebviewPanelOptions {
     return {
@@ -616,10 +616,10 @@ export class WebviewManager {
   }
 
   /**
-   * Generate webview HTML content
+   * 生成 Webview HTML 内容
    */
   private generateWebviewHTML(webview: vscode.Webview, webviewId: string, title?: string): string {
-    // Local paths to resources
+    // 资源的本地路径
     const scriptPath = vscode.Uri.joinPath(
       this._context.extensionUri,
       "client",
@@ -649,7 +649,7 @@ export class WebviewManager {
       "tabulator.min.js"
     )
 
-    // Convert to webview URIs
+    // 转换为 Webview URI
     const scriptUri = webview.asWebviewUri(scriptPath)
     const cssUri = webview.asWebviewUri(cssPath)
     const tabulatorCssUri = webview.asWebviewUri(tabulatorCssPath)
@@ -695,7 +695,7 @@ export class WebviewManager {
   }
 
   /**
-   * Show dependency graph visualization
+   * 显示依赖关系图可视化
    */
   public async showDependencyGraph(
     connectionId: string,
@@ -718,7 +718,7 @@ export class WebviewManager {
 
     this._activeWebviews.set(webviewId, panel)
 
-    // Set up disposal handler
+    // 设置销毁处理程序
     panel.onDidDispose(
       () => {
         this._activeWebviews.delete(webviewId)
@@ -727,23 +727,23 @@ export class WebviewManager {
       this._disposables
     )
 
-    // Set up message handler for graph interactions
+    // 为图交互设置消息处理程序
     panel.webview.onDidReceiveMessage(
       async message => this.handleGraphMessage(message, connectionId, panel),
       null,
       this._disposables
     )
 
-    // Set webview HTML
+    // 设置 Webview HTML
     panel.webview.html = this.generateDependencyGraphHTML(panel.webview, title)
 
-    // Get available object types from graph
+    // 从图中获取可用的对象类型
     const availableTypes = Array.from(new Set(graphData.nodes.map((n: any) => n.type))).sort()
     const availableUsageTypes = Array.from(
       new Set(graphData.edges.map((e: any) => e.usageType).filter((t: any) => t))
     ).sort()
 
-    // Wait for webview to be ready, then send initial data
+    // 等待 Webview 就绪，然后发送初始数据
     const sendInitData = () => {
       panel.webview.postMessage({
         command: "init",
@@ -757,8 +757,8 @@ export class WebviewManager {
       })
     }
 
-    // Send initial data when webview signals it is ready
-    // (avoids the race-condition double-send that was caused by setTimeout + ready)
+    // 当 Webview 发出就绪信号时发送初始数据
+    //（避免由 setTimeout + ready 引起的竞态条件双重发送）
     const readyDisposable = panel.webview.onDidReceiveMessage(msg => {
       if (msg.command === "ready") {
         sendInitData()
@@ -768,7 +768,7 @@ export class WebviewManager {
   }
 
   /**
-   * Handle messages from dependency graph webview
+   * 处理来自依赖关系图 Webview 的消息
    */
   private async handleGraphMessage(
     message: any,
@@ -776,34 +776,34 @@ export class WebviewManager {
     panel: vscode.WebviewPanel
   ): Promise<void> {
     try {
-      // dependencies imported statically above
+      // 依赖已在上面静态导入
 
       switch (message.command) {
         case "ready":
-          // Webview is ready
+          // Webview 已就绪
           break
 
         case "log":
-          // Handle log messages from webview
+          // 处理来自 Webview 的日志消息
           if (message.log) {
             log(`[DependencyGraph WebView] ${message.log}`)
           }
           break
 
         case "openObject":
-          // Open ABAP object in editor at the exact usage location
+          // 在编辑器中打开 ABAP 对象，精确定位到使用位置
           try {
-            // AdtObjectFinder and getClient imported statically above
+            // AdtObjectFinder 和 getClient 已在上面静态导入
             const finder = new AdtObjectFinder(connectionId)
             const client = getClient(connectionId.toLowerCase())
             let adtUri = message.uri || message.objectUri || message.adtUri
             let snippetLine = message.line
             let snippetColumn = message.column
 
-            // If no line/column provided, try to fetch snippet on-demand
+            // 如果未提供行/列，尝试按需获取代码片段
             if ((!snippetLine || snippetLine === 0) && message.objectIdentifier) {
               try {
-                // Reconstruct reference object from node data
+                // 从节点数据重建引用对象
                 const snippets = await client.statelessClone.usageReferenceSnippets([
                   {
                     uri: adtUri || message.objectName,
@@ -836,32 +836,32 @@ export class WebviewManager {
                 } else {
                 }
               } catch (snippetError) {
-                // Continue without snippet - will open at default position
+                // 没有代码片段也继续 - 将在默认位置打开
               }
             }
 
-            // If URI provided, use it directly
+            // 提供了 URI 则直接使用
             if (adtUri && adtUri.startsWith("/sap/bc/adt")) {
-              // Use the FULL URI including hash fragment - AdtObjectFinder finds the method/component
+              // 使用包含哈希片段的完整 URI - AdtObjectFinder 会找到方法/组件
               const { uri, start } = await finder.vscodeUriFromAdt(`adt://${connectionId}${adtUri}`)
 
               let position: vscode.Position | undefined = start
 
-              // If we have snippet line/column
+              // 如果我们有代码片段的行/列
               if (snippetLine !== undefined && snippetLine > 0) {
-                // Check if hash indicates a method/component (has type=CLAS/OM or type=CLAS/OI and name=)
-                // NOT just #start=1,0 which is a simple position marker
+                // 检查哈希是否指示方法/组件（有 type=CLAS/OM 或 type=CLAS/OI 和 name=）
+                // 而不是 #start=1,0 这样的简单位置标记
                 const isMethodComponent = adtUri.includes("#type=CLAS") && adtUri.includes(";name=")
 
                 if (isMethodComponent && start && start.line > 0) {
-                  // Snippet line is RELATIVE to the method start
-                  // Add snippet line to method start position
+                  // 代码片段行是相对于方法起点的
+                  // 把代码片段行加到方法起点位置
                   position = new vscode.Position(
-                    start.line + snippetLine - 1, // -1 because snippet line 1 = method start line
+                    start.line + snippetLine - 1, // -1 因为代码片段第 1 行 = 方法起点行
                     snippetColumn || message.character || 0
                   )
                 } else {
-                  // For regular objects (class file, include, program), snippet line is absolute
+                  // 对普通对象（类文件、include、程序），代码片段行是绝对的
                   position = new vscode.Position(
                     snippetLine - 1,
                     snippetColumn || message.character || 0
@@ -874,17 +874,17 @@ export class WebviewManager {
                 position ? { selection: new vscode.Range(position, position) } : undefined
               )
             } else {
-              // Fallback: search by name/type
+              // 回退：按名称/类型搜索
               const searcher = getSearchService(connectionId.toLowerCase())
 
-              // For function modules (FUGR/FF), search as FUNC type
-              // For methods (CLAS/OM), search as CLAS to open the class file
+              // 对函数模块（FUGR/FF），按 FUNC 类型搜索
+              // 对方法（CLAS/OM），按 CLAS 搜索以打开类文件
               let searchType = message.objectType
               let searchName = message.objectName
               if (message.objectType === "FUGR/FF") {
                 searchType = "FUNC/FM"
               } else if (message.objectType === "CLAS/OM") {
-                // Extract class name from method identifier (format: CLASSNAME======CM...)
+                // 从方法标识中提取类名（格式：CLASSNAME======CM...）
                 const className = message.objectName.split("=")[0]
                 searchName = className
                 searchType = "CLAS/OC"
@@ -908,28 +908,28 @@ export class WebviewManager {
           break
 
         case "expandNode":
-          // Fetch dependencies for a node and merge into graph
+          // 获取节点的依赖并合并到图中
           panel.webview.postMessage({
             command: "busy",
             message: `Fetching dependencies for ${message.objectName}...`
           })
 
           try {
-            // If URI is provided, use it directly (more reliable)
+            // 提供了 URI 则直接使用（更可靠）
             let objectUri = message.uri
 
             if (!objectUri || !objectUri.startsWith("/sap/bc/adt")) {
-              // Fallback: search for object
+              // 回退：搜索对象
               const searcher = getSearchService(connectionId.toLowerCase())
 
-              // Try with the original type first
+              // 先用原始类型尝试
               let results = await searcher.searchObjects(
                 message.objectName,
                 [message.objectType],
                 1
               )
 
-              // If not found and it's FUGR/FF, try FUNC/FM
+              // 如果没找到且是 FUGR/FF，尝试 FUNC/FM
               if ((!results || results.length === 0) && message.objectType === "FUGR/FF") {
                 results = await searcher.searchObjects(message.objectName, ["FUNC/FM"], 1)
               }
@@ -941,12 +941,12 @@ export class WebviewManager {
               objectUri = results[0].uri
             }
 
-            // Fetch where-used data WITHOUT line/character to get object-level dependencies
-            // (not symbol-level which would create a different node ID)
+            // 获取不带行/字符的 where-used 数据，得到对象级依赖
+            //（不是符号级，那会产生不同的节点 ID）
             const references = await fetchWhereUsedData(objectUri, connectionId)
 
-            // Build graph data using the SAME name/type as the expanded node
-            // Don't let symbol extraction change it!
+            // 使用与展开节点相同的名称/类型构建图数据
+            // 不要让符号提取改变它！
             const newGraphData = buildGraphData(
               message.objectName,
               message.objectType,
@@ -954,7 +954,7 @@ export class WebviewManager {
               true
             )
 
-            // Mark which node was expanded
+            // 标记哪个节点被展开
             panel.webview.postMessage({
               command: "updateGraph",
               graphData: newGraphData,
@@ -969,16 +969,16 @@ export class WebviewManager {
           break
 
         case "applyFilters":
-          // Apply filters to graph
-          // This would require storing graph state in extension or retrieving from webview
-          // For simplicity, let webview handle filtering client-side
+          // 对图应用过滤器
+          // 这需要在扩展中存储图状态或从 Webview 检索
+          // 为简单起见，让 Webview 在客户端处理过滤
           break
 
         case "exportImage":
-          // Save exported SVG image
+          // 保存导出的 SVG 图片
           try {
             const imageData = message.imageData
-            // Remove data URL prefix if present
+            // 存在时移除 data URL 前缀
             let svgContent = imageData
             if (svgContent.startsWith("data:image/svg+xml;base64,")) {
               svgContent = Buffer.from(
@@ -1008,10 +1008,10 @@ export class WebviewManager {
   }
 
   /**
-   * Generate dependency graph webview HTML
+   * 生成依赖关系图 Webview HTML
    */
   private generateDependencyGraphHTML(webview: vscode.Webview, title: string): string {
-    // Local paths to resources
+    // 资源的本地路径
     const scriptPath = vscode.Uri.joinPath(
       this._context.extensionUri,
       "client",
@@ -1041,7 +1041,7 @@ export class WebviewManager {
       "cytoscape-svg.min.js"
     )
 
-    // Convert to webview URIs
+    // 转换为 Webview URI
     const scriptUri = webview.asWebviewUri(scriptPath)
     const cssUri = webview.asWebviewUri(cssPath)
     const cytoscapeJsUri = webview.asWebviewUri(cytoscapeJsPath)
