@@ -1,12 +1,12 @@
 /**
- * Subagent Configuration Tool
+ * 子代理配置工具
  *
- * Allows Copilot to configure AI subagents through natural conversation.
- * Users can enable/disable subagents, set models, and view current configuration.
+ * 让 Copilot 通过自然对话配置 AI 子代理。
+ * 用户可以启用/禁用子代理、设置模型并查看当前配置。
  *
- * This is the main tool class that uses:
- * - subagentRegistry.ts for agent metadata and types
- * - subagentFileOps.ts for file operations
+ * 这是使用以下内容的主工具类：
+ * - subagentRegistry.ts 获取代理元数据和类型
+ * - subagentFileOps.ts 处理文件操作
  */
 
 import * as vscode from "vscode"
@@ -32,7 +32,7 @@ import {
 import { funWindow as window } from "../funMessenger"
 
 // ============================================================================
-// TOOL IMPLEMENTATION
+// 工具实现
 // ============================================================================
 
 interface SubagentConfigInput {
@@ -366,7 +366,7 @@ Example:
 ALL AVAILABLE TOOL NAMES:
 `
 
-    // Collect all unique tool names from registry
+    // 从注册表收集所有唯一工具名
     const allTools = new Set<string>()
     for (const agent of AGENT_REGISTRY) {
       if (agent.tools) {
@@ -556,13 +556,13 @@ Files are in: ${workspaceFolder.fsPath}/.github/agents/`)
 }
 
 // ============================================================================
-// REGISTRATION & EVENT HANDLERS
+// 注册与事件处理程序
 // ============================================================================
 
 let isHandlingConfigChange = false
 let isHandlingModelChange = false
-// Debounce `onDidChangeChatModels`: the event storms during Copilot startup,
-// and validating mid-storm sees a partial model list and falsely AUTO-DISABLES.
+// 防抖 `onDidChangeChatModels`：Copilot 启动期间事件风暴，
+// 在风暴中校验会看到部分模型列表并误报 AUTO-DISABLES。
 let modelChangeTimer: ReturnType<typeof setTimeout> | undefined
 const MODEL_CHANGE_DEBOUNCE_MS = 5000
 
@@ -623,8 +623,8 @@ async function handleManualModelChange(context: vscode.ExtensionContext): Promis
     return
   }
 
-  // `handleModelChange` validates and auto-disables if anything is invalid.
-  // If it disabled subagents, there's nothing more to do.
+  // `handleModelChange` 校验并在任何内容无效时自动禁用。
+  // 如果它禁用了子代理，就没有更多要做的了。
   await handleModelChange(context)
   if (!getSubagentSettings().enabled) {
     return
@@ -640,7 +640,7 @@ async function handleManualModelChange(context: vscode.ExtensionContext): Promis
         const result = await writeAgentFile(context, workspaceFolder, agent, model, extensionId)
         if (result.updated) updated++
       } catch {
-        // Ignore errors
+        // 忽略错误
       }
     }
   }
@@ -658,9 +658,9 @@ async function handleManualSettingsChange(context: vscode.ExtensionContext): Pro
     const result = await enableSubagentsCore(context)
 
     if (!result.success) {
-      // Revert the tick so the UI reflects reality. `enableSubagentsCore`
-      // only reverts on validation_failed; missing_models and no_workspace
-      // return early without touching the config.
+      // 还原勾选状态，让 UI 反映现实。`enableSubagentsCore`
+      // 只在 validation_failed 时还原；missing_models 和 no_workspace
+      // 会提前返回而不触碰配置。
       const config = vscode.workspace.getConfiguration("abapfs.subagents")
       await config.update("enabled", false, vscode.ConfigurationTarget.Workspace)
 
@@ -721,7 +721,7 @@ async function handleModelChange(context: vscode.ExtensionContext): Promise<void
 }
 
 // ============================================================================
-// STARTUP VALIDATION
+// 启动校验
 // ============================================================================
 
 export async function validateSubagentsOnStartup(context: vscode.ExtensionContext): Promise<void> {
@@ -775,7 +775,7 @@ export async function validateSubagentsOnStartup(context: vscode.ExtensionContex
         try {
           await writeAgentFile(context, workspaceFolder, agent, model, extensionId)
         } catch {
-          // Silently fail on startup
+          // 启动时静默失败
         }
       }
     }
