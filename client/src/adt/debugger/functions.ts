@@ -17,7 +17,7 @@ function createFetchToken(conf: ClientConfiguration) {
   if (conf.oauth) return () => futureToken(formatKey(conf.name)) as Promise<string>
 }
 
-/** Get auth headers for non-basic auth methods (for debugger client). */
+/** 获取非 basic 认证方法的认证头（供调试器客户端使用）。 */
 async function getDebuggerAuthHeaders(
   conf: ClientConfiguration
 ): Promise<Record<string, string> | undefined> {
@@ -56,7 +56,7 @@ export async function newClientFromKey(key: string, options: Partial<ClientOptio
     log.debug(`[debugger] newClientFromKey: authMethod=${authMethod} for ${key}`)
 
     if (authMethod === "cert" && !conf.oauth) {
-      // Reconstruct httpsAgent from cert paths
+      // 从证书路径重建 httpsAgent
       const certAuth = (conf as any).certAuth
       if (certAuth) {
         const allowedExts = /\.(pem|crt|cer|key|p12|pfx)$/i
@@ -64,7 +64,7 @@ export async function newClientFromKey(key: string, options: Partial<ClientOptio
           rejectUnauthorized: !conf.allowSelfSigned,
           keepAlive: true
         }
-        // .p12/.pfx files are PKCS#12 containers — use `pfx` option
+        // .p12/.pfx 文件是 PKCS#12 容器 — 使用 `pfx` 选项
         if (/\.(p12|pfx)$/i.test(certAuth.certPath || "")) {
           if (
             certAuth.certPath &&
@@ -104,8 +104,8 @@ export async function newClientFromKey(key: string, options: Partial<ClientOptio
       }
       pwdOrFetch = "cert-auth"
     } else if (authMethod === "oauth_onprem" && !conf.oauth) {
-      // On-premise OAuth: use token fetcher. Wrap in try/catch to prevent
-      // unexpected interactive browser login during debug sessions.
+      // 本地 OAuth：使用 token 获取器。用 try/catch 包装，防止
+      // 调试会话期间出现意外的交互式浏览器登录。
       const oauthConf = (conf as any).oauthOnPrem
       if (oauthConf) {
         try {
