@@ -1,48 +1,48 @@
 /**
- * LM Tool Security Guard
+ * LM 工具安全守卫
  *
- * Prevents unauthorized extensions from invoking LM tools via vscode.lm.invokeTool().
+ * 防止未授权扩展通过 vscode.lm.invokeTool() 调用 LM 工具。
  *
- * Authorized callers:
- * 1. Copilot — identified by VS Code validating toolInvocationToken at the API layer
- *    (forged tokens are rejected by VS Code before reaching our code)
- * 2. Our own MCP server — calls invoke() directly with a per-call nonce that only
- *    this module can generate and validate (not accessible externally)
+ * 授权调用方：
+ * 1. Copilot — 由 VS Code 在 API 层校验 toolInvocationToken 识别
+ *    （伪造 token 在到达我们的代码之前就被 VS Code 拒绝）
+ * 2. 我们自己的 MCP 服务器 — 用只有本模块能生成和校验的
+ *    按调用 nonce 直接调用 invoke()（外部不可访问）
  *
- * Unauthorized callers (rogue extensions):
- * - Call vscode.lm.invokeTool() → VS Code rejects forged tokens, or passes through
- *   with undefined token → our guard blocks it
- * - Cannot access the nonce set since it's in a module-private closure
- * - Cannot slip through during parallel MCP calls (nonce is per-invocation, not global)
+ * 未授权调用方（恶意扩展）：
+ * - 调用 vscode.lm.invokeTool() → VS Code 拒绝伪造 token，或
+ *   以 undefined token 通过 → 我们的守卫阻止它
+ * - 无法访问 nonce 集合，因为它在模块私有闭包中
+ * - 无法在并行 MCP 调用期间溜过（nonce 按调用生成，不是全局的）
  */
 
 import { randomUUID } from "crypto"
 import * as vscode from "vscode"
 
-/** Set of currently valid one-time nonces for MCP invocations */
+/** 当前有效的 MCP 调用一次性 nonce 集合 */
 const activeNonces = new Set<string>()
 
 /**
- * Symbol used as a hidden key on the options object to carry the MCP nonce.
- * Symbols are not enumerable, not accessible via Object.keys(), and this specific
- * symbol instance is private to this module's closure.
+ * 用作 options 对象上携带 MCP nonce 的隐藏键的 Symbol。
+ * Symbol 不可枚举、无法通过 Object.keys() 访问，且此特定
+ * symbol 实例对模块闭包是私有的。
  */
 const MCP_NONCE_KEY = Symbol("abapfs.mcpNonce")
 
-/** Extended options type that can carry our hidden nonce */
+/** 可以携带我们隐藏 nonce 的扩展选项类型 */
 export interface McpAuthorizedOptions<T> extends vscode.LanguageModelToolInvocationOptions<T> {
   [key: symbol]: string
 }
 
 /**
- * Creates an authorized options object for MCP tool invocations.
- * Injects a one-time nonce that assertToolInvocationAuthorized will validate.
+ * 为 MCP 工具调用创建已授权选项对象。
+ * 注入 assertToolInvocationAuthorized 将校验的一次性 nonce。
  */
 export function createMcpAuthorizedOptions<T>(input: T): McpAuthorizedOptions<T> {
   const nonce = randomUUID()
   activeNonces.add(nonce)
-  // Safety: auto-expire nonce after 30 seconds to prevent unbounded accumulation
-  // if a tool call is cancelled or throws before the guard checks it
+  // 安全：30 秒后自动过期 nonce，防止在工具调用被取消或
+  // 在守卫检查之前抛出时无限积累
   setTimeout(() => activeNonces.delete(nonce), 30_000)
   const options = { input, toolInvocationToken: undefined } as unknown as McpAuthorizedOptions<T>
   options[MCP_NONCE_KEY] = nonce
@@ -50,8 +50,8 @@ export function createMcpAuthorizedOptions<T>(input: T): McpAuthorizedOptions<T>
 }
 
 /**
- * Validates that a tool invocation is authorized.
- * Returns true if authorized, false if blocked.
+ * 校验工具调用是否已授权。
+ * 已授权返回 true，被阻止返回 false。
  */
 export function isToolInvocationAuthorized(
   options: vscode.LanguageModelToolInvocationOptions<any>
@@ -66,8 +66,8 @@ export function isToolInvocationAuthorized(
 }
 
 /**
- * Throws an error if the tool invocation is not authorized.
- * Call at the start of every tool's invoke() method.
+ * 如果工具调用未授权则抛出错误。
+ * 在每个工具的 invoke() 方法开头调用。
  */
 export function assertToolInvocationAuthorized(
   options: vscode.LanguageModelToolInvocationOptions<any>
