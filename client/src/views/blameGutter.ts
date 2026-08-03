@@ -1,9 +1,9 @@
 /**
- * Live Object Blame Gutter
+ * 实时对象 Blame 侧边注释
  *
- * File-wide blame annotations for ABAP objects.
- * Supports the original inline view and a GitLens-inspired blame lane.
- * Uses SAP version history and client-side diffing.
+ * ABAP 对象的全文件 blame 注释。
+ * 支持原始内联视图和 GitLens 风格的 blame 通道。
+ * 使用 SAP 版本历史和客户端 diff。
  */
 
 import * as vscode from "vscode"
@@ -17,15 +17,15 @@ import { logTelemetry } from "../services/telemetry"
 import { funWindow as window } from "../services/funMessenger"
 
 // ============================================================================
-// TYPES
+// 类型
 // ============================================================================
 
 export interface BlameInfo {
   author: string
   date: string
-  version: string // transport number
-  versionTitle: string // transport description
-  lineNumber: number // 0-based line in current source
+  version: string // 传输编号
+  versionTitle: string // 传输描述
+  lineNumber: number // 当前源码中从 0 开始的行号
 }
 
 type BlameRenderMode = "classic" | "gitlens"
@@ -43,7 +43,7 @@ interface ComputedHeatmap {
 }
 
 // ============================================================================
-// MODULE STATE
+// 模块状态
 // ============================================================================
 
 const BLAME_RENDER_MODE_SETTING = "blame.renderMode"
@@ -113,26 +113,26 @@ let blameHighlightDecorationType: vscode.TextEditorDecorationType | undefined
 let gitlensSelectedLineDecorationType: vscode.TextEditorDecorationType | undefined
 
 // ============================================================================
-// BLAME ALGORITHM
+// BLAME 算法
 // ============================================================================
 
 /**
- * Compute blame attribution for each line of the current (newest) version.
+ * 计算当前（最新）版本每一行的 blame 归属。
  *
- * Algorithm - walks version history from newest to oldest:
- * 1. Start with all current lines as "pending" (unattributed).
- * 2. For each consecutive pair (newer, older):
- *    - diff older -> newer (LCS-based via `diffArrays`)
- *    - Lines that are "added" in newer (not in older) -> attribute to newer version
- *    - Lines that are "equal" -> map their position in newer to their position in older
- *      and carry them forward as still-pending
- * 3. Any lines still pending after all pairs -> attribute to oldest version.
+ * 算法 - 从最新到最旧遍历版本历史：
+ * 1. 把所有当前行标记为“待定”（未归属）。
+ * 2. 对每对连续版本（较新、较旧）：
+ *    - diff 较旧 -> 较新（基于 `diffArrays` 的 LCS）
+ *    - 较新版本中“新增”的行（较旧没有）-> 归属到较新版本
+ *    - “相同”的行 -> 把它们在较新版本中的位置映射到较旧版本的位置，
+ *      并继续作为待定行携带
+ * 3. 遍历完所有版本后仍待定的行 -> 归属到最旧版本。
  */
 function computeBlame(revisions: Revision[], sources: string[]): BlameInfo[] {
   const currentLines = sources[0].split("\n")
   const blame: (BlameInfo | null)[] = new Array(currentLines.length).fill(null)
 
-  // Map: currentLineIndex -> lineIndex in the "newer" version being processed
+  // 映射：currentLineIndex -> 正在处理的“较新”版本中的行索引
   let pendingLines = new Map<number, number>()
   for (let i = 0; i < currentLines.length; i++) {
     pendingLines.set(i, i)
@@ -142,10 +142,10 @@ function computeBlame(revisions: Revision[], sources: string[]): BlameInfo[] {
     const newerLines = sources[v].split("\n")
     const olderLines = sources[v + 1].split("\n")
 
-    // diff(old, new) - added = in new only, removed = in old only
+    // diff(old, new) - added = 只在 new 中，removed = 只在 old 中
     const changes = diffArrays(olderLines, newerLines)
 
-    // Build maps from this diff
+    // 从该 diff 构建映射
     const addedInNewer = new Set<number>()
     const newerToOlder = new Map<number, number>()
 
@@ -154,35 +154,35 @@ function computeBlame(revisions: Revision[], sources: string[]): BlameInfo[] {
     for (const change of changes) {
       const count = change.count ?? change.value.length
       if (!change.added && !change.removed) {
-        // Equal chunk - lines exist in both
+        // 相同块 - 行在两个版本中都存在
         for (let i = 0; i < count; i++) {
           newerToOlder.set(newerIdx + i, olderIdx + i)
         }
         newerIdx += count
         olderIdx += count
       } else if (change.added) {
-        // Lines only in newer
+        // 只在新版本中的行
         for (let i = 0; i < count; i++) {
           addedInNewer.add(newerIdx + i)
         }
         newerIdx += count
       } else {
-        // Lines only in older (removed)
+        // 只在旧版本中的行（已移除）
         olderIdx += count
       }
     }
 
-    // Process pending lines
+    // 处理待定行
     const newPending = new Map<number, number>()
     for (const [currentLine, versionLine] of pendingLines) {
       if (addedInNewer.has(versionLine)) {
-        // Line was introduced in this version
+        // 该行在此版本中引入
         blame[currentLine] = makeBlameInfo(revisions[v], currentLine)
       } else if (newerToOlder.has(versionLine)) {
-        // Line exists in older version too - carry forward
+        // 该行在旧版本中也存在 - 继续携带
         newPending.set(currentLine, newerToOlder.get(versionLine)!)
       } else {
-        // Fallback: attribute to the newer version if mapping is ambiguous
+        // 回退：映射有歧义时归属到较新版本
         blame[currentLine] = makeBlameInfo(revisions[v], currentLine)
       }
     }
@@ -190,7 +190,7 @@ function computeBlame(revisions: Revision[], sources: string[]): BlameInfo[] {
     pendingLines = newPending
   }
 
-  // Remaining unattributed lines -> oldest version
+  // 剩余未归属的行 -> 归属到最旧版本
   if (pendingLines.size > 0) {
     const oldest = revisions[revisions.length - 1]
     for (const [currentLine] of pendingLines) {
@@ -198,7 +198,7 @@ function computeBlame(revisions: Revision[], sources: string[]): BlameInfo[] {
     }
   }
 
-  // Safety: fill any nulls (shouldn't happen)
+  // 安全：填充任何 null（不应发生）
   for (let i = 0; i < blame.length; i++) {
     if (!blame[i]) {
       blame[i] = {
@@ -225,7 +225,7 @@ function makeBlameInfo(rev: Revision, lineNumber: number): BlameInfo {
 }
 
 // ============================================================================
-// DECORATION RENDERING
+// 装饰渲染
 // ============================================================================
 
 function getBlameRenderMode(): BlameRenderMode {
@@ -370,7 +370,7 @@ function getHeatmapColors(): { hot: string[]; cold: string[] } {
 function getRelativeAgeLookupTable(dates: Date[]): number[] {
   if (dates.length === 0) return []
 
-  // Mirror GitLens' lookup-table approach so heatmap steps cluster around the median age.
+  // 镜像 GitLens 的查找表方法，让热力图步长围绕中位年龄聚集。
   const lookup: number[] = []
   const half = Math.floor(dates.length / 2)
   const median =
@@ -731,7 +731,7 @@ function renderClassicBlameDecorations(editor: vscode.TextEditor, blame: BlameIn
   const decType = ensureClassicDecorationType()
   const decorations: vscode.DecorationOptions[] = []
 
-  // Find the longest line so all annotations start at the same column.
+  // 找到最长行，让所有注释从同一列开始。
   let maxLineLen = 0
   const lineCount = Math.min(blame.length, editor.document.lineCount)
   for (let i = 0; i < lineCount; i++) {
@@ -743,7 +743,7 @@ function renderClassicBlameDecorations(editor: vscode.TextEditor, blame: BlameIn
   for (let i = 0; i < lineCount; i++) {
     const info = blame[i]
 
-    // Consecutive-line grouping: only show the full annotation on the first line of a block.
+    // 连续行分组：只在块的第一行显示完整注释。
     const isFirstInGroup =
       i === 0 || blame[i - 1].author !== info.author || blame[i - 1].version !== info.version
 
@@ -751,7 +751,7 @@ function renderClassicBlameDecorations(editor: vscode.TextEditor, blame: BlameIn
       ? `${info.author} - ${formatShortDate(info.date)} - ${info.version}${info.versionTitle ? ` - ${info.versionTitle}` : ""}`
       : "|"
 
-    // Use margin in `ch` units so the annotation tracks the editor font width.
+    // 用 `ch` 单位设置边距，让注释跟随编辑器字体宽度。
     const lineLen = editor.document.lineAt(i).text.length
     const gapCh = Math.max(4, targetCol - lineLen)
 
@@ -794,7 +794,7 @@ function renderGitLensBlameDecorations(editor: vscode.TextEditor, blame: BlameIn
     const range = new vscode.Range(i, 0, i, 0)
     const hoverMessage = buildHoverMessage(info)
 
-    // Compact followers reuse the blame lane styling but omit the summary text.
+    // 紧凑的后续行复用 blame 通道样式，但省略摘要文本。
     if (previousKey === key) {
       const before: vscode.ThemableDecorationAttachmentRenderOptions = { contentText: NBSP }
       applyHeatmap(before, info.date, heatmap)
@@ -809,7 +809,7 @@ function renderGitLensBlameDecorations(editor: vscode.TextEditor, blame: BlameIn
 
     previousKey = key
 
-    // Leader lines carry the summary text, age, and small avatar marker.
+    // 引导行携带摘要文本、年龄和小头像标记。
     const before: vscode.ThemableDecorationAttachmentRenderOptions = {
       contentText: buildGitLensLaneText(info)
     }
@@ -835,7 +835,7 @@ function renderGitLensBlameDecorations(editor: vscode.TextEditor, blame: BlameIn
 function renderBlameDecorations(editor: vscode.TextEditor, blame: BlameInfo[]) {
   clearBlameDecorations(editor)
 
-  // Switch render strategy by configuration while keeping the same blame data/cache.
+  // 按配置切换渲染策略，同时保持相同的 blame 数据/缓存。
   if (getBlameRenderMode() === "gitlens") {
     renderGitLensBlameDecorations(editor, blame)
     return
@@ -898,7 +898,7 @@ async function fetchRevisionSources(
   const runWorker = async () => {
     while (!token.isCancellationRequested) {
       const batchIndex = nextBatchIndex++
-      // nextBatchIndex is 0-based and post-incremented, so equality means there are no batches left.
+      // nextBatchIndex 从 0 开始且后递增，所以相等意味着没有剩余批次。
       if (batchIndex >= totalBatches) return
 
       const start = batchIndex * REVISION_FETCH_BATCH_SIZE
@@ -927,12 +927,12 @@ async function fetchRevisionSources(
 }
 
 // ============================================================================
-// PUBLIC API
+// 公共 API
 // ============================================================================
 
 /**
- * Toggle blame ON -> show annotations.
- * Called from the "Show Blame" editor/title button.
+ * 打开 blame -> 显示注释。
+ * 从 “Show Blame” 编辑器/标题按钮调用。
  */
 export async function showBlame() {
   logTelemetry("command_show_blame_called")
@@ -958,7 +958,7 @@ export async function showBlame() {
       try {
         const connId = uri.authority
 
-        // Check cache first so re-opening blame is instant.
+        // 先检查缓存，让重新打开 blame 立即生效。
         const cached = blameCache.get(cacheKey)
         if (cached) {
           blameActiveUris.add(cacheKey)
@@ -968,7 +968,7 @@ export async function showBlame() {
           return
         }
 
-        // Fetch version history for the object.
+        // 获取对象的版本历史。
         progress.report({ message: "Fetching version history..." })
         const service = AbapRevisionService.get(connId)
         const revisions = await service.uriRevisions(uri, true)
@@ -982,7 +982,7 @@ export async function showBlame() {
           return
         }
 
-        // Single version: attribute every line to that version.
+        // 单版本：把每一行都归属到该版本。
         if (revisions.length === 1) {
           const lines = editor.document.getText().split("\n")
           const blame: BlameInfo[] = lines.map((_, i) => makeBlameInfo(revisions[0], i))
@@ -1001,13 +1001,13 @@ export async function showBlame() {
           return
         }
 
-        // Fetch source for each version in small parallel batches.
+        // 以小并行批次获取每个版本的源码。
         const client = getClient(connId)
         const sources = await fetchRevisionSources(client, revisions, progress, token)
 
         if (token.isCancellationRequested || sources == null) return
 
-        // Compute final line attribution and cache it for future toggles.
+        // 计算最终行归属并缓存，供未来切换使用。
         progress.report({ message: "Computing line attributions..." })
         const blame = computeBlame(revisions, sources)
 
@@ -1017,7 +1017,7 @@ export async function showBlame() {
           latestRevisionDate: revisions[0].date
         })
 
-        // The active editor may have changed while blame was loading.
+        // blame 加载期间活动编辑器可能已变化。
         if (window.activeTextEditor !== editor) return
 
         blameActiveUris.add(cacheKey)
@@ -1035,8 +1035,8 @@ export async function showBlame() {
 }
 
 /**
- * Toggle blame OFF -> hide annotations.
- * Called from the "Hide Blame" editor/title button.
+ * 关闭 blame -> 隐藏注释。
+ * 从 “Hide Blame” 编辑器/标题按钮调用。
  */
 export async function hideBlame() {
   logTelemetry("command_hide_blame_called")
@@ -1052,8 +1052,8 @@ export async function hideBlame() {
 }
 
 /**
- * Called when the active text editor changes.
- * Re-renders cached blame if the new editor has blame data, otherwise clears.
+ * 活动文本编辑器变化时调用。
+ * 如果新编辑器有 blame 数据则重新渲染缓存，否则清除。
  */
 export function onBlameActiveEditorChanged(editor?: vscode.TextEditor) {
   if (!editor || editor.document.uri.scheme !== ADTSCHEME) {
@@ -1078,8 +1078,8 @@ export function onBlameActiveEditorChanged(editor?: vscode.TextEditor) {
 }
 
 /**
- * Called when the selection changes inside an editor that may have blame active.
- * Highlights every line that belongs to the same blame group as the selected line.
+ * 在可能启用了 blame 的编辑器中选择变化时调用。
+ * 高亮与选中行属于同一 blame 分组的每一行。
  */
 export function onBlameTextEditorSelectionChanged(event: vscode.TextEditorSelectionChangeEvent) {
   const editor = event.textEditor
@@ -1108,8 +1108,8 @@ export function onBlameTextEditorSelectionChanged(event: vscode.TextEditorSelect
 }
 
 /**
- * Called when the blame render mode configuration changes.
- * Re-renders visible editors that already have blame enabled.
+ * blame 渲染模式配置变化时调用。
+ * 重新渲染已启用 blame 的可见编辑器。
  */
 export function onBlameConfigurationChanged(event: vscode.ConfigurationChangeEvent) {
   if (!event.affectsConfiguration(`abapfs.${BLAME_RENDER_MODE_SETTING}`)) return
@@ -1118,15 +1118,15 @@ export function onBlameConfigurationChanged(event: vscode.ConfigurationChangeEve
 }
 
 /**
- * Called when a document's content changes.
- * If blame is active and the document becomes dirty, auto-hide blame.
+ * 文档内容变化时调用。
+ * 如果 blame 已激活且文档变脏，自动隐藏 blame。
  */
 export function onBlameDocumentChanged(event: vscode.TextDocumentChangeEvent) {
   if (event.document.uri.scheme !== ADTSCHEME) return
 
   const cacheKey = event.document.uri.toString()
 
-  // If blame is active for this file and there are actual content changes, auto-hide it.
+  // 如果此文件的 blame 已激活且有实际内容变化，自动隐藏它。
   if (blameActiveUris.has(cacheKey) && event.contentChanges.length > 0) {
     blameActiveUris.delete(cacheKey)
     const editor = window.activeTextEditor
@@ -1137,18 +1137,18 @@ export function onBlameDocumentChanged(event: vscode.TextDocumentChangeEvent) {
     }
   }
 
-  // Always update the "Show Blame" button availability.
+  // 始终更新 “Show Blame” 按钮的可用性。
   updateBlameAvailableForDocument(event.document)
 }
 
 /**
- * Called after a document is saved / activated.
- * Invalidates the blame cache for that object so the next blame is fresh.
+ * 文档保存/激活后调用。
+ * 使该对象的 blame 缓存失效，让下一次 blame 是新鲜的。
  */
 export function onBlameDocumentSaved(document: vscode.TextDocument) {
   if (document.uri.scheme !== ADTSCHEME) return
 
-  // Invalidate cache - version history may have changed.
+  // 使缓存失效 - 版本历史可能已变化。
   blameCache.delete(document.uri.toString())
   const editor = window.activeTextEditor
   if (editor && editor.document === document) {
@@ -1157,9 +1157,9 @@ export function onBlameDocumentSaved(document: vscode.TextDocument) {
 }
 
 /**
- * Update both context keys for the current editor.
- * blameActive = is blame currently shown for this file?
- * blameAvailable = can blame be shown for this file?
+ * 更新当前编辑器的两个上下文键。
+ * blameActive = 此文件当前是否显示 blame？
+ * blameAvailable = 此文件能否显示 blame？
  */
 function updateBlameContext(editor?: vscode.TextEditor) {
   const isAbap =
@@ -1172,7 +1172,7 @@ function updateBlameContext(editor?: vscode.TextEditor) {
   setContext("abapfs:blameActive", isBlameOn)
   setContext("abapfs:blameAvailable", canShowBlame)
 
-  // Update status bar item
+  // 更新状态栏项
   if (!blameStatusBarItem) return
   if (!isAbap) {
     blameStatusBarItem.hide()
@@ -1199,33 +1199,33 @@ function updateBlameAvailableForDocument(document: vscode.TextDocument) {
 }
 
 // ============================================================================
-// INITIALIZATION & DISPOSAL
+// 初始化与销毁
 // ============================================================================
 
 /**
- * Initialize the blame gutter feature.
- * Call from extension.ts activate().
+ * 初始化 blame 侧边注释功能。
+ * 从 extension.ts 的 activate() 调用。
  */
 export function initializeBlameGutter(context: vscode.ExtensionContext) {
-  // Register commands.
+  // 注册命令。
   context.subscriptions.push(
     vscode.commands.registerCommand("abapfs.showBlame", showBlame),
     vscode.commands.registerCommand("abapfs.hideBlame", hideBlame)
   )
 
-  // Status bar item: bottom-right, high priority = leftmost of the right-side group.
+  // 状态栏项：右下角，高优先级 = 右侧组最左。
   blameStatusBarItem = window.createStatusBarItem(vscode.StatusBarAlignment.Right, 1000)
   blameStatusBarItem.name = "ABAP FS Blame"
   context.subscriptions.push(blameStatusBarItem)
 
-  // Invalidate the blame cache when documents are saved, and re-render when the mode changes.
+  // 文档保存时使 blame 缓存失效，模式变化时重新渲染。
   context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(onBlameDocumentSaved))
   context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(onBlameConfigurationChanged))
   context.subscriptions.push(
     window.onDidChangeTextEditorSelection(onBlameTextEditorSelectionChanged)
   )
 
-  // Clean up decoration types and cached state on deactivate.
+  // 停用时清理装饰类型和缓存状态。
   context.subscriptions.push({
     dispose: () => {
       disposeBlameDecorationTypes()
@@ -1235,6 +1235,6 @@ export function initializeBlameGutter(context: vscode.ExtensionContext) {
     }
   })
 
-  // Initialize context keys used by the toolbar/menu visibility rules.
+  // 初始化工具栏/菜单可见性规则使用的上下文键。
   updateBlameContext(window.activeTextEditor)
 }
