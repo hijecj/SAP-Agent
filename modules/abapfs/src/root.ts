@@ -37,7 +37,7 @@ const toInclude = async (node: PathItem | undefined, adtPath: string, main: bool
           await node.file.object.loadStructure()
           if (i.file.object.contentsPath() === adtPath) return i
         } catch (error) {
-          // ignore
+          // 忽略
         }
       }
 
@@ -55,7 +55,7 @@ const findInFolder = (
   if (!isAbapFolder(file)) return
   const { "adtcore:type": steptype, "adtcore:name": stepname, "adtcore:uri": stepuri } = step
 
-  // special handling for user specific TMP
+  // 对用户专属 TMP 的特殊处理
   if (owner && file.object.type === PACKAGE && file.object.name === TMPFOLDER) {
     const objname = namedFolder(file.object.owner, file.object.name)
     if (file.object.type === steptype && objname === stepname) return { file, path: `${name}` }
@@ -108,9 +108,9 @@ export class Root extends Folder {
   async getNodeAsync(path: string) {
     const first = path.split("/").filter(x => x)?.[0]
     if (first) {
-      // if belongs to the $TMP of another user, add it to the root - blacklist myself to avoid duplications
+      // 如果属于其他用户的 $TMP，把它添加到根 - 把自己列入黑名单以避免重复
       const owner = extractOwner(first)
-      // Skip if owner is the literal string "USER" (test/example data) or if it's the current user
+      // 如果所有者是字面字符串 "USER"（测试/示例数据）或当前用户则跳过
       if (owner && owner.toUpperCase() !== "USER" && !this.isMe(owner) && !this.getNode(first)) {
         const tmp = new AbapFolder(createPkg(TMPFOLDER, this.service, owner), this, this.service)
         this.set(first, tmp, true)
@@ -134,7 +134,7 @@ export class Root extends Folder {
     try {
       const { "adtcore:type": type, "adtcore:name": name } = steps[0]
       if (type === PACKAGE && name.match(/^\$/)) {
-        // add support for other user's tmp objects - the relevant uri is the first child of $TMP, or the object itself
+        // 添加对其他用户 tmp 对象的支持 - 相关 URI 是 $TMP 的第一个子项，或对象本身
         const owneruri =
           (name === "$TMP" ? steps[1]?.["adtcore:uri"] : steps[0]?.["adtcore:uri"]) || uri
         const od = await this.service.objectStructure(this.baseUrl(owneruri)).catch(e => {
@@ -154,7 +154,7 @@ export class Root extends Folder {
     const steps = await this.service.objectPath(uri)
     if (!steps.length) return
     const owner = await this.getOwnerIfrelevant(steps, uri)
-    // add a fake $TMP if neeeded
+    // 需要时添加假的 $TMP
     const { "adtcore:type": type, "adtcore:name": name } = steps[0]
     if (type === PACKAGE && name !== TMPFOLDER && name.match(/^\$/))
       steps.unshift({
@@ -177,7 +177,7 @@ export class Root extends Folder {
         node = findInFolder(node.file, node.path, step)
       }
     }
-    // got the object, uri might be a subobject
+    // 已获取对象，URI 可能是子对象
     if (node && isAFItem(node)) node = await this.childNode(node, uri)
     return node
   }
