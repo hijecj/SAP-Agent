@@ -1,15 +1,15 @@
 /**
- * ABAP Debugger Language Model Tool
- * Enables GitHub Copilot to debug ABAP code programmatically
+ * ABAP 调试器语言模型工具
+ * 让 GitHub Copilot 以编程方式调试 ABAP 代码
  *
- * Features:
- * - Start/Stop debugging sessions
- * - Set/Remove breakpoints and watchpoints
- * - Control debugging flow (F5, F6, F7, F8 equivalents)
- * - Read runtime variables and internal tables (with data management)
- * - Evaluate expressions
- * - Navigate stack frames
- * - Manage debugging sessions
+ * 功能：
+ * - 启动/停止调试会话
+ * - 设置/移除断点和监视点
+ * - 控制调试流程（F5、F6、F7、F8 等价物）
+ * - 读取运行时变量和内部表（带数据管理）
+ * - 求值表达式
+ * - 导航栈帧
+ * - 管理调试会话
  */
 
 import * as vscode from "vscode"
@@ -22,14 +22,14 @@ import { caughtToString } from "../../lib"
 import { getSAPSystemInfo } from "../sapSystemInfo"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
-// Helper for detailed debug logging - disabled, can be enabled when debugging the debugger!!
+// 详细调试日志的辅助 - 已禁用，调试调试器本身时可以启用！！
 const debugLog = (tool: string, message: string, data?: any) => {
   //const dataStr = data ? ` | Data: ${JSON.stringify(data)}` : '';
   // log(`[DEBUG-TOOL] [${tool}] ${message}${dataStr}`);
 }
 
 // ====================================
-// INTERFACES AND TYPES
+// 接口与类型
 // ====================================
 
 interface IDebugSessionParameters {
@@ -80,7 +80,7 @@ interface IDebugStatusParameters {
 }
 
 // ====================================
-// DEBUG SESSION MANAGEMENT TOOL
+// 调试会话管理工具
 // ====================================
 
 export class ABAPDebugSessionTool implements vscode.LanguageModelTool<IDebugSessionParameters> {
@@ -145,7 +145,7 @@ export class ABAPDebugSessionTool implements vscode.LanguageModelTool<IDebugSess
           if (existingSession) {
             await existingSession.logOut()
 
-            // Also stop the VS Code debug session
+            // 同时停止 VS Code 调试会话
             const activeDebugSession = vscode.debug.activeDebugSession
             if (activeDebugSession && activeDebugSession.type === "abap") {
               await vscode.debug.stopDebugging(activeDebugSession)
@@ -185,7 +185,7 @@ export class ABAPDebugSessionTool implements vscode.LanguageModelTool<IDebugSess
             ])
           }
 
-          // Create debug configuration matching the existing pattern
+          // 创建匹配现有模式的调试配置
           const debugConfig = {
             type: "abap",
             request: "attach",
@@ -195,11 +195,11 @@ export class ABAPDebugSessionTool implements vscode.LanguageModelTool<IDebugSess
             terminalMode: terminalMode
           }
 
-          // Start debugging session using VS Code's debug API
+          // 使用 VS Code 的调试 API 启动调试会话
           const started = await vscode.debug.startDebugging(undefined, debugConfig)
 
           if (started) {
-            // Wait a moment for session to initialize
+            // 等待片刻让会话初始化
             await new Promise(resolve => setTimeout(resolve, 1000))
 
             return new vscode.LanguageModelToolResult([
@@ -229,7 +229,7 @@ export class ABAPDebugSessionTool implements vscode.LanguageModelTool<IDebugSess
   }
 
   /**
-   * Check if debugging on a production system and prompt user for confirmation
+   * 检查是否在生产系统上调试，并提示用户确认
    */
   private async checkProductionGuard(
     connectionId: string

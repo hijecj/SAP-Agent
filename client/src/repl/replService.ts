@@ -19,10 +19,10 @@ export interface ReplHealthCheck {
   production: boolean
 }
 
-/** Strip control characters from JSON body that ABAP may embed in string values */
+/** 剥离 ABAP 可能嵌入字符串值中的 JSON 请求体控制字符 */
 function sanitizeJsonBody(body: string): string {
-  // Replace any real newlines/tabs/control chars inside JSON string values
-  // by scanning and replacing only chars inside quoted strings
+  // 替换 JSON 字符串值中的真实换行/制表符/控制字符，
+  // 通过只扫描和替换引号字符串内的字符
   let result = ""
   let inString = false
   let escaped = false
@@ -44,7 +44,7 @@ function sanitizeJsonBody(body: string): string {
       continue
     }
     if (inString && ch.charCodeAt(0) < 0x20) {
-      // Replace raw control char with its JSON escape
+      // 用其 JSON 转义替换原始控制字符
       if (ch === "\n") result += "\\n"
       else if (ch === "\r") result += "\\r"
       else if (ch === "\t") result += "\\t"

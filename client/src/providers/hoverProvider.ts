@@ -505,7 +505,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         const trimmedLine = line.trim()
         const lineUpper = trimmedLine.toUpperCase()
 
-        // Skip full-line comments
+        // 跳过整行注释
         if (trimmedLine.startsWith("*")) continue // 跳过整行注释
 
         // 移除内联注释

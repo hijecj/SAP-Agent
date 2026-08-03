@@ -22,8 +22,8 @@ export class AbapFunctionGroup extends AbapObjectBase {
       const unfiltered = await this.service.nodeContents(this.type, this.name, this.owner)
       return this.filterInvalid(unfiltered)
     } catch (error) {
-      // workaround for error expanding function groups in some systems
-      // get the root node and the relevant children only
+      // 某些系统上展开函数组出错时的变通方案
+      // 只获取根节点和相关子项
       const root = await this.service.nodeContents(this.type, this.name, this.owner, [0])
       const parents = root.objectTypes
         .filter(t => t.OBJECT_TYPE === "FUGR/FF" || t.OBJECT_TYPE === "FUGR/I")

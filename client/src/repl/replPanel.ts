@@ -136,7 +136,7 @@ export class ReplPanel {
 
       let isProduction = true
       try {
-        // Both checks must agree it's NOT production. If either says production, block.
+        // 两个检查都必须一致地认为不是生产环境。任一说是生产就阻止。
         const sapSaysNotProd = health.production === false
         log.debug(
           `ABAP REPL health.production=${health.production}, sapSaysNotProd=${sapSaysNotProd}`
@@ -149,7 +149,7 @@ export class ReplPanel {
         log.debug(`ABAP REPL final isProduction=${isProduction}`)
       } catch (e) {
         log(`ABAP REPL production check failed: ${e instanceof Error ? e.message : String(e)}`)
-        // Can't verify — block (fail-closed)
+        // 无法验证 — 阻止（故障关闭）
       }
 
       if (isProduction) {

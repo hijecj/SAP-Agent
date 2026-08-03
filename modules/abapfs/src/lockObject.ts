@@ -62,13 +62,13 @@ export class LockObject {
       if (this.pending) await this.pending
       return this.lock()
     } else if (this.claims.size === 0 && (status === "locked" || status === "locking")) {
-      // do not unlock if another lock request comes in within a second
+      // 如果一秒钟内有另一个锁请求到来，不要解锁
       if (this.pending) await this.pending
       if (wait) await delay(1000)
       if (this.claims.size === 0) return this.unlock()
     }
   }
-  /** used to restore locks after a session drop */
+  /** 用于会话断开后恢复锁 */
   async restore() {
     if (this.status.status !== "locked") return
     this.status = { status: "unlocked" }

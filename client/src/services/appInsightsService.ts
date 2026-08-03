@@ -347,7 +347,7 @@ export class AppInsightsService {
       }
     })
 
-    // Also track as metric for counting
+    // 同时作为计数指标跟踪
     appInsights.defaultClient.trackMetric({
       name: "tool_usage_count",
       value: 1,
@@ -397,7 +397,7 @@ export class AppInsightsService {
       }
     })
 
-    // Also track as metric for counting
+    // 同时作为计数指标跟踪
     appInsights.defaultClient.trackMetric({
       name: "code_changes_count",
       value: linesChanged,

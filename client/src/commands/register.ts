@@ -1,7 +1,7 @@
 import { ExtensionContext, commands } from "vscode"
 import { funWindow as window } from "../services/funMessenger"
 import { abapcmds } from "."
-// import/export to resolve dependencies
+// 导入/导出以解析依赖
 export { AdtCommands } from "./commands"
 export { IncludeProvider } from "../adt/includes"
 export { LanguageCommands } from "../langClient"
@@ -23,7 +23,7 @@ export const registerCommands = (context: ExtensionContext) => {
     console.warn("⚠️ Failed to register enhancement commands:", error)
   }
 
-  // 🔄 Register SAP System Validator Commands
+  // 🔄 注册 SAP 系统校验器命令
   try {
     const { SapSystemValidator } = require("../services/sapSystemValidator")
     const validator = SapSystemValidator.getInstance()
@@ -50,7 +50,7 @@ export const registerCommands = (context: ExtensionContext) => {
     console.warn("⚠️ Failed to register SAP validator commands:", error)
   }
 
-  // 📊 Register Compare With Other System Command
+  // 📊 注册与其他系统比较命令
   try {
     const { registerCompareWithSystemCommand } = require("./compareWithSystem")
     registerCompareWithSystemCommand(context)

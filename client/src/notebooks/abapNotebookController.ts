@@ -66,14 +66,14 @@ export class AbapNotebookController {
     const hasSqlCells = cells.some(c => c.document.languageId === SQL_LANGUAGE_ID)
     const isMultiCellRun = cells.length > 1
 
-    // For multi-cell runs (Run All / shift-select): prompt once, use for all SQL cells.
-    // For single-cell runs: prompt per SQL cell inside executeCell.
+    // 对多单元格运行（全部运行 / Shift 选择）：提示一次，所有 SQL 单元格共用。
+    // 对单单元格运行：在 executeCell 中按 SQL 单元格提示。
     let sharedConnection: ResolvedConnection | undefined
     if (isMultiCellRun && hasSqlCells) {
       try {
         sharedConnection = await resolveConnection()
       } catch (error: any) {
-        // Only show error popup for real failures, not user cancellations
+        // 只对真正的失败显示错误弹窗，用户取消时不显示
         if (!(error instanceof NotebookConnectionError)) {
           vscode.window.showErrorMessage(`Connection failed: ${error.message || error}`)
         }
@@ -182,7 +182,7 @@ export class AbapNotebookController {
 
       const isSql = language === SQL_LANGUAGE_ID
       if (isSql) {
-        // For SQL cells: use the shared connection (Run All) or prompt for one (single cell)
+        // 对 SQL 单元格：使用共享连接（全部运行）或提示选择（单个单元格）
         let connection: ResolvedConnection
         if (sharedConnection) {
           connection = sharedConnection

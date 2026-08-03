@@ -249,8 +249,8 @@ async function buildCreationDetails(connId: string, input: CreateObjectFormInput
     parentName,
     parentPath: objectPath(typeInfo.parentType as CreatableTypeIds, parentName, ""),
     responsible,
-    // Use the connection's logon language as master language, otherwise
-    // abap-adt-api falls back to a hardcoded "EN" in the creation XML.
+    // 使用连接的登录语言作为主语言，否则
+    // abap-adt-api 会在创建 XML 中回退到硬编码的 "EN"。
     language: getClient(connId).language
   }
 

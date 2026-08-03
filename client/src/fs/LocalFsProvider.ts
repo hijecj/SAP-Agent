@@ -44,7 +44,7 @@ export class LocalFsProvider implements FileSystemProvider {
   ): Disposable {
     let disposed = false
     let watcher: FileSystemWatcher | undefined
-    // resolve the root that we'll watch
+    // 解析我们要监视的根
     this.localStorage
       .resolveUri(uri)
       .then(resolved => {
@@ -52,16 +52,16 @@ export class LocalFsProvider implements FileSystemProvider {
         const pattern = options?.recursive ? "**/*" : "*"
         watcher = workspace.createFileSystemWatcher(new RelativePattern(resolved, pattern))
         const queueChange = (type: FileChangeType, u: Uri) => {
-          // compute path relative to resolved root
+          // 计算相对于已解析根的路径
           let rel = u.path
           if (rel.startsWith(resolved.path)) rel = rel.substring(resolved.path.length)
           if (!rel.startsWith("/")) rel = `/${rel}`
           const remote = Uri.parse(`${uri.scheme}://${uri.authority}${rel}`)
-          // Deduplicate: replace any pending event for the same URI
+          // 去重：替换同一 URI 的任何待处理事件
           const idx = this.pendingChanges.findIndex(e => e.uri.toString() === remote.toString())
           if (idx >= 0) this.pendingChanges[idx] = { type, uri: remote }
           else this.pendingChanges.push({ type, uri: remote })
-          // Flush after a short delay to batch rapid changes
+          // 短暂延迟后刷新，批量处理快速变化
           if (!this.changeTimer) {
             this.changeTimer = setTimeout(() => {
               this.changeTimer = undefined

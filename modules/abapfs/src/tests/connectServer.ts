@@ -1,9 +1,9 @@
 import { createRoot, AFsService, Root } from ".."
 import { ADTClient } from "abap-adt-api"
 import { Agent } from "https"
-/** this will connect to a real server, and mostly rely on abapgit as sample data
- *   tests might brek with future versions of abapgit
- *   tested on 7.52, paths could change with releases
+/** 这将连接到真实服务器，主要依赖 abapgit 作为示例数据
+ *   未来版本的 abapgit 可能让测试失败
+ *   已在 7.52 上测试，路径可能随版本变化
  */
 const getRootForTest = () => {
   const { ADT_SYSTEMID = "", ADT_URL = "", ADT_USER = "", ADT_PASS = "" } = process.env

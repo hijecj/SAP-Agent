@@ -191,7 +191,7 @@ export class WebviewManager {
 
       this._activeWebviews.set(targetId, panel)
 
-      // Set up disposal handler
+      // 设置销毁处理程序
       panel.onDidDispose(
         () => {
           this._activeWebviews.delete(targetId!)
@@ -201,7 +201,7 @@ export class WebviewManager {
         this._disposables
       )
 
-      // Set up message handler
+      // 设置消息处理程序
       panel.webview.onDidReceiveMessage(
         async message => this.handleWebviewMessage(message, targetId!),
         null,
@@ -1263,7 +1263,7 @@ export class WebviewManager {
   }
 
   /**
-   * Dispose of the manager
+   * 销毁管理器
    */
   public dispose(): void {
     this.closeAllWebviews()

@@ -120,7 +120,7 @@ async function objectDetailFromUrl(url: string) {
   const obj = await root.getNodeAsync(uri.path)
   if (!isAbapFile(obj)) throw new Error("not found") // TODO error
 
-  // Load structure if not already loaded (required for contentsPath())
+  // 尚未加载时加载结构（contentsPath() 需要）
   if (!obj.object.structure) {
     await obj.object.loadStructure()
   }
@@ -141,7 +141,7 @@ async function getToken(connId: string) {
   return futureToken(formatKey(connId))
 }
 
-/** Provide auth headers (cookies etc.) to the language server for non-basic auth. */
+/** 为非 basic 认证向语言服务器提供认证头（cookie 等）。 */
 async function getAuthHeaders(connId: string): Promise<AuthHeadersResponse | undefined> {
   connId = formatKey(connId)
   const conn = await RemoteManager.get().byIdAsync(connId)
@@ -290,7 +290,7 @@ async function includeChanged(prog: MainProgram) {
   await client.sendRequest(Methods.updateMainProgram, prog)
 }
 
-// Trigger syntax check for a specific URI (used when switching editors)
+// 为特定 URI 触发语法检查（切换编辑器时使用）
 export async function triggerSyntaxCheck(uri: string) {
   if (client && client.state === State.Running) {
     await client.sendRequest(Methods.triggerSyntaxCheck, uri)
