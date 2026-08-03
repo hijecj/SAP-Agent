@@ -16,7 +16,7 @@ import { abapUri, uriRoot } from "../adt/conections"
 const NAMESPACE = /^[a-z][a-z0-9]*:/i
 const TIMESTAMP_KEY = /At$/
 
-// Fields already shown in the curated header, duplicative, or just noise
+// 已在精选标题中显示的、重复的或只是噪音的字段
 const SKIP_META = new Set([
   "adtcore:type",
   "adtcore:name",
@@ -52,17 +52,17 @@ const push = (lines: string[], label: string, value: string | undefined) => {
 }
 
 export const buildTooltip = (obj: AbapObject): string | undefined => {
-  // Leading empty line separates our block from VS Code's default path tooltip
+  // 前导空行把我们的块与 VS Code 默认路径提示分开
   const lines: string[] = [""]
   const meta = obj.structure?.metaData as Record<string, unknown> | undefined
 
-  // Curated lead-in
+  // 精选引导
   push(lines, "Name", obj.name)
   const desc = meta?.["adtcore:description"]
   if (typeof desc === "string") push(lines, "Description", desc)
 
-  // Dump metaData (loaded once the object is opened) — new per-type fields
-  // (class:*, program:*, abapoo:*, fmodule:*, …) appear automatically.
+  // 转储元数据（对象打开后加载）— 新的按类型字段
+  // （class:*、program:*、abapoo:*、fmodule:*……）会自动出现。
   if (meta) {
     for (const key of Object.keys(meta)) {
       if (SKIP_META.has(key)) continue
@@ -71,7 +71,7 @@ export const buildTooltip = (obj: AbapObject): string | undefined => {
     }
   }
 
-  // > 1 because index 0 is always the leading blank
+  // > 1 因为索引 0 始终是前导空行
   return lines.length > 1 ? lines.join("\n") : undefined
 }
 
@@ -81,15 +81,15 @@ export class AbapFileDecorationProvider implements FileDecorationProvider, Dispo
   private readonly subs: Disposable[]
 
   constructor() {
-    // Structure is loaded lazily (FsProvider.stat → node.stat → loadStructure).
-    // Once a file becomes the active editor, structure is populated: refresh
-    // the decoration so the fuller tooltip appears.
+    // 结构是惰性加载的（FsProvider.stat → node.stat → loadStructure）。
+    // 文件成为活动编辑器后，结构被填充：刷新装饰，
+    // 让更完整的提示出现。
     const refresh = (uri: Uri | undefined) => {
       if (uri && abapUri(uri)) this.emitter.fire(uri)
     }
     this.subs = [
       window.onDidChangeActiveTextEditor(e => refresh(e?.document.uri)),
-      // Save updates changedAt/changedBy server-side; re-fire just this URI.
+      // 保存会在服务端更新 changedAt/changedBy；只重新触发此 URI。
       workspace.onDidSaveTextDocument(d => refresh(d.uri))
     ]
   }
@@ -103,7 +103,7 @@ export class AbapFileDecorationProvider implements FileDecorationProvider, Dispo
     if (!abapUri(uri)) return
     try {
       const root = uriRoot(uri)
-      // sync lookup — no network. Structure is whatever was already loaded.
+      // 同步查找 — 无网络。结构是已加载的任何内容。
       const node = root.getNode(uri.path)
       if (!isAbapStat(node)) return
       const tooltip = buildTooltip(node.object)
