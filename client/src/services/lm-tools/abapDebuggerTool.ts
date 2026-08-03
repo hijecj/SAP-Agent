@@ -175,7 +175,7 @@ export class ABAPDebugSessionTool implements vscode.LanguageModelTool<IDebugSess
             ])
           }
 
-          // Production system guard - debugging production can be dangerous
+          // 生产系统防护 - 调试生产系统可能很危险
           const guardResult = await this.checkProductionGuard(connectionId)
           if (guardResult.action === "cancel") {
             return new vscode.LanguageModelToolResult([
@@ -237,16 +237,16 @@ export class ABAPDebugSessionTool implements vscode.LanguageModelTool<IDebugSess
     try {
       const systemInfo = await getSAPSystemInfo(connectionId)
 
-      // Check if production (category 'P' or contains 'Production')
+      // 检查是否为生产系统（类别 'P' 或包含 'Production'）
       const isProduction =
         systemInfo.currentClient?.category === "Production" ||
         systemInfo.currentClient?.category?.startsWith("P")
 
       if (!isProduction) {
-        return { action: "proceed" } // Not production, allow
+        return { action: "proceed" } // 非生产系统，允许
       }
 
-      // Production system detected - show dialog
+      // 检测到生产系统 - 显示对话框
       const clientInfo = systemInfo.currentClient
         ? `${connectionId.toUpperCase()} (Client ${systemInfo.currentClient.clientNumber}: ${systemInfo.currentClient.clientName})`
         : connectionId.toUpperCase()
@@ -268,7 +268,7 @@ export class ABAPDebugSessionTool implements vscode.LanguageModelTool<IDebugSess
 
       return { action: "proceed" }
     } catch (error) {
-      // If check fails, block debugging (fail-closed for security)
+      // 如果检查失败，阻止调试（安全起见故障关闭）
       console.warn("Production guard check failed:", error)
       return { action: "cancel" }
     }
@@ -276,7 +276,7 @@ export class ABAPDebugSessionTool implements vscode.LanguageModelTool<IDebugSess
 }
 
 // ====================================
-// BREAKPOINT MANAGEMENT TOOL
+// 断点管理工具
 // ====================================
 
 export class ABAPBreakpointTool implements vscode.LanguageModelTool<IBreakpointParameters> {
@@ -329,7 +329,7 @@ export class ABAPBreakpointTool implements vscode.LanguageModelTool<IBreakpointP
       }
       debugLog("Breakpoint", `Session found`)
 
-      // Create source breakpoints in the format expected by Debug Protocol
+      // 创建 Debug Protocol 期望格式的源码断点
       const sourceBreakpoints: DebugProtocol.SourceBreakpoint[] = lineNumbers.map(line => ({
         line,
         condition: condition
@@ -343,7 +343,7 @@ export class ABAPBreakpointTool implements vscode.LanguageModelTool<IBreakpointP
       debugLog("Breakpoint", `Source object`, source)
 
       if (action === "set") {
-        // Step 1: Set breakpoints in SAP debugger backend
+        // 第 1 步：在 SAP 调试器后端设置断点
         debugLog("Breakpoint", `Getting debugListener`)
         const debugListener = session.debugListener
         if (!debugListener) {
@@ -371,27 +371,27 @@ export class ABAPBreakpointTool implements vscode.LanguageModelTool<IBreakpointP
           throw new Error(`Failed to set breakpoints in SAP: ${breakpointError}`)
         }
 
-        // Step 2: Set breakpoints in VS Code UI (for visual indicators)
+        // 第 2 步：在 VS Code UI 中设置断点（用于可视指示）
         try {
           const document = await vscode.workspace.openTextDocument(vscode.Uri.parse(filePath))
 
-          // Get current breakpoints for this file
+          // 获取此文件的当前断点
           const currentBreakpoints = vscode.debug.breakpoints.filter(
             bp =>
               bp instanceof vscode.SourceBreakpoint &&
               bp.location.uri.toString() === document.uri.toString()
           ) as vscode.SourceBreakpoint[]
 
-          // Create new breakpoints for VS Code UI
+          // 为 VS Code UI 创建新断点
           const newVSCodeBreakpoints = lineNumbers.map(line => {
-            const position = new vscode.Position(line - 1, 0) // VS Code uses 0-based line numbers
+            const position = new vscode.Position(line - 1, 0) // VS Code 使用从 0 开始的行号
             const location = new vscode.Location(document.uri, position)
             return condition
               ? new vscode.SourceBreakpoint(location, true, condition)
               : new vscode.SourceBreakpoint(location, true)
           })
 
-          // Remove old breakpoints for these lines and add new ones
+          // 移除这些行的旧断点并添加新断点
           const filteredOldBreakpoints = currentBreakpoints.filter(
             bp => !lineNumbers.includes(bp.location.range.start.line + 1)
           )
@@ -399,13 +399,13 @@ export class ABAPBreakpointTool implements vscode.LanguageModelTool<IBreakpointP
           vscode.debug.removeBreakpoints(currentBreakpoints)
           vscode.debug.addBreakpoints(newVSCodeBreakpoints)
         } catch (uiError) {
-          // UI update failed, but SAP breakpoints might still work
+          // UI 更新失败，但 SAP 断点可能仍然有效
           debugLog("Breakpoint", `VS Code UI update failed: ${caughtToString(uiError)}`)
         }
 
         let result = ""
 
-        // Show detailed status for each breakpoint line
+        // 显示每个断点行的详细状态
         result = ` Breakpoint Results:\n`
         result += `File: ${source.name}\n`
         if (condition) result += `Condition: ${condition}\n`
@@ -438,7 +438,7 @@ export class ABAPBreakpointTool implements vscode.LanguageModelTool<IBreakpointP
 
         return new vscode.LanguageModelToolResult([new vscode.LanguageModelTextPart(result)])
       } else if (action === "remove") {
-        // Remove breakpoints by setting an empty array using the breakpoint manager
+        // 通过用断点管理器设置空数组来移除断点
         const debugListener = session.debugListener
         if (!debugListener) {
           throw new Error("Debug listener not available")
@@ -471,7 +471,7 @@ export class ABAPBreakpointTool implements vscode.LanguageModelTool<IBreakpointP
 }
 
 // ====================================
-// DEBUG STEPPING CONTROL TOOL
+// 调试单步控制工具
 // ====================================
 
 export class ABAPDebugStepTool implements vscode.LanguageModelTool<IDebugStepParameters> {
@@ -538,7 +538,7 @@ export class ABAPDebugStepTool implements vscode.LanguageModelTool<IDebugStepPar
 
       debugLog("Step", `Executing step type: ${stepType}`)
 
-      // Execute the appropriate debug command using VS Code Debug API
+      // 使用 VS Code Debug API 执行适当的调试命令
       switch (stepType) {
         case "continue":
           debugLog("Step", `Sending continue request`)
@@ -569,7 +569,7 @@ export class ABAPDebugStepTool implements vscode.LanguageModelTool<IDebugStepPar
             throw new Error("Target line is required for jumpToLine operation")
           }
           debugLog("Step", `Getting gotoTargets for line ${targetLine}`)
-          // First get goto targets for the current source
+          // 先获取当前源码的 goto 目标
           const gotoTargets = await activeDebugSession.customRequest("gotoTargets", {
             source: { path: window.activeTextEditor?.document.uri.toString() },
             line: targetLine
@@ -601,7 +601,7 @@ export class ABAPDebugStepTool implements vscode.LanguageModelTool<IDebugStepPar
       }
 
       debugLog("Step", `Step completed, waiting 500ms for location update`)
-      // Wait a moment for the step to complete and get new location
+      // 等待片刻让步骤完成并获取新位置
       await new Promise(resolve => setTimeout(resolve, 500))
 
       let locationInfo = ""
@@ -619,7 +619,7 @@ export class ABAPDebugStepTool implements vscode.LanguageModelTool<IDebugStepPar
           locationInfo += `\n New Location: ${currentFrame.source?.name || "unknown"} line ${currentFrame.line}\n`
           locationInfo += `Method: ${currentFrame.name}\n`
 
-          // Get current code line
+          // 获取当前代码行
           if (currentFrame.source?.path) {
             try {
               const sourceUri = vscode.Uri.parse(currentFrame.source.path)
@@ -636,7 +636,7 @@ export class ABAPDebugStepTool implements vscode.LanguageModelTool<IDebugStepPar
                 const lineText = currentLine.text.trim()
                 locationInfo += `Current Code: \`${lineText}\`\n`
 
-                // Add code context (2 lines before and after)
+                // 添加代码上下文（前后各 2 行）
                 const contextLines: string[] = []
                 for (
                   let i = Math.max(0, lineIndex - 2);
@@ -660,9 +660,9 @@ export class ABAPDebugStepTool implements vscode.LanguageModelTool<IDebugStepPar
         }
       } catch (stackErr) {
         debugLog("Step", `Error getting stack trace: ${caughtToString(stackErr)}`)
-        // If we can't get stack trace after continue, program likely finished
+        // 如果继续后无法获取堆栈，程序可能已结束
         if (stepType === "continue") {
-          // Check if there are any active services/threads left
+          // 检查是否还有活动服务/线程
           const session = AbapDebugSession.byConnection(connectionId)
           const debugListener = session?.debugListener
           const activeServices = debugListener?.activeThreads || []
@@ -704,38 +704,38 @@ export class ABAPDebugStepTool implements vscode.LanguageModelTool<IDebugStepPar
 }
 
 // ====================================
-// VARIABLE INSPECTION TOOL
+// 变量检查工具
 // ====================================
 
 export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariableParameters> {
   /**
-   * Apply advanced filtering to table rows
-   * Supports multiple filter types:
-   * - Simple: "ERROR" (contains text)
-   * - Field-specific: "field:CUSTOMER_ID=1000" or "field:STATUS=ERROR"
-   * - Multiple conditions: "ERROR AND STATUS" or "field:TYPE=E OR field:TYPE=W"
-   * - Numeric: "field:AMOUNT>1000" or "field:COUNT<5"
-   * - Regex: "regex:^[A-Z]{3}[0-9]{3}$"
+   * 对表行应用高级过滤
+   * 支持多种过滤类型：
+   * - 简单： "ERROR"（包含文本）
+   * - 字段专属： "field:CUSTOMER_ID=1000" 或 "field:STATUS=ERROR"
+   * - 多条件： "ERROR AND STATUS" 或 "field:TYPE=E OR field:TYPE=W"
+   * - 数字： "field:AMOUNT>1000" 或 "field:COUNT<5"
+   * - 正则： "regex:^[A-Z]{3}[0-9]{3}$"
    */
   private applyAdvancedFilter(rows: any[], filter: string): any[] {
     const filterLower = filter.toLowerCase().trim()
 
-    // Field-specific filter: field:FIELDNAME=VALUE or field:FIELDNAME>VALUE
+    // 字段专属过滤：field:FIELDNAME=VALUE 或 field:FIELDNAME>VALUE
     if (filterLower.startsWith("field:")) {
       return this.applyFieldFilter(rows, filterLower.substring(6))
     }
 
-    // Regex filter: regex:pattern
+    // 正则过滤：regex:pattern
     if (filterLower.startsWith("regex:")) {
       return this.applyRegexFilter(rows, filter.substring(6))
     }
 
-    // Multiple conditions with AND/OR
+    // 带 AND/OR 的多条件
     if (filterLower.includes(" and ") || filterLower.includes(" or ")) {
       return this.applyLogicalFilter(rows, filterLower)
     }
 
-    // Simple contains filter (default)
+    // 简单包含过滤（默认）
     return rows.filter(row => {
       const rowValue = row.value.toString().toLowerCase()
       return rowValue.includes(filterLower)
@@ -743,7 +743,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
   }
 
   private applyFieldFilter(rows: any[], fieldFilter: string): any[] {
-    // Parse field:FIELDNAME=VALUE, field:FIELDNAME>VALUE, etc.
+    // 解析 field:FIELDNAME=VALUE、field:FIELDNAME>VALUE 等
     const match = fieldFilter.match(/^([^=<>!]+)([=<>!]+)(.+)$/)
     if (!match) {
       throw new Error(`Invalid field filter syntax: ${fieldFilter}. Use field:FIELDNAME=VALUE`)
@@ -755,7 +755,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
 
     return rows.filter(row => {
       try {
-        // Extract field value from row (assuming structure format like "{ FIELD1: 'value1', FIELD2: 'value2' }")
+        // 从行中提取字段值（假设结构格式如 "{ FIELD1: 'value1', FIELD2: 'value2' }"）
         const rowStr = row.value.toString()
         const fieldMatch = rowStr.match(
           new RegExp(`${fieldNameUpper}:\\s*'([^']*)'|${fieldNameUpper}:\\s*([^,}\\s]+)`, "i")
@@ -797,7 +797,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
   }
 
   private applyLogicalFilter(rows: any[], filter: string): any[] {
-    // Split by AND/OR and apply each condition
+    // 按 AND/OR 拆分并应用每个条件
     const isAnd = filter.includes(" and ")
     const conditions = isAnd ? filter.split(" and ") : filter.split(" or ")
 
@@ -826,7 +826,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
     const num2 = parseFloat(value2)
 
     if (isNaN(num1) || isNaN(num2)) {
-      // Fallback to string comparison
+      // 回退到字符串比较
       return operator === ">" ? value1 > value2 : value1 < value2
     }
 
@@ -846,15 +846,15 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
 
   private getVariableTypeIndicator(variable: any): string {
     if (variable.value.includes("Standard Table") || variable.value.includes("lines")) {
-      return "" // Table
+      return "" // 表
     } else if (variable.variablesReference > 0) {
-      return "" // Structure
+      return "" // 结构
     } else if (variable.value.match(/^\d+$/)) {
-      return "" // Number
+      return "" // 数字
     } else if (variable.value.includes("'")) {
-      return "" // String
+      return "" // 字符串
     } else {
-      return "•" // Other
+      return "•" // 其他
     }
   }
 
@@ -938,7 +938,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
       let frameIdWarning = ""
       let actualFrameId = frameId
 
-      // Auto-recover frame ID: Check if provided frameId is valid, if not get current stack
+      // 自动恢复帧 ID：检查提供的 frameId 是否有效，无效则获取当前堆栈
       try {
         debugLog("Variable", `Validating frameId ${frameId}`)
         const testScopes = await activeDebugSession.customRequest("scopes", { frameId })
@@ -973,7 +973,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
       }
 
       if (expression) {
-        // Evaluate ABAP expression
+        // 求值 ABAP 表达式
         debugLog("Variable", `Evaluating expression: ${expression}`)
         try {
           const evalResult = await activeDebugSession.customRequest("evaluate", {
@@ -1003,13 +1003,13 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
       if (variableName) {
         debugLog("Variable", `Searching for variable ${variableName}`)
 
-        // Get all stack frames to search through all of them
+        // 获取所有堆栈帧以全部搜索
         let allFrames: any[] = []
         try {
           const stackTrace = await activeDebugSession.customRequest("stackTrace", {
             threadId,
             startFrame: 0,
-            levels: 20 // Get up to 20 frames
+            levels: 20 // 获取最多 20 帧
           })
           if (stackTrace && stackTrace.stackFrames) {
             allFrames = stackTrace.stackFrames
@@ -1027,13 +1027,13 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
         let foundFrameId: number | null = null
         let foundFrameName: string | null = null
 
-        // Pre-parse SY-* variable names outside the loop
+        // 在循环外预解析 SY-* 变量名
         const upperVariableName = variableName.toUpperCase()
         const syMatch = upperVariableName.match(/^SY[-_](.+)$/)
         const isSyVariable = !!syMatch
-        const syFieldName = syMatch ? syMatch[1] : null // e.g., "DATUM" from "SY-DATUM"
+        const syFieldName = syMatch ? syMatch[1] : null // 例如从 "SY-DATUM" 得到 "DATUM"
 
-        // Search through all frames for the variable
+        // 在所有帧中搜索变量
         for (const frame of allFrames) {
           debugLog("Variable", `Searching frame ${frame.id}: ${frame.name}`)
           try {
@@ -1043,9 +1043,9 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
               for (const scope of scopes.scopes) {
                 const scopeName = scope.name?.toUpperCase() || ""
 
-                // For SY-* variables, ONLY search in the SY scope
+                // 对 SY-* 变量，只在 SY 作用域中搜索
                 if (isSyVariable) {
-                  if (scopeName !== "SY") continue // Skip non-SY scopes for SY-* variables
+                  if (scopeName !== "SY") continue // 对 SY-* 变量跳过非 SY 作用域
                 }
 
                 const scopeVars = await activeDebugSession.customRequest("variables", {
@@ -1056,12 +1056,12 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
                   let variable: any = null
 
                   if (isSyVariable && scopeName === "SY") {
-                    // For SY-* variables in SY scope, search for just the field name
+                    // 对 SY 作用域中的 SY-* 变量，只按字段名搜索
                     variable = scopeVars.variables.find(
                       (v: any) => v.name.toUpperCase() === syFieldName
                     )
                   } else {
-                    // Normal variable search
+                    // 普通变量搜索
                     variable = scopeVars.variables.find(
                       (v: any) => v.name.toUpperCase() === upperVariableName
                     )
@@ -1098,7 +1098,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
             result += `Frame: ${foundFrameName} (ID: ${foundFrameId})\n`
           }
 
-          // Handle complex variables (structures, tables)
+          // 处理复杂变量（结构、表）
           if (foundVariable.variablesReference && foundVariable.variablesReference > 0) {
             const childVars = await activeDebugSession.customRequest("variables", {
               variablesReference: foundVariable.variablesReference
@@ -1112,10 +1112,10 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
                 let rowsToShow = childVars.variables
 
                 if (filter) {
-                  // FILTER MODE: Return first N matching rows, ignore row interval
+                  // 过滤模式：返回前 N 个匹配行，忽略行区间
                   try {
                     const filteredRows = this.applyAdvancedFilter(childVars.variables, filter)
-                    const maxRows = rowCount // Use rowCount as max results when filtering
+                    const maxRows = rowCount // 过滤时把 rowCount 作为最大结果数
                     rowsToShow = filteredRows.slice(0, maxRows)
 
                     result += `Total Table Rows: ${totalRows}\n`
@@ -1137,7 +1137,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
                     }
                   } catch (filterError) {
                     result += ` Filter Error: ${filterError}\n`
-                    // Fallback to simple contains filter
+                    // 回退到简单包含过滤
                     const simpleFiltered = childVars.variables.filter((row: any) => {
                       const rowValue = row.value.toString().toLowerCase()
                       return rowValue.includes(filter.toLowerCase())
@@ -1146,7 +1146,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
                     result += `Fallback Filter Applied: ${rowsToShow.length} matches\n\n`
                   }
                 } else {
-                  // ROW INTERVAL MODE: Pagination without filtering
+                  // 行区间模式：无过滤分页
                   const endRow = Math.min(rowStart + rowCount, totalRows)
                   const actualRowStart = Math.min(rowStart, Math.max(0, totalRows - 1))
                   rowsToShow = childVars.variables.slice(actualRowStart, endRow)
@@ -1166,7 +1166,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
                   }
                 }
               } else {
-                // Structure or other complex type
+                // 结构或其他复杂类型
                 result += `Components: ${childVars.variables.length}\n\n`
                 result += ` Structure Content:\n`
 
@@ -1189,7 +1189,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
       }
 
       if (!variableName && !expression) {
-        // Get all variables in current scope or specific scope
+        // 获取当前作用域或指定作用域中的所有变量
         const scopes = await activeDebugSession.customRequest("scopes", { frameId: actualFrameId })
 
         if (scopes && scopes.scopes) {
@@ -1209,7 +1209,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
             if (scopeVars && scopeVars.variables) {
               let filteredVars = scopeVars.variables
 
-              // Apply filter pattern if provided
+              // 提供了过滤模式则应用
               if (filterPattern) {
                 const pattern = filterPattern.replace(/\*/g, ".*").replace(/\?/g, ".")
                 const regex = new RegExp(`^${pattern}$`, "i")
@@ -1217,7 +1217,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
                 result += `Filter Pattern: ${filterPattern} (${filteredVars.length} matches)\n`
               }
 
-              // Group variables by name for display (but preserve all instances for debugging)
+              // 按名称分组变量用于显示（但保留所有实例用于调试）
               const variableGroups = new Map<string, any[]>()
               filteredVars.forEach((variable: any) => {
                 if (!variableGroups.has(variable.name)) {
@@ -1232,19 +1232,19 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
               for (let i = 0; i < displayCount; i++) {
                 const varName = uniqueNames[i]
                 const instances = variableGroups.get(varName)!
-                const variable = instances[0] // Use first instance for display
+                const variable = instances[0] // 显示时使用第一个实例
 
                 let valuePreview =
                   variable.value.length > 100
                     ? variable.value.substring(0, 100) + "..."
                     : variable.value
 
-                // Add type indicators
+                // 添加类型指示符
                 const typeIndicator = this.getVariableTypeIndicator(variable)
                 const duplicateInfo = instances.length > 1 ? ` (${instances.length} instances)` : ""
                 result += `  ${typeIndicator} ${variable.name}: ${valuePreview}${duplicateInfo}\n`
 
-                // Expand structures if requested
+                // 请求时展开结构
                 if (
                   expandStructures &&
                   variable.variablesReference > 0 &&
@@ -1255,7 +1255,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
                       variablesReference: variable.variablesReference
                     })
                     if (childVars && childVars.variables) {
-                      // Show all components up to maxVariables limit (not just 20)
+                      // 显示最多 maxVariables 限制的所有组件（不只是 20 个）
                       const componentsToShow = Math.min(childVars.variables.length, maxVariables)
 
                       for (let j = 0; j < componentsToShow; j++) {
@@ -1272,7 +1272,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
                   }
                 }
 
-                // Expand tables if requested
+                // 请求时展开表
                 if (
                   expandTables &&
                   variable.variablesReference > 0 &&
@@ -1287,7 +1287,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
                       for (let j = 0; j < showRows; j++) {
                         const row = tableVars.variables[j]
 
-                        // If row is a structure, expand it to show field values
+                        // 如果行是结构，展开显示字段值
                         if (row.variablesReference > 0) {
                           try {
                             const rowFields = await activeDebugSession.customRequest("variables", {
@@ -1335,7 +1335,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
         result = " No variable data available. Ensure debugger is paused at a breakpoint."
       }
 
-      // Prepend frame ID warning if applicable
+      // 适用时在结果前加上帧 ID 警告
       const finalResult = frameIdWarning + result
 
       return new vscode.LanguageModelToolResult([new vscode.LanguageModelTextPart(finalResult)])
@@ -1351,7 +1351,7 @@ export class ABAPDebugVariableTool implements vscode.LanguageModelTool<IVariable
 }
 
 // ====================================
-// STACK TRACE TOOL
+// 调用栈工具
 // ====================================
 
 export class ABAPDebugStackTool implements vscode.LanguageModelTool<IStackTraceParameters> {
@@ -1412,11 +1412,11 @@ export class ABAPDebugStackTool implements vscode.LanguageModelTool<IStackTraceP
       }
 
       debugLog("Stack", `Requesting stackTrace for thread ${threadId}`)
-      // Get stack trace
+      // 获取调用栈
       const stackTrace = await activeDebugSession.customRequest("stackTrace", {
         threadId,
         startFrame: 0,
-        levels: 50 // Limit stack depth
+        levels: 50 // 限制堆栈深度
       })
       debugLog("Stack", `stackTrace response:`, {
         frameCount: stackTrace?.stackFrames?.length || 0
@@ -1438,7 +1438,7 @@ export class ABAPDebugStackTool implements vscode.LanguageModelTool<IStackTraceP
         }
         result += `\n`
 
-        // Add current execution indicator
+        // 添加当前执行点指示
         if (i === 0) {
           result += `   Current execution point\n`
         }
@@ -1463,7 +1463,7 @@ export class ABAPDebugStackTool implements vscode.LanguageModelTool<IStackTraceP
 }
 
 // ====================================
-// DEBUG STATUS TOOL
+// 调试状态工具
 // ====================================
 
 export class ABAPDebugStatusTool implements vscode.LanguageModelTool<IDebugStatusParameters> {
@@ -1509,7 +1509,7 @@ export class ABAPDebugStatusTool implements vscode.LanguageModelTool<IDebugStatu
         totalSessions: AbapDebugSession.activeSessions
       })
 
-      // Log debugListener details if available
+      // 可用时记录 debugListener 详情
       if (session) {
         const debugListener = session.debugListener
         debugLog("Status", `DebugListener info:`, {
@@ -1534,7 +1534,7 @@ export class ABAPDebugStatusTool implements vscode.LanguageModelTool<IDebugStatu
       if (session && activeSession && activeSession.type === "abap") {
         try {
           debugLog("Status", `Getting threads`)
-          // Get threads
+          // 获取线程
           const threads = await activeSession.customRequest("threads")
           debugLog("Status", `Threads response:`, threads)
 
@@ -1547,7 +1547,7 @@ export class ABAPDebugStatusTool implements vscode.LanguageModelTool<IDebugStatu
             }
           }
 
-          // Try to get current stack to see if we're paused
+          // 尝试获取当前堆栈以查看是否已暂停
           try {
             debugLog("Status", `Getting stackTrace`)
             const stackTrace = await activeSession.customRequest("stackTrace", {
@@ -1565,22 +1565,22 @@ export class ABAPDebugStatusTool implements vscode.LanguageModelTool<IDebugStatu
               result += `Current Location: ${currentFrame.source?.name || "unknown"} line ${currentFrame.line}\n`
               result += `Current Method: ${currentFrame.name}\n`
 
-              // Try to get the actual source code at current line
+              // 尝试获取当前行的实际源码
               if (currentFrame.source?.path) {
                 try {
                   const sourceUri = vscode.Uri.parse(currentFrame.source.path)
 
-                  // First check if document is already open (to get current editor content with unsaved changes)
+                  // 先检查文档是否已打开（获取带未保存修改的当前编辑器内容）
                   let document = vscode.workspace.textDocuments.find(
                     doc => doc.uri.toString() === sourceUri.toString()
                   )
 
-                  // If not already open, then open it (will get SAP server version)
+                  // 如果未打开，则打开它（将获取 SAP 服务器版本）
                   if (!document) {
                     document = await vscode.workspace.openTextDocument(sourceUri)
                   }
 
-                  const lineIndex = currentFrame.line - 1 // VS Code uses 0-based line numbers
+                  const lineIndex = currentFrame.line - 1 // VS Code 使用从 0 开始的行号
 
                   if (lineIndex >= 0 && lineIndex < document.lineCount) {
                     const currentLine = document.lineAt(lineIndex)
@@ -1589,7 +1589,7 @@ export class ABAPDebugStatusTool implements vscode.LanguageModelTool<IDebugStatu
                     const isDirty = document.isDirty ? " (unsaved changes)" : ""
                     result += `Current Code: \`${lineText}\`${isDirty}\n`
 
-                    // Also show some context (2 lines before and after)
+                    // 同时显示一些上下文（前后各 2 行）
                     const contextLines: string[] = []
                     for (
                       let i = Math.max(0, lineIndex - 2);
@@ -1607,12 +1607,12 @@ export class ABAPDebugStatusTool implements vscode.LanguageModelTool<IDebugStatu
                     }
                   }
                 } catch (sourceError) {
-                  // Couldn't get source code, but that's okay
+                  // 无法获取源码，但没关系
                   result += `Current Code: (source not available)\n`
                 }
               }
             } else {
-              // Check if there are any threads - if none, execution likely completed
+              // 检查是否有线程 - 如果没有，执行可能已完成
               const threads = await activeSession.customRequest("threads")
               if (threads && threads.threads && threads.threads.length === 0) {
                 result += `\n Current State: Completed - Execution finished\n`
@@ -1621,7 +1621,7 @@ export class ABAPDebugStatusTool implements vscode.LanguageModelTool<IDebugStatu
               }
             }
           } catch {
-            // If we can't get stack trace, check thread count to determine state
+            // 如果无法获取堆栈，检查线程数确定状态
             try {
               const threads = await activeSession.customRequest("threads")
               if (threads && threads.threads && threads.threads.length === 0) {
