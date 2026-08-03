@@ -11,22 +11,22 @@ import { ParseTree, ParseTreeListener, TerminalNode } from "antlr4ts/tree"
 import { Position } from "vscode-languageserver"
 
 /**
- * Returns true when the parse tree node represents an ANTLR rule context.
+ * 当解析树节点表示 ANTLR 规则上下文时返回 true。
  */
 export const isRuleContext = (tree: ParseTree): tree is ParserRuleContext => !!(tree as any).start
 
 /**
- * Returns true when the parse tree node is a terminal token.
+ * 当解析树节点是终结符 token 时返回 true。
  */
 export const isTerminal = (tree: ParseTree): tree is TerminalNode => !!(tree as any).symbol
 
 /**
- * Returns the ANTLR token type for a terminal node when one exists.
+ * 当存在时返回终结节点的 ANTLR token 类型。
  */
 export const terminalType = (t: ParseTree) => isTerminal(t) && t.symbol.type
 
 /**
- * Convert an ANTLR line and character position to the LSP Position shape used by the server.
+ * 把 ANTLR 行和字符位置转换为服务器使用的 LSP Position 形状。
  */
 export const vscPosition = (line: number, character: number): Position => ({
   line: line - 1,
@@ -39,7 +39,7 @@ const tokenStopPosition = (t: Token): Position =>
   vscPosition(t.line, t.stopIndex - t.startIndex + t.charPositionInLine)
 
 /**
- * Determine whether the given cursor position falls inside the visible span of a token.
+ * 确定给定光标位置是否落在 token 的可见范围内。
  */
 export const positionInToken = (p: Position, t: Token) => {
   const start = tokenStartPosition(t)
@@ -53,7 +53,7 @@ export const positionInToken = (p: Position, t: Token) => {
 }
 
 /**
- * Find the nearest parser rule that contains the requested cursor position.
+ * 找到包含请求光标位置的最近解析器规则。
  */
 export function positionInContext(ctx: ParserRuleContext, position: Position) {
   const start = tokenStartPosition(ctx.start)
@@ -71,7 +71,7 @@ export function positionInContext(ctx: ParserRuleContext, position: Position) {
 }
 
 /**
- * Walk the parse tree to the deepest node that still contains the cursor.
+ * 遍历解析树到仍包含光标的最深节点。
  */
 export function findNode(ctx: ParserRuleContext, pos: Position): ParserRuleContext | undefined {
   if (positionInContext(ctx, pos))
@@ -142,19 +142,19 @@ const sourceOrFieldCompletion = (
 }
 
 /**
- * Describe the kind of CDS navigation target that was resolved from the current cursor.
+ * 描述从当前光标解析出的 CDS 导航目标类型。
  */
 export type MatchType = "NONE" | "FIELD" | "SOURCE"
 
 /**
- * The semantic target resolved from a CDS expression at the cursor position.
+ * 从光标位置的 CDS 表达式解析出的语义目标。
  */
 export type CdsNavTarget =
-  | { kind: "source"; name: string } // table/view name (data source)
-  | { kind: "field"; source: string; field: string } // alias.field → resolved source.field
-  | { kind: "association"; name: string } // association target
-  | { kind: "dataElement"; name: string } // data element in CAST
-  | { kind: "unknown"; word: string } // fallback - just the word
+  | { kind: "source"; name: string } // 表/视图名（数据源）
+  | { kind: "field"; source: string; field: string } // alias.field → 已解析的 source.field
+  | { kind: "association"; name: string } // 关联目标
+  | { kind: "dataElement"; name: string } // CAST 中的数据元素
+  | { kind: "unknown"; word: string } // 回退 - 只有单词
 
 interface AliasMap {
   [alias: string]: string
@@ -169,7 +169,7 @@ function buildAliasMap(tree: ParserRuleContext): AliasMap {
       const ids = children.filter(isTerminal).filter(t => t.symbol.type === ABAPCDSLexer.IDENTIFIER)
       if (ids.length > 0) {
         const tableName = ids[0].text
-        // find alias child rule
+        // 查找别名子规则
         const aliasCtx = (ctx.children || [])
           .filter(isRuleContext)
           .find(c => c.ruleIndex === ABAPCDSParser.RULE_alias)
@@ -212,16 +212,16 @@ export function cdsNavigationTarget(source: string, pos: Position): CdsNavTarget
     const tree = parseCDS(source)
     const aliasMap = buildAliasMap(tree)
 
-    // find the deepest rule containing the cursor
+    // 找到包含光标的最深规则
     const node = findParentRule(tree, pos)
     if (!node) return { kind: "unknown", word }
 
-    // walk up from the node to find the semantic context
+    // 从节点向上遍历以找到语义上下文
     let current: ParserRuleContext | undefined = node
     while (current) {
       switch (current.ruleIndex) {
         case ABAPCDSParser.RULE_data_source: {
-          // cursor is on a data source name (table/view)
+          // 光标在数据源名（表/视图）上
           const children = current.children || []
           const firstId = children
             .filter(isTerminal)
@@ -232,7 +232,7 @@ export function cdsNavigationTarget(source: string, pos: Position): CdsNavTarget
           break
         }
         case ABAPCDSParser.RULE_target: {
-          // association target
+          // 关联目标
           return { kind: "association", name: word }
         }
         case ABAPCDSParser.RULE_data_element: {
@@ -240,35 +240,35 @@ export function cdsNavigationTarget(source: string, pos: Position): CdsNavTarget
         }
         case ABAPCDSParser.RULE_path_expr: {
           // path_expr: IDENTIFIER? path_association ('.' path_association)* ('.' IDENTIFIER)?
-          // e.g. a071.matnr → alias=a071, field=matnr
+          // 例如 a071.matnr → alias=a071、field=matnr
           const text = current.text
           const parts = text.split(".")
           if (parts.length >= 2) {
             const alias = parts[0].toLowerCase()
             const resolvedSource = aliasMap[alias] || parts[0]
-            // if cursor is on the alias part, navigate to the source
+            // 如果光标在别名部分，导航到源
             const firstChild = (current.children || [])[0]
             if (isTerminal(firstChild) && positionInToken(pos, firstChild.symbol)) {
               return { kind: "source", name: resolvedSource }
             }
-            // cursor is on a field part
+            // 光标在字段部分
             return { kind: "field", source: resolvedSource, field: parts.slice(1).join(".") }
           }
           break
         }
         case ABAPCDSParser.RULE_alias: {
-          // alias after AS in field_rename or data_source — not a navigable object
+          // field_rename 或 data_source 中 AS 之后的别名 — 不是可导航对象
           return undefined
         }
         case ABAPCDSParser.RULE_field:
         case ABAPCDSParser.RULE_case_operand:
         case ABAPCDSParser.RULE_arg: {
-          // simple field reference - might be alias.field or just field
-          // check if the word is an alias
+          // 简单字段引用 - 可能是 alias.field 或只是 field
+          // 检查该单词是否为别名
           if (aliasMap[word.toLowerCase()]) {
             return { kind: "source", name: aliasMap[word.toLowerCase()] }
           }
-          // it's a bare field name - try all sources
+          // 它是裸字段名 - 尝试所有源
           const allSources = Object.values(aliasMap)
           if (allSources.length > 0) {
             return { kind: "field", source: allSources[0], field: word }
@@ -279,14 +279,14 @@ export function cdsNavigationTarget(source: string, pos: Position): CdsNavTarget
       current = current.parent as ParserRuleContext | undefined
     }
   } catch (e) {
-    // parse error - fall through to word-based lookup
+    // 解析错误 - 回退到基于单词的查找
   }
 
   return { kind: "unknown", word }
 }
 
 /**
- * Inspect CDS source at the cursor and determine whether completion should target data sources or fields.
+ * 检查光标处的 CDS 源码，确定补全应针对数据源还是字段。
  */
 export const cdsCompletionExtractor = (source: string, cursor: Position) => {
   const result = {
@@ -311,7 +311,7 @@ export const cdsCompletionExtractor = (source: string, cursor: Position) => {
 }
 
 /**
- * Collect the data sources referenced by a CDS view so completion can query their fields.
+ * 收集 CDS 视图引用的数据源，以便补全可以查询它们的字段。
  */
 export function cdsDataSources(source: string): string[] {
   try {
