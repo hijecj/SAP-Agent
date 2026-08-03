@@ -7,7 +7,7 @@ const cache: Map<string, AbapObjectDetail> = new Map()
 const vsurlCache: Map<string, string> = new Map()
 
 /**
- * Refresh the cached include relationship when the owning main program changes.
+ * 当所属主程序变化时刷新缓存的 include 关系。
  */
 export function updateInclude(prog: MainProgram) {
   const c = cache.get(prog.includeUri)
@@ -19,7 +19,7 @@ export function updateInclude(prog: MainProgram) {
 }
 
 /**
- * Retrieve object details from the cache or resolve them from the ADT backend.
+ * 从缓存检索对象详情，或从 ADT 后端解析它们。
  */
 export async function getObject(uri: string) {
   let object: AbapObjectDetail | undefined = cache.get(uri)
@@ -32,7 +32,7 @@ export async function getObject(uri: string) {
 }
 
 /**
- * Convert an ADT object URI into the VS Code URI that the editor can open.
+ * 把 ADT 对象 URI 转换为编辑器可以打开的 VS Code URI。
  */
 export async function vscUrl(confKey: string, uri: string, main: boolean = true) {
   const isContextualInclude = /\/source\/main/i.test(uri)
