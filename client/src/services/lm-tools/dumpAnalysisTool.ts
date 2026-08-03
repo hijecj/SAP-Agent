@@ -1,6 +1,6 @@
 /**
- * ABAP Dump Analysis Tool
- * Analyze runtime dumps for troubleshooting
+ * ABAP Dump 分析工具
+ * 分析运行时 Dump 用于故障排查
  */
 
 import * as vscode from "vscode"
@@ -10,23 +10,23 @@ import { getClient } from "../../adt/conections"
 import { assertToolInvocationAuthorized } from "./toolGuard"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface IDumpAnalysisParameters {
   action: "list_dumps" | "analyze_dump"
-  connectionId: string // Mandatory - need SAP system connection
-  dumpId?: string // Required for analyze_dump action
-  maxResults?: number // For list_dumps action (default: 20, max: 100)
-  includeFullContent?: boolean // Include raw HTML content for analysis
+  connectionId: string // 必填 - 需要 SAP 系统连接
+  dumpId?: string // analyze_dump 操作需要
+  maxResults?: number // 用于 list_dumps 操作（默认：20，最大：100）
+  includeFullContent?: boolean // 包含原始 HTML 内容用于分析
 }
 
 // ============================================================================
-// TOOL CLASS
+// 工具类
 // ============================================================================
 
 /**
- * 🔍 ABAP DUMP ANALYSIS TOOL - Comprehensive dump analysis and troubleshooting
+ * 🔍 ABAP DUMP 分析工具 - 全面 Dump 分析和故障排查
  */
 export class ABAPDumpAnalysisTool implements vscode.LanguageModelTool<IDumpAnalysisParameters> {
   async prepareInvocation(
@@ -75,12 +75,12 @@ export class ABAPDumpAnalysisTool implements vscode.LanguageModelTool<IDumpAnaly
     logTelemetry("tool_analyze_abap_dumps_called", { connectionId })
 
     try {
-      // connectionId is now mandatory
+      // connectionId 现在是必填的
       const actualConnectionId = connectionId.toLowerCase()
 
       const client = getClient(actualConnectionId)
 
-      // Validate required parameters based on action
+      // 按操作校验必填参数
       if (action === "analyze_dump" && !dumpId) {
         throw new Error("dumpId parameter is required for analyze_dump action")
       }
@@ -105,10 +105,10 @@ export class ABAPDumpAnalysisTool implements vscode.LanguageModelTool<IDumpAnaly
     connectionId: string,
     maxResults: number
   ): Promise<vscode.LanguageModelToolResult> {
-    // Safety limit to prevent excessive API calls
+    // 安全限制，防止过多 API 调用
     maxResults = Math.min(maxResults, 100)
     try {
-      // Check if dumps feed is available
+      // 检查 Dump feed 是否可用
       const feeds = await client.feeds()
       const dumpFeed = feeds.find((f: any) => f.href === "/sap/bc/adt/runtime/dumps")
 
@@ -131,7 +131,7 @@ export class ABAPDumpAnalysisTool implements vscode.LanguageModelTool<IDumpAnaly
         ])
       }
 
-      // Limit results
+      // 限制结果
       const limitedDumps = dumps.slice(0, maxResults)
 
       let result = `ABAP Runtime Dumps (${limitedDumps.length} of ${dumps.length} total)\n`
@@ -185,7 +185,7 @@ export class ABAPDumpAnalysisTool implements vscode.LanguageModelTool<IDumpAnaly
       if (dump.updated) result += `Timestamp: ${new Date(dump.updated).toLocaleString()}\n`
       result += `\n`
 
-      // Analyze HTML content structure (without unreliable parsing)
+      // 分析 HTML 内容结构（不做不可靠的解析）
       if (dump.text) {
         const htmlContent = dump.text
 
@@ -215,7 +215,7 @@ export class ABAPDumpAnalysisTool implements vscode.LanguageModelTool<IDumpAnaly
 }
 
 // ============================================================================
-// REGISTRATION
+// 注册
 // ============================================================================
 
 export function registerDumpAnalysisTool(context: vscode.ExtensionContext): void {
