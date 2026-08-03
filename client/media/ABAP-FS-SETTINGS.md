@@ -1,93 +1,93 @@
-# ABAP FS Settings Reference
+# ABAP FS 设置参考
 
-This document provides a comprehensive reference for all ABAP FS extension settings and is meant for AI agents. AI agents can use this to help users understand, configure, and troubleshoot the extension.
-
----
-
-## Table of Contents
-
-1. [SAP System Connection Settings](#1-sap-system-connection-settings)
-2. [Fun Notifications](#2-fun-notifications)
-3. [MCP Server Settings](#3-mcp-server-settings)
-4. [Embedded GUI Settings](#4-embedded-gui-settings)
-5. [ABAP Cleaner Integration](#5-abap-cleaner-integration)
-6. [Local File Storage](#6-local-file-storage)
-7. [AI Subagents](#7-ai-subagents)
-8. [Heartbeat Service](#8-heartbeat-service)
-9. [Feed Subscriptions](#9-feed-subscriptions)
-10. [Blame Annotations](#10-blame-annotations)
-11. [Editor Defaults](#11-editor-defaults)
+本文档提供所有 ABAP FS 扩展设置的完整参考，供 AI 代理使用。AI 代理可以用它来帮助用户理解、配置和排查扩展问题。
 
 ---
 
-## 1. SAP System Connection Settings
+## 目录
 
-### Managing Connections
+1. [SAP 系统连接设置](#1-sap-系统连接设置)
+2. [趣味通知](#2-趣味通知)
+3. [MCP 服务器设置](#3-mcp-服务器设置)
+4. [嵌入式 GUI 设置](#4-嵌入式-gui-设置)
+5. [ABAP Cleaner 集成](#5-abap-cleaner-集成)
+6. [本地文件存储](#6-本地文件存储)
+7. [AI 子代理](#7-ai-子代理)
+8. [心跳服务](#8-心跳服务)
+9. [Feed 订阅](#9-feed-订阅)
+10. [Blame 注释](#10-blame-注释)
+11. [编辑器默认值](#11-编辑器默认值)
 
-**Recommended: Use the SAP Connection Manager GUI**
+---
 
-Run command: `ABAP FS: Connection Manager` (or press `Ctrl+Shift+P` and search for it)
+## 1. SAP 系统连接设置
 
-The Connection Manager provides a visual interface to:
-- **Add** new SAP system connections with a guided form
-- **Edit** existing connections
-- **Delete** connections (single or bulk)
-- **Export** connections to JSON for sharing with team members
-- **Import** connections from JSON files
-- **Create BTP/Cloud connections** from service keys or endpoints
-- **Bulk edit usernames** across multiple connections
-- **Choose storage location**: User settings (global) or Workspace settings (project-specific)
+### 管理连接
 
-**Note:** Passwords are NEVER stored in settings files. On first connection, the user will be prompted for their password, which is then securely stored in the operating system's credential manager.
+**推荐：使用 SAP 连接管理器界面**
+
+运行命令：`ABAP FS: Connection Manager`（或按 `Ctrl+Shift+P` 搜索它）
+
+连接管理器提供可视化界面，可以：
+- **添加**带引导表单的新 SAP 系统连接
+- **编辑**现有连接
+- **删除**连接（单个或批量）
+- **导出**连接为 JSON 与团队成员共享
+- **导入**来自 JSON 文件的连接
+- 从服务密钥或端点**创建 BTP/云连接**
+- **批量修改**多个连接的用户名
+- **选择存储位置**：用户设置（全局）或工作区设置（工程专属）
+
+**注意：** 密码**绝不**存储在设置文件中。首次连接时系统会提示用户输入密码，然后安全存储在操作系统的凭据管理器中。
 
 ---
 
 ### `abapfs.remote`
 
-The main setting for configuring SAP system connections. This is an object where each key is a connection ID (e.g., `dev100`, `prod`) and the value contains connection details.
+配置 SAP 系统连接的主要设置。这是一个对象，每个键是一个连接 ID（例如 `dev100`、`prod`），值包含连接详情。
 
-| Property | Type | Default | Min/Max | Description |
+| 属性 | 类型 | 默认值 | 最小/最大 | 描述 |
 |----------|------|---------|---------|-------------|
-| `url` | string | `"https://myserver:44300"` | - | The HTTP(S) URL of the SAP development server. Must include protocol and port. |
-| `username` | string | `"developer"` | - | SAP user name for authentication. Password is requested at runtime and stored securely. |
-| `client` | string | `"001"` | 3 chars | SAP client number (3 digits). |
-| `language` | string | `"en"` | 2 chars | Login language code (ISO 639-1). |
-| `atcapprover` | string | `""` | - | Default ATC (ABAP Test Cockpit) approver username for exemption requests. |
-| `atcVariant` | string | `""` | - | Default ATC check variant to use for code quality checks. |
-| `allowSelfSigned` | boolean | `false` | - | Accept self-signed SSL certificates. **Reduces connection security.** Use only for development servers. |
-| `customCA` | string | `"/secrets/myCA.pem"` | - | Path to custom Certificate Authority certificate file (PEM format) for corporate CAs. |
-| `diff_formatter` | string | `"ADT formatter"` | enum: `ADT formatter`, `AbapLint`, `simple` | Code formatter to use when comparing versions. |
-| `maxDebugThreads` | integer | `4` | 1-20 | Maximum concurrent debug threads per debugging session. |
+| `url` | string | `"https://myserver:44300"` | - | SAP 开发服务器的 HTTP(S) URL。必须包含协议和端口。 |
+| `username` | string | `"developer"` | - | 认证用 SAP 用户名。密码在运行时请求并安全存储。 |
+| `client` | string | `"001"` | 3 个字符 | SAP client 编号（3 位数字）。 |
+| `language` | string | `"en"` | 2 个字符 | 登录语言代码（ISO 639-1）。 |
+| `atcapprover` | string | `""` | - | 豁免申请使用的默认 ATC（ABAP Test Cockpit）审批人用户名。 |
+| `atcVariant` | string | `""` | - | 代码质量检查使用的默认 ATC 检查变式。 |
+| `allowSelfSigned` | boolean | `false` | - | 接受自签名 SSL 证书。**降低连接安全性。** 仅用于开发服务器。 |
+| `customCA` | string | `"/secrets/myCA.pem"` | - | 企业 CA 的自定义证书颁发机构证书文件（PEM 格式）路径。 |
+| `diff_formatter` | string | `"ADT formatter"` | 枚举：`ADT formatter`、`AbapLint`、`simple` | 比较版本时使用的代码格式化器。 |
+| `maxDebugThreads` | integer | `4` | 1-20 | 每个调试会话的最大并发调试线程数。 |
 
-#### OAuth Sub-properties (for BTP/Cloud systems)
+#### OAuth 子属性（用于 BTP/云系统）
 
-| Property | Type | Required | Description |
+| 属性 | 类型 | 必填 | 描述 |
 |----------|------|----------|-------------|
-| `oauth.clientId` | string | Yes | OAuth 2.0 client ID from BTP service key. |
-| `oauth.clientSecret` | string | Yes | OAuth 2.0 client secret. |
-| `oauth.loginUrl` | string | Yes | OAuth token endpoint URL. |
-| `oauth.saveCredentials` | boolean | No | Whether to persist OAuth tokens. |
+| `oauth.clientId` | string | 是 | BTP 服务密钥中的 OAuth 2.0 客户端 ID。 |
+| `oauth.clientSecret` | string | 是 | OAuth 2.0 客户端密钥。 |
+| `oauth.loginUrl` | string | 是 | OAuth token 端点 URL。 |
+| `oauth.saveCredentials` | boolean | 否 | 是否持久化 OAuth token。 |
 
-#### SAP GUI Sub-properties
+#### SAP GUI 子属性
 
-| Property | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |----------|------|---------|-------------|
-| `sapGui.disabled` | boolean | `false` | Disable SAP GUI integration entirely. |
-| `sapGui.guiType` | enum | `"SAPGUI"` | GUI type: `SAPGUI` (desktop), `WEBGUI_CONTROLLED` (browser without password exposure), `WEBGUI_UNSAFE` (external browser), `WEBGUI_UNSAFE_EMBEDDED` (embedded webview). |
-| `sapGui.server` | string | - | Application server hostname (direct SAP GUI connection). |
-| `sapGui.systemNumber` | string | - | System number (2 digits, for direct connection). |
-| `sapGui.group` | string | - | Logon group name (load balancing). |
-| `sapGui.messageServer` | string | - | Message server hostname (load balancing). |
-| `sapGui.messageServerPort` | string | `"3600"` | Message server port. |
-| `sapGui.routerString` | string | - | SAP Router string for connections through firewalls. |
+| `sapGui.disabled` | boolean | `false` | 完全禁用 SAP GUI 集成。 |
+| `sapGui.guiType` | enum | `"SAPGUI"` | GUI 类型：`SAPGUI`（桌面）、`WEBGUI_CONTROLLED`（浏览器，不暴露密码）、`WEBGUI_UNSAFE`（外部浏览器）、`WEBGUI_UNSAFE_EMBEDDED`（嵌入式 WebView）。 |
+| `sapGui.server` | string | - | 应用服务器主机名（直接 SAP GUI 连接）。 |
+| `sapGui.systemNumber` | string | - | 系统编号（2 位数字，用于直接连接）。 |
+| `sapGui.group` | string | - | 登录组名称（负载均衡）。 |
+| `sapGui.messageServer` | string | - | 消息服务器主机名（负载均衡）。 |
+| `sapGui.messageServerPort` | string | `"3600"` | 消息服务器端口。 |
+| `sapGui.routerString` | string | - | 用于防火墙连接的 SAP Router 字符串。 |
 
-**GUI Type Options:**
-- `SAPGUI` - Use desktop SAP GUI (default, most secure)
-- `WEBGUI_CONTROLLED` - Use WebGUI in default browser (secure, no password exposure)
-- `WEBGUI_UNSAFE` - Use WebGUI in default browser (⚠️ may expose password in URL)
-- `WEBGUI_UNSAFE_EMBEDDED` - Use WebGUI embedded in VS Code (⚠️ may expose password). If this shows a blank page, see `abapfs.sapGui.useIntegratedBrowser` below.
+**GUI 类型选项：**
+- `SAPGUI` - 使用桌面 SAP GUI（默认，最安全）
+- `WEBGUI_CONTROLLED` - 在默认浏览器中使用 WebGUI（安全，不暴露密码）
+- `WEBGUI_UNSAFE` - 在默认浏览器中使用 WebGUI（⚠️ 可能在 URL 中暴露密码）
+- `WEBGUI_UNSAFE_EMBEDDED` - 在 VS Code 中使用嵌入式 WebGUI（⚠️ 可能暴露密码）。如果显示空白页，参见下面的 `abapfs.sapGui.useIntegratedBrowser`。
 
-**Example Configuration:**
+**示例配置：**
 ```json
 {
   "abapfs.remote": {
@@ -104,15 +104,15 @@ The main setting for configuring SAP system connections. This is an object where
 
 ---
 
-## 2. Fun Notifications
+## 2. 趣味通知
 
 ### `abapfs.copilot.professionalNotifications`
 
-| Property | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |----------|------|---------|-------------|
-| `professionalNotifications` | boolean | `false` | When `true`, disables fun emoji prefixes on notifications and shows plain professional messages. When disabled (default), notifications include playful emojis like "🎉 Activated!", "✅ Tests passed!". |
+| `professionalNotifications` | boolean | `false` | 为 `true` 时，禁用通知上的趣味表情前缀，显示简洁的专业消息。默认禁用时，通知包含 "🎉 Activated!"、"✅ Tests passed!" 等俏皮表情。 |
 
-**Example:**
+**示例：**
 ```json
 {
   "abapfs.copilot.professionalNotifications": true
@@ -121,29 +121,29 @@ The main setting for configuring SAP system connections. This is an object where
 
 ---
 
-## 3. MCP Server Settings
+## 3. MCP 服务器设置
 
-The MCP (Model Context Protocol) server allows external AI tools like Cursor, Claude Desktop, Eclipse ADT etc., to use ABAP FS tools.
+MCP（模型上下文协议）服务器允许 Cursor、Claude Desktop、Eclipse ADT 等外部 AI 工具使用 ABAP FS 工具。
 
 ### `abapfs.mcpServer.autoStart`
 
-| Property | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |----------|------|---------|-------------|
-| `autoStart` | boolean | `false` | Automatically start the MCP server when the extension activates. |
+| `autoStart` | boolean | `false` | 扩展激活时自动启动 MCP 服务器。 |
 
 ### `abapfs.mcpServer.port`
 
-| Property | Type | Default | Min/Max | Description |
+| 属性 | 类型 | 默认值 | 最小/最大 | 描述 |
 |----------|------|---------|---------|-------------|
-| `port` | integer | `4847` | 1024-65535 | Port number for the MCP HTTP server. Change if default port conflicts with other services. |
+| `port` | integer | `4847` | 1024-65535 | MCP HTTP 服务器的端口号。默认端口与其他服务冲突时更改。 |
 
 ### `abapfs.mcpServer.apiKey`
 
-| Property | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |----------|------|---------|-------------|
-| `apiKey` | string | `""` | API key for MCP server authentication. Clients must include this as `Authorization: Bearer <key>`. Empty = no authentication (not recommended for shared machines). |
+| `apiKey` | string | `""` | MCP 服务器认证的 API 密钥。客户端必须将其作为 `Authorization: Bearer <key>` 发送。空值 = 无认证（共享机器上不推荐）。 |
 
-**Example:**
+**示例：**
 ```json
 {
   "abapfs.mcpServer.autoStart": true,
@@ -154,15 +154,15 @@ The MCP (Model Context Protocol) server allows external AI tools like Cursor, Cl
 
 ---
 
-## 4. Embedded GUI Settings
+## 4. 嵌入式 GUI 设置
 
 ### `abapfs.autoOpenUnsupportedInGui`
 
-| Property | Type | Default | Scope | Description |
+| 属性 | 类型 | 默认值 | 作用域 | 描述 |
 |----------|------|---------|-------|-------------|
-| `autoOpenUnsupportedInGui` | boolean | `true` | application | Automatically open unsupported object types (like SAPGUI-only objects) in SAP GUI. When `false`, shows a message with manual options instead. |
+| `autoOpenUnsupportedInGui` | boolean | `true` | application | 在 SAP GUI 中自动打开不支持的对象类型（如仅 SAPGUI 的对象）。为 `false` 时，改为显示带手动选项的消息。 |
 
-**Example:**
+**示例：**
 ```json
 {
   "abapfs.autoOpenUnsupportedInGui": true
@@ -171,15 +171,15 @@ The MCP (Model Context Protocol) server allows external AI tools like Cursor, Cl
 
 ### `abapfs.sapGui.useIntegratedBrowser`
 
-| Property | Type | Default | Scope | Description |
+| 属性 | 类型 | 默认值 | 作用域 | 描述 |
 |----------|------|---------|-------|-------------|
-| `useIntegratedBrowser` | boolean | `true` | resource | Use VS Code's integrated browser (Simple Browser) instead of the embedded WebView for SAP GUI. Enable this if the embedded WebView shows a blank page due to SAP clickjacking frame protection. Enabled by default |
+| `useIntegratedBrowser` | boolean | `true` | resource | 对 SAP GUI 使用 VS Code 的集成浏览器（Simple Browser）而不是嵌入式 WebView。如果嵌入式 WebView 因 SAP 点击劫持框架保护显示空白页，请启用此设置。默认启用 |
 
-When enabled, all embedded SAP GUI actions (toolbar button, command palette, Run Transaction) will open in VS Code's Simple Browser instead of a webview iframe. This avoids clickjacking restrictions that some SAP systems enforce.
+启用后，所有嵌入式 SAP GUI 操作（工具栏按钮、命令面板、运行事务）都会在 VS Code 的 Simple Browser 中打开，而不是 webview iframe。这可以避免某些 SAP 系统强制执行的点击劫持限制。
 
-> **Related VS Code setting:** `simpleBrowser.useIntegratedBrowser` (experimental, desktop only) — controls whether VS Code's Simple Browser itself uses the integrated browser engine instead of a webview. Enabling both settings together may provide the best compatibility.
+> **相关 VS Code 设置：** `simpleBrowser.useIntegratedBrowser`（实验性，仅桌面端）— 控制 VS Code 的 Simple Browser 本身是否使用集成浏览器引擎而不是 webview。两个设置一起启用可能提供最佳兼容性。
 
-**Example:**
+**示例：**
 ```json
 {
   "abapfs.sapGui.useIntegratedBrowser": true
@@ -188,26 +188,26 @@ When enabled, all embedded SAP GUI actions (toolbar button, command palette, Run
 
 ---
 
-## 5. ABAP Cleaner Integration
+## 5. ABAP Cleaner 集成
 
-Integration with [SAP ABAP Cleaner](https://github.com/SAP/abap-cleaner) for automatic code formatting.
+与 [SAP ABAP Cleaner](https://github.com/SAP/abap-cleaner) 集成，用于自动代码格式化。
 
 ### `abapfs.cleaner`
 
-| Sub-property | Type | Default | Min/Max | Description |
+| 子属性 | 类型 | 默认值 | 最小/最大 | 描述 |
 |--------------|------|---------|---------|-------------|
-| `enabled` | boolean | `false` | - | Enable ABAP Cleaner integration. Must also set `executablePath`. |
-| `executablePath` | string | `""` | - | Full path to `abap-cleanerc.exe` (command line version). **Required.** Example: `C:\tools\abap-cleaner\abap-cleanerc.exe` |
-| `profilePath` | string | `""` | - | Path to custom cleanup profile (`.cfj` file). Leave empty for default rules. |
-| `targetRelease` | enum | `"latest"` | `7.02`-`7.57`, `latest` | Target ABAP release version. Determines which language features the cleaner can use. Use lower version for backwards compatibility. |
-| `showStatistics` | boolean | `true` | - | Show cleanup statistics (number of changes) after processing. |
-| `showAppliedRules` | boolean | `false` | - | Show which specific cleanup rules were applied (verbose output). |
-| `cleanOnSave` | boolean | `false` | - | Automatically clean ABAP code when saving files. |
-| `lineRange.enabled` | boolean | `false` | - | Enable line range cleaning (clean only selected lines). |
-| `lineRange.expandRange` | boolean | `true` | - | Automatically expand range to include complete statements. |
-| `timeout` | number | `30000` | 5000-300000 | Timeout in milliseconds for cleanup operations (30000ms = 30 seconds). |
+| `enabled` | boolean | `false` | - | 启用 ABAP Cleaner 集成。还必须设置 `executablePath`。 |
+| `executablePath` | string | `""` | - | `abap-cleanerc.exe`（命令行版本）的完整路径。**必填。** 示例：`C:\tools\abap-cleaner\abap-cleanerc.exe` |
+| `profilePath` | string | `""` | - | 自定义清理配置文件（`.cfj` 文件）的路径。留空使用默认规则。 |
+| `targetRelease` | enum | `"latest"` | `7.02`-`7.57`、`latest` | 目标 ABAP 版本。决定清理器可以使用哪些语言特性。使用较低版本可向后兼容。 |
+| `showStatistics` | boolean | `true` | - | 处理后显示清理统计信息（修改数量）。 |
+| `showAppliedRules` | boolean | `false` | - | 显示应用了哪些具体清理规则（详细输出）。 |
+| `cleanOnSave` | boolean | `false` | - | 保存文件时自动清理 ABAP 代码。 |
+| `lineRange.enabled` | boolean | `false` | - | 启用行范围清理（只清理选中的行）。 |
+| `lineRange.expandRange` | boolean | `true` | - | 自动扩展范围以包含完整语句。 |
+| `timeout` | number | `30000` | 5000-300000 | 清理操作的超时时间（毫秒）（30000ms = 30 秒）。 |
 
-**Example:**
+**示例：**
 ```json
 {
   "abapfs.cleaner": {
@@ -222,15 +222,15 @@ Integration with [SAP ABAP Cleaner](https://github.com/SAP/abap-cleaner) for aut
 
 ---
 
-## 6. Local File Storage
+## 6. 本地文件存储
 
 ### `abapfs.localfs.preferGlobal`
 
-| Property | Type | Default | Scope | Description |
+| 属性 | 类型 | 默认值 | 作用域 | 描述 |
 |----------|------|---------|-------|-------------|
-| `preferGlobal` | boolean | `false` | resource | Store non-ABAP files (like AI agent configs, hidden files starting with `.`) in a global folder shared by all workspaces, instead of per-workspace storage. Useful for sharing AI agent configurations across projects. |
+| `preferGlobal` | boolean | `false` | resource | 把非 ABAP 文件（如 AI 代理配置、以 `.` 开头的隐藏文件）存储在由所有工作区共享的全局文件夹中，而不是按工作区存储。便于跨工程共享 AI 代理配置。 |
 
-**Example:**
+**示例：**
 ```json
 {
   "abapfs.localfs.preferGlobal": true
@@ -239,96 +239,96 @@ Integration with [SAP ABAP Cleaner](https://github.com/SAP/abap-cleaner) for aut
 
 ---
 
-## 7. AI Subagents
+## 7. AI 子代理
 
-Subagents delegate specialized ABAP tasks to cheaper/faster AI models to reduce costs and preserve context window of main agent.
+子代理把专门的 ABAP 任务委派给更便宜/更快的 AI 模型，以降低成本并保留主代理的上下文窗口。
 
 ### `abapfs.subagents.enabled`
 
-| Property | Type | Default | Scope | Description |
+| 属性 | 类型 | 默认值 | 作用域 | 描述 |
 |----------|------|---------|-------|-------------|
-| `enabled` | boolean | `false` | resource | Enable AI subagents for optimized ABAP analysis. Copilot delegates tasks to configured models to reduce costs. |
+| `enabled` | boolean | `false` | resource | 启用 AI 子代理以优化 ABAP 分析。Copilot 把任务委派给已配置的模型以降低成本。 |
 
 ### `abapfs.subagents.models`
 
-| Property | Type | Default | Scope | Description |
+| 属性 | 类型 | 默认值 | 作用域 | 描述 |
 |----------|------|---------|-------|-------------|
-| `models` | object | `{}` | resource | Model assignments for each subagent. Use the `manage_subagents` tool to configure (ask Copilot: "configure subagent models"). |
+| `models` | object | `{}` | resource | 每个子代理的模型分配。使用 `manage_subagents` 工具配置（让 Copilot：“configure subagent models”）。 |
 
-**Note:** Cannot enable subagents without configuring models first. Use the built-in configuration tool.
+**注意：** 不先配置模型就无法启用子代理。请使用内置配置工具。
 
 ---
 
-## 8. Heartbeat Service
+## 8. 心跳服务
 
-Background monitoring service that periodically runs an LLM to check SAP systems and send reminders.
+后台监控服务，定期运行 LLM 检查 SAP 系统并发送提醒。
 
 ### `abapfs.heartbeat.enabled`
 
-| Property | Type | Default | Scope | Description |
+| 属性 | 类型 | 默认值 | 作用域 | 描述 |
 |----------|------|---------|-------|-------------|
-| `enabled` | boolean | `false` | resource | Enable heartbeat service. **Requires `model` to be configured first.** |
+| `enabled` | boolean | `false` | resource | 启用心跳服务。**必须先配置 `model`。** |
 
 ### `abapfs.heartbeat.every`
 
-| Property | Type | Default | Scope | Description |
+| 属性 | 类型 | 默认值 | 作用域 | 描述 |
 |----------|------|---------|-------|-------------|
-| `every` | string | `"30m"` | resource | Heartbeat check interval. Format: number + unit (`5m` = 5 minutes, `1h` = 1 hour, `30s` = 30 seconds). Minimum: 1m, recommended: 5-30m. |
+| `every` | string | `"30m"` | resource | 心跳检查间隔。格式：数字 + 单位（`5m` = 5 分钟，`1h` = 1 小时，`30s` = 30 秒）。最小 1m，推荐 5-30m。 |
 
 ### `abapfs.heartbeat.model`
 
-| Property | Type | Default | Scope | Description |
+| 属性 | 类型 | 默认值 | 作用域 | 描述 |
 |----------|------|---------|-------|-------------|
-| `model` | string | `""` | resource | **Required.** Language model to use for heartbeat. Examples: `"GPT-4o mini"`, `"Claude Haiku 4"`. **Use cheap models to minimize costs!** |
+| `model` | string | `""` | resource | **必填。** 心跳使用的语言模型。示例：`"GPT-4o mini"`、`"Claude Haiku 4"`。**用便宜模型以最小化成本！** |
 
 ### `abapfs.heartbeat.prompt`
 
-| Property | Type | Default | Scope | Description |
+| 属性 | 类型 | 默认值 | 作用域 | 描述 |
 |----------|------|---------|-------|-------------|
-| `prompt` | string | `""` | resource | Custom heartbeat prompt. If empty, uses `heartbeat.json` watchlist in workspace to build the prompt automatically. |
+| `prompt` | string | `""` | resource | 自定义心跳提示。为空时使用工作区中的 `heartbeat.json` 监控列表自动构建提示。 |
 
 ### `abapfs.heartbeat.ackMaxChars`
 
-| Property | Type | Default | Min/Max | Scope | Description |
+| 属性 | 类型 | 默认值 | 最小/最大 | 作用域 | 描述 |
 |----------|------|---------|---------|-------|-------------|
-| `ackMaxChars` | number | `300` | 0-1000 | resource | Maximum characters allowed after `HEARTBEAT_OK` response before treating it as an alert. Prevents false positives. |
+| `ackMaxChars` | number | `300` | 0-1000 | resource | `HEARTBEAT_OK` 响应后允许的最大字符数，超过则视为告警。防止误报。 |
 
 ### `abapfs.heartbeat.maxHistory`
 
-| Property | Type | Default | Min/Max | Scope | Description |
+| 属性 | 类型 | 默认值 | 最小/最大 | 作用域 | 描述 |
 |----------|------|---------|---------|-------|-------------|
-| `maxHistory` | number | `100` | 10-1000 | resource | Maximum heartbeat history entries to keep. Older entries are pruned. |
+| `maxHistory` | number | `100` | 10-1000 | resource | 保留的最大心跳历史条数。较早的条目会被清理。 |
 
 ### `abapfs.heartbeat.maxConsecutiveErrors`
 
-| Property | Type | Default | Min/Max | Scope | Description |
+| 属性 | 类型 | 默认值 | 最小/最大 | 作用域 | 描述 |
 |----------|------|---------|---------|-------|-------------|
-| `maxConsecutiveErrors` | number | `20` | 1-50 | resource | Auto-pause heartbeat after this many consecutive errors. Prevents runaway costs from repeated failures. |
+| `maxConsecutiveErrors` | number | `20` | 1-50 | resource | 连续这么多错误后自动暂停心跳。防止反复失败导致成本失控。 |
 
 ### `abapfs.heartbeat.activeHours`
 
-Restrict heartbeat to active hours to save costs during off-hours.
+把心跳限制在活跃时段，节省非工作时间的成本。
 
-| Property | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |----------|------|---------|-------------|
-| `activeHours` | object | `null` | Restrict heartbeat to specified hours. |
-| `activeHours.start` | string | - | Start time in 24h format (e.g., `"08:00"`). |
-| `activeHours.end` | string | - | End time in 24h format (e.g., `"22:00"` or `"24:00"`). |
-| `activeHours.timezone` | string | - | Timezone: `"local"`, `"utc"`, or IANA timezone (e.g., `"America/New_York"`). |
+| `activeHours` | object | `null` | 把心跳限制在指定时段。 |
+| `activeHours.start` | string | - | 开始时间，24 小时制（例如 `"08:00"`）。 |
+| `activeHours.end` | string | - | 结束时间，24 小时制（例如 `"22:00"` 或 `"24:00"`）。 |
+| `activeHours.timezone` | string | - | 时区：`"local"`、`"utc"` 或 IANA 时区（例如 `"America/New_York"`）。 |
 
 ### `abapfs.heartbeat.notifyOnAlert`
 
-| Property | Type | Default | Scope | Description |
+| 属性 | 类型 | 默认值 | 作用域 | 描述 |
 |----------|------|---------|-------|-------------|
-| `notifyOnAlert` | boolean | `true` | resource | Show VS Code notification when heartbeat finds something that needs attention. |
+| `notifyOnAlert` | boolean | `true` | resource | 心跳发现需要注意的内容时显示 VS Code 通知。 |
 
 ### `abapfs.heartbeat.notifyOnError`
 
-| Property | Type | Default | Scope | Description |
+| 属性 | 类型 | 默认值 | 作用域 | 描述 |
 |----------|------|---------|-------|-------------|
-| `notifyOnError` | boolean | `true` | resource | Show VS Code notification when heartbeat encounters an error. |
+| `notifyOnError` | boolean | `true` | resource | 心跳遇到错误时显示 VS Code 通知。 |
 
-**Example:**
+**示例：**
 ```json
 {
   "abapfs.heartbeat.enabled": true,
@@ -345,30 +345,30 @@ Restrict heartbeat to active hours to save costs during off-hours.
 
 ---
 
-## 9. Feed Subscriptions
+## 9. Feed 订阅
 
-ADT feed subscriptions for monitoring SAP system events (transports, dumps, etc.).
+用于监控 SAP 系统事件（传输、Dump 等）的 ADT feed 订阅。
 
-**Configure via command:** `ABAP FS: Configure Feeds`
+**通过命令配置：** `ABAP FS: Configure Feeds`
 
 ### `abapfs.feedSubscriptions`
 
-| Property | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |----------|------|---------|-------------|
-| `feedSubscriptions` | object | `{}` | Feed subscriptions organized by system ID → feed ID. Use the Configure Feeds command for easy setup. |
+| `feedSubscriptions` | object | `{}` | 按系统 ID → feed ID 组织的 feed 订阅。使用 Configure Feeds 命令便于设置。 |
 
-#### Per-Feed Properties
+#### 每个 feed 的属性
 
-| Property | Type | Default | Min/Max | Description |
+| 属性 | 类型 | 默认值 | 最小/最大 | 描述 |
 |----------|------|---------|---------|-------------|
-| `enabled` | boolean | `false` | - | Whether this feed is actively polled. |
-| `pollingInterval` | number | `300` | 120-86400 | Polling interval in seconds (min 2 minutes, max 24 hours). |
-| `notifications` | boolean | `true` | - | Show notifications for new feed entries. |
-| `notificationLevel` | enum | `"all"` | `all`, `error`, `warning`, `info` | Filter notifications by severity level. |
-| `query` | string | `""` | - | Custom query filter for this feed. |
-| `useDefaultQuery` | boolean | `true` | - | Use the feed's default query instead of custom query. |
+| `enabled` | boolean | `false` | - | 此 feed 是否被主动轮询。 |
+| `pollingInterval` | number | `300` | 120-86400 | 轮询间隔（秒）（最小 2 分钟，最大 24 小时）。 |
+| `notifications` | boolean | `true` | - | 为新 feed 条目显示通知。 |
+| `notificationLevel` | enum | `"all"` | `all`、`error`、`warning`、`info` | 按严重级别过滤通知。 |
+| `query` | string | `""` | - | 此 feed 的自定义查询过滤。 |
+| `useDefaultQuery` | boolean | `true` | - | 使用 feed 的默认查询而不是自定义查询。 |
 
-**Example:**
+**示例：**
 ```json
 {
   "abapfs.feedSubscriptions": {
@@ -387,21 +387,21 @@ ADT feed subscriptions for monitoring SAP system events (transports, dumps, etc.
 
 ---
 
-## 10. Blame Annotations
+## 10. Blame 注释
 
-GitLens-style file blame annotations can be shown in two layouts. The render mode setting is global-only, so changing it in user settings affects every workspace.
+GitLens 风格的文件 blame 注释可以用两种布局显示。渲染模式设置仅限全局，所以在用户设置中更改会影响所有工作区。
 
 ### `abapfs.blame.renderMode`
 
-| Property | Type | Default | Scope | Description |
+| 属性 | 类型 | 默认值 | 作用域 | 描述 |
 |----------|------|---------|-------|-------------|
-| `renderMode` | enum | `"gitlens"` | application | Controls how file blame annotations are rendered. `classic` keeps the original inline-after-code layout. `gitlens` uses a fixed GitLens-style blame lane before the code. |
+| `renderMode` | enum | `"gitlens"` | application | 控制文件 blame 注释的渲染方式。`classic` 保持原有的代码后内联布局。`gitlens` 在代码前使用固定的 GitLens 风格 blame 通道。 |
 
-**Allowed Values:**
-- `classic` - Existing ABAP FS blame layout with annotations aligned after the code
-- `gitlens` - GitLens-style fixed blame lane before the code with grouped blocks and heatmap edge coloring
+**允许的值：**
+- `classic` - 现有 ABAP FS blame 布局，注释对齐在代码之后
+- `gitlens` - GitLens 风格的固定 blame 通道，位于代码之前，带分组块和热力图边缘着色
 
-**Example:**
+**示例：**
 ```json
 {
   "abapfs.blame.renderMode": "gitlens"
@@ -410,38 +410,38 @@ GitLens-style file blame annotations can be shown in two layouts. The render mod
 
 ---
 
-## 11. Editor Defaults
+## 11. 编辑器默认值
 
-ABAP FS sets recommended editor defaults for ABAP files:
+ABAP FS 为 ABAP 文件设置推荐的编辑器默认值：
 
-| Setting | Default Value | Description |
+| 设置 | 默认值 | 描述 |
 |---------|---------------|-------------|
-| `editor.formatOnSave` | `true` | Automatically format ABAP code when saving (for `[abap]` files). |
-| `editor.hover.delay` | `700` | Delay before showing hover information (ms). |
-| `editor.hover.above` | `false` | Show hover below the cursor. |
+| `editor.formatOnSave` | `true` | 保存时自动格式化 ABAP 代码（适用于 `[abap]` 文件）。 |
+| `editor.hover.delay` | `700` | 显示悬停信息前的延迟（毫秒）。 |
+| `editor.hover.above` | `false` | 在光标下方显示悬停内容。 |
 
-These are automatically applied but can be overridden in user settings.
+这些设置会自动应用，但可以在用户设置中覆盖。
 
 ---
 
-## Quick Setup Guide
+## 快速设置指南
 
-### Step 1: Add SAP Connection (Easiest Way)
+### 第 1 步：添加 SAP 连接（最简单的方式）
 
-1. Press `Ctrl+Shift+P`
-2. Run `ABAP FS: Connection Manager`
-3. Click "Add Connection"
-4. Fill in server details
-5. Click "Save"
+1. 按 `Ctrl+Shift+P`
+2. 运行 `ABAP FS: Connection Manager`
+3. 点击“添加连接”
+4. 填写服务器详情
+5. 点击“保存”
 
-### Step 2: Connect to SAP
+### 第 2 步：连接 SAP
 
-1. Press `Ctrl+Shift+P`
-2. Run `ABAP FS: Connect to an ABAP system`
-3. Select the connection
-4. Enter password when prompted (stored securely in OS credential manager)
+1. 按 `Ctrl+Shift+P`
+2. 运行 `ABAP FS: Connect to an ABAP system`
+3. 选择连接
+4. 提示时输入密码（安全存储在操作系统凭据管理器中）
 
-### Minimal Manual Setup
+### 最小手动设置
 
 ```json
 {
@@ -456,7 +456,7 @@ These are automatically applied but can be overridden in user settings.
 }
 ```
 
-### Enable Heartbeat Monitoring
+### 启用心跳监控
 
 ```json
 {
@@ -466,7 +466,7 @@ These are automatically applied but can be overridden in user settings.
 }
 ```
 
-### Enable ABAP Cleaner
+### 启用 ABAP Cleaner
 
 ```json
 {
@@ -480,33 +480,33 @@ These are automatically applied but can be overridden in user settings.
 
 ---
 
-## Troubleshooting
+## 故障排查
 
-| Issue | Setting to Check | Solution |
+| 问题 | 要检查的设置 | 解决方案 |
 |-------|------------------|----------|
-| Can't connect to SAP | `abapfs.remote.*.url`, `*.username` | Verify URL includes protocol/port, username is correct. Password is entered at runtime. |
-| SSL certificate errors | `abapfs.remote.*.allowSelfSigned`, `*.customCA` | Set `allowSelfSigned: true` for dev, or provide `customCA` path for corporate CA. |
-| Heartbeat won't start | `abapfs.heartbeat.model` | Must be set before enabling. Use a cheap model like "GPT-4o mini". |
-| ABAP Cleaner not working | `abapfs.cleaner.enabled`, `*.executablePath` | Both must be set. Verify `abap-cleanerc.exe` exists at the path. |
-| Subagents disabled automatically | `abapfs.subagents.models` | Configure model for each agent. User can ask Copilot to "configure subagent models". |
-| MCP server connection refused | `abapfs.mcpServer.autoStart`, `*.port` | Ensure autoStart is true, verify port isn't in use by another application. |
-| Password not saved in settings | (by design) | Passwords are stored in OS credential manager, not in settings files. |
+| 无法连接 SAP | `abapfs.remote.*.url`、`*.username` | 确认 URL 包含协议/端口、用户名正确。密码在运行时输入。 |
+| SSL 证书错误 | `abapfs.remote.*.allowSelfSigned`、`*.customCA` | 开发环境设置 `allowSelfSigned: true`，或为企业 CA 提供 `customCA` 路径。 |
+| 心跳无法启动 | `abapfs.heartbeat.model` | 必须先设置才能启用。使用 "GPT-4o mini" 等便宜模型。 |
+| ABAP Cleaner 不工作 | `abapfs.cleaner.enabled`、`*.executablePath` | 两者都必须设置。确认 `abap-cleanerc.exe` 存在于该路径。 |
+| 子代理被自动禁用 | `abapfs.subagents.models` | 为每个代理配置模型。用户可以让 Copilot“configure subagent models”。 |
+| MCP 服务器连接被拒绝 | `abapfs.mcpServer.autoStart`、`*.port` | 确保 autoStart 为 true，确认端口未被其他应用占用。 |
+| 密码未保存在设置中 | （设计如此） | 密码存储在操作系统凭据管理器中，而不是设置文件。 |
 
 ---
 
-## Useful Commands
+## 常用命令
 
-| Command | Description |
+| 命令 | 描述 |
 |---------|-------------|
-| `ABAP FS: Connection Manager` | Open the visual connection management UI |
-| `ABAP FS: Connect to an ABAP system` | Connect to a configured SAP system |
-| `ABAP FS: Disconnect` | Disconnect from all SAP systems |
-| `ABAP FS: Configure Feeds` | Configure ADT feed subscriptions |
-| `ABAP FS: Search` | Search for ABAP objects |
-| `ABAP FS: Show Blame` | Toggle file blame annotations for the active ABAP editor |
-| `ABAP FS: Run in GUI` | Open current object in SAP GUI |
-| `ABAP FS: Run in Embedded GUI` | Open transaction in embedded WebGUI |
+| `ABAP FS: Connection Manager` | 打开可视化连接管理界面 |
+| `ABAP FS: Connect to an ABAP system` | 连接已配置的 SAP 系统 |
+| `ABAP FS: Disconnect` | 断开所有 SAP 系统 |
+| `ABAP FS: Configure Feeds` | 配置 ADT feed 订阅 |
+| `ABAP FS: Search` | 搜索 ABAP 对象 |
+| `ABAP FS: Show Blame` | 切换活动 ABAP 编辑器的文件 blame 注释 |
+| `ABAP FS: Run in GUI` | 在 SAP GUI 中打开当前对象 |
+| `ABAP FS: Run in Embedded GUI` | 在嵌入式 WebGUI 中打开事务 |
 
 ---
 
-*This document is designed for use by AI assistants to help users configure ABAP FS.*
+*本文档供 AI 助手使用，帮助用户配置 ABAP FS。*
