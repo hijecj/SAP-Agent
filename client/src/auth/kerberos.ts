@@ -1,23 +1,23 @@
 /**
- * Kerberos / SPNEGO Authentication
+ * Kerberos / SPNEGO 认证
  *
- * Uses the OS-native credential stack to authenticate to SAP systems
- * with Kerberos/SPNEGO (e.g. SAP Secure Login Client on Windows).
+ * 使用操作系统原生凭证栈，通过 Kerberos/SPNEGO 认证到 SAP 系统
+ * （例如 Windows 上的 SAP Secure Login Client）。
  *
- * On Windows: invokes PowerShell with .NET HttpWebRequest +
- *   UseDefaultCredentials, which uses Windows SSPI automatically.
- *   Zero native modules required — no `kerberos` npm package.
+ * 在 Windows 上：调用带 .NET HttpWebRequest 的 PowerShell +
+ *   UseDefaultCredentials，自动使用 Windows SSPI。
+ *   零原生模块依赖 — 不需要 `kerberos` npm 包。
  *
- * Flow:
- *  1. Windows domain user has a Kerberos TGT (domain login or SAP Secure Login Client)
- *  2. PowerShell makes an HTTP request to SAP with UseDefaultCredentials=true
- *  3. .NET/SSPI handles the full SPNEGO Negotiate handshake transparently
- *  4. We capture the session cookies (MYSAPSSO2, SAP_SESSIONID_*) from the response
- *  5. Subsequent ADT requests use those cookies via custom headers
+ * 流程：
+ *  1. Windows 域用户拥有 Kerberos TGT（域登录或 SAP Secure Login Client）
+ *  2. PowerShell 用 UseDefaultCredentials=true 向 SAP 发起 HTTP 请求
+ *  3. .NET/SSPI 透明处理完整的 SPNEGO Negotiate 握手
+ *  4. 我们从响应中捕获会话 cookie（MYSAPSSO2、SAP_SESSIONID_*）
+ *  5. 后续 ADT 请求通过自定义头使用这些 cookie
  *
- * Prerequisites:
- *  - Windows domain-joined machine with valid Kerberos TGT
- *  - SAP ICF service configured for SPNego authentication
+ * 前置条件：
+ *  - 已加入 Windows 域且具有有效 Kerberos TGT 的机器
+ *  - 为 SPNego 认证配置的 SAP ICF 服务
  */
 
 import { execFile } from "child_process"
@@ -28,7 +28,7 @@ import { buildCookieHeaders, errorMessage, sanitizeCookie, toStringArray } from 
 
 const VAULT_SERVICE = "vscode.abapfs.kerberos"
 
-/** SAP session cookie name patterns that indicate successful authentication. */
+/** 表示认证成功的 SAP 会话 cookie 名称模式。 */
 const SAP_AUTH_COOKIE_PATTERNS = [
   /^MYSAPSSO2$/i,
   /^SAP_SESSIONID_/i,
@@ -40,14 +40,14 @@ function isAuthCookie(name: string): boolean {
   return SAP_AUTH_COOKIE_PATTERNS.some(p => p.test(name))
 }
 
-/** Store captured session cookies securely. */
+/** 安全存储捕获的会话 cookie。 */
 export async function storeKerberosCookies(connId: string, cookies: string[]): Promise<void> {
   const vault = PasswordVault.get()
   await vault.setPassword(VAULT_SERVICE, formatKey(connId), JSON.stringify(cookies))
   log.debug(`[kerberos] Stored ${cookies.length} cookies for ${connId}`)
 }
 
-/** Retrieve stored session cookies. */
+/** 检索存储的会话 cookie。 */
 export async function getKerberosCookies(connId: string): Promise<string[]> {
   const vault = PasswordVault.get()
   const raw = await vault.getPassword(VAULT_SERVICE, formatKey(connId))
@@ -66,7 +66,7 @@ export async function getKerberosCookies(connId: string): Promise<string[]> {
   }
 }
 
-/** Clear stored session cookies. */
+/** 清除存储的会话 cookie。 */
 export async function clearKerberosCookies(connId: string): Promise<void> {
   const vault = PasswordVault.get()
   await vault.deletePassword(VAULT_SERVICE, formatKey(connId))
@@ -74,18 +74,18 @@ export async function clearKerberosCookies(connId: string): Promise<void> {
 }
 
 /**
- * Build the PowerShell script that performs Windows SSO authentication.
+ * 构建执行 Windows SSO 认证的 PowerShell 脚本。
  *
- * Strategy (two-phase fallback):
- *  Phase 1: Try UseDefaultCredentials (NTLM/Kerberos/SPNEGO)
- *           Works for domain-joined machines with a valid Kerberos TGT.
- *  Phase 2: If Phase 1 returns 401, scan the Windows certificate store
- *           (CurrentUser\My) for client authentication certificates and
- *           retry with client certificate auth.
- *           Works for SAP Secure Login Client (SLC) which installs X.509
- *           certificates into the Windows cert store.
+ * 策略（两阶段回退）：
+ *  阶段 1：尝试 UseDefaultCredentials（NTLM/Kerberos/SPNEGO）
+ *           适用于具有有效 Kerberos TGT 的已加入域机器。
+ *  阶段 2：如果阶段 1 返回 401，扫描 Windows 证书存储
+ *           （CurrentUser\My）中的客户端认证证书，并用
+ *           客户端证书认证重试。
+ *           适用于 SAP Secure Login Client（SLC），它会把 X.509
+ *           证书安装到 Windows 证书存储中。
  *
- * Output: JSON with { method, status, cookies, authHeader, certSubject?, error? }
+ * 输出：JSON，包含 { method, status, cookies, authHeader, certSubject?, error? }
  */
 function buildNegotiateScript(skipSsl: boolean): string {
   const lines: string[] = []
@@ -202,7 +202,7 @@ interface NegotiateResult {
   status: number
   cookies: string[]
   authHeader?: string
-  certSubject?: string // which cert worked (for certificate method)
+  certSubject?: string // 哪个证书生效（用于证书方法）
 }
 
 interface NegotiateFailureResult {
@@ -245,12 +245,12 @@ function isNegotiateFailureResult(
 }
 
 /**
- * Execute Windows SSO via PowerShell and return session cookies.
- * Timeout: 30 seconds.
+ * 通过 PowerShell 执行 Windows SSO 并返回会话 cookie。
+ * 超时：30 秒。
  *
- * SECURITY: The URL is embedded as a PowerShell single-quoted string literal.
- * Single-quoted strings in PowerShell are verbatim — no variable expansion
- * or escaping occurs. The only char that needs escaping is ' (doubled as '').
+ * 安全：URL 作为 PowerShell 单引号字符串字面量嵌入。
+ * PowerShell 中的单引号字符串是逐字的 — 不发生变量展开
+ * 或转义。唯一需要转义的字符是 '（加倍为 ''）。
  */
 function runPowerShellNegotiate(
   url: string,
@@ -292,7 +292,7 @@ function runPowerShellNegotiate(
             return
           }
           if (isNegotiateFailureResult(result) && result.error === "All SSO methods failed") {
-            // Structured failure — build a descriptive error
+            // 结构化失败 — 构建描述性错误
             const p1 = `Phase 1 (Kerberos/NTLM): HTTP ${result.phase1Status}, WWW-Authenticate: ${result.phase1Auth || "absent"}`
             const p2 = `Phase 2 (Certificate): found ${result.certsFound || 0} certs in Windows store`
             const tried = (result.certsTried || []).join(", ") || "none"
@@ -336,7 +336,7 @@ function runPowerShellNegotiate(
   })
 }
 
-/** SAP tracking cookies sent even on auth failure — must be excluded. */
+/** 即使认证失败也会发送的 SAP 跟踪 cookie — 必须排除。 */
 const SAP_TRACKING_COOKIES = [/^sap-usercontext$/i, /^sap-contextid$/i]
 
 function isTrackingCookie(name: string): boolean {
@@ -344,8 +344,8 @@ function isTrackingCookie(name: string): boolean {
 }
 
 /**
- * Perform Windows SSO authentication against SAP and capture session cookies.
- * Tries Kerberos/NTLM first, then falls back to Windows cert store (SLC).
+ * 对 SAP 执行 Windows SSO 认证并捕获会话 cookie。
+ * 先尝试 Kerberos/NTLM，然后回退到 Windows 证书存储（SLC）。
  */
 async function negotiateWithSap(
   kerberosConfig: KerberosAuthConfig | undefined,
@@ -371,8 +371,8 @@ async function negotiateWithSap(
   )
   const result = await runPowerShellNegotiate(url, skipSsl, targetSpn)
 
-  // Filter out SAP tracking cookies (sap-usercontext etc.) — these are sent on ALL
-  // responses including 401 failures and do NOT indicate successful authentication.
+  // 过滤掉 SAP 跟踪 cookie（sap-usercontext 等）— 这些会在所有
+  // 响应（包括 401 失败）中发送，不表示认证成功。
   const allCookies = result.cookies.map(cookie => sanitizeCookie(cookie))
   const sessionCookies = allCookies.filter(c => !isTrackingCookie(c.split("=")[0]))
 
@@ -381,7 +381,7 @@ async function negotiateWithSap(
   )
 
   if (sessionCookies.length === 0) {
-    // runPowerShellNegotiate already throws on auth failure, but guard just in case
+    // runPowerShellNegotiate 在认证失败时已抛出异常，但以防万一仍加防护
     throw new Error(
       `SSO handshake returned HTTP ${result.status} but no session cookies. ` +
         `Tracking cookies were filtered. Raw cookies: ${allCookies.map(c => c.split("=")[0]).join(", ")}`
@@ -398,10 +398,10 @@ async function negotiateWithSap(
 }
 
 /**
- * Build an AuthResult for Kerberos/SPNEGO/SLC authentication.
+ * 为 Kerberos/SPNEGO/SLC 认证构建 AuthResult。
  *
- * Performs the SSO handshake, captures cookies, stores them securely,
- * and returns an AuthResult that injects those cookies on every request.
+ * 执行 SSO 握手、捕获 cookie、安全存储它们，
+ * 并返回在每个请求中注入这些 cookie 的 AuthResult。
  */
 export async function buildKerberosAuth(
   connId: string,
@@ -424,7 +424,7 @@ export async function buildKerberosAuth(
 }
 
 /**
- * Re-authenticate (clear cached cookies and redo SSO handshake).
+ * 重新认证（清除缓存 cookie 并重做 SSO 握手）。
  */
 export async function refreshKerberosAuth(
   connId: string,
