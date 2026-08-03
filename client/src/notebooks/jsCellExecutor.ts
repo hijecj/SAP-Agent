@@ -1,13 +1,13 @@
 /**
- * JavaScript cell executor using worker_threads for true isolation.
+ * 使用 worker_threads 实现真正隔离的 JavaScript 单元格执行器。
  *
- * Each JS cell runs in a NEW Worker thread. The worker processes one
- * message, sends the result, and exits. If the cell hangs, the main
- * thread terminates the worker after a timeout.
+ * 每个 JS 单元格都在新的 Worker 线程中运行。worker 处理一条
+ * 消息，发送结果，然后退出。如果单元格挂起，主线程
+ * 在超时后终止 worker。
  *
- * Data is transferred via postMessage which uses V8's structured clone
- * algorithm — preserves Date, Map, Set, RegExp, ArrayBuffer, typed
- * arrays, and all other cloneable types natively. No JSON round-trip.
+ * 数据通过 postMessage 传输，它使用 V8 的结构化克隆
+ * 算法 — 原生保留 Date、Map、Set、RegExp、ArrayBuffer、类型化
+ * 数组以及所有其他可克隆类型。无 JSON 往返。
  */
 
 import { Worker } from "worker_threads"
@@ -53,7 +53,7 @@ export async function executeJsCell(
         try {
           worker?.terminate()
         } catch {
-          /* already dead */
+          /* 已死亡 */
         }
       })
     }
