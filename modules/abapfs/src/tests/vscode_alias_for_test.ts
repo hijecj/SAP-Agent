@@ -1,20 +1,20 @@
-// copied from visual studio code as the jest can't resolve the js implementation
-// can't find a better slution for now
+// 从 Visual Studio Code 复制，因为 jest 无法解析其 js 实现
+// 目前找不到更好的解决方案
 export enum FileType {
   /**
-   * The file type is unknown.
+   * 文件类型未知。
    */
   Unknown = 0,
   /**
-   * A regular file.
+   * 常规文件。
    */
   File = 1,
   /**
-   * A directory.
+   * 目录。
    */
   Directory = 2,
   /**
-   * A symbolic link to a file.
+   * 指向文件的符号链接。
    */
   SymbolicLink = 64
 }
