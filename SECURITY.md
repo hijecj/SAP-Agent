@@ -1,62 +1,62 @@
-# Security Policy
+# 安全策略
 
-We take security seriously. Which, for a project that connects to enterprise SAP systems, should be reassuring.
+我们认真对待安全问题。对于一个连接企业 SAP 系统的项目来说，这应该能让你放心一些。
 
-## Supported Versions
+## 受支持的版本
 
-| Version | Supported          |
+| 版本 | 支持状态 |
 | ------- | ------------------ |
-| 2.4.x   | ✅ Actively maintained |
-| 2.0–2.3 | ⚠️ Best effort (we'll look, no promises) |
-| 1.x     | ❌ End of life. It's 2026. Let go |
-| 0.x     | ❌ We pretend these don't exist |
+| 2.4.x | ✅ 积极维护 |
+| 2.0–2.3 | 🟡 尽力而为（我们会查看，但不做承诺） |
+| 1.x | ⛔ 已停止支持。现在是 2026 年了，放手吧 |
+| 0.x | 🙈 我们当作这些版本不存在 |
 
-## Reporting a Vulnerability
+## 报告漏洞
 
-**Do NOT open a public GitHub issue.** We know it's tempting. Resist.
+**不要**公开 GitHub issue。我们知道这很诱人。请忍住。
 
-Use GitHub's [private vulnerability reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability) feature on this repository, or email the maintainers directly.
+请使用本仓库的 GitHub [私有漏洞报告](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability) 功能，或直接给维护者发邮件。
 
-Tell us:
-- What's broken and how
-- How to reproduce it
-- What an attacker could do with it
-- A fix, if you have one (we'll buy you a virtual coffee)
+请告诉我们：
+- 什么坏了、怎么坏的
+- 如何复现
+- 攻击者能利用它做什么
+- 修复方案（如果你有的话——我们请你喝虚拟咖啡）
 
-We aim to acknowledge within 48 hours. Critical issues get patched within a week. Non-critical issues get patched when we stop procrastinating.
+我们承诺 48 小时内确认。严重问题一周内修复。非严重问题等我们不拖延的时候修复。
 
-## How We Handle Your Secrets
+## 我们如何处理你的密钥
 
-### SAP Credentials
-- Stored in VS Code's SecretStorage (your OS keychain — not a JSON file, not localStorage, not vibes)
-- If you put a password in plaintext `settings.json`, we'll show you a warning.
-- Your credentials go to exactly one place: your SAP system. Nowhere else. Ever
+### SAP 凭证
+- 存储在 VS Code 的 SecretStorage 中（你的操作系统钥匙串——不是 JSON 文件、不是 localStorage、不是玄学）
+- 如果你把密码明文写在 `settings.json` 里，我们会显示警告
+- 你的凭证只去一个地方：你的 SAP 系统。不会去其他任何地方。永远不会
 
-### MCP Server
-- Binds to `127.0.0.1` only — your neighbor's laptop cannot reach it
-- Optional API key authentication (Bearer token) for all endpoints except `/health`
-- Cross-origin requests? Rejected. OPTIONS preflight? Also rejected. We don't negotiate with browsers
-- Tool invocations carry a one-time nonce — replay attacks get nothing
+### MCP 服务器
+- 只绑定 `127.0.0.1`——邻居的电脑访问不到
+- 可选 API 密钥认证（Bearer token），除 `/health` 外的所有端点都要求
+- 跨域请求？拒绝。OPTIONS 预检？也拒绝。我们不和浏览器谈判
+- 工具调用携带一次性 nonce——重放攻击一无所获
 
-### AI Tool Security
-- All language model tools validate inputs and sanitize SQL parameters (no, you can't `DROP TABLE` via Copilot)
-- A tool guard prevents other extensions from calling our tools without authorization
-- Your SAP data stays local — the AI sees what you explicitly send through VS Code's language model API, nothing more
+### AI 工具安全
+- 所有语言模型工具都会校验输入并清洗 SQL 参数（别想通过 Copilot 执行 `DROP TABLE`）
+- 工具守卫可以阻止其他扩展未经授权调用我们的工具
+- 你的 SAP 数据只留在本地——AI 只能看到你通过 VS Code 语言模型 API 明确发送的内容，仅此而已
 
-### Things We Deliberately Don't Do
-- Phone home
-- Collect telemetry about your SAP data
-- Store credentials in plaintext (and we judge extensions that do)
-- Execute code fetched from the internet
-- Anything that would make your security team nervous (more nervous than usual)
+### 我们刻意不做的事
+- 不向外界发送数据（不打电话回家）
+- 不收集关于你 SAP 数据的遥测
+- 不以明文存储凭证（我们鄙视这么做的扩展）
+- 不执行从互联网获取的代码
+- 不做任何会让你的安全团队紧张的事情（比平时更紧张的事）
 
-## Known Limitations (a.k.a. Not Our Fault But Good to Know)
+## 已知限制（也可以说：不是我们的错，但值得知道）
 
-- We trust your SAP system. If your SAP system is compromised... well, you have much bigger problems than a VS Code extension
-- Debug recordings (`.abaprecord` files) capture variable values from runtime. These are basically core dumps with extra steps. Treat them accordingly
-- Data Workbook outputs (`.sapwb`) may contain query results stored locally. Don't put them in public repos
-- If someone has physical access to your machine and your OS keychain is unlocked, they can read your stored passwords. But again — bigger problems
+- 我们信任你的 SAP 系统。如果你的 SAP 系统被攻破……那你的问题比一个 VS Code 扩展大得多
+- 调试录像（`.abaprecord` 文件）会捕获运行时的变量值。它们本质上就是带额外步骤的核心转储。请按此标准对待
+- 数据工作簿的输出（`.sapwb`）可能包含本地存储的查询结果。不要放进公共仓库
+- 如果有人能物理接触你的机器且你的操作系统钥匙串处于解锁状态，他们就能读取存储的密码。但同样——那才是更大的问题
 
-## Dependencies
+## 依赖
 
-Dependabot watches our `package.json` files like a hawk. Critical CVEs get addressed promptly. If you spot something we missed, tell us — we're not too proud to accept help.
+Dependabot 像鹰一样盯着我们的 `package.json` 文件。严重 CVE 会及时处理。如果你发现我们遗漏了什么，告诉我们——我们并不骄傲到不接受帮助。
