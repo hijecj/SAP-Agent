@@ -15,7 +15,7 @@ export const pick =
 export const flat = <T>(a: T[][]): T[] => a.reduce((res, current) => [...res, ...current], [])
 
 export const ignore = () => {
-  /* make linter happy */
+  /* 让 linter 满意 */
 }
 
 export function parseAbapFile(name: string, abap: string): ABAPFile | undefined {
@@ -30,8 +30,8 @@ export const firstInMap = <K, V>(map: Map<K, V>): [K, V] | undefined => {
 
 export const flatMap = <T1, T2>(arr: T1[], cb: (c: T1, idx?: number, arrref?: T1[]) => T2[]) =>
   flat(arr.map(cb))
-// given an array of objects returns a map indexed by a property
-// only works if the property is an unique key
+// 给定对象数组，返回按属性索引的映射
+// 只在属性是唯一键时有效
 export function ArrayToMap<T>(name: keyof T) {
   return (arr: T[]): Map<string, T> => {
     return arr.reduce((_map, current: T) => {
@@ -41,7 +41,7 @@ export function ArrayToMap<T>(name: keyof T) {
   }
 }
 
-// returns a function that gets the given property from a map
+// 返回从映射中获取给定属性的函数
 export const selectMap =
   <T1, K extends keyof T1, T2>(
     _map: Map<string, T1>,
@@ -115,7 +115,7 @@ export const eatPromiseException = async <T>(p: Promise<T>) => {
   try {
     return await p
   } catch (error) {
-    // ignore
+    // 忽略
   }
 }
 export const eatException =
@@ -127,7 +127,7 @@ export const eatException =
       return
     }
   }
-// synchronous. awaiting would defeat the purpose
+// 同步的。等待会违背目的
 export const createMutex = () => {
   const m: Map<string, Promise<any>> = new Map()
   return (key: string, cb: any) => {
@@ -141,12 +141,12 @@ export interface Cache<TK, TP> extends Iterable<TP> {
   size: number
 }
 /**
- * Given a constructor function returns an enumerable cache of objects
- * Optionally accepts a key conversion method as second parameter
- * Automates the pattern of returning an object from a map, or create and insert it if not found
+ * 给定构造函数，返回可枚举的对象缓存
+ * 可选接受键转换方法作为第二个参数
+ * 自动化从映射返回对象、或未找到时创建并插入的模式
  *
  * @param  {(k:TMAPKEY)=>TRESULT} creator
- * @param  {(k:TGETKEY)=>TMAPKEY=(x:any} KeyTranslator (optional)
+ * @param  {(k:TGETKEY)=>TMAPKEY=(x:any} KeyTranslator（可选）
  */
 export function cache<TGETKEY, TRESULT, TMAPKEY>(
   creator: (k: TGETKEY) => TRESULT,
@@ -230,7 +230,7 @@ export const promiseQueue = <T>(initial: T) => {
   let last = initial
 
   return (cb?: (c: T) => Promise<T>, onErr?: (e: Error) => void) => {
-    // must guarantee current will always resolve!
+    // 必须保证 current 始终能解析！
     if (cb)
       current = current.then(async cur => {
         try {
