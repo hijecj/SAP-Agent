@@ -19,7 +19,7 @@ import { log } from "../../lib"
 import { funWindow as window } from "../../services/funMessenger"
 
 /**
- * System node in feed tree
+ * Feed 树中的系统节点
  */
 class SystemFeedNode extends TreeItem {
   readonly tag = "system" as const
@@ -30,12 +30,12 @@ class SystemFeedNode extends TreeItem {
   ) {
     const baseLabel = systemId || "Unknown System"
 
-    // Calculate stats before super() call
+    // 在 super() 调用前计算统计
     const allEntries = stateManager.getAllFeedEntries()
     const systemEntries = allEntries.filter(e => e.systemId === systemId)
     const unreadCount = systemEntries.filter(e => !e.isRead).length
 
-    // Add dot indicator if unread
+    // 未读时添加圆点指示
     const label = unreadCount > 0 ? `● ${baseLabel}` : baseLabel
 
     super(label, TreeItemCollapsibleState.Expanded)
@@ -51,7 +51,7 @@ class SystemFeedNode extends TreeItem {
 
   async children(): Promise<FeedFolderNode[]> {
     try {
-      // Get all feed titles for this system
+      // 获取此系统的所有 feed 标题
       const allEntries = this.stateManager.getAllFeedEntries()
       const systemEntries = allEntries.filter(e => e?.systemId === this.systemId && e?.feedTitle)
 
@@ -59,7 +59,7 @@ class SystemFeedNode extends TreeItem {
         return []
       }
 
-      // Group by feed title
+      // 按 feed 标题分组
       const feedGroups = new Map<string, FeedEntry[]>()
       for (const entry of systemEntries) {
         const existing = feedGroups.get(entry.feedTitle) || []
@@ -67,16 +67,16 @@ class SystemFeedNode extends TreeItem {
         feedGroups.set(entry.feedTitle, existing)
       }
 
-      // Create feed nodes
+      // 创建 feed 节点
       const feedNodes: FeedFolderNode[] = []
       for (const [feedTitle, entries] of feedGroups.entries()) {
         if (feedTitle) {
-          // Only create node if feedTitle is not empty
+          // 只有 feedTitle 非空时才创建节点
           feedNodes.push(new FeedFolderNode(this.systemId, feedTitle, entries, this.stateManager))
         }
       }
 
-      // Sort by unread count (highest first)
+      // 按未读数排序（最高在前）
       feedNodes.sort((a, b) => b.getUnreadCount() - a.getUnreadCount())
 
       return feedNodes
@@ -87,7 +87,7 @@ class SystemFeedNode extends TreeItem {
 }
 
 /**
- * Feed folder node
+ * Feed 文件夹节点
  */
 class FeedFolderNode extends TreeItem {
   readonly tag = "feedFolder" as const
@@ -100,10 +100,10 @@ class FeedFolderNode extends TreeItem {
   ) {
     const baseLabel = feedTitle || "Unknown Feed"
 
-    // Calculate unread count before super() call
+    // 在 super() 调用前计算未读数
     const unreadCount = entries.filter(e => !e.isRead).length
 
-    // Add dot indicator if unread
+    // 未读时添加圆点指示
     const label = unreadCount > 0 ? `● ${baseLabel}` : baseLabel
 
     super(label, TreeItemCollapsibleState.Collapsed)
@@ -125,7 +125,7 @@ class FeedFolderNode extends TreeItem {
 
   children(): FeedEntryNode[] {
     try {
-      // Sort entries by timestamp (newest first)
+      // 按时间戳排序（新的在前）
       const sortedEntries = [...this.entries].sort((a, b) => {
         const timeA = a.timestamp instanceof Date ? a.timestamp.getTime() : 0
         const timeB = b.timestamp instanceof Date ? b.timestamp.getTime() : 0
@@ -140,7 +140,7 @@ class FeedFolderNode extends TreeItem {
 }
 
 /**
- * Feed entry node
+ * Feed 条目节点
  */
 class FeedEntryNode extends TreeItem {
   readonly tag = "feedEntry" as const
@@ -149,7 +149,7 @@ class FeedEntryNode extends TreeItem {
     public readonly entry: FeedEntry,
     private stateManager: FeedStateManager
   ) {
-    // Add visual indicator for unread entries
+    // 为未读条目添加可视指示
     const label = entry?.title || "Untitled"
     const displayLabel = entry?.isRead ? label : `● ${label}`
 
@@ -157,20 +157,20 @@ class FeedEntryNode extends TreeItem {
     this.contextValue = "feedEntry"
 
     try {
-      // Show timestamp
+      // 显示时间戳
       this.description =
         entry?.timestamp instanceof Date
           ? entry.timestamp.toLocaleString()
           : String(entry?.timestamp || "")
 
-      // Tooltip with full summary
+      // 带完整摘要的提示
       const timeStr =
         entry?.timestamp instanceof Date
           ? entry.timestamp.toLocaleString()
           : String(entry?.timestamp || "Unknown")
       this.tooltip = `${entry?.title || "Untitled"}\n\n${entry?.summary || ""}\n\nSystem: ${entry?.systemId || "Unknown"}\nFeed: ${entry?.feedTitle || "Unknown"}\nTime: ${timeStr}`
 
-      // Command to view entry
+      // 查看条目的命令
       this.command = {
         title: "View Feed Entry",
         command: AbapFsCommands.viewFeedEntry,
@@ -186,11 +186,11 @@ class FeedEntryNode extends TreeItem {
   }
 }
 
-// Type union for all tree items
+// 所有树项目的类型联合
 type FeedItem = SystemFeedNode | FeedFolderNode | FeedEntryNode
 
 /**
- * Feed Inbox Tree Data Provider
+ * Feed 收件箱树数据提供器
  */
 export class FeedInboxProvider implements TreeDataProvider<FeedItem> {
   private _onDidChangeTreeData = new EventEmitter<FeedItem | undefined | null | void>()
@@ -205,14 +205,14 @@ export class FeedInboxProvider implements TreeDataProvider<FeedItem> {
   }
 
   /**
-   * Refresh the tree view
+   * 刷新树视图
    */
   refresh(): void {
     this._onDidChangeTreeData.fire()
   }
 
   /**
-   * Get tree item
+   * 获取树项目
    */
   getTreeItem(element: FeedItem): TreeItem {
     if (!element) {
@@ -222,7 +222,7 @@ export class FeedInboxProvider implements TreeDataProvider<FeedItem> {
   }
 
   /**
-   * Get children - VS Code calls this to get child nodes
+   * 获取子节点 - VS Code 调用它获取子节点
    */
   async getChildren(element?: FeedItem): Promise<FeedItem[]> {
     try {
@@ -259,7 +259,7 @@ export class FeedInboxProvider implements TreeDataProvider<FeedItem> {
   }
 
   /**
-   * Get root nodes (systems with feed entries)
+   * 获取根节点（有 feed 条目的系统）
    */
   private getRootNodes(): FeedItem[] {
     const allEntries = this.stateManager.getAllFeedEntries()
@@ -268,7 +268,7 @@ export class FeedInboxProvider implements TreeDataProvider<FeedItem> {
       return []
     }
 
-    // Filter out entries with undefined systemId
+    // 过滤掉 systemId 未定义的条目
     const validEntries = allEntries.filter(e => e?.systemId)
     if (validEntries.length < allEntries.length) {
     }
@@ -277,32 +277,32 @@ export class FeedInboxProvider implements TreeDataProvider<FeedItem> {
       return []
     }
 
-    // Group by system
+    // 按系统分组
     const systems = new Set(validEntries.map(e => e.systemId))
 
-    // Create system nodes
+    // 创建系统节点
     const systemNodes = Array.from(systems).map(
       systemId => new SystemFeedNode(systemId, this.stateManager)
     )
 
-    // Sort by system name
+    // 按系统名排序
     systemNodes.sort((a, b) => a.systemId.localeCompare(b.systemId))
 
     return systemNodes
   }
 
   /**
-   * Show feed entry in webview
+   * 在 Webview 中显示 feed 条目
    */
   async viewFeedEntry(node: any): Promise<void> {
-    // Handle both FeedEntryNode and plain object
+    // 同时处理 FeedEntryNode 和普通对象
     const entry = node.entry || node
 
-    // Mark as read
+    // 标记为已读
     await this.stateManager.markAsRead(entry.systemId, entry.feedTitle, entry.id)
     this.refresh()
 
-    // Get or create webview panel
+    // 获取或创建 Webview 面板
     const panelKey = `${entry.systemId}-${entry.feedTitle}-${entry.id}`
     let panel = this.webviewPanels.get(panelKey)
 
@@ -320,7 +320,7 @@ export class FeedInboxProvider implements TreeDataProvider<FeedItem> {
         this.webviewPanels.delete(panelKey)
       })
 
-      // Handle clicks on ADT URIs
+      // 处理对 ADT URI 的点击
       panel.webview.onDidReceiveMessage(async message => {
         if (message.command === "click" && message.uri) {
           return new AdtObjectFinder(entry.systemId).displayAdtUri(message.uri)
@@ -328,13 +328,13 @@ export class FeedInboxProvider implements TreeDataProvider<FeedItem> {
       })
     }
 
-    // Render content based on feed type
+    // 按 feed 类型渲染内容
     panel.webview.html = this.renderFeedEntry(entry)
     panel.reveal()
   }
 
   /**
-   * Render feed entry as HTML
+   * 把 feed 条目渲染为 HTML
    */
   private renderFeedEntry(entry: FeedEntry): string {
     const jsFooter = `<script type="text/javascript">
@@ -353,15 +353,15 @@ as.forEach(
     })
 )</script>`
 
-    // For dumps, use the raw HTML content from text field
+    // 对 Dump，使用 text 字段中的原始 HTML 内容
     if (entry.rawData.text) {
       return `${entry.rawData.text}${jsFooter}`
     }
 
-    // For URI errors and other feeds with HTML summary, extract and render HTML
+    // 对 URI 错误和其他带 HTML 摘要的 feed，提取并渲染 HTML
     let htmlContent = null
     if (entry.rawData.summary) {
-      // Check if summary has #text with @_type: "html"
+      // 检查摘要是否包含带 @_type: "html" 的 #text
       if (entry.rawData.summary["#text"] && entry.rawData.summary["@_type"] === "html") {
         htmlContent = entry.rawData.summary["#text"]
       } else if (
@@ -372,7 +372,7 @@ as.forEach(
       }
     }
 
-    // If we found HTML content, render it
+    // 如果找到 HTML 内容，渲染它
     if (htmlContent) {
       return `<!DOCTYPE html>
 <html>
@@ -420,7 +420,7 @@ as.forEach(
 </html>`
     }
 
-    // For other types, create a formatted HTML view
+    // 对其他类型，创建格式化 HTML 视图
     const severityColor =
       entry.severity === "error" ? "#f48771" : entry.severity === "warning" ? "#cca700" : "#75beff"
 
@@ -497,7 +497,7 @@ as.forEach(
   }
 
   /**
-   * Escape HTML
+   * 转义 HTML
    */
   private escapeHtml(text: string | undefined | null): string {
     if (text === undefined || text === null) return ""
@@ -516,7 +516,7 @@ as.forEach(
   }
 
   /**
-   * Mark all as read
+   * 全部标记为已读
    */
   async markAllAsRead(): Promise<void> {
     await this.stateManager.markAllEntriesAsRead()
@@ -525,7 +525,7 @@ as.forEach(
   }
 
   /**
-   * Mark feed folder as read
+   * 把 feed 文件夹标记为已读
    */
   async markFeedFolderAsRead(node: any): Promise<void> {
     await this.stateManager.markAllAsRead(node.systemId, node.feedTitle)
@@ -533,20 +533,20 @@ as.forEach(
   }
 
   /**
-   * Delete feed entry
+   * 删除 feed 条目
    */
   async deleteFeedEntry(node: any): Promise<void> {
-    // Handle both FeedEntryNode and plain object
+    // 同时处理 FeedEntryNode 和普通对象
     const entry = node.entry || node
     await this.stateManager.removeEntry(entry.systemId, entry.feedTitle, entry.id)
     this.refresh()
   }
 
   /**
-   * Clear feed folder
+   * 清空 feed 文件夹
    */
   async clearFeedFolder(node: any): Promise<void> {
-    // Get entry count from state manager
+    // 从状态管理器获取条目数
     const entries = this.stateManager.getFeedEntries(node.systemId, node.feedTitle)
 
     const result = await window.showWarningMessage(
@@ -562,23 +562,23 @@ as.forEach(
   }
 
   /**
-   * Show feed inbox and optionally navigate to specific feed
+   * 显示 feed 收件箱，可选导航到特定 feed
    */
   async showFeedInbox(options?: { systemId?: string; feedTitle?: string }): Promise<void> {
-    // Refresh the tree to show latest data
+    // 刷新树以显示最新数据
     this.refresh()
 
-    // Focus the feed inbox view
+    // 聚焦 feed 收件箱视图
     try {
       await commands.executeCommand("abapfs.feedInbox.focus")
     } catch {
-      // Fallback: just show the ABAP view container
+      // 回退：只显示 ABAP 视图容器
       await commands.executeCommand("workbench.view.extension.abapfs")
     }
   }
 }
 
-// Export singleton instance
+// 导出单例实例
 export let feedInboxProvider: FeedInboxProvider | undefined
 
 export function initializeFeedInboxProvider(stateManager: FeedStateManager): FeedInboxProvider {
