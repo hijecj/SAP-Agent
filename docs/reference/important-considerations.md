@@ -1,18 +1,18 @@
-# Important Considerations
+# 重要注意事项
 
-| Feature | Limitation |
+| 功能 | 限制 |
 |---|---|
-| **Create Objects** | Transport request dialogs still appear — object creation is not fully automated. |
-| **Text Elements** | Create/Update actions require ADT API support (newer SAP systems only). |
-| **Transport Management** | On older systems, some actions fall back to direct table queries. |
-| **Code Search** | Searches committed code only — unsaved local changes are not visible. |
-| **Mass Activation** | You must select objects from a dialog; activation is not automatic. |
+| **创建对象** | 传输请求对话框仍然会出现——对象创建并非全自动。 |
+| **文本元素** | 创建/更新操作需要 ADT API 支持（仅限新版 SAP 系统）。 |
+| **传输管理** | 旧系统上某些操作会降级为直接查询表。 |
+| **代码搜索** | 只搜索已提交的代码——未保存的本地修改不可见。 |
+| **批量激活** | 必须从对话框中选择对象；激活不是自动的。 |
 
-## AI Agent Code Changes
+## AI 代理代码变更
 
-When Copilot edits ABAP code in Agent mode, changes are written to SAP **immediately** — before you accept them. The virtual filesystem locks the object, writes the content, and unlocks it in one step.
+当 Copilot 在代理模式下编辑 ABAP 代码时，变更会**立即**写入 SAP——在你接受之前。虚拟文件系统会锁定对象、写入内容并解锁，一步完成。
 
-- **Keep** — triggers a second save with the accepted content.
-- **Undo** — reverts the changes on the server, just like undoing any file edit.
+- **Keep** — 用接受的内容触发第二次保存。
+- **Undo** — 在服务器上还原变更，就像撤销任何文件编辑一样。
 
-> **Review AI-generated code carefully.** It is live on the SAP server the moment it is written, not only after you click Keep.
+> **仔细审查 AI 生成的代码。** 它在写入的那一刻就已在 SAP 服务器上生效，而不只是在你点击 Keep 之后。

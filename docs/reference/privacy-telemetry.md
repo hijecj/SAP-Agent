@@ -1,18 +1,18 @@
-# Privacy & Telemetry
+# 隐私与遥测
 
-**This extension does not send any data to external servers.** Nothing leaves your machine.
+**此扩展不会向外部服务器发送任何数据。** 没有任何数据离开你的机器。
 
-## What is collected
+## 收集什么
 
-A local CSV file records basic usage statistics — which tools and commands you use, and how many lines of code Copilot changed. This file is stored on your machine only and is never uploaded anywhere.
+本地 CSV 文件记录基本使用统计——你使用了哪些工具和命令，以及 Copilot 修改了多少行代码。该文件只存储在你的机器上，永远不会上传到任何地方。
 
-**File location:**
+**文件位置：**
 ```
-<VS Code Global Storage>/extension-path/telemetry-<date>.csv
+<VS Code 全局存储>/extension-path/telemetry-<date>.csv
 ```
 
-You can delete these files at any time without affecting the extension.
+你可以随时删除这些文件，不影响扩展。
 
-## Central telemetry for organizations
+## 面向组织的中心化遥测
 
-If your organization wants to aggregate telemetry internally, you can fork the public repository, add your own Azure Application Insights connection string, build a custom VSIX, and distribute it. You retain full control over what is collected, where it is stored, and who can access it.
+如果你的组织想在内部聚合遥测，可以 fork 公共仓库、添加你自己的 Azure Application Insights 连接字符串、构建自定义 VSIX 并分发。你完全掌控收集什么、存储在哪里、谁能访问。

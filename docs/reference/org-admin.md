@@ -1,16 +1,16 @@
-# Organization Administration
+# 组织管理
 
-To deploy ABAP FS internally, configure the optional features below before building and distributing your own VSIX.
+要在企业内部部署 ABAP FS，请先配置以下可选功能，然后再构建和分发你自己的 VSIX。
 
 ---
 
-## SAP System Whitelist (Optional)
+## SAP 系统白名单（可选）
 
-Restrict which SAP systems and users can connect — for example, to block production connections or limit access to approved developers.
+限制哪些 SAP 系统和用户可以连接——例如，阻止生产连接或限制为经过审批的开发人员。
 
-### 1. Create the whitelist file
+### 1. 创建白名单文件
 
-Base it on `client/src/services/whitelist.example.json`:
+以 `client/src/services/whitelist.example.json` 为基础：
 
 ```json
 {
@@ -31,89 +31,89 @@ Base it on `client/src/services/whitelist.example.json`:
 }
 ```
 
-**`developers` structure:** Each object represents **one person**. List all of that person's SAP user IDs (across different systems) in the same `userIds` array — they will be treated as the same individual in telemetry. Do not mix different people into one object.
+**`developers` 结构：** 每个对象代表**一个人**。把同一个人的所有 SAP 用户 ID（跨不同系统）列在同一个 `userIds` 数组中——在遥测中它们被视为同一个人。不要把不同的人混在一个对象里。
 
-### 2. Host the file
+### 2. 托管文件
 
-Deploy it to an internal HTTP/HTTPS URL with no authentication required. Users need read access only.
+部署到内网 HTTP/HTTPS 地址，不需要认证。用户只需要读权限。
 
-### 3. Configure the URL
+### 3. 配置 URL
 
-Edit `client/src/services/sapSystemValidator.ts`:
+编辑 `client/src/services/sapSystemValidator.ts`：
 
 ```typescript
 private readonly WHITELIST_URL = 'https://your-internal-server.com/whitelist.json';
 ```
 
-### 4. Enable validation
+### 4. 启用校验
 
-Both flags default to `true` (whitelist is skipped). Set to `false` to enforce restrictions:
+两个标志默认都是 `true`（跳过白名单）。设为 `false` 以强制限制：
 
 ```typescript
-private readonly ALLOW_ALL_SYSTEMS = true;  // false = validate against allowedDomains
-private readonly ALLOW_ALL_USERS = true;    // false = validate against developers.userIds
+private readonly ALLOW_ALL_SYSTEMS = true;  // false = 按 allowedDomains 校验
+private readonly ALLOW_ALL_USERS = true;    // false = 按 developers.userIds 校验
 ```
 
-### How it works
+### 工作原理
 
-- The extension fetches the whitelist on startup and every 2 hours.
-- `allowedDomains` patterns use wildcards (e.g., `*dev*`) matched against the SAP system hostname.
-- `userIds` are checked across all developer entries. Both system and user must pass for a connection to succeed.
-- If the fetch fails, a hardcoded backup whitelist is used.
-- On corporate VPN, the extension retries for up to 10 minutes after startup; a status bar notification is shown during retries.
+- 扩展在启动时获取白名单，之后每 2 小时获取一次。
+- `allowedDomains` 模式使用通配符（例如 `*dev*`），与 SAP 系统主机名匹配。
+- `userIds` 会在所有开发者条目中检查。系统和用户都必须通过，连接才能成功。
+- 如果获取失败，使用硬编码的备份白名单。
+- 在公司 VPN 上，扩展启动后会重试最多 10 分钟；重试期间会显示状态栏通知。
 
 ---
 
-## Telemetry with Application Insights (Optional)
+## 使用 Application Insights 的遥测（可选）
 
-**The VS Code Marketplace version sends no telemetry anywhere.** All usage data is written to local CSV files only (`telemetry-YYYY-MM-DD.csv` in extension storage). Nothing leaves the machine.
+**VS Code Marketplace 版本不向任何地方发送遥测。** 所有使用数据只写入本地 CSV 文件（扩展存储中的 `telemetry-YYYY-MM-DD.csv`）。数据不会离开机器。
 
-This section applies only if you want **central analytics** for your organization.
+本节仅适用于想为组织做**中心化分析**的情况。
 
-### What is collected
+### 收集什么
 
-Each event is an action string (e.g., `command_activate_called`, `tool_search_abap_objects_called`) plus:
+每个事件是一个动作字符串（例如 `command_activate_called`、`tool_search_abap_objects_called`），外加：
 
-| Field | Description |
+| 字段 | 描述 |
 |---|---|
-| Anonymous user ID | SHA hash of `hostname + username + platform` — cannot be reversed |
-| Session ID | Random ID per VS Code session |
-| Extension version | Version number |
-| VS Code version | VS Code version number |
-| Platform | Windows / Linux / Mac |
-| SAP system | System accessed (if applicable) |
-| Manager / Team | From whitelist `developers` mapping (if configured) |
+| 匿名用户 ID | `主机名 + 用户名 + 平台` 的 SHA 哈希——不可逆 |
+| 会话 ID | 每次 VS Code 会话的随机 ID |
+| 扩展版本 | 版本号 |
+| VS Code 版本 | 版本号 |
+| 平台 | Windows / Linux / Mac |
+| SAP 系统 | 访问的系统（如适用） |
+| 经理 / 团队 | 来自白名单 `developers` 映射（如配置） |
 
-**Not collected:** credentials, source code, object names, business data, error messages, performance metrics, HTTP requests, dependencies, or console logs. All Application Insights auto-collection features are disabled by default.
+**不收集：** 凭证、源代码、对象名、业务数据、错误消息、性能指标、HTTP 请求、依赖或控制台日志。所有 Application Insights 自动收集功能默认禁用。
 
-### Setup steps
+### 设置步骤
 
-1. **Fork the repository** on GitHub.
+1. 在 GitHub 上 **fork 本仓库**。
 
-2. **Create an Azure Application Insights resource** in your Azure subscription.
+2. 在你的 Azure 订阅中**创建 Azure Application Insights 资源**。
 
-3. **Copy the connection string** from Azure Portal → Application Insights → Overview → Connection String.
+3. 从 Azure 门户**复制连接字符串**：Application Insights → 概述 → 连接字符串。
 
-4. **Set the connection string** in `client/src/services/appInsightsService.ts`:
+4. 在 `client/src/services/appInsightsService.ts` 中**设置连接字符串**：
 
    ```typescript
    const connectionString = "InstrumentationKey=YOUR-KEY;IngestionEndpoint=https://..."
    ```
 
-5. **Build and distribute** your VSIX (see [Building and Distributing](#building-and-distributing) below).
+5. **构建并分发**你的 VSIX（见下方[构建与分发](#构建与分发)）。
 
-### Enabling additional auto-collection
+### 启用额外的自动收集
 
-All auto-collection is off by default. To enable any of the following, edit the `initialize()` method in `client/src/services/appInsightsService.ts`:
+所有自动收集默认关闭。要启用以下任何一项，请编辑 `client/src/services/appInsightsService.ts` 中的 `initialize()` 方法：
 
-| Feature | Change |
+| 功能 | 修改 |
 |---|---|
-| Exception tracking | `.setAutoCollectExceptions(false)` → `(true)` |
-| Performance metrics (CPU/memory) | `.setAutoCollectPerformance(false, false)` → `(true, true)` |
-| HTTP request tracking | `.setAutoCollectRequests(false)` → `(true)` |
-| Dependency tracking | `.setAutoCollectDependencies(false)` → `(true)` |
+| 异常跟踪 | `.setAutoCollectExceptions(false)` → `(true)` |
+| 性能指标（CPU/内存） | `.setAutoCollectPerformance(false, false)` → `(true, true)` |
+| HTTP 请求跟踪 | `.setAutoCollectRequests(false)` → `(true)` |
+| 依赖跟踪 | `.setAutoCollectDependencies(false)` → `(true)` |
 
-You can also add custom tracking anywhere in your code:
+你也可以在代码的任何位置添加自定义跟踪：
 
 ```typescript
 appInsights.defaultClient.trackEvent({ name: 'my_event' });
@@ -121,38 +121,38 @@ appInsights.defaultClient.trackException({ exception: error });
 appInsights.defaultClient.trackMetric({ name: 'my_metric', value: 42 });
 ```
 
-### Telemetry + whitelist integration
+### 遥测与白名单集成
 
-When the whitelist `developers` structure is configured, telemetry automatically groups multiple SAP user IDs belonging to the same person. The `manager` field enables team-level analytics (e.g., "which team uses debugging most?") while keeping individual users anonymous.
+配置了白名单 `developers` 结构后，遥测会自动把属于同一个人的多个 SAP 用户 ID 分组。`manager` 字段支持团队级分析（例如“哪个团队调试用得最多？”），同时保持个人匿名。
 
-### How events are stored and sent
+### 事件如何存储和发送
 
-- Events are logged to local CSV files first.
-- If an App Insights connection string is configured, events are also sent to Azure (batched every 30 seconds).
-- If the network is unavailable, events are stored locally and retried.
-- Local storage flushes every 5 minutes or when the buffer reaches 25 entries.
+- 事件首先记录到本地 CSV 文件。
+- 如果配置了 App Insights 连接字符串，事件也会发送到 Azure（每 30 秒批量发送一次）。
+- 如果网络不可用，事件存储在本地并重试。
+- 本地存储每 5 分钟刷新一次，或缓冲区达到 25 条时刷新。
 
 ---
 
-## Building and Distributing
+## 构建与分发
 
-After completing configuration above:
+完成以上配置后：
 
-1. **Install dependencies:**
+1. **安装依赖：**
 
    ```bash
    npm install
    ```
 
-2. **Build and package:**
+2. **构建并打包：**
 
    ```bash
-   # Windows (recommended)
+   # Windows（推荐）
    build-and-install.bat
 
-   # Or manually:
+   # 或手动：
    npm run compile
    npx vsce package
    ```
 
-3. **Distribute** the generated `.vsix` file to your users. They can install it via Extensions → `...` → **Install from VSIX...**
+3. **分发**生成的 `.vsix` 文件给你的用户。他们可以通过扩展 → `...` → **从 VSIX 安装...** 安装。

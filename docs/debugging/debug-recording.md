@@ -1,88 +1,88 @@
-﻿# Debug Recording & Replay
+# 调试录制与回放
 
-> ⚠️ **BETA FEATURE** — Please report any issues.
+> ⚠️ **测试版功能** — 如有问题请报告。
 
-Record a live ABAP debug session and replay it offline — forward and backward — like a DVR. No SAP connection needed during replay.
+录制实时 ABAP 调试会话并离线回放——前进和后退都可以——就像 DVR。回放时无需 SAP 连接。
 
-**When is this useful?**
+**什么时候有用？**
 
-- You stepped too far and want to go back without restarting
-- You want to share a bug reproduction with a colleague
-- You need to analyse a complex execution path at your own pace
+- 你步进得太远，想不重启就回去
+- 你想和同事分享 bug 复现过程
+- 你需要按自己的节奏分析复杂的执行路径
 
 ---
 
-## Recording a Session
+## 录制会话
 
-> Each step takes ~1–3 seconds longer than normal because the extension captures all variable data before SAP discards it.
+> 每步比正常慢约 1–3 秒，因为扩展要在 SAP 丢弃数据前捕获所有变量数据。
 
-1. Start a debug session as usual (set breakpoints, attach to user/terminal)
-2. Open the Command Palette (`Ctrl+Shift+P`) → **ABAP FS: Start Debug Recording**
-3. Step through your code normally — every step is captured
+1. 照常启动调试会话（设置断点、附加到用户/终端）
+2. 打开命令面板（`Ctrl+Shift+P`）→ **ABAP FS: Start Debug Recording**
+3. 正常单步执行——每一步都会被捕获
 4. `Ctrl+Shift+P` → **ABAP FS: Stop Debug Recording**
-5. At the prompt, choose **Save** (plain `.abaprecord`) or **Compress & Save** (`.abaprecord.gz`, ~80–95% smaller)
+5. 在提示时选择**保存**（纯 `.abaprecord`）或**压缩并保存**（`.abaprecord.gz`，约小 80–95%）
 
-**What is captured per step:**
+**每步捕获的内容：**
 
-- Full call stack with source references
-- All variables across all scopes (Local, Global, SY) — structures expanded, tables up to 2,000 rows
-- Source file contents for offline viewing
+- 带源码引用的完整调用栈
+- 所有作用域的变量（局部、全局、SY）——结构展开，表最多 2,000 行
+- 供离线查看的源文件内容
 
 ---
 
-## Replaying a Recording
+## 回放录制
 
 1. `Ctrl+Shift+P` → **ABAP FS: Replay Debug Recording**
-2. Select a `.abaprecord` or `.abaprecord.gz` file — both are handled automatically
-3. The replay session opens showing code, stack, and variables exactly as recorded
+2. 选择 `.abaprecord` 或 `.abaprecord.gz` 文件——两者都会自动处理
+3. 回放会话打开，显示与录制时完全相同的代码、栈和变量
 
-**Replay controls:**
+**回放控制：**
 
-| Action | Shortcut |
+| 操作 | 快捷键 |
 |--------|----------|
-| Step forward (next snapshot) | `F7`, `F10`, or `F11` |
-| Step back (previous snapshot) | `Shift+F7` or `Shift+F11` |
-| Jump to end | `F5` (Continue) |
-| Jump to start | Reverse Continue |
-| Close session | Terminate |
+| 前进（下一个快照） | `F7`、`F10` 或 `F11` |
+| 后退（上一个快照） | `Shift+F7` 或 `Shift+F11` |
+| 跳到末尾 | `F5`（继续） |
+| 跳到开头 | 反向继续 |
+| 关闭会话 | 终止 |
 
-> In replay mode all three step buttons (Step Over / Into / Out) do the same thing: move to the next recorded snapshot.
+> 在回放模式下，三个单步按钮（跳过/进入/返回）作用相同：移动到下一个录制的快照。
 
-You can inspect variables, expand structures, browse table rows, evaluate expressions, and hover over variables — all without a SAP connection.
+你可以检查变量、展开结构、浏览表行、求值表达式、悬停查看变量——全部无需 SAP 连接。
 
 ---
 
-## Compression
+## 压缩
 
-Large sessions can produce files tens of MB in size. Use gzip to reduce storage and sharing size.
+大型会话可能产生几十 MB 的文件。使用 gzip 减小存储和共享大小。
 
-| Command | Description |
+| 命令 | 描述 |
 |---------|-------------|
-| **ABAP FS: Compress Debug Recording** | Compress an existing `.abaprecord` → `.abaprecord.gz` |
-| **ABAP FS: Decompress Debug Recording** | Convert `.abaprecord.gz` back to plain JSON |
+| **ABAP FS: Compress Debug Recording** | 压缩现有 `.abaprecord` → `.abaprecord.gz` |
+| **ABAP FS: Decompress Debug Recording** | 将 `.abaprecord.gz` 转回纯 JSON |
 
-After compression the extension shows the size reduction (e.g. *42 MB → 3.2 MB, 92% smaller*). Both formats are fully interchangeable.
+压缩后扩展会显示体积缩减（例如 *42 MB → 3.2 MB，小 92%*）。两种格式完全可互换。
 
 ---
 
-## All Commands
+## 全部命令
 
-| Command | Description |
+| 命令 | 描述 |
 |---------|-------------|
-| `ABAP FS: Start Debug Recording` | Begin recording the active debug session |
-| `ABAP FS: Stop Debug Recording` | Stop and save (plain or compressed) |
-| `ABAP FS: Replay Debug Recording` | Open and replay a recording file |
-| `ABAP FS: Compress Debug Recording` | Compress an existing `.abaprecord` file |
-| `ABAP FS: Decompress Debug Recording` | Decompress a `.abaprecord.gz` file |
+| `ABAP FS: Start Debug Recording` | 开始录制活动调试会话 |
+| `ABAP FS: Stop Debug Recording` | 停止并保存（纯格式或压缩格式） |
+| `ABAP FS: Replay Debug Recording` | 打开并回放录制文件 |
+| `ABAP FS: Compress Debug Recording` | 压缩现有 `.abaprecord` 文件 |
+| `ABAP FS: Decompress Debug Recording` | 解压 `.abaprecord.gz` 文件 |
 
 ---
 
-## Limitations
+## 限制
 
-| Limitation | Detail |
+| 限制 | 详情 |
 |------------|--------|
-| Table rows | First 2,000 rows captured; remainder skipped (marked in replay) |
-| Variable depth | Structures/tables beyond 4 levels deep are not expanded |
-| Source unavailable | Shows `[source unavailable]` if caching failed during recording |
-| No conditional breakpoints | Replay only steps through what was recorded |
-| Step speed | ~1–3 seconds per step during recording (variable capture overhead) |
+| 表行 | 只捕获前 2,000 行；其余跳过（回放中会标记） |
+| 变量深度 | 超过 4 层的结构/表不展开 |
+| 源码不可用 | 录制时缓存失败则显示 `[source unavailable]` |
+| 无条件断点 | 回放只能按录制内容步进 |
+| 步进速度 | 录制时每步约 1–3 秒（变量捕获开销） |

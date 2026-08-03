@@ -1,83 +1,83 @@
-# ABAP Debugging
+# ABAP 调试
 
-Debug ABAP programs directly inside VS Code — no SAP GUI required. You get the same core capabilities as the SAP GUI debugger (breakpoints, stepping, variable inspection, call stack) with a modern editor experience and Copilot integration.
+直接在 VS Code 中调试 ABAP 程序——无需 SAP GUI。你拥有与 SAP GUI 调试器相同的核心能力（断点、单步执行、变量检查、调用栈），外加现代编辑器体验和 Copilot 集成。
 
-> 💡 **See also:** [Debug Recording & Replay](debug-recording.md) — record a session and replay it offline with step-back support.
+> 💡 **另见：** [调试录制与回放](debug-recording.md) — 录制会话并离线回放，支持回退。
 
 ---
 
-## vs. SAP GUI Debugger
+## 与 SAP GUI 调试器对比
 
-| Feature | SAP GUI Debugger | VS Code (ABAP FS) |
+| 功能 | SAP GUI 调试器 | VS Code（ABAP FS） |
 |---|---|---|
-| Breakpoints | Click in editor | Click in gutter or via Copilot |
-| Conditional breakpoints | ✅ | ✅ |
-| Variable inspection | Manual navigation | Pattern filtering, auto-expand |
-| Step controls | Toolbar buttons | Keyboard shortcuts (F5–F8) |
-| Call stack | ✅ | ✅ |
-| Multi-thread | Limited | Up to 20 concurrent threads |
-| AI assistance | ❌ | ✅ via Copilot |
+| 断点 | 在编辑器中点击 | 点击装订线或通过 Copilot |
+| 条件断点 | ✅ | ✅ |
+| 变量检查 | 手动导航 | 模式过滤、自动展开 |
+| 单步控制 | 工具栏按钮 | 键盘快捷键（F5–F8） |
+| 调用栈 | ✅ | ✅ |
+| 多线程 | 有限 | 最多 20 个并发线程 |
+| AI 辅助 | ❌ | ✅ 通过 Copilot |
 
 ---
 
-## Starting a Debug Session
+## 启动调试会话
 
-1. Open the ABAP object in VS Code.
-2. Set at least one breakpoint (see below).
-3. Ask Copilot **"Start debugging session"** — or use the Debug panel.
-4. Trigger execution in the SAP system (run the transaction, report, etc.).
-5. VS Code halts at the first breakpoint.
+1. 在 VS Code 中打开 ABAP 对象。
+2. 至少设置一个断点（见下文）。
+3. 让 Copilot **“启动调试会话”** — 或使用调试面板。
+4. 在 SAP 系统中触发执行（运行事务、报表等）。
+5. VS Code 在第一个断点处暂停。
 
-> ⚠️ **Production systems:** Starting a debug session on a production system prompts a confirmation dialog. Production debugging risks data exposure and performance impact. Use SAP GUI instead.
-
----
-
-## Breakpoints
-
-**Setting a breakpoint:** Click in the left gutter next to a line number — a red dot appears, identical to any VS Code language.
-
-**Conditional breakpoints:** Right-click the gutter → *Add Conditional Breakpoint* → enter an ABAP expression. Execution pauses only when the condition is true.
-
-**Jump to cursor:** Press **Shift+F12** to resume execution and halt at the current cursor position (equivalent to *Breakpoint at Cursor* in SAP GUI).
+> ⚠️ **生产系统：** 在生产系统上启动调试会话会弹出确认对话框。生产调试有数据暴露和性能影响风险。请改用 SAP GUI。
 
 ---
 
-## Step Controls
+## 断点
 
-| Action | Shortcut | SAP GUI Equivalent |
+**设置断点：** 点击行号左侧的装订线——出现红点，与任何 VS Code 语言一致。
+
+**条件断点：** 右键装订线 → *添加条件断点* → 输入 ABAP 表达式。只有条件为真时执行才会暂停。
+
+**跳转到光标：** 按 **Shift+F12** 恢复执行并在当前光标位置暂停（相当于 SAP GUI 中的 *Breakpoint at Cursor*）。
+
+---
+
+## 单步控制
+
+| 操作 | 快捷键 | SAP GUI 等价 |
 |---|---|---|
-| Continue (run to next breakpoint) | **F5** | F8 |
-| Step Over (execute line, skip into calls) | **F6** | F6 |
-| Step Into (enter method/function) | **F7** | F5 |
-| Step Return (finish current method) | **F8** | — |
-| Jump to Line | — | *Goto Line* |
+| 继续（运行到下一个断点） | **F5** | F8 |
+| 单步跳过（执行本行，不进入调用） | **F6** | F6 |
+| 单步进入（进入方法/函数） | **F7** | F5 |
+| 单步返回（完成当前方法） | **F8** | — |
+| 跳转到行 | — | *Goto Line* |
 
 ---
 
-## Variable Inspection
+## 变量检查
 
-Open the **Variables** panel in the Debug sidebar. Variables are grouped by scope: *Local Variables*, *Global Variables*, *SY fields*, etc.
+在调试侧边栏中打开**变量**面板。变量按作用域分组：*局部变量*、*全局变量*、*SY 字段* 等。
 
-**Filtering by pattern** — useful in large programs:
+**按模式过滤** — 在大型程序中很有用：
 
-- `LT_*` — show all internal tables
-- `LS_*` — show all structures
-- `GV_*` — show all global variables
+- `LT_*` — 显示所有内表
+- `LS_*` — 显示所有结构
+- `GV_*` — 显示所有全局变量
 
-**Auto-expand:** Structures and tables expand inline so you can see component values without navigating into each one.
+**自动展开：** 结构和表内联展开，无需逐个进入即可看到组件值。
 
-**Expression evaluation:** Type any ABAP variable or expression in the *Watch* panel or Debug Console to evaluate it at the current breakpoint.
+**表达式求值：** 在*监视*面板或调试控制台中输入任意 ABAP 变量或表达式，在当前断点处求值。
 
-**Via Copilot:** Ask naturally — *"Show me the value of lt_data"*, *"Expand ls_header"*, *"Show all variables starting with LT\_"*.
-
----
-
-## Call Stack
-
-The **Call Stack** panel lists every active stack frame with the program name, method, and line number. Click any frame to inspect local variables at that level — equivalent to navigating frames in the SAP GUI debugger.
+**通过 Copilot：** 自然语言提问 — *“显示 lt_data 的值”*、*“展开 ls_header”*、*“显示所有以 LT\_ 开头的变量”*。
 
 ---
 
-## Multi-Thread Debugging
+## 调用栈
 
-VS Code supports up to **20 concurrent debug threads** (configurable). Each thread appears as a separate entry in the Call Stack panel. This is useful when debugging background jobs or parallel processing scenarios that are difficult to debug in SAP GUI.
+**调用栈**面板列出每个活动的栈帧，包含程序名、方法和行号。点击任意帧可检查该层的局部变量——相当于在 SAP GUI 调试器中切换帧。
+
+---
+
+## 多线程调试
+
+VS Code 支持最多 **20 个并发调试线程**（可配置）。每个线程在调用栈面板中显示为独立条目。这在调试后台作业或 SAP GUI 难以调试的并行处理场景时很有用。
