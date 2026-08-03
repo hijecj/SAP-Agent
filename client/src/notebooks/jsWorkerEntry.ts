@@ -1,15 +1,14 @@
 /**
- * Worker thread entry point for JavaScript cell execution.
+ * JavaScript 单元格执行的 Worker 线程入口点。
  *
- * Runs in an isolated Worker thread. Processes exactly ONE message,
- * sends the result, then exits.
+ * 在隔离的 Worker 线程中运行。恰好处理一条消息，
+ * 发送结果，然后退出。
  *
- * Data transfer uses postMessage's structured clone — preserves Date,
- * Map, Set, RegExp, ArrayBuffer, typed arrays. No JSON round-trip.
+ * 数据传输使用 postMessage 的结构化克隆 — 保留 Date、
+ * Map、Set、RegExp、ArrayBuffer、类型化数组。无 JSON 往返。
  *
- * SECURITY: The worker_threads boundary is the real isolation — the
- * worker cannot access extension host memory, VS Code APIs, or SAP
- * session tokens.
+ * 安全：worker_threads 边界是真正的隔离 — worker 无法
+ * 访问扩展主机内存、VS Code API 或 SAP 会话 token。
  */
 
 import { parentPort } from "worker_threads"
