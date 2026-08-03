@@ -1,38 +1,38 @@
-# Create Test Classes
+# 创建测试类
 
-Add an ABAP unit test include to an existing class — the extension creates the skeleton and opens it in the editor.
+为现有类添加 ABAP 单元测试 include——扩展会创建骨架并在编辑器中打开它。
 
-## Requirements
+## 要求
 
-- The target object must be a class (`*.clas.abap`)
-- The class must already exist on the SAP system
+- 目标对象必须是类（`*.clas.abap`）
+- 该类必须已存在于 SAP 系统上
 
-## How to Create a Test Include
+## 如何创建测试 include
 
-**Option 1 — Context menu**
+**方式 1 — 右键菜单**
 
-Right-click the class file in the Explorer → **Create test class include**
+在资源管理器中右键类文件 → **创建测试类 include**
 
-**Option 2 — Command Palette**
+**方式 2 — 命令面板**
 
-1. Press `Ctrl+Shift+P`
-2. Type `ABAP FS: Create test class include`
-3. Press `Enter`
+1. 按 `Ctrl+Shift+P`
+2. 输入 `ABAP FS: Create test class include`
+3. 按 `Enter`
 
-**Option 3 — Ask Copilot**
+**方式 3 — 让 Copilot 执行**
 
-Open the Copilot chat and ask:
+打开 Copilot 聊天并提问：
 
-- *"Create test class for ZCL_MY_CLASS"*
-- *"Add unit tests to ZCL_PRICING"*
-- *"Set up testing for this class"*
+- *“为 ZCL_MY_CLASS 创建测试类”*
+- *“给 ZCL_PRICING 添加单元测试”*
+- *“为这个类设置测试”*
 
-## What Gets Created
+## 创建了什么
 
-- A test include linked to the main class
-- A skeleton test class with `FOR TESTING` and `RISK LEVEL HARMLESS`
-- The new include opens automatically in the editor
+- 一个链接到主类的测试 include
+- 带 `FOR TESTING` 和 `RISK LEVEL HARMLESS` 的骨架测试类
+- 新 include 自动在编辑器中打开
 
-## Next Steps
+## 后续步骤
 
-After the include is created, add your test methods and run them with the [Run Unit Tests](unit-tests.md) command.
+include 创建后，添加你的测试方法，并用[运行单元测试](unit-tests.md)命令运行它们。

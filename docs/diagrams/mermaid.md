@@ -1,29 +1,29 @@
-# Mermaid Diagram Creation
+# Mermaid 图表创建
 
-[Mermaid](https://mermaid.js.org/) is a text-based diagramming language that lets you describe diagrams as simple text — no drawing tools needed. ABAP FS can generate and display Mermaid diagrams directly in VS Code via Copilot chat.
+[Mermaid](https://mermaid.js.org/) 是一种基于文本的图表语言，让你用简单文本描述图表——无需绘图工具。ABAP FS 可以通过 Copilot 聊天直接在 VS Code 中生成和显示 Mermaid 图表。
 
-## How to Create a Diagram
+## 如何创建图表
 
-1. Open Copilot Chat (`Ctrl+Alt+I`).
-2. Describe the diagram you want. Examples:
-   - *"Create a flowchart showing the flow of method `PROCESS_DATA`"*
-   - *"Generate a class diagram for `ZCL_MY_CLASS`"*
-   - *"Show a sequence diagram for the BAPI call in `ZMY_PROGRAM`"*
-3. The diagram renders in an interactive webview at 200% zoom.
+1. 打开 Copilot 聊天（`Ctrl+Alt+I`）。
+2. 描述你想要的图表。例如：
+   - *“创建一个流程图，展示方法 `PROCESS_DATA` 的流程”*
+   - *“为 `ZCL_MY_CLASS` 生成类图”*
+   - *“显示 `ZMY_PROGRAM` 中 BAPI 调用的时序图”*
+3. 图表在交互式 WebView 中以 200% 缩放渲染。
 
-## Working with the Diagram Viewer
+## 使用图表查看器
 
-| Action | How |
+| 操作 | 方式 |
 |--------|-----|
-| Zoom in / out | Use the zoom controls in the webview (20% increments) |
-| Save diagram | Click the save button in the webview |
+| 放大 / 缩小 | 使用 WebView 中的缩放控件（20% 步进） |
+| 保存图表 | 点击 WebView 中的保存按钮 |
 
-## Supported Diagram Types
+## 支持的图表类型
 
-Flowchart · Sequence · Class · State · ER · User Journey · Gantt · Pie · Git Graph · Mind Map · Timeline · Sankey · XY Chart · Block · Packet
+流程图 · 时序图 · 类图 · 状态图 · ER 图 · 用户旅程 · 甘特图 · 饼图 · Git 图 · 思维导图 · 时间线 · 桑基图 · XY 图 · 方块图 · 数据包图
 
-## Themes
+## 主题
 
 `default` · `dark` · `forest` · `neutral`
 
-Specify a theme in your prompt: *"Create a flowchart … using the dark theme"*
+在提示中指定主题：*“创建一个流程图……使用 dark 主题”*

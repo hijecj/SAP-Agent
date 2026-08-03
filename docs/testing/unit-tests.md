@@ -1,49 +1,49 @@
-# Run Unit Tests
+# 运行单元测试
 
-Run ABAP unit tests directly from VS Code — no need to open SE80 or ADT.
+直接从 VS Code 运行 ABAP 单元测试——无需打开 SE80 或 ADT。
 
-## How to Run Tests
+## 如何运行测试
 
-**Option 1 — VS Code Testing panel (recommended)**
+**方式 1 — VS Code 测试面板（推荐）**
 
-1. Click the **beaker icon** in the Activity Bar (left sidebar) to open the Testing view.
-2. Browse to your class or program in the test tree.
-3. Click the **Run** (▶) button next to any test class or individual method.
+1. 点击活动栏（左侧边栏）中的**烧杯图标**打开测试视图。
+2. 在测试树中浏览到你的类或程序。
+3. 点击任意测试类或单个方法旁的**运行**（▶）按钮。
 
-**Option 2 — Command Palette**
+**方式 2 — 命令面板**
 
-1. Press `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (macOS).
-2. Type `ABAP FS: Run ABAP Unit Tests` and press `Enter`.
+1. 按 `Ctrl+Shift+P`（Windows/Linux）或 `Cmd+Shift+P`（macOS）。
+2. 输入 `ABAP FS: Run ABAP Unit Tests` 并按 `Enter`。
 
-**Option 3 — Ask Copilot**
+**方式 3 — 让 Copilot 执行**
 
-> "Run unit tests for ZCL_MY_CLASS"  
-> "Run tests and fix any failures"  
-> "Check if ZCL_PRICING tests pass"
+> “为 ZCL_MY_CLASS 运行单元测试”
+> “运行测试并修复所有失败”
+> “检查 ZCL_PRICING 的测试是否通过”
 
-## Results
+## 结果
 
-Results appear in the **VS Code Testing panel** with:
+结果显示在 **VS Code 测试面板**中，包含：
 
-| Info | Detail |
+| 信息 | 详情 |
 |---|---|
-| Pass/Fail | Green ✓ / Red ✗ per test method |
-| Test counts | Total, passed, failed |
-| Execution time | Per method and total |
-| Coverage | Test coverage percentage (when available) |
+| 通过/失败 | 每个测试方法绿色 ✓ / 红色 ✗ |
+| 测试计数 | 总数、通过数、失败数 |
+| 执行时间 | 每个方法和总时间 |
+| 覆盖率 | 测试覆盖率百分比（可用时） |
 
-Failed tests show the error message inline — click a failure to jump to the relevant line.
+失败的测试会内联显示错误消息——点击失败项跳转到相关代码行。
 
-## Compared to SE80 / ADT
+## 与 SE80 / ADT 对比
 
-| | SE80 / ADT | VS Code (ABAP FS) |
+| | SE80 / ADT | VS Code（ABAP FS） |
 |---|---|---|
-| Run tests | Menu → Unit Test | Beaker icon or `Ctrl+Shift+P` |
-| See results | Dialog / tab | Native Testing panel |
-| Copilot analysis | No | Yes — Copilot can explain failures and suggest fixes |
-| Jump to failure | Manual | Click failure to navigate |
+| 运行测试 | 菜单 → 单元测试 | 烧杯图标或 `Ctrl+Shift+P` |
+| 查看结果 | 对话框 / 标签页 | 原生测试面板 |
+| Copilot 分析 | 无 | 有——Copilot 可以解释失败并建议修复 |
+| 跳转到失败 | 手动 | 点击失败项导航 |
 
-## Requirements
+## 要求
 
-- The target object must contain ABAP unit test classes (`FOR TESTING`).
-- You must be connected to the SAP system in VS Code.
+- 目标对象必须包含 ABAP 单元测试类（`FOR TESTING`）。
+- 必须在 VS Code 中连接到 SAP 系统。

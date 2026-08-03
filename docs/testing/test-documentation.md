@@ -1,10 +1,10 @@
-# Test Documentation Generator
+# 测试文档生成器
 
-Generate a professional Word document from test screenshots — organized by scenario, with descriptions and a custom title. Useful for Playwright test reports, manual QA evidence, and sign-off documentation.
+从测试截图生成专业的 Word 文档——按场景组织，带描述和自定义标题。适用于 Playwright 测试报告、手动 QA 证据和签字确认文档。
 
-## How to Use
+## 使用方法
 
-Open the Copilot Chat panel (`Ctrl+Alt+I`) and describe your scenarios with the full paths to your screenshots:
+打开 Copilot 聊天面板（`Ctrl+Alt+I`），描述你的场景并附上截图的完整路径：
 
 ```
 Create test documentation with these screenshots:
@@ -19,19 +19,19 @@ Scenario 2: Error Handling
 - C:\tests\error1.png - Invalid credentials message shown
 ```
 
-Copilot calls the generator and saves a `.docx` file to your workspace.
+Copilot 调用生成器并把 `.docx` 文件保存到你的工作区。
 
-## What the Document Contains
+## 文档包含什么
 
-| Element | Details |
+| 元素 | 详情 |
 |---|---|
-| Title | Custom report title (defaults to "Test Documentation Report") |
-| Date | Test date in DD-MM-YYYY format (defaults to today) |
-| Scenarios | Each scenario gets its own section with a name and description |
-| Screenshots | Embedded images with per-screenshot captions |
+| 标题 | 自定义报告标题（默认 “Test Documentation Report”） |
+| 日期 | DD-MM-YYYY 格式的测试日期（默认今天） |
+| 场景 | 每个场景有独立章节，包含名称和描述 |
+| 截图 | 嵌入的图片，每个截图带说明 |
 
-## Tips
+## 提示
 
-- Use **absolute paths** for screenshots (e.g. `C:\tests\...`), not relative paths
-- You can include as many scenarios and screenshots per scenario as needed
-- Specify a custom title or date in your prompt if the defaults don't fit: *"Use title 'Regression Test April' and date 30-04-2026"*
+- 截图请使用**绝对路径**（例如 `C:\tests\...`），不要用相对路径
+- 每个场景的截图数量和场景数量都不限
+- 默认值不合适时，可以在提示中指定自定义标题或日期：*“使用标题 'Regression Test April' 和日期 30-04-2026”*

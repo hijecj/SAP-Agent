@@ -1,26 +1,26 @@
-# Native Desktop SAP GUI
+# 原生桌面 SAP GUI
 
-Open the currently active ABAP object directly in your locally installed SAP GUI application, giving you access to the full transaction UI without leaving your VS Code workflow.
+在本地安装的 SAP GUI 应用中直接打开当前活动的 ABAP 对象，让你无需离开 VS Code 工作流即可访问完整的事务界面。
 
-## Requirements
+## 要求
 
-- SAP GUI for Windows installed on your machine
-- A configured ABAP FS connection to your SAP system
+- 机器上安装了 Windows 版 SAP GUI
+- 配置了到 SAP 系统的 ABAP FS 连接
 
-## How to Open
+## 如何打开
 
-With an ABAP file open in the editor, use any of these methods:
+在编辑器中打开 ABAP 文件后，可以使用以下任一方法：
 
-| Method | Action |
+| 方法 | 操作 |
 |---|---|
-| Keyboard shortcut | `Ctrl+Shift+F5` |
-| Editor toolbar | Click the **Open in SAP GUI** icon |
-| Command Palette | `Ctrl+Shift+P` → `ABAP FS: Open in native SAP GUI desktop application` |
+| 键盘快捷键 | `Ctrl+Shift+F5` |
+| 编辑器工具栏 | 点击**在 SAP GUI 中打开**图标 |
+| 命令面板 | `Ctrl+Shift+P` → `ABAP FS: Open in native SAP GUI desktop application` |
 
-## When to Use
+## 何时使用
 
-Prefer native SAP GUI when you need:
+在以下情况优先使用原生 SAP GUI：
 
-- Transactions that are not available in the browser-based GUI
-- Better performance for complex or data-heavy screens
-- Full SAP GUI functionality (e.g., ALV grids, custom controls, scripting)
+- 浏览器版 GUI 中没有的事务
+- 复杂或数据密集型界面需要更好的性能
+- 需要完整的 SAP GUI 功能（例如 ALV 网格、自定义控件、脚本）

@@ -1,36 +1,36 @@
-# Embedded SAP GUI (WebView)
+# 嵌入式 SAP GUI（WebView）
 
-Run SAP GUI transactions directly inside VS Code — no need to switch between windows. The SAP WebGUI renders inside a **WebView**: an embedded browser tab hosted within VS Code itself.
+直接在 VS Code 中运行 SAP GUI 事务——无需在窗口之间切换。SAP WebGUI 渲染在**WebView**中：一个托管在 VS Code 内部的嵌入式浏览器标签页。
 
-## Opening the Embedded SAP GUI
+## 打开嵌入式 SAP GUI
 
-Three ways to open it:
+三种打开方式：
 
-| Method | Action |
+| 方法 | 操作 |
 |--------|--------|
-| Keyboard shortcut | **Ctrl+Shift+F7** (with an ABAP file open) |
-| Editor toolbar | Click the **Embedded GUI** button in the editor toolbar |
-| Command Palette | `ABAP FS: Open SAP GUI in embedded WebView` |
+| 键盘快捷键 | **Ctrl+Shift+F7**（打开 ABAP 文件时） |
+| 编辑器工具栏 | 点击编辑器工具栏中的**嵌入式 GUI**按钮 |
+| 命令面板 | `ABAP FS: Open SAP GUI in embedded WebView` |
 
-## Requirements
+## 要求
 
-- WebGUI enabled on your SAP system
-- The connection configured in your ABAP FS settings
+- 你的 SAP 系统启用了 WebGUI
+- 在 ABAP FS 设置中配置了连接
 
-## How It Works
+## 工作原理
 
-By default, the extension opens SAP GUI in VS Code's **Integrated Browser** (Simple Browser) rather than a raw iframe WebView. The Integrated Browser does not wrap the page in an iframe, which avoids a common blank-page issue described below.
+默认情况下，扩展在 VS Code 的**集成浏览器**（Simple Browser）中打开 SAP GUI，而不是原始 iframe WebView。集成浏览器不把页面包裹在 iframe 中，这避免了下文描述的常见白屏问题。
 
-## Blank Page / Clickjacking Issues
+## 白屏 / 点击劫持问题
 
-If you see a **blank white page**, your SAP system has clickjacking frame protection enabled (`ClickjackingFramingProtection.js`). This is a SAP server-side security feature that blocks SAP WebGUI from loading inside an iframe — the extension cannot override it.
+如果你看到**空白白页**，说明你的 SAP 系统启用了点击劫持框架保护（`ClickjackingFramingProtection.js`）。这是 SAP 服务端安全功能，会阻止 SAP WebGUI 在 iframe 中加载——扩展无法覆盖它。
 
-You may also see these browser console errors:
+你也可能看到这些浏览器控制台错误：
 
 - `ClickjackingFramingProtection.js: Ignored call to 'alert()'. The document is sandboxed`
 - `Potential permissions policy violation: fullscreen is not allowed in this document`
 
-**Solution:** The setting `abapfs.sapGui.useIntegratedBrowser` is **enabled by default** and resolves this. If you previously disabled it, re-enable it:
+**解决方案：** `abapfs.sapGui.useIntegratedBrowser` 设置**默认启用**，可以解决此问题。如果你之前禁用了它，请重新启用：
 
 ```json
 {
@@ -38,7 +38,7 @@ You may also see these browser console errors:
 }
 ```
 
-To fall back to the raw embedded WebView (for example, if the Integrated Browser causes problems in your environment):
+要回退到原始嵌入式 WebView（例如集成浏览器在你的环境中引起问题时）：
 
 ```json
 {
@@ -46,6 +46,6 @@ To fall back to the raw embedded WebView (for example, if the Integrated Browser
 }
 ```
 
-This setting applies to all entry points: the toolbar button, command palette, and Run Transaction command.
+此设置适用于所有入口：工具栏按钮、命令面板和运行事务命令。
 
-> **VS Code tip:** The VS Code setting `simpleBrowser.useIntegratedBrowser` (marked experimental) controls whether Simple Browser uses VS Code's built-in browser engine. Enabling it may improve compatibility on desktop. This is a VS Code setting, not an ABAP FS setting.
+> **VS Code 提示：** VS Code 设置 `simpleBrowser.useIntegratedBrowser`（标记为实验性）控制 Simple Browser 是否使用 VS Code 内置浏览器引擎。启用它可能提高桌面端兼容性。这是 VS Code 设置，不是 ABAP FS 设置。

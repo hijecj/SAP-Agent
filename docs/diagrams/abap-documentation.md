@@ -1,16 +1,16 @@
-# ABAP Documentation
+# ABAP 文档
 
-Look up SAP help for any ABAP keyword directly in VS Code, without leaving the editor.
+直接在 VS Code 中查找任意 ABAP 关键字的 SAP 帮助，无需离开编辑器。
 
-## How to Use
+## 使用方法
 
-1. Open an ABAP file in the editor.
-2. Place your cursor on the keyword you want to look up (e.g., `SELECT`, `LOOP`, `MODIFY`).
-3. Press **F1** — the SAP documentation for that keyword opens immediately.
+1. 在编辑器中打开 ABAP 文件。
+2. 把光标放在要查询的关键字上（例如 `SELECT`、`LOOP`、`MODIFY`）。
+3. 按 **F1** — 该关键字的 SAP 文档立即打开。
 
-Alternatively, run **ABAP FS: Show ABAP documentation** from the Command Palette (`Ctrl+Shift+P`).
+或者，从命令面板（`Ctrl+Shift+P`）运行 **ABAP FS: Show ABAP documentation**。
 
-## What to Expect
+## 预期效果
 
-- The help content is context-sensitive: it reflects the keyword under the cursor.
-- Documentation is fetched from SAP's official help portal and displayed inside VS Code.
+- 帮助内容与上下文相关：反映光标下的关键字。
+- 文档从 SAP 官方帮助门户获取，并显示在 VS Code 中。

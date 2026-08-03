@@ -1,19 +1,19 @@
-# Web Browser SAP GUI
+# 网页浏览器 SAP GUI
 
-Opens the currently active ABAP object in SAP GUI running inside your default web browser (SAP WebGUI). Useful when you need to interact with an object in its native SAP GUI interface without leaving your development workflow.
+在默认网页浏览器中运行 SAP GUI（SAP WebGUI），打开当前活动的 ABAP 对象。当你需要以原生 SAP GUI 界面与对象交互、又不离开开发工作流时很有用。
 
-## Prerequisites
+## 前置条件
 
-- SAP WebGUI must be enabled on the target SAP system (ask your Basis team if unsure).
+- 目标 SAP 系统必须启用 SAP WebGUI（不确定的话问问你的 Basis 团队）。
 
-## How to Open
+## 如何打开
 
-With an ABAP file open in the editor, use any of the following:
+在编辑器中打开 ABAP 文件后，可以使用以下任一方式：
 
-| Method | Action |
+| 方法 | 操作 |
 |---|---|
-| Keyboard shortcut | `Ctrl+Shift+F6` |
-| Editor toolbar | Click the **Open in Browser GUI** icon |
-| Command Palette | `Ctrl+Shift+P` → `ABAP FS: Open SAP GUI in external web browser` |
+| 键盘快捷键 | `Ctrl+Shift+F6` |
+| 编辑器工具栏 | 点击**在浏览器 GUI 中打开**图标 |
+| 命令面板 | `Ctrl+Shift+P` → `ABAP FS: Open SAP GUI in external web browser` |
 
-The object opens in your default browser. The URL can be copied and shared with other users who have access to the same system.
+对象在默认浏览器中打开。URL 可以复制并分享给有权访问同一系统的其他用户。
