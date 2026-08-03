@@ -29,12 +29,12 @@ import { onBlameActiveEditorChanged, onBlameDocumentChanged } from "./views/blam
 import { ReloginError } from "abapfs/out/lockManager"
 import { funWindow as window } from "./services/funMessenger"
 
-// Global tracking of save reasons to coordinate between documentWillSave and writeFile
+// 全局跟踪保存原因，协调 documentWillSave 和 writeFile
 const pendingSaveReasons = new Map<string, TextDocumentSaveReason>()
 
 export function setSaveReason(uri: string, reason: TextDocumentSaveReason) {
   pendingSaveReasons.set(uri, reason)
-  // Auto-cleanup after 5 seconds to prevent memory leaks
+  // 5 秒后自动清理，防止内存泄漏
   setTimeout(() => pendingSaveReasons.delete(uri), 5000)
 }
 
@@ -107,12 +107,12 @@ export async function setDocumentLock(
         throw error
       }
     } catch (e) {
-      // Handle error notifications based on interactive flag
+      // 按交互标志处理错误通知
       if (interactive)
         if (ReloginError.isReloginError(e) && e.outcome)
           window.showInformationMessage(`${caughtToString(e)}\nAll should be fine`)
         else window.showErrorMessage(`${caughtToString(e)}\nWon't be able to save changes`)
-      // Always throw the error so caller can handle it
+      // 始终抛出错误，让调用方处理
       if (!(ReloginError.isReloginError(e) && e.outcome)) throw e
     }
   else
@@ -125,22 +125,22 @@ export async function setDocumentLock(
     })
   return await lockManager.finalStatus(uri.path)
 }
-// when the extension is deactivated, all locks are dropped
-// try to restore them as needed
+// 扩展停用时，所有锁都会被释放
+// 尝试按需恢复它们
 export async function restoreLocks() {
   return Promise.all(workspace.textDocuments.map(doc => setDocumentLock(doc)))
 }
 
-// debouncing is important for an edge case:
-// if the object is modified but not locked, undoing the changes and restoring the editor
-// would result in an attempt to lock (perhaps with an error or a request to select a transport)
-// followed by an unlock request after a few milliseconds
-// after debouncing it will only process the last status
-// NOTE: This is now only used for explicit save operations, not automatic document changes
-// PERFORMANCE: Reduced debounce time for more responsive saves
+// 防抖对一个边界情况很重要：
+// 如果对象被修改但未锁定，撤销更改并恢复编辑器
+// 会导致尝试锁定（可能出错或要求选择传输）
+// 然后在几毫秒后发出解锁请求
+// 防抖后只处理最后的状态
+// 注意：现在只用于显式保存操作，不用于自动文档更改
+// 性能：减少防抖时间以获得更灵敏的保存
 const doclock = debounce(200, async (document: TextDocument) => {
   try {
-    await setDocumentLock(document, true) // Always interactive for explicit saves
+    await setDocumentLock(document, true) // 显式保存始终交互式
   } finally {
     const editor = window.activeTextEditor
     if (editor && editor.document === document) showHideActivate(editor)
@@ -150,12 +150,12 @@ const doclock = debounce(200, async (document: TextDocument) => {
 export async function documentChangedListener(event: TextDocumentChangeEvent) {
   const uri = event.document.uri
   if (!abapUri(uri)) return
-  // only need to (un)lock if the isDirty flag changed, which implies a status change without edits
-  // will call anyway if dirty as locking is mandatory for saving
+  // 只在 isDirty 标志变化时（取消）锁定，这暗示没有编辑的状态变化
+  // 脏状态时无论如何都会调用，因为保存必须锁定
   if (event.contentChanges.length === 0 || event.document.isDirty) doclock(event.document)
-  // restored original locking without copilot detection
+  // 恢复无 copilot 检测的原始锁定
 
-  // Blame: auto-hide on dirty
+  // Blame：变脏时自动隐藏
   onBlameDocumentChanged(event)
 
   // // 🤖 COPILOT DETECTION: Check if content changed without isDirty being set
@@ -164,29 +164,29 @@ export async function documentChangedListener(event: TextDocumentChangeEvent) {
   const isDocumentDirty = document.isDirty
 
   if (hasContentChanges && !isDocumentDirty) {
-    // Content changed but isDirty is false = Likely Copilot!
+    // 内容已变但 isDirty 为 false = 可能是 Copilot！
 
-    // Check if this looks like an Undo action (entire document replacement)
+    // 检查这是否像撤销操作（整个文档替换）
     const isLikelyUndo = event.contentChanges.some(
       change => change.range.start.line === 0 && change.range.end.line >= document.lineCount - 1
     )
 
     if (isLikelyUndo) {
-      // Skip counting this as a change since it's an undo
+      // 这是撤销，不把它计为更改
       return
     }
 
     const totalLinesChanged = event.contentChanges.reduce((sum, change) => {
       const insertedLines = (change.text.match(/\n/g) || []).length
       const deletedLines = change.range.end.line - change.range.start.line
-      // Use total modifications: inserted + deleted lines
+      // 使用总修改量：插入 + 删除的行
       return sum + insertedLines + deletedLines
     }, 0)
 
-    // Only log if significant change (filter out minor edits)
+    // 只在重大更改时记录（过滤掉微小编辑）
     if (totalLinesChanged > 0) {
       const action = `Number of code lines changed: ${totalLinesChanged}`
-      // Extract connectionId from document URI
+      // 从文档 URI 提取 connectionId
       const connectionId = uri.authority
       logTelemetry(action, { connectionId })
     }
@@ -199,7 +199,7 @@ export async function documentWillSave(e: TextDocumentWillSaveEvent) {
   if (uri.scheme !== ADTSCHEME || LocalFsProvider.useLocalStorage(uri)) return
   if (!e.document.isDirty) await setDocumentLock({ ...e.document, isDirty: true }, true)
 
-  // Store the save reason so writeFile can access it
+  // 存储保存原因，让 writeFile 可以访问它
   setSaveReason(uri.toString(), e.reason)
 
   // // New logic: only proceed with lock/save if the trigger was manual (Ctrl+S, Keep, etc.)
@@ -242,7 +242,7 @@ export async function showHideActivate(editor?: TextEditor, refresh = false) {
       const file = root.getNode(uri.path)
       const obj = isAbapStat(file) && file.object
       if (!obj) return
-      // Show for any object that has activation status (inactive objects definitely need activation)
+      // 对任何有激活状态的对象显示（未激活对象肯定需要激活）
       if (refresh) await obj.loadStructure()
       // shouldShow = obj && (isInactive(obj) || Boolean(obj.structure?.metaData?.hasOwnProperty("adtcore:version")))
       shouldShow = obj && isInactive(obj)
@@ -250,7 +250,7 @@ export async function showHideActivate(editor?: TextEditor, refresh = false) {
   } catch (e) {
     shouldShow = false
   }
-  // race condition, active editor might have changed while async operation was pending
+  // 竞态条件：异步操作挂起期间活动编辑器可能已变化
   if (editor !== window.activeTextEditor) return
   await setContext("abapfs:showActivate", shouldShow)
 }
@@ -293,7 +293,7 @@ const enableRevNavigation = async (editor: TextEditor | undefined) => {
         if (rights && lefts) return setRevisionContext(...lefts, ...rights)
       }
     } catch (error) {
-      // on error just disable all
+      // 出错时全部禁用
     }
   }
   return setRevisionContext(false, false, false, false)
@@ -302,28 +302,28 @@ export async function activeTextEditorChangedListener(editor: TextEditor | undef
   showHidedbIcon(editor)
   enableRevNavigation(editor)
 
-  // Update feature availability contexts (consolidated for performance)
+  // 更新功能可用性上下文（为性能合并）
   if (editor) updateCleanerContext()
-  // Note: updateFillContext requires context parameter, handled separately in its own listener
+  // 注意：updateFillContext 需要 context 参数，在其自己的监听器中单独处理
 
   try {
     if (editor && editor.document.uri.scheme === ADTSCHEME) {
-      // If the document has unsaved changes, do not refresh its state from the server.
-      // This prevents overwriting local changes (especially programmatic ones from tools).
+      // 如果文档有未保存的更改，不从服务器刷新其状态。
+      // 这防止覆盖本地更改（尤其是工具的程序化更改）。
       //if (editor.document.isDirty) {
       //  return;
       //}
 
       await showHideActivate(editor)
 
-      // Trigger syntax check when switching to ADT file
+      // 切换到 ADT 文件时触发语法检查
       try {
         await triggerSyntaxCheck(editor.document.uri.toString())
       } catch (syntaxError) {
-        // Syntax check is optional - don't break if it fails
+        // 语法检查是可选的 - 失败时不中断
       }
 
-      // 🎯 NEW: Update enhancement decorations for ABAP files
+      // 🎯 新增：更新 ABAP 文件的增强装饰
       try {
         await updateEnhancementDecorations(editor)
       } catch (enhError) {
@@ -332,9 +332,9 @@ export async function activeTextEditorChangedListener(editor: TextEditor | undef
       }
     }
   } catch (e) {
-    await showHideActivate() // reset
+    await showHideActivate() // 重置
   }
 
-  // 📋 Update blame gutter state
+  // 📋 更新 blame 侧边注释状态
   onBlameActiveEditorChanged(editor)
 }
