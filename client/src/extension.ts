@@ -64,12 +64,12 @@ import { funWindow as window } from "./services/funMessenger"
 import { initializeReviewPrompt } from "./services/reviewPrompt"
 import { registerBdefType } from "./adt/operations/BdefCreator"
 
-// Import commands to ensure @command decorators are executed
+// 导入命令，确保 @command 装饰器被执行
 import "./commands"
 
 export let context: ExtensionContext
 
-// Feed polling service instance (module-level for deactivation)
+// Feed 轮询服务实例（模块级，供停用时引用）
 let feedPollingServiceInstance: FeedPollingService | undefined
 
 function checkPasswordsInSettings() {
@@ -96,16 +96,16 @@ export async function activate(ctx: ExtensionContext): Promise<AbapFsApi> {
   const startTime = new Date().getTime()
   log("🚀 Buckle up buttercup, ABAP FS is waking up from its slumber...")
 
-  // Register additional creatable types
+  // 注册额外的可创建类型
   registerBdefType()
 
-  // 📊 Initialize Telemetry Services in the background to avoid blocking activation
+  // 📊 在后台初始化遥测服务，避免阻塞激活
   setImmediate(() => {
     try {
       TelemetryService.initialize(ctx)
       log("📊 Local Telemetry Service initialized")
 
-      // Initialize App Insights
+      // 初始化 App Insights
       AppInsightsService.getInstance(ctx)
       log("📊 App Insights initialization started in background")
     } catch (error) {
@@ -113,7 +113,7 @@ export async function activate(ctx: ExtensionContext): Promise<AbapFsApi> {
     }
   })
 
-  // 🔐 Initialize SAP System Validator FIRST (before any client connections)
+  // 🔐 首先初始化 SAP 系统校验器（在任何客户端连接之前）
   try {
     log("🔐 SAP System Validator entering the chat... *cracks knuckles*")
     const validator = SapSystemValidator.getInstance()
@@ -121,7 +121,7 @@ export async function activate(ctx: ExtensionContext): Promise<AbapFsApi> {
     log("✅ SAP System Validator ready to judge your systems mercilessly")
   } catch (error) {
     log(`❌ SAP System Validator threw a tantrum: ${error} (it's fine, everything is fine 🔥)`)
-    // Continue activation even if validator fails - will block all connections except backup whitelist if configured
+    // 即使校验器失败也继续激活 - 如果配置了备份白名单，将阻止除备份白名单外的所有连接
   }
 
   new PasswordVault(ctx)
@@ -130,14 +130,14 @@ export async function activate(ctx: ExtensionContext): Promise<AbapFsApi> {
   checkPasswordsInSettings()
   const sub = context.subscriptions
 
-  // 🧠 ABAP Intelligence Integration - Start
+  // 🧠 ABAP 智能集成 - 开始
   try {
     log("🧠 ABAP Intelligence features booting up... *elevator music plays*")
 
-    // Initialize hover provider
+    // 初始化悬停提供器
     const hoverProvider = new AbapHoverProviderV2(log)
 
-    // Register language providers for ABAP
+    // 为 ABAP 注册语言提供器
     const abapSelector = { language: "abap", scheme: "file" }
     const adtSelector = { language: "abap", scheme: ADTSCHEME }
     const cdsSelector = { language: "abap_cds", scheme: ADTSCHEME }
@@ -151,7 +151,7 @@ export async function activate(ctx: ExtensionContext): Promise<AbapFsApi> {
 
     log("✅ ABAP Hover Provider ready to whisper sweet nothings about your code")
 
-    // Register List ADT Feeds command
+    // 注册 ADT Feed 列表命令
     context.subscriptions.push(commands.registerCommand("abapfs.listAdtFeeds", listAdtFeedsCommand))
 
     const { copilotLogger } = require("./services/abapCopilotLogger")
@@ -160,59 +160,59 @@ export async function activate(ctx: ExtensionContext): Promise<AbapFsApi> {
       "ABAP FS logging initialized - Ready to document your debugging adventures 🗺️"
     )
 
-    // Initialize the MermaidWebviewManager singleton
+    // 初始化 MermaidWebviewManager 单例
     MermaidWebviewManager.initialize(context.extensionUri)
 
-    // Initialize the DiagramWebviewManager singleton
+    // 初始化 DiagramWebviewManager 单例
     DiagramWebviewManager.initialize(context.extensionUri)
     log("🧜‍♀️ Mermaid Webview Manager ready to make your diagrams prettier than your code")
 
-    // Register Language Model Tools
+    // 注册语言模型工具
     await registerAllTools(context)
 
-    // Register ABAP Cleaner feature
+    // 注册 ABAP Cleaner 功能
     registerCleanerCommands(context)
     setupCleanerContextMonitoring(context)
 
-    // Initialize ABAP REPL
+    // 初始化 ABAP REPL
     registerAbapRepl(context)
 
-    // Initialize SAP Data Workbook (.sapwb)
+    // 初始化 SAP 数据工作簿（.sapwb）
     registerAbapNotebooks(context)
 
     sub.push(
       commands.registerCommand("abapfs.startMcpServer", () => startMcpServerCommand(context))
     )
-    // Delay validation so Copilot's chat models finish loading; otherwise
-    // `selectChatModels({})` returns an empty list and triggers a false AUTO-DISABLED.
+    // 延迟校验，让 Copilot 的聊天模型完成加载；否则
+    // `selectChatModels({})` 返回空列表并触发误报的 AUTO-DISABLED。
     setTimeout(() => validateSubagentsOnStartup(context), 10000)
     log("🚀 ABAP FS services are GO! Houston, we have liftoff! 🌙")
-    // ABAP FS Integration - End
+    // ABAP FS 集成 - 结束
   } catch (error) {
     log(`❌ ABAP Intelligence features had an existential crisis: ${error}`)
     console.error("❌ Failed to activate ABAP Intelligence features:", error)
     window.showErrorMessage(`Failed to activate ABAP Intelligence features: ${error}`)
   }
-  // ABAP Intelligence Integration - End
+  // ABAP 智能集成 - 结束
 
-  // register the filesystem type
+  // 注册文件系统类型
   sub.push(
     workspace.registerFileSystemProvider(ADTSCHEME, FsProvider.get(ctx), {
       isCaseSensitive: true
     })
   )
 
-  // dynamic tooltips for adt:// tree items (uses whatever metadata is loaded)
+  // adt:// 树项目的动态提示（使用已加载的任何元数据）
   const abapFileDecorationProvider = new AbapFileDecorationProvider()
   sub.push(abapFileDecorationProvider)
   sub.push(window.registerFileDecorationProvider(abapFileDecorationProvider))
 
-  // change document listener, for locking
+  // 文档变更监听器，用于锁定
   sub.push(workspace.onDidChangeTextDocument(documentChangedListener))
   sub.push(workspace.onWillSaveTextDocument(documentWillSave))
-  // closed document listener, for locking
+  // 文档关闭监听器，用于锁定
   sub.push(workspace.onDidCloseTextDocument(documentClosedListener))
-  // Editor changed listener, updates context and icons
+  // 编辑器变更监听器，更新上下文和图标
   sub.push(window.onDidChangeActiveTextEditor(activeTextEditorChangedListener))
 
   registerRevisionModel(context)
@@ -237,21 +237,21 @@ export async function activate(ctx: ExtensionContext): Promise<AbapFsApi> {
   sub.push(objectPropertyProvider)
   sub.push(objectPropertyView)
 
-  // Initialize Feed State Manager and Polling Service
+  // 初始化 Feed 状态管理器和轮询服务
   const feedStateManager = new FeedStateManager(context)
   feedPollingServiceInstance = new FeedPollingService(context, feedStateManager)
   const feedInboxProvider = initializeFeedInboxProvider(feedStateManager)
   sub.push(window.registerTreeDataProvider("abapfs.feedInbox", feedInboxProvider))
 
-  // Connect polling service to tree view for refresh
+  // 把轮询服务连接到树视图以便刷新
   feedPollingServiceInstance.setOnEntriesChanged(() => {
     feedInboxProvider.refresh()
   })
 
-  // Start feed polling service
+  // 启动 Feed 轮询服务
   await feedPollingServiceInstance.start()
 
-  // Register feed inbox commands
+  // 注册 Feed 收件箱命令
   sub.push(
     commands.registerCommand("abapfs.refreshFeedInbox", () => {
       feedInboxProvider.refresh()
@@ -349,7 +349,7 @@ export async function activate(ctx: ExtensionContext): Promise<AbapFsApi> {
 
   registerCommands(context)
 
-  // 📊 Register Dependency Graph Command
+  // 📊 注册依赖关系图命令
   try {
     context.subscriptions.push(
       commands.registerCommand("abapfs.visualizeDependencyGraph", () => {
@@ -362,7 +362,7 @@ export async function activate(ctx: ExtensionContext): Promise<AbapFsApi> {
     log(`⚠️ Dependency graph said 'I can\'t even': ${error}`)
   }
 
-  // 💓 Register Heartbeat Commands
+  // 💓 注册心跳命令
   try {
     context.subscriptions.push(
       commands.registerCommand("abapfs.openHeartbeatJson", async () => {
@@ -385,7 +385,7 @@ export async function activate(ctx: ExtensionContext): Promise<AbapFsApi> {
 
   registerSCIDecorator(context)
 
-  // 🎯 Initialize Enhancement Decorations
+  // 🎯 初始化增强装饰标记
   try {
     initializeEnhancementDecorations(context)
     log("🎯 Enhancement decorations initialized - Making your code look fancy since 2024")
@@ -395,7 +395,7 @@ export async function activate(ctx: ExtensionContext): Promise<AbapFsApi> {
     )
   }
 
-  // 📋 Initialize Blame Gutter
+  // 📋 初始化 Blame 侧边注释
   try {
     initializeBlameGutter(context)
     log("📋 Blame gutter initialized — Ready to point fingers at your colleagues' code")
@@ -404,7 +404,7 @@ export async function activate(ctx: ExtensionContext): Promise<AbapFsApi> {
   }
   registerChatTools(context)
 
-  // Walkthrough helper: open Copilot chat with a pre-filled query
+  // 引导辅助：打开带预填查询的 Copilot 聊天
   sub.push(
     commands.registerCommand("abapfs.openChatWithQuery", (query: string) => {
       commands.executeCommand("workbench.action.chat.open", {
@@ -414,25 +414,25 @@ export async function activate(ctx: ExtensionContext): Promise<AbapFsApi> {
     })
   )
 
-  // Check for v1 → v2 upgrade and show notification + status bar hint
+  // 检查 v1 → v2 升级并显示通知 + 状态栏提示
   checkUpgradeNotification(context)
 
-  // Show Getting Started walkthrough on first install
+  // 首次安装时显示入门引导
   showWelcomeWalkthrough(context)
 
-  // Initialize review prompt (rate on Marketplace after sustained usage)
+  // 初始化评分提示（持续使用后在 Marketplace 评分）
   try {
     initializeReviewPrompt(context)
   } catch {
-    // Non-critical — never break extension activation
+    // 非关键 — 绝不中断扩展激活
   }
 
-  // Register virtual tools fix — fires once on first SAP connection, not at activation
+  // 注册虚拟工具修复 — 在首次 SAP 连接时触发一次，而不是激活时
   registerVirtualToolsFixOnConnect(context)
 
-  // Initialize MCP Server LAST so that all LM tools, context keys, and providers
-  // are fully registered before any waiting MCP client (Claude Code, Cursor, ...)
-  // can connect and enumerate vscode.lm.tools.
+  // 最后初始化 MCP 服务器，确保所有 LM 工具、上下文键和提供器
+  // 在任何等待中的 MCP 客户端（Claude Code、Cursor 等）
+  // 连接并枚举 vscode.lm.tools 之前已全部注册。
   try {
     await initializeMcpServer(context)
   } catch (error) {
@@ -444,11 +444,11 @@ export async function activate(ctx: ExtensionContext): Promise<AbapFsApi> {
   return api
 }
 
-// this method is called when your extension is deactivated
-// it's important to kill these sessions as there might be an open process on the abap side
-// most commonly because of locked sources.
-// Locks will not be released until either explicitly closed or the session is terminates
-// an open session can leave sources locked without any UI able to release them (except SM12 and the like)
+// 扩展停用时调用此方法
+// 终止这些会话很重要，因为 ABAP 端可能有打开的进程
+// 最常见的原因是源码被锁定。
+// 锁在显式关闭或会话终止之前不会释放
+// 打开的会话可能让源码保持锁定，且没有任何界面能释放它们（SM12 等除外）
 export async function deactivate() {
   if (hasLocks())
     window.showInformationMessage(
@@ -456,18 +456,18 @@ export async function deactivate() {
     )
   setContext("abapfs:extensionActive", false)
 
-  // Stop feed polling service
+  // 停止 Feed 轮询服务
   if (feedPollingServiceInstance) {
     feedPollingServiceInstance.stop()
     log("📰 Feed polling service stopped - No more news is good news, right?")
   }
 
-  // Clear SAP system info cache
+  // 清除 SAP 系统信息缓存
   try {
     clearSystemInfoCache()
     log("🧹 SAP system info cache cleared - It's like it never happened *whistles innocently*")
   } catch (e) {
-    // Ignore - service may not be loaded
+    // 忽略 - 服务可能未加载
   }
 
   return disconnect()
