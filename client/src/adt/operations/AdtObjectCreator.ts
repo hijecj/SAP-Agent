@@ -77,14 +77,14 @@ export class AdtObjectCreator {
     if (isAbapStat(file)) return file.object
   }
   /**
-   * Creates an ABAP object asking the user for unknown details
-   * Tries to guess object type and parent/package from URI
+   * 创建 ABAP 对象，向用户询问未知详情
+   * 尝试从 URI 猜测对象类型和父对象/包
    *
-   * @param uri Creates an ABAP object
-   * @param transportPicker Optional non-interactive transport resolver.
-   *   When provided, replaces the default UI-driven {@link selectTransport}.
-   *   Used by programmatic callers (e.g. the MCP `create_object_programmatically`
-   *   tool) to avoid blocking VS Code dialogs.
+   * @param uri 创建 ABAP 对象
+   * @param transportPicker 可选的非交互式传输解析器。
+   *   提供时，替换默认的 UI 驱动 {@link selectTransport}。
+   *   供编程式调用方（例如 MCP 的 `create_object_programmatically`
+   *   工具）使用，以避免阻塞 VS Code 对话框。
    */
   public async createObject(uri: Uri | undefined, transportPicker?: TransportPicker) {
     try {
@@ -180,7 +180,7 @@ export class AdtObjectCreator {
         }
       }
     }
-    // Can't guess ...
+    // 无法猜测……
     return selectObjectType()
   }
 
@@ -284,7 +284,7 @@ export class AdtObjectCreator {
     const hierarchy = pathSequence(getRoot(this.connId), uri)
     let devclass: string = this.guessParentByType(hierarchy, PACKAGE)
     const objType = await this.guessOrSelectObjectType(hierarchy)
-    // user didn't pick one...
+    // 用户没有选择……
     if (!objType) return
     const name = await this.askName(objType)
     if (!name) return
@@ -319,8 +319,8 @@ export class AdtObjectCreator {
       parentName,
       parentPath: objectPath(parentType, parentName, ""),
       responsible,
-      // Use the connection's logon language as master language, otherwise
-      // abap-adt-api falls back to a hardcoded "EN" in the creation XML.
+      // 使用连接的登录语言作为主语言，否则
+      // abap-adt-api 会在创建 XML 中回退到硬编码的 "EN"。
       language: getClient(this.connId).language
     }
     if (options.objtype === "SRVB/SVB") {
