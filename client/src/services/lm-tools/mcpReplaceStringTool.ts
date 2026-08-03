@@ -1,51 +1,51 @@
 /**
- * MCP Replace String in ABAP Object Tool
+ * MCP 在 ABAP 对象中替换字符串工具
  *
- * This tool is MCP-only (not a VS Code LM tool). It enables external AI clients
- * (Cursor, Claude Code, Cline, etc.) to edit ABAP source code by performing
- * find-and-replace operations on files identified by their workspace URI.
+ * 此工具仅限 MCP（不是 VS Code LM 工具）。它让外部 AI 客户端
+ * （Cursor、Claude Code、Cline 等）通过对其工作区 URI 标识的文件
+ * 执行查找替换操作来编辑 ABAP 源代码。
  *
- * When VS Code Copilot edits ABAP files, it uses its built-in replace_string_in_file
- * tool which operates on the adt:// filesystem. External MCP clients don't have
- * access to those built-in tools, so this tool provides equivalent functionality.
+ * 当 VS Code Copilot 编辑 ABAP 文件时，它使用内置的 replace_string_in_file
+ * 工具，该工具作用于 adt:// 文件系统。外部 MCP 客户端无法访问
+ * 那些内置工具，所以此工具提供等价功能。
  *
- * Flow:
- * 1. AI gets workspace URI via get_abap_object_workspace_uri tool
- * 2. AI reads current content via get_abap_object_lines
- * 3. AI calls this tool with the URI, oldString, and newString
- * 4. This tool reads the file, validates the match, replaces, and writes back
- * 5. The adt:// filesystem provider handles locking, transport selection, and SAP sync
+ * 流程：
+ * 1. AI 通过 get_abap_object_workspace_uri 工具获取工作区 URI
+ * 2. AI 通过 get_abap_object_lines 读取当前内容
+ * 3. AI 用 URI、oldString 和 newString 调用此工具
+ * 4. 此工具读取文件、校验匹配、替换并写回
+ * 5. adt:// 文件系统提供器处理锁定、传输选择和 SAP 同步
  */
 
 import * as vscode from "vscode"
 
 // ============================================================================
-// INTERFACE
+// 接口
 // ============================================================================
 
 export interface IMcpReplaceStringParams {
-  /** The full workspace URI of the ABAP source file (e.g. 'adt://dev100/path/to/file.prog.abap').
-   * Get this URI using the get_abap_object_workspace_uri tool. */
+  /** ABAP 源文件的完整工作区 URI（例如 'adt://dev100/path/to/file.prog.abap'）。
+   * 使用 get_abap_object_workspace_uri 工具获取此 URI。 */
   fileUri: string
-  /** The exact literal text to find and replace. Must match exactly one occurrence in the file.
-   * Include enough context (3-5 surrounding lines) to ensure uniqueness. Cannot be empty. */
+  /** 要查找和替换的精确字面文本。必须与文件中的恰好一个出现位置匹配。
+   * 包含足够的上下文（周围 3-5 行）以确保唯一性。不能为空。 */
   oldString: string
-  /** The replacement text. The resulting code must be syntactically valid ABAP. */
+  /** 替换文本。结果代码必须是语法有效的 ABAP。 */
   newString: string
 }
 
 // ============================================================================
-// CORE LOGIC
+// 核心逻辑
 // ============================================================================
 
 /**
- * Perform a single find-and-replace on file content.
- * Returns the updated content or throws if match is not exactly 1.
+ * 对文件内容执行单次查找替换。
+ * 返回更新后的内容，如果匹配数不是恰好 1 则抛出异常。
  */
 export function findAndReplace(content: string, oldString: string, newString: string): string {
   if (!oldString) {
-    // Empty oldString is only allowed when the current file is completely blank
-    // (e.g. a freshly created ABAP object with no source yet).
+    // 只有当当前文件完全为空时才允许空 oldString
+    //（例如刚创建、还没有源码的 ABAP 对象）。
     if (content.length === 0) {
       return newString
     }
@@ -60,7 +60,7 @@ export function findAndReplace(content: string, oldString: string, newString: st
     throw new Error("oldString and newString are identical. No change would be made.")
   }
 
-  // Count occurrences
+  // 统计出现次数
   let count = 0
   let searchIdx = 0
   while (true) {
@@ -71,14 +71,14 @@ export function findAndReplace(content: string, oldString: string, newString: st
   }
 
   if (count === 0) {
-    // Try with normalized line endings
+    // 尝试规范化行尾
     const normalizedContent = content.replace(/\r\n/g, "\n")
     const normalizedOld = oldString.replace(/\r\n/g, "\n")
     if (normalizedContent.includes(normalizedOld)) {
-      // Match found after EOL normalization - do the replacement on original content
+      // 行尾规范化后找到匹配 - 在原始内容上执行替换
       const normalizedNew = newString.replace(/\r\n/g, "\n")
       const updated = normalizedContent.replace(normalizedOld, normalizedNew)
-      // Restore original EOL style if content had \r\n
+      // 如果内容有 \r\n，恢复原始行尾样式
       if (content.includes("\r\n")) {
         return updated.replace(/(?<!\r)\n/g, "\r\n")
       }
@@ -98,14 +98,14 @@ export function findAndReplace(content: string, oldString: string, newString: st
     )
   }
 
-  // Exactly one match - do the replacement
+  // 恰好一个匹配 - 执行替换
   return content.replace(oldString, newString)
 }
 
 /**
- * Execute the replace operation against the VS Code filesystem.
- * This goes through the adt:// filesystem provider which handles
- * locking, transport selection, and syncing to SAP.
+ * 对 VS Code 文件系统执行替换操作。
+ * 这通过 adt:// 文件系统提供器完成，它处理
+ * 锁定、传输选择和与 SAP 的同步。
  */
 export async function executeReplace(
   fileUri: string,
@@ -114,7 +114,7 @@ export async function executeReplace(
 ): Promise<string> {
   const uri = vscode.Uri.parse(fileUri)
 
-  // Validate URI scheme
+  // 校验 URI 协议
   if (uri.scheme !== "adt") {
     throw new Error(
       `Invalid URI scheme '${uri.scheme}'. Expected 'adt://' URI. ` +
@@ -122,16 +122,16 @@ export async function executeReplace(
     )
   }
 
-  // Read current file content
+  // 读取当前文件内容
   const contentBytes = await vscode.workspace.fs.readFile(uri)
   const currentContent = Buffer.from(contentBytes).toString("utf8")
 
-  // Perform the replacement
+  // 执行替换
   const updatedContent = findAndReplace(currentContent, oldString, newString)
 
-  // Write back through the filesystem provider (handles lock/transport/sync)
-  // IMPORTANT: Must use Buffer.from() not TextEncoder - the FsProvider calls
-  // content.toString() which only decodes UTF-8 correctly on Buffer, not Uint8Array
+  // 通过文件系统提供器写回（处理锁定/传输/同步）
+  // 重要：必须使用 Buffer.from() 而不是 TextEncoder - FsProvider 调用
+  // content.toString()，它只在 Buffer 上正确解码 UTF-8，而不是 Uint8Array
   await vscode.workspace.fs.writeFile(uri, Buffer.from(updatedContent, "utf8"))
 
   return updatedContent
