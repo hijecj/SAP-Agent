@@ -1,4 +1,4 @@
-/** Data types for S/4HANA Readiness Dashboard */
+/** S/4HANA 就绪仪表盘的数据类型 */
 
 export interface SimplificationItem {
   id: string
@@ -45,19 +45,19 @@ export interface ItemPiecelistLink {
   piecelistId: string
 }
 
-/** A custom reference enriched with its linked simplification item */
+/** 带链接简化项增强的自定义引用 */
 export interface EnrichedReference {
   ref: CustomReference
   item: SimplificationItem | undefined
 }
 
-/** Grouped data ready for tree rendering */
+/** 准备好用于树渲染的分组数据 */
 export interface GroupedData {
-  /** Items that have matching custom references */
+  /** 有匹配自定义引用的项 */
   groups: ItemGroup[]
-  /** References that couldn't be linked to any simplification item */
+  /** 无法链接到任何简化项的引用 */
   ungrouped: CustomReference[]
-  /** Total reference count */
+  /** 总引用数 */
   totalRefs: number
 }
 
