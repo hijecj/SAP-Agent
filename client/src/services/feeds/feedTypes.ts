@@ -1,53 +1,53 @@
 import { Feed } from "abap-adt-api"
 
 /**
- * Feed subscription configuration per system per feed
+ * 每个系统每个 feed 的订阅配置
  */
 export interface FeedSubscriptionConfig {
   enabled: boolean
-  pollingInterval: number // seconds (120 - 86400)
+  pollingInterval: number // 秒（120 - 86400）
   notifications: boolean
-  query?: string // Custom query string
+  query?: string // 自定义查询字符串
   useDefaultQuery: boolean
 }
 
 /**
- * All feed subscriptions per system
+ * 每个系统的所有 feed 订阅
  */
 export interface SystemFeedConfig {
   [feedTitle: string]: FeedSubscriptionConfig
 }
 
 /**
- * VS Code settings structure for all systems
+ * 所有系统的 VS Code 设置结构
  */
 export interface FeedSubscriptions {
   [systemId: string]: SystemFeedConfig
 }
 
 /**
- * Feed state tracking (persisted in globalState)
+ * Feed 状态跟踪（持久化在 globalState 中）
  */
 export interface FeedState {
   systemId: string
   feedTitle: string
   feedPath: string
-  lastPollTime: number // timestamp
+  lastPollTime: number // 时间戳
   lastSeenEntryId: string
   errorCount: number
   lastError?: string
-  isAvailable: boolean // false if feed disappeared after system upgrade
+  isAvailable: boolean // 如果系统升级后 feed 消失则为 false
 }
 
 /**
- * All feed states (persisted)
+ * 所有 feed 状态（持久化）
  */
 export interface FeedStates {
   [key: string]: FeedState // key: systemId|feedTitle
 }
 
 /**
- * Generic feed entry (common fields across all feed types)
+ * 通用 feed 条目（所有 feed 类型的公共字段）
  */
 export interface FeedEntry {
   id: string
@@ -63,11 +63,11 @@ export interface FeedEntry {
   severity?: "error" | "warning" | "info"
   isNew: boolean
   isRead: boolean
-  rawData: any // Original feed entry data
+  rawData: any // 原始 feed 条目数据
 }
 
 /**
- * Feed type enumeration
+ * Feed 类型枚举
  */
 export enum FeedType {
   DUMPS = "dumps",
@@ -81,7 +81,7 @@ export enum FeedType {
 }
 
 /**
- * Feed metadata with discovery information
+ * 带发现信息的 Feed 元数据
  */
 export interface FeedMetadata extends Feed {
   feedType: FeedType
@@ -89,20 +89,20 @@ export interface FeedMetadata extends Feed {
 }
 
 /**
- * Polling task tracking
+ * 轮询任务跟踪
  */
 export interface PollingTask {
   systemId: string
   feedTitle: string
   feedPath: string
   config: FeedSubscriptionConfig
-  nextPollTime: number // timestamp
+  nextPollTime: number // 时间戳
   isPolling: boolean
   timeoutHandle?: NodeJS.Timeout
 }
 
 /**
- * Notification group for batched notifications
+ * 用于批量通知的通知组
  */
 export interface FeedNotificationGroup {
   systemId: string
@@ -113,7 +113,7 @@ export interface FeedNotificationGroup {
 }
 
 /**
- * Feed statistics for UI display
+ * 供 UI 显示的 Feed 统计
  */
 export interface FeedStatistics {
   totalFeeds: number
@@ -124,7 +124,7 @@ export interface FeedStatistics {
 }
 
 /**
- * Message types for webview communication
+ * 用于 Webview 通信的消息类型
  */
 export interface WebviewMessage {
   command: string
@@ -159,7 +159,7 @@ export interface BulkActionMessage extends WebviewMessage {
 }
 
 /**
- * Webview state
+ * Webview 状态
  */
 export interface WebviewState {
   systems: string[]
