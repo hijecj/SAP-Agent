@@ -19,7 +19,7 @@ import { updateInclude } from "./objectManager"
 import { TextDocument } from "vscode-languageserver-textdocument"
 import { renameHandler } from "./rename"
 /**
- * Tracks open documents so the server can react to editor events and refresh diagnostics.
+ * 跟踪打开的文档，让服务器可以响应编辑器事件并刷新诊断。
  */
 export const documents = new TextDocuments(TextDocument)
 
@@ -28,15 +28,15 @@ let hasWorkspaceFolderCapability: boolean = false
 let hasLiteral: boolean = false
 
 /**
- * URI scheme used for ADT-backed documents in the language server.
+ * 语言服务器中 ADT 支持文档使用的 URI 协议。
  */
 export const ADTSCHEME = "adt"
 
 connection.onInitialize((params: InitializeParams) => {
   const capabilities = params.capabilities
 
-  // Does the client support the `workspace/configuration` request?
-  // If not, we will fall back using global settings
+  // 客户端是否支持 `workspace/configuration` 请求？
+  // 不支持则回退到全局设置
   hasConfigurationCapability = !!(capabilities.workspace && !!capabilities.workspace.configuration)
   hasWorkspaceFolderCapability = !!(
     capabilities.workspace && !!capabilities.workspace.workspaceFolders
@@ -51,7 +51,7 @@ connection.onInitialize((params: InitializeParams) => {
   const result: InitializeResult = {
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Full,
-      // Tell the client that the server supports code completion
+      // 告知客户端服务器支持代码补全
       completionProvider: {
         resolveProvider: true
       },
@@ -78,7 +78,7 @@ connection.onInitialize((params: InitializeParams) => {
 
 connection.onInitialized(() => {
   if (hasConfigurationCapability) {
-    // Register for all configuration changes.
+    // 注册所有配置变化。
     connection.client.register(DidChangeConfigurationNotification.type, undefined)
   }
   if (hasWorkspaceFolderCapability) {
@@ -91,9 +91,9 @@ connection.onInitialized(() => {
 connection.onCompletion(completion)
 connection.onCompletionResolve(completionResolve)
 connection.onSignatureHelp(signatureHelp)
-// Eclipse ADT style: Ctrl+Click goes to implementation first, then declaration
-connection.onDefinition(findDefinition.bind(null, true)) // Swapped: now shows implementation
-connection.onImplementation(findDefinition.bind(null, false)) // Swapped: now shows declaration
+// Eclipse ADT 风格：Ctrl+Click 先去实现，然后声明
+connection.onDefinition(findDefinition.bind(null, true)) // 已互换：现在显示实现
+connection.onImplementation(findDefinition.bind(null, false)) // 已互换：现在显示声明
 connection.onReferences(findReferences)
 connection.onDocumentSymbol(documentSymbols)
 connection.onDocumentFormatting(formatDocument)
@@ -101,16 +101,16 @@ documents.onDidOpen(e => setTimeout(() => syntaxCheck(e.document), 500))
 documents.onDidChangeContent(change => syntaxCheck(change.document))
 documents.onDidSave(e => {
   syntaxCheck(e.document)
-  // Cross-file syntax refresh for include <-> program relationships
-  // Check for "Includes" or "Programs" in the workspace path (case-insensitive, URL-encoded)
+  // include <-> 程序关系的跨文件语法刷新
+  // 检查工作区路径中是否包含 "Includes" 或 "Programs"（不区分大小写、URL 编码）
   const uri = e.document.uri.toLowerCase()
   const isInclude = uri.includes("/includes/") || uri.includes("%2fincludes%2f")
   const isProgram = !isInclude && (uri.includes("/programs/") || uri.includes("%2fprograms%2f"))
 
-  // Delay to ensure SAP has processed the save before checking related files
+  // 延迟确保 SAP 在检查相关文件前已处理保存
   setTimeout(() => {
     if (isInclude) {
-      // Include saved: re-check all open programs
+      // Include 已保存：重新检查所有打开的程序
       for (const doc of documents.all()) {
         const docUri = doc.uri.toLowerCase()
         const docIsProgram =
@@ -122,7 +122,7 @@ documents.onDidSave(e => {
         }
       }
     } else if (isProgram) {
-      // Program saved: re-check all open includes
+      // 程序已保存：重新检查所有打开的 include
       for (const doc of documents.all()) {
         const docUri = doc.uri.toLowerCase()
         const docIsInclude = docUri.includes("/includes/") || docUri.includes("%2fincludes%2f")
@@ -135,7 +135,7 @@ documents.onDidSave(e => {
 })
 connection.onCodeAction(codeActionHandler)
 connection.onRenameRequest(renameHandler)
-// custom APIs exposed to the client
+// 暴露给客户端的自定义 API
 connection.onRequest(Methods.cancelSearch, cancelSearch)
 connection.onRequest(Methods.updateMainProgram, updateInclude)
 connection.onRequest(Methods.triggerSyntaxCheck, (uri: string) => {
