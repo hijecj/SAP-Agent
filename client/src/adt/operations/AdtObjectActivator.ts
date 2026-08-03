@@ -12,12 +12,12 @@ import { IncludeProvider, IncludeService } from "../includes"
 import { isDefined, channel } from "../../lib"
 import { funWindow as window } from "../../services/funMessenger"
 
-// Log activation errors to ABAP FS output channel
+// 把激活错误记录到 ABAP FS 输出通道
 const logError = (message: string) => {
   channel.appendLine(message)
 }
 
-/** Wrap plain InactiveObject[] into InactiveObjectRecord[] for use with showActivationSelectionDialog */
+/** 把普通 InactiveObject[] 包装为 InactiveObjectRecord[]，供 showActivationSelectionDialog 使用 */
 const toRecords = (objects: any[]): InactiveObjectRecord[] =>
   objects.map(obj => ({ object: obj }) as InactiveObjectRecord)
 
@@ -71,26 +71,26 @@ export class AdtObjectActivator {
     const rawInactive = await this.client.inactiveObjects()
     const inactive = rawInactive.map(r => r.object).filter(o => o)
 
-    // For includes, get the main program and then find all related objects
+    // 对 include，获取主程序然后查找所有相关对象
     if (object.type === "PROG/I") {
       const mainProgramUri = await this.getMain(object, uri)
       if (!mainProgramUri) return
 
       const relatedObjects: any[] = []
 
-      // Check if main program is inactive
+      // 检查主程序是否未激活
       const mainProgramInactive = inactive.find(o => o?.["adtcore:uri"] === mainProgramUri)
       if (mainProgramInactive) {
         relatedObjects.push(mainProgramInactive)
       }
 
-      // Add current include if inactive
+      // 未激活时添加当前 include
       const currentIncludeInactive = inactive.find(o => o?.["adtcore:uri"] === object.path)
       if (currentIncludeInactive) {
         relatedObjects.push(currentIncludeInactive)
       }
 
-      // Get other includes of the main program using nodeContents
+      // 使用 nodeContents 获取主程序的其他 include
       try {
         const programName = mainProgramUri.split("/").pop()?.toUpperCase()
         if (programName) {
@@ -112,13 +112,13 @@ export class AdtObjectActivator {
           })
         }
       } catch (error) {
-        // Silently continue - we'll still have main program and current include
+        // 静默继续 - 我们仍然有主程序和当前 include
       }
 
       return relatedObjects.length > 0 ? relatedObjects : undefined
     }
 
-    // For non-includes, use parentUri matching (classes, etc.)
+    // 对非 include，使用 parentUri 匹配（类等）
     const parentUri = inactive.find(o => o?.["adtcore:uri"] === object.path)?.["adtcore:parentUri"]
 
     if (!parentUri || inactive.length <= 1) {
@@ -134,7 +134,7 @@ export class AdtObjectActivator {
     try {
       const allInactive = await this.getAllInactiveObjects()
 
-      // Find the main object if it's inactive
+      // 未激活时查找主对象
       const mainObjectInactive = allInactive.find(obj => obj && obj["adtcore:uri"] === object.path)
       const relatedObjects: any[] = []
 
@@ -142,8 +142,8 @@ export class AdtObjectActivator {
         relatedObjects.push(mainObjectInactive)
       }
 
-      // For programs, get includes directly from SAP nodeContents API
-      // This bypasses the 'expandable' check which is for filesystem display, not activation
+      // 对程序，直接从 SAP nodeContents API 获取 include
+      // 这绕过 'expandable' 检查，该检查用于文件系统显示而非激活
       if (object.lockObject.type === "PROG/P") {
         try {
           const nodeStructure = await this.client.statelessClone.nodeContents(
@@ -154,12 +154,12 @@ export class AdtObjectActivator {
             true
           )
 
-          // Find which includes are inactive
+          // 找出哪些 include 未激活
           const includeNodes = nodeStructure.nodes.filter(
             n => n.OBJECT_TYPE === "PROG/I" && n.OBJECT_NAME
           )
 
-          // Helper to extract base URI without /source/main?context=... suffix
+          // 提取不带 /source/main?context=... 后缀的基础 URI 的辅助
           const getBaseUri = (uri: string) => {
             const match = uri.match(/^(\/sap\/bc\/adt\/programs\/includes\/[^\/]+)/)
             return match ? match[1] : uri
@@ -179,10 +179,10 @@ export class AdtObjectActivator {
 
           relatedObjects.push(...inactiveIncludes)
         } catch (error) {
-          // Silently continue
+          // 静默继续
         }
       } else {
-        // For non-programs, use the existing childComponents approach
+        // 对非程序，使用现有的 childComponents 方法
         try {
           if (!object.lockObject.structure) {
             await object.lockObject.loadStructure()
@@ -201,11 +201,11 @@ export class AdtObjectActivator {
 
           relatedObjects.push(...inactiveChildren)
         } catch (error) {
-          // Silently continue
+          // 静默继续
         }
       }
 
-      // Remove duplicates based on URI
+      // 按 URI 移除重复
       const uniqueObjects = relatedObjects.filter(
         (obj, index, self) => index === self.findIndex(o => o["adtcore:uri"] === obj["adtcore:uri"])
       )
@@ -476,32 +476,32 @@ export class AdtObjectActivator {
     let result
     const mainProg = await this.getMain(object, uri)
 
-    // Check for inactive related objects BEFORE attempting activation
+    // 在尝试激活前检查未激活的相关对象
     let relatedObjects: any[] = []
 
     if (object.lockObject.type === "PROG/P") {
-      // Main programs: Use childComponents to find includes
+      // 主程序：使用 childComponents 查找 include
       relatedObjects = await this.getRelatedInactiveObjects(object)
     } else if (object.lockObject.type === "PROG/I") {
-      // Includes: Use siblings to find parent and other includes
+      // Include：使用兄弟节点查找父对象和其他 include
       relatedObjects = (await this.siblings(object, uri)) || []
     } else {
-      // Classes and other objects: Use original siblings logic
+      // 类和其他对象：使用原始兄弟节点逻辑
       relatedObjects = (await this.siblings(object, uri)) || []
     }
 
-    // If we have inactive related objects, show selection dialog BEFORE main activation
+    // 如果有未激活的相关对象，在主激活前显示选择对话框
     if (relatedObjects.length > 1) {
-      // Show user selection dialog for which objects to activate
+      // 显示用户选择对话框，选择要激活的对象
       const selectedObjects = interactive
         ? await this.showActivationSelectionDialog(toRecords(relatedObjects))
         : relatedObjects
 
       if (selectedObjects && selectedObjects.length > 0) {
-        // Activate all selected objects (including main object)
+        // 激活所有选中的对象（包括主对象）
         result = await this.client.activate(selectedObjects)
       } else {
-        // User cancelled - don't activate anything, return a cancelled result
+        // 用户已取消 - 不激活任何内容，返回取消结果
         return {
           success: false,
           messages: [{ shortText: "Activation cancelled by user" }],
@@ -509,18 +509,18 @@ export class AdtObjectActivator {
         }
       }
     } else {
-      // No inactive related objects found, or only one object, just activate the main object
+      // 未找到未激活的相关对象，或只有一个对象，只激活主对象
       result = await this.client.activate(name, path, mainProg, true)
 
-      // If main activation failed, try the fallback logic for any objects returned in the error
+      // 如果主激活失败，对错误中返回的任何对象尝试回退逻辑
       if (!result.success) {
         let fallbackObjects: any[] = []
 
         if (object.lockObject.type === "PROG/P") {
-          // For main programs, we already checked getRelatedInactiveObjects above
+          // 对主程序，我们已经在上面检查过 getRelatedInactiveObjects
           fallbackObjects = relatedObjects
         } else {
-          // Classes, includes, and other objects: Use inactive objects from the failed result
+          // 类、include 和其他对象：使用失败结果中的未激活对象
           if (result.inactive.length > 0) {
             fallbackObjects = inactiveObjectsInResults(result)
           } else {
@@ -529,7 +529,7 @@ export class AdtObjectActivator {
         }
 
         if (fallbackObjects.length > 1) {
-          // Show user selection dialog for which objects to activate
+          // 显示用户选择对话框，选择要激活的对象
           const selectedObjects = interactive
             ? await this.showActivationSelectionDialog(toRecords(fallbackObjects))
             : fallbackObjects
@@ -538,7 +538,7 @@ export class AdtObjectActivator {
             result = await this.client.activate(selectedObjects)
           }
         } else if (fallbackObjects.length === 1) {
-          // Only one object (probably just the main object), activate it directly
+          // 只有一个对象（可能只是主对象），直接激活
           result = await this.client.activate(fallbackObjects)
         }
       }
@@ -573,7 +573,7 @@ export class AdtObjectActivator {
         return this.summarizeFailure(result, object.name)
       }
     } catch (error) {
-      // Enhanced error handling: surface ADT response body/status when present
+      // 增强错误处理：存在时暴露 ADT 响应体/状态
       if (isAdtError(error)) {
         const status = error.response?.status || error.type || "ADT error"
         const body = error.response?.body || error.message || ""
