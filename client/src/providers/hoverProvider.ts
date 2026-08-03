@@ -12,7 +12,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
     const startTime = Date.now()
 
     try {
-      // Custom word range detection for ABAP-specific tokens like TEXT-001, SY-SUBRC, etc.
+      // 针对 ABAP 专属 token（如 TEXT-001、SY-SUBRC 等）的自定义单词范围检测
       let wordRange = this.getAbapWordRange(document, position)
       if (!wordRange) {
         wordRange = document.getWordRangeAtPosition(position)
@@ -22,25 +22,25 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       const word = document.getText(wordRange)
       const line = document.lineAt(position.line).text
 
-      // 1. PRIORITY: Use existing Go to Definition to resolve what the user is hovering over
+      // 1. 优先级：用现有的“转到定义”解析用户悬停的内容
       const definitionHover = await this.getDefinitionBasedHover(document, position, word)
       if (definitionHover) {
         return new vscode.Hover(definitionHover, wordRange)
       }
 
-      // 2. PRIORITY: Context-aware keywords (MESSAGE TYPE, etc.) - for language constructs
+      // 2. 优先级：上下文感知关键字（MESSAGE TYPE 等）- 针对语言构造
       const contextAwareHover = this.getContextAwareHover(word, line)
       if (contextAwareHover) {
         return new vscode.Hover(contextAwareHover, wordRange)
       }
 
-      // 2.5. Text symbols: Disabled (requires ADT API integration)
+      // 2.5. 文本符号：已禁用（需要 ADT API 集成）
       // const textSymbolHover = await this.getTextSymbolHover(word, document);
       // if (textSymbolHover) {
       //     return new vscode.Hover(textSymbolHover, wordRange);
       // }
 
-      // 3. FALLBACK: Built-in types (only as last resort)
+      // 3. 回退：内置类型（仅作为最后手段）
       const builtInHover = this.getBuiltInTypeHover(word)
       if (builtInHover) {
         return new vscode.Hover(builtInHover, wordRange)
@@ -53,7 +53,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
     return undefined
   }
 
-  // Custom word range detection for ABAP-specific patterns
+  // 针对 ABAP 专属模式的自定义单词范围检测
   private getAbapWordRange(
     document: vscode.TextDocument,
     position: vscode.Position
@@ -62,7 +62,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
     const text = line.text
     const character = position.character
 
-    // Check for TEXT-XXX pattern
+    // 检查 TEXT-XXX 模式
     const textSymbolPattern = /\bTEXT-\d{3}\b/g
     let match
     while ((match = textSymbolPattern.exec(text)) !== null) {
@@ -76,9 +76,9 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       }
     }
 
-    // Check for SY-XXX pattern (system variables)
+    // 检查 SY-XXX 模式（系统变量）
     const syVarPattern = /\bSY-\w+\b/gi
-    syVarPattern.lastIndex = 0 // Reset regex
+    syVarPattern.lastIndex = 0 // 重置正则
     while ((match = syVarPattern.exec(text)) !== null) {
       const start = match.index
       const end = match.index + match[0].length
@@ -90,9 +90,9 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       }
     }
 
-    // Check for SYST-XXX pattern (alternative system variable format)
+    // 检查 SYST-XXX 模式（替代的系统变量格式）
     const systVarPattern = /\bSYST-\w+\b/gi
-    systVarPattern.lastIndex = 0 // Reset regex
+    systVarPattern.lastIndex = 0 // 重置正则
     while ((match = systVarPattern.exec(text)) !== null) {
       const start = match.index
       const end = match.index + match[0].length
@@ -109,7 +109,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
   }
 
   // ============================================================================
-  // DEFINITION-BASED HOVER
+  // 基于定义的悬停
   // ============================================================================
 
   private async getDefinitionBasedHover(
@@ -133,17 +133,17 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
 
       const definition = definitions[0]
 
-      // Check if the document is already open to avoid refreshing it
+      // 检查文档是否已打开，避免刷新它
       const existingEditor = window.visibleTextEditors.find(
         editor => editor.document.uri.toString() === definition.uri.toString()
       )
 
       let definitionDoc: vscode.TextDocument
       if (existingEditor) {
-        // Document is already open, use the existing document
+        // 文档已打开，使用现有文档
         definitionDoc = existingEditor.document
       } else {
-        // Document is not open, safe to open it
+        // 文档未打开，可以安全打开
         definitionDoc = await vscode.workspace.openTextDocument(definition.uri)
       }
       const definitionLine = definitionDoc.lineAt(definition.range.start.line)
@@ -152,7 +152,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       // this.log?.(`[V2] ✅ Definition found at: ${definition.uri.fsPath}:${definition.range.start.line + 1}`);
       //  this.log?.(`[V2] 📖 Definition content: "${definitionText}"`);
 
-      // If the definition looks incomplete (common with structures), try to get more context
+      // 如果定义看起来不完整（结构类型常见），尝试获取更多上下文
       if (
         definitionText.includes("define structure") ||
         definitionText.includes("@EndUserText") ||
@@ -166,7 +166,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
           word
         )
         if (completeDefinition) {
-          // Use the complete definition instead of the basic one
+          // 使用完整定义而不是基础定义
           return this.createDefinitionHover(
             word,
             definition,
@@ -217,19 +217,19 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         "ENDFUNCTION"
       )
     } else if (definitionUpper.startsWith("METHOD ")) {
-      // Note the space - matches "METHOD xyz" but not "METHODS xyz"
+      // 注意空格 - 匹配 "METHOD xyz" 但不匹配 "METHODS xyz"
       markdown.appendMarkdown(`🔧 **Method**: \`${word}\`\n\n`)
 
-      // Determine where we're hovering: declaration (METHODS), implementation (METHOD), or call site
+      // 确定悬停位置：声明（METHODS）、实现（METHOD）还是调用点
       const originalLine = originalDocument.lineAt(originalPosition.line).text.trim().toUpperCase()
-      const isAtDeclaration = originalLine.includes("METHODS ") // plural = declaration
+      const isAtDeclaration = originalLine.includes("METHODS ") // 复数 = 声明
       const isAtImplementation =
         originalDocument.uri.toString() === definition.uri.toString() &&
         originalPosition.line === definition.range.start.line
 
       try {
         if (isAtDeclaration) {
-          // At declaration - show only implementation (signature is already visible in editor)
+          // 在声明处 - 只显示实现（签名在编辑器中已可见）
           const implCode = await this.extractSignature(
             definitionDoc,
             definition.range.start.line,
@@ -243,7 +243,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
             return markdown
           }
         } else if (isAtImplementation) {
-          // At implementation - show only signature (implementation is already visible in editor)
+          // 在实现处 - 只显示签名（实现在编辑器中已可见）
           const declDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
             "vscode.executeImplementationProvider",
             originalDocument.uri,
@@ -264,7 +264,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
             }
           }
         } else {
-          // At call site - show both signature and implementation
+          // 在调用点 - 同时显示签名和实现
           const declDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
             "vscode.executeImplementationProvider",
             originalDocument.uri,
@@ -294,7 +294,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
           }
         }
       } catch (e) {
-        // Fall through to default behavior if any error occurs
+        // 出现任何错误时回退到默认行为
       }
 
       signatureInfo = await this.extractSignature(
@@ -310,10 +310,10 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         "ENDCLASS"
       )
     } else if (definitionUpper.startsWith("TYPES")) {
-      // TYPES declaration - Show complete type definition, especially for structured types
+      // TYPES 声明 - 显示完整类型定义，尤其是结构类型
       markdown.appendMarkdown(`🏗️ **Type Definition**: \`${word}\`\n\n`)
 
-      // Check if it's a structured type (BEGIN OF / END OF)
+      // 检查是否为结构类型（BEGIN OF / END OF）
       if (definitionUpper.includes("BEGIN OF")) {
         signatureInfo = await this.extractStructuredType(definitionDoc, definition.range.start.line)
       }
@@ -321,7 +321,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       definitionUpper.startsWith("DEFINE STRUCTURE") ||
       definitionUpper.includes("DEFINE STRUCTURE")
     ) {
-      // CDS/DDIC Structure definition - Show complete structure with annotations
+      // CDS/DDIC 结构定义 - 显示带注解的完整结构
       markdown.appendMarkdown(`🏗️ **Structure Definition**: \`${word}\`\n\n`)
       signatureInfo = await this.extractCompleteStructureDefinition(
         definitionDoc,
@@ -332,7 +332,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       definitionUpper.startsWith("@") ||
       (definitionUpper.includes("@") && definitionUpper.includes("DEFINE STRUCTURE"))
     ) {
-      // Structure with annotations - capture everything including annotations
+      // 带注解的结构 - 捕获包括注解在内的所有内容
       markdown.appendMarkdown(`🏗️ **Annotated Structure**: \`${word}\`\n\n`)
       signatureInfo = await this.extractCompleteStructureDefinition(
         definitionDoc,
@@ -348,7 +348,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
     } else if (definitionUpper.startsWith("INCLUDE")) {
       markdown.appendMarkdown(`📄 **Include**: \`${word}\`\n\n`)
     } else {
-      // Check if this might be a method declaration (no keyword prefix)
+      // 检查这可能是一个方法声明（无关键字前缀）
       const isMethodDeclaration = await this.isMethodDeclaration(
         definitionDoc,
         definition.range.start.line,
@@ -359,17 +359,17 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       if (isMethodDeclaration) {
         markdown.appendMarkdown(`🔧 **Method Declaration**: \`${word}\`\n\n`)
 
-        // Show the signature (declaration) - we're already at it
+        // 显示签名（声明）——我们已经在这里了
         signatureInfo = await this.extractMethodDeclaration(
           definitionDoc,
           definition.range.start.line
         )
 
-        // Get the implementation (since Definition and Implementation are swapped,
-        // executeImplementationProvider will go to the actual implementation)
+        // 获取实现（因为 Definition 和 Implementation 已互换，
+        // executeImplementationProvider 会转到实际实现）
         try {
           const implDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
-            "vscode.executeDefinitionProvider", // This now goes to implementation (because we swapped them)
+            "vscode.executeDefinitionProvider", // 现在转到实现（因为我们互换了它们）
             originalDocument.uri,
             originalPosition
           )
@@ -377,7 +377,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
           if (implDefinitions && implDefinitions.length > 0) {
             const implDef = implDefinitions[0]
 
-            // Check if implementation is different from declaration
+            // 检查实现是否与声明不同
             const isDifferent =
               implDef.uri.toString() !== definition.uri.toString() ||
               implDef.range.start.line !== definition.range.start.line
@@ -400,7 +400,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
             }
           }
         } catch (e) {
-          // If we can't get implementation, just show the signature
+          // 如果无法获取实现，只显示签名
         }
       } else {
         markdown.appendMarkdown(`📄 **Definition**: \`${word}\`\n\n`)
@@ -408,7 +408,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
     }
 
     if (signatureInfo) {
-      // Check if it's XML data dictionary content
+      // 检查是否为 XML 数据字典内容
       if (signatureInfo.trim().startsWith("<?xml")) {
         const parsedInfo = this.parseDataDictionaryXml(signatureInfo, word)
         if (parsedInfo) {
@@ -418,7 +418,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
           markdown.appendCodeblock(signatureInfo, "abap")
         }
       } else {
-        // For structure definitions, provide enhanced formatting
+        // 对结构定义，提供增强格式化
         if (
           signatureInfo.includes("@EndUserText") ||
           signatureInfo.includes("@AbapCatalog") ||
@@ -426,7 +426,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         ) {
           markdown.appendMarkdown(`**Complete Definition:**\n`)
 
-          // Extract and highlight key information from annotations
+          // 提取并高亮注解中的关键信息
           const annotations = this.extractAnnotationInfo(signatureInfo)
           if (annotations.length > 0) {
             markdown.appendMarkdown(`**Annotations:**\n`)
@@ -439,7 +439,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         markdown.appendCodeblock(signatureInfo, "abap")
       }
     } else {
-      // Check if the single line definition text is XML
+      // 检查单行定义文本是否为 XML
       if (definitionText.trim().startsWith("<?xml")) {
         const parsedInfo = this.parseDataDictionaryXml(definitionText, word)
         if (parsedInfo) {
@@ -472,7 +472,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         const line = doc.lineAt(i).text
         const trimmedLine = line.trim()
 
-        if (trimmedLine.startsWith("*")) continue // Skip full-line comments
+        if (trimmedLine.startsWith("*")) continue // 跳过整行注释
 
         const commentIndex = trimmedLine.indexOf('"')
         const lineContent =
@@ -506,39 +506,39 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         const lineUpper = trimmedLine.toUpperCase()
 
         // Skip full-line comments
-        if (trimmedLine.startsWith("*")) continue
+        if (trimmedLine.startsWith("*")) continue // 跳过整行注释
 
-        // Remove inline comments
+        // 移除内联注释
         const commentIndex = trimmedLine.indexOf('"')
         const lineContent =
           commentIndex !== -1 ? trimmedLine.substring(0, commentIndex).trim() : trimmedLine
         const lineContentUpper = lineContent.toUpperCase()
 
-        // Add the line to our definition
+        // 把行加入我们的定义
         typeDefinition += line + "\n"
 
-        // Track BEGIN OF statements
+        // 跟踪 BEGIN OF 语句
         if (lineContentUpper.includes("BEGIN OF")) {
           foundBeginOf = true
           indentLevel++
         }
 
-        // Track nested BEGIN OF statements (for nested structures)
+        // 跟踪嵌套的 BEGIN OF 语句（用于嵌套结构）
         if (foundBeginOf && lineContentUpper.includes("BEGIN OF") && i > startLine) {
           indentLevel++
         }
 
-        // Track END OF statements
+        // 跟踪 END OF 语句
         if (lineContentUpper.includes("END OF")) {
           indentLevel--
 
-          // If we've closed all nested structures, we're done
+          // 如果已闭合所有嵌套结构，完成
           if (indentLevel <= 0) {
             break
           }
         }
 
-        // Safety check to prevent infinite loops
+        // 安全检查，防止无限循环
         if (i - startLine > 150) {
           this.log?.(`[V2] ⚠️ Structure definition too long, truncating at line ${i}`)
           break
@@ -563,21 +563,21 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       let definition = ""
       let scanStartLine = startLine
 
-      // Look backwards to find annotations - simple approach
+      // 向后查找注解 - 简单方法
       for (let i = startLine - 1; i >= Math.max(0, startLine - 5); i--) {
         const line = doc.lineAt(i).text.trim()
         if (line.startsWith("@")) {
           scanStartLine = i
         } else if (line === "" || line.startsWith("*")) {
-          // Allow blank lines and comments between annotations
+          // 允许注解之间的空行和注释
           continue
         } else {
-          // Hit non-annotation content, stop looking back
+          // 遇到非注解内容，停止向后查找
           break
         }
       }
 
-      // Extract from annotations to end of structure
+      // 从注解提取到结构结束
       let braceCount = 0
       let foundStructure = false
 
@@ -595,7 +595,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
           braceCount += (line.match(/\{/g) || []).length
           braceCount -= (line.match(/\}/g) || []).length
 
-          // Structure complete when we close the main brace
+          // 闭合主花括号时结构完成
           if (braceCount <= 0 && line.includes("}")) {
             break
           }
@@ -616,19 +616,19 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
     for (const line of lines) {
       const trimmedLine = line.trim()
 
-      // Extract EndUserText label
+      // 提取 EndUserText 标签
       const endUserTextMatch = trimmedLine.match(/@EndUserText\.label\s*:\s*'([^']+)'/)
       if (endUserTextMatch) {
         annotations.push(`**Label**: ${endUserTextMatch[1]}`)
       }
 
-      // Extract AbapCatalog enhancement category
+      // 提取 AbapCatalog 增强类别
       const enhancementMatch = trimmedLine.match(/@AbapCatalog\.enhancement\.category\s*:\s*#(\w+)/)
       if (enhancementMatch) {
         annotations.push(`**Enhancement Category**: ${enhancementMatch[1]}`)
       }
 
-      // Extract other common annotations
+      // 提取其他常见注解
       const annotationMatch = trimmedLine.match(/@(\w+(?:\.\w+)*)\s*:\s*(.+)/)
       if (annotationMatch && !endUserTextMatch && !enhancementMatch) {
         annotations.push(`**${annotationMatch[1]}**: ${annotationMatch[2]}`)
@@ -642,22 +642,22 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
     try {
       //  this.log?.(`[V2] 🔍 Parsing XML content for Data Dictionary object: ${objectName}`);
 
-      // Table Type (like SOLIX_TAB)
+      // 表类型（如 SOLIX_TAB）
       if (xmlContent.includes("<ttyp:tableType")) {
         return this.parseTableTypeXml(xmlContent, objectName)
       }
 
-      // Structure/Data Element
+      // 结构/数据元素
       if (xmlContent.includes("<dtel:dataElement") || xmlContent.includes("<stru:")) {
         return this.parseStructureXml(xmlContent, objectName)
       }
 
-      // Database Table
+      // 数据库表
       if (xmlContent.includes("<tabl:table")) {
         return this.parseTableXml(xmlContent, objectName)
       }
 
-      // Domain
+      // 域
       if (xmlContent.includes("<doma:domain")) {
         return this.parseDomainXml(xmlContent, objectName)
       }
@@ -674,7 +674,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
     let result = ""
 
     try {
-      // Extract all core attributes
+      // 提取所有核心属性
       const nameMatch = xmlContent.match(/adtcore:name="([^"]+)"/)
       const typeMatch = xmlContent.match(/adtcore:type="([^"]+)"/)
       const descMatch = xmlContent.match(/adtcore:description="([^"]+)"/)
@@ -690,7 +690,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       const createdAtMatch = xmlContent.match(/adtcore:createdAt="([^"]+)"/)
       const versionMatch = xmlContent.match(/adtcore:version="([^"]+)"/)
 
-      // Header information
+      // 头部信息
       result += `🗂️ **Table Type**: \`${nameMatch ? nameMatch[1] : objectName}\`\n\n`
 
       if (descMatch) {
@@ -701,7 +701,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         result += `\n`
       }
 
-      // Metadata
+      // 元数据
       result += `**📋 Metadata:**\n`
       if (typeMatch) result += `• **Object Type**: ${typeMatch[1]}\n`
       if (responsibleMatch) result += `• **Responsible**: ${responsibleMatch[1]}\n`
@@ -723,7 +723,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       }
       result += `\n`
 
-      // Package information
+      // 包信息
       const packageMatch = xmlContent.match(
         /<adtcore:packageRef[^>]*adtcore:name="([^"]+)"[^>]*adtcore:description="([^"]+)"/
       )
@@ -731,7 +731,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         result += `**📦 Package**: ${packageMatch[1]} - ${packageMatch[2]}\n\n`
       }
 
-      // Row type information
+      // 行类型信息
       const typeKindMatch = xmlContent.match(/<ttyp:typeKind>([^<]+)<\/ttyp:typeKind>/)
       const typeNameMatch = xmlContent.match(/<ttyp:typeName>([^<]+)<\/ttyp:typeName>/)
       const dataTypeMatch = xmlContent.match(/<ttyp:dataType>([^<]+)<\/ttyp:dataType>/)
@@ -748,7 +748,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         result += `• **Decimals**: ${parseInt(decimalsMatch[1])}\n`
       result += `\n`
 
-      // Table characteristics
+      // 表特性
       const initialRowCountMatch = xmlContent.match(
         /<ttyp:initialRowCount>(\d+)<\/ttyp:initialRowCount>/
       )
@@ -771,7 +771,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       }
       result += `\n`
 
-      // Primary key information
+      // 主键信息
       const keyDefinitionMatch = xmlContent.match(/<ttyp:definition>([^<]+)<\/ttyp:definition>/)
       const keyKindMatch = xmlContent.match(/<ttyp:kind>([^<]+)<\/ttyp:kind>/)
       const keyVisibleMatch = xmlContent.match(/<ttyp:primaryKey[^>]*ttyp:isVisible="([^"]+)"/)
@@ -787,7 +787,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       if (keyEditableMatch) result += `• **Editable**: ${keyEditableMatch[1]}\n`
       result += `\n`
 
-      // Secondary keys information
+      // 二级键信息
       const secKeyAllowedMatch = xmlContent.match(/<ttyp:allowed>([^<]+)<\/ttyp:allowed>/)
       const secKeyVisibleMatch = xmlContent.match(
         /<ttyp:secondaryKeys[^>]*ttyp:isVisible="([^"]+)"/
@@ -804,7 +804,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         result += `\n`
       }
 
-      // Usage example
+      // 使用示例
       result += `**💡 Usage Examples:**\n`
       result += `\`\`\`abap\n`
       result += `" Declaration\n`
@@ -828,7 +828,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
     let result = ""
 
     try {
-      // Extract all core attributes
+      // 提取所有核心属性
       const nameMatch = xmlContent.match(/adtcore:name="([^"]+)"/)
       const descMatch = xmlContent.match(/adtcore:description="([^"]+)"/)
       const responsibleMatch = xmlContent.match(/adtcore:responsible="([^"]+)"/)
@@ -840,11 +840,11 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       const versionMatch = xmlContent.match(/adtcore:version="([^"]+)"/)
       const typeMatch = xmlContent.match(/adtcore:type="([^"]+)"/)
 
-      // Determine object type
+      // 确定对象类型
       const isDataElement = xmlContent.includes("<dtel:dataElement")
       const isStructure = xmlContent.includes("<stru:")
 
-      // Header information
+      // 头部信息
       if (isDataElement) {
         result += `📊 **Data Element**: \`${nameMatch ? nameMatch[1] : objectName}\`\n\n`
       } else if (isStructure) {
@@ -857,7 +857,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         result += `**Description**: ${descMatch[1]}\n\n`
       }
 
-      // Metadata
+      // 元数据
       result += `**📋 Metadata:**\n`
       if (responsibleMatch) result += `• **Responsible**: ${responsibleMatch[1]}\n`
       if (masterSystemMatch) result += `• **Master System**: ${masterSystemMatch[1]}\n`
@@ -872,7 +872,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       }
       result += `\n`
 
-      // Package information
+      // 包信息
       const packageMatch = xmlContent.match(
         /<adtcore:packageRef[^>]*adtcore:name="([^"]+)"[^>]*adtcore:description="([^"]+)"/
       )
@@ -880,9 +880,9 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         result += `**📦 Package**: ${packageMatch[1]} - ${packageMatch[2]}\n\n`
       }
 
-      // For Data Elements - extract ALL available information
+      // 对数据元素 - 提取所有可用信息
       if (isDataElement) {
-        // Type definition
+        // 类型定义
         const typeKindMatch = xmlContent.match(/<dtel:typeKind>([^<]+)<\/dtel:typeKind>/)
         const typeNameMatch = xmlContent.match(/<dtel:typeName>([^<]+)<\/dtel:typeName>/)
         const domainMatch = xmlContent.match(/<dtel:domainName>([^<]+)<\/dtel:domainName>/)
@@ -911,7 +911,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
           result += `• **Decimals**: ${parseInt(decimalsMatch[1])}\n`
         result += `\n`
 
-        // Field labels (all variants)
+        // 字段标签（所有变体）
         const shortFieldLabelMatch = xmlContent.match(
           /<dtel:shortFieldLabel>([^<]+)<\/dtel:shortFieldLabel>/
         )
@@ -949,7 +949,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
           /<dtel:headingFieldMaxLength>(\d+)<\/dtel:headingFieldMaxLength>/
         )
 
-        // Legacy field label fields
+        // 旧版字段标签字段
         const shortTextMatch = xmlContent.match(/<dtel:shortText>([^<]+)<\/dtel:shortText>/)
         const mediumTextMatch = xmlContent.match(/<dtel:mediumText>([^<]+)<\/dtel:mediumText>/)
         const longTextMatch = xmlContent.match(/<dtel:longText>([^<]+)<\/dtel:longText>/)
@@ -975,7 +975,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
           if (headingFieldLabelMatch)
             result += `• **Heading**: "${headingFieldLabelMatch[1]}" (${headingFieldLengthMatch ? headingFieldLengthMatch[1] : "?"}/${headingFieldMaxLengthMatch ? headingFieldMaxLengthMatch[1] : "?"})\n`
 
-          // Show legacy labels if they exist and new ones don't
+          // 如果旧版标签存在而新版不存在，显示旧版
           if (!shortFieldLabelMatch && shortTextMatch)
             result += `• **Short Text**: ${shortTextMatch[1]}\n`
           if (!mediumFieldLabelMatch && mediumTextMatch)
@@ -987,7 +987,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
           result += `\n`
         }
 
-        // Additional field properties
+        // 附加字段属性
         const searchHelpMatch = xmlContent.match(/<dtel:searchHelp>([^<]+)<\/dtel:searchHelp>/)
         const searchHelpParameterMatch = xmlContent.match(
           /<dtel:searchHelpParameter>([^<]+)<\/dtel:searchHelpParameter>/
@@ -1041,9 +1041,9 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         }
       }
 
-      // For Structures - extract field information if available
+      // 对结构 - 可用时提取字段信息
       if (isStructure) {
-        // Try to extract component information
+        // 尝试提取组件信息
         const componentMatches = xmlContent.match(/<stru:component[^>]*>/g)
         if (componentMatches && componentMatches.length > 0) {
           result += `**🔧 Structure Components:**\n`
@@ -1052,7 +1052,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         }
       }
 
-      // Usage examples
+      // 使用示例
       result += `**💡 Usage Examples:**\n`
       result += `\`\`\`abap\n`
       if (isDataElement) {
@@ -1083,7 +1083,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
     let result = ""
 
     try {
-      // Extract all core attributes
+      // 提取所有核心属性
       const nameMatch = xmlContent.match(/adtcore:name="([^"]+)"/)
       const descMatch = xmlContent.match(/adtcore:description="([^"]+)"/)
       const responsibleMatch = xmlContent.match(/adtcore:responsible="([^"]+)"/)
@@ -1094,14 +1094,14 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       const createdByMatch = xmlContent.match(/adtcore:createdBy="([^"]+)"/)
       const versionMatch = xmlContent.match(/adtcore:version="([^"]+)"/)
 
-      // Header information
+      // 头部信息
       result += `🗃️ **Database Table**: \`${nameMatch ? nameMatch[1] : objectName}\`\n\n`
 
       if (descMatch) {
         result += `**Description**: ${descMatch[1]}\n\n`
       }
 
-      // Metadata
+      // 元数据
       result += `**📋 Metadata:**\n`
       if (responsibleMatch) result += `• **Responsible**: ${responsibleMatch[1]}\n`
       if (masterSystemMatch) result += `• **Master System**: ${masterSystemMatch[1]}\n`
@@ -1115,7 +1115,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       }
       result += `\n`
 
-      // Package information
+      // 包信息
       const packageMatch = xmlContent.match(
         /<adtcore:packageRef[^>]*adtcore:name="([^"]+)"[^>]*adtcore:description="([^"]+)"/
       )
@@ -1123,7 +1123,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         result += `**📦 Package**: ${packageMatch[1]} - ${packageMatch[2]}\n\n`
       }
 
-      // Technical details
+      // 技术细节
       const deliveryMatch = xmlContent.match(/<tabl:deliveryClass>([^<]+)<\/tabl:deliveryClass>/)
       const categoryMatch = xmlContent.match(/<tabl:dataClass>([^<]+)<\/tabl:dataClass>/)
       const sizeMatch = xmlContent.match(/<tabl:sizeCategory>([^<]+)<\/tabl:sizeCategory>/)
@@ -1149,7 +1149,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       if (logMatch) result += `• **Logging**: ${logMatch[1]}\n`
       result += `\n`
 
-      // Fields information (if available)
+      // 字段信息（可用时）
       const fieldMatches = xmlContent.match(/<tabl:field[^>]*>/g)
       if (fieldMatches && fieldMatches.length > 0) {
         result += `**📊 Table Structure:**\n`
@@ -1157,21 +1157,21 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         result += `• Contains table fields with their data types and properties\n\n`
       }
 
-      // Primary key (if available)
+      // 主键（可用时）
       const keyFieldMatches = xmlContent.match(/<tabl:keyField[^>]*>/g)
       if (keyFieldMatches && keyFieldMatches.length > 0) {
         result += `**🔑 Primary Key:**\n`
         result += `• **Key Fields**: ${keyFieldMatches.length}\n\n`
       }
 
-      // Indexes (if available)
+      // 索引（可用时）
       const indexMatches = xmlContent.match(/<tabl:index[^>]*>/g)
       if (indexMatches && indexMatches.length > 0) {
         result += `**📇 Indexes:**\n`
         result += `• **Number of Indexes**: ${indexMatches.length}\n\n`
       }
 
-      // Usage examples
+      // 使用示例
       result += `**💡 Usage Examples:**\n`
       result += `\`\`\`abap\n`
       result += `" Select data\n`
@@ -1197,7 +1197,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
     let result = ""
 
     try {
-      // Extract all core attributes
+      // 提取所有核心属性
       const nameMatch = xmlContent.match(/adtcore:name="([^"]+)"/)
       const descMatch = xmlContent.match(/adtcore:description="([^"]+)"/)
       const responsibleMatch = xmlContent.match(/adtcore:responsible="([^"]+)"/)
@@ -1208,14 +1208,14 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       const createdByMatch = xmlContent.match(/adtcore:createdBy="([^"]+)"/)
       const versionMatch = xmlContent.match(/adtcore:version="([^"]+)"/)
 
-      // Header information
+      // 头部信息
       result += `🔧 **Domain**: \`${nameMatch ? nameMatch[1] : objectName}\`\n\n`
 
       if (descMatch) {
         result += `**Description**: ${descMatch[1]}\n\n`
       }
 
-      // Metadata
+      // 元数据
       result += `**📋 Metadata:**\n`
       if (responsibleMatch) result += `• **Responsible**: ${responsibleMatch[1]}\n`
       if (masterSystemMatch) result += `• **Master System**: ${masterSystemMatch[1]}\n`
@@ -1229,7 +1229,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       }
       result += `\n`
 
-      // Package information
+      // 包信息
       const packageMatch = xmlContent.match(
         /<adtcore:packageRef[^>]*adtcore:name="([^"]+)"[^>]*adtcore:description="([^"]+)"/
       )
@@ -1237,7 +1237,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         result += `**📦 Package**: ${packageMatch[1]} - ${packageMatch[2]}\n\n`
       }
 
-      // Technical data type information
+      // 技术数据类型信息
       const dataTypeMatch = xmlContent.match(/<doma:dataType>([^<]+)<\/doma:dataType>/)
       const lengthMatch = xmlContent.match(/<doma:length>(\d+)<\/doma:length>/)
       const decimalsMatch = xmlContent.match(/<doma:decimals>(\d+)<\/doma:decimals>/)
@@ -1280,12 +1280,12 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
       if (lowercaseMatch) result += `• **Lowercase Allowed**: ${lowercaseMatch[1]}\n`
       result += `\n`
 
-      // Value range information
+      // 值范围信息
       const valueRangeMatch = xmlContent.match(/<doma:valueRange[^>]*>/)
       if (valueRangeMatch) {
         result += `**📊 Value Range:**\n`
 
-        // Fixed values
+        // 固定值
         const fixedValueMatches = xmlContent.match(
           /<doma:fixedValue[^>]*doma:value="([^"]*)"[^>]*doma:description="([^"]*)"/g
         )
@@ -1307,7 +1307,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
           }
         }
 
-        // Intervals
+        // 间隔
         const intervalMatches = xmlContent.match(/<doma:interval[^>]*>/g)
         if (intervalMatches && intervalMatches.length > 0) {
           result += `• **Intervals**: ${intervalMatches.length} defined\n`
@@ -1316,7 +1316,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         result += `\n`
       }
 
-      // Conversion exit
+      // 转换出口
       const conversionExitMatch = xmlContent.match(
         /<doma:conversionExit>([^<]+)<\/doma:conversionExit>/
       )
@@ -1324,7 +1324,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         result += `**🔄 Conversion Exit**: ${conversionExitMatch[1]}\n\n`
       }
 
-      // Usage examples
+      // 使用示例
       result += `**💡 Usage Examples:**\n`
       result += `\`\`\`abap\n`
       result += `" Data element using this domain\n`
@@ -1342,7 +1342,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
   }
 
   // ============================================================================
-  // FALLBACK & CONTEXTUAL HOVERS
+  // 回退与上下文悬停
   // ============================================================================
 
   private getContextAwareHover(word: string, line: string): vscode.MarkdownString | undefined {
@@ -1399,14 +1399,14 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
     word: string,
     document: vscode.TextDocument
   ): Promise<vscode.MarkdownString | undefined> {
-    // Check if it's a text symbol (TEXT-001, TEXT-002, etc.)
+    // 检查是否为文本符号（TEXT-001、TEXT-002 等）
     const textSymbolMatch = word.match(/^TEXT-(\d{3})$/i)
     if (!textSymbolMatch) return undefined
 
     const textId = textSymbolMatch[1]
     // this.log?.(`[V2] 🔍 Searching for text symbol: ${word}`);
 
-    // Only try to find text in current document - no SAP client attempts
+    // 只尝试在当前文档中查找文本 - 不尝试 SAP 客户端
     return await this.searchTextElementInProgram(word, textId, document)
   }
 
@@ -1416,10 +1416,10 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
     document: vscode.TextDocument
   ): Promise<vscode.MarkdownString | undefined> {
     try {
-      // Search for text element definitions in current document
+      // 在当前文档中搜索文本元素定义
       const documentText = document.getText()
 
-      // Look for text element definitions in comments or text element sections
+      // 在注释或文本元素部分中查找文本元素定义
       const textDefPatterns = [
         new RegExp(`TEXT-${textId}\\s*['"]([^'"]+)['"]`, "i"),
         new RegExp(`${textId}\\s*['"]([^'"]+)['"].*TEXT-${textId}`, "i"),
@@ -1459,11 +1459,11 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
     word: string
   ): Promise<boolean> {
     try {
-      // Check if definition line contains only the identifier (no ABAP keywords)
+      // 检查定义行是否只包含标识符（无 ABAP 关键字）
       const cleanLine = definitionText.trim()
       const lineUpper = cleanLine.toUpperCase()
 
-      // If line contains ABAP keywords as separate words, it's not a simple method declaration
+      // 如果行包含独立单词形式的 ABAP 关键字，则不是简单的方法声明
       const lineWords = lineUpper.split(/\s+/)
       const firstWord = lineWords[0]
 
@@ -1480,13 +1480,13 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         return false
       }
 
-      // Check if the line contains mainly just the word we're looking for
+      // 检查行是否主要只包含我们要查找的单词
       const words = cleanLine.split(/\s+/)
       if (words.length > 2) {
-        return false // Too many words, probably not a simple method declaration
+        return false // 单词太多，可能不是简单的方法声明
       }
 
-      // Look ahead for method parameter keywords
+      // 向前查找方法参数关键字
       let foundParameterKeyword = false
       for (let i = startLine + 1; i < Math.min(startLine + 10, doc.lineCount); i++) {
         const line = doc.lineAt(i).text
@@ -1502,7 +1502,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
           break
         }
 
-        // Stop if we hit something that doesn't look like method parameters
+        // 遇到不像方法参数的内容就停止
         if (
           lineUpper.includes("METHOD") ||
           lineUpper.includes("DATA") ||
@@ -1517,7 +1517,7 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
 
       // this.log?.(`[V2] 🔍 Method declaration check for "${word}": paramKeyword=${foundParameterKeyword}`);
 
-      // Consider it a method declaration if we found parameter keywords
+      // 找到参数关键字就视为方法声明
       return foundParameterKeyword
     } catch (error) {
       //  this.log?.(`[V2] ⚠️ Error checking method declaration: ${error}`);
@@ -1538,26 +1538,26 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
         const line = doc.lineAt(i).text
         const trimmedLine = line.trim()
 
-        if (trimmedLine.startsWith("*")) continue // Skip full-line comments
+        if (trimmedLine.startsWith("*")) continue // 跳过整行注释
 
         const commentIndex = trimmedLine.indexOf('"')
         const lineContent =
           commentIndex !== -1 ? trimmedLine.substring(0, commentIndex) : trimmedLine
 
-        // Check stop conditions BEFORE adding the line
+        // 在添加行之前检查停止条件
 
-        // Stop when we find a period or comma that ends the method declaration
+        // 找到结束方法声明的句点或逗号时停止
         if (lineContent.trim().includes(".") || lineContent.trim().includes(",")) {
-          // Add this final line and then stop
+          // 添加这最后一行然后停止
           signatureText += line + "\n"
           //  this.log?.(`[V2] ✅ Found method declaration end at line ${i + 1}`);
           break
         }
 
-        // Stop if we hit another method or class section (DON'T include these lines)
+        // 遇到另一个方法或类部分时停止（不要包含这些行）
         const trimmedUpper = lineContent.trim().toUpperCase()
         if (i > startLine) {
-          // Check for exact ABAP section keywords (not just prefixes)
+          // 检查精确的 ABAP 部分关键字（不只是前缀）
           const words = trimmedUpper.split(/\s+/)
           const firstWord = words[0]
 
@@ -1576,13 +1576,13 @@ export class AbapHoverProviderV2 implements vscode.HoverProvider {
           }
         }
 
-        // Safety check
+        // 安全检查
         if (i - startLine > 30) {
           //  this.log?.(`[V2] ⚠️ Method declaration too long, truncating at line ${i + 1}`);
           break
         }
 
-        // If we reach here, add the line
+        // 走到这里就添加该行
         signatureText += line + "\n"
       }
 
