@@ -35,7 +35,7 @@ type PropertyNode =
   | CompareSelectedHistoryItem
   | RevisionChildItem
 
-// --- Simple TTL cache ---
+// --- 简单 TTL 缓存 ---
 
 class TtlCache<V> {
   private store = new Map<string, { value: V; expiresAt: number }>()
@@ -60,7 +60,7 @@ class TtlCache<V> {
   }
 }
 
-// --- Tree items ---
+// --- 树项目 ---
 
 class PropertyValueItem extends TreeItem {
   constructor(
@@ -270,7 +270,7 @@ class HistoryPropertyItem extends TreeItem {
   }
 }
 
-// --- Helpers ---
+// --- 辅助 ---
 
 type PropertySnapshot = {
   description?: string
@@ -394,7 +394,7 @@ const loadRevisionHistory = async (uri: Uri, force = false): Promise<Revision[]>
   }
 }
 
-// --- Tree data provider ---
+// --- 树数据提供器 ---
 
 export class ObjectPropertyProvider implements TreeDataProvider<PropertyNode>, Disposable {
   public static get() {
@@ -520,7 +520,7 @@ export class ObjectPropertyProvider implements TreeDataProvider<PropertyNode>, D
 
   public scheduleRefresh(force = false) {
     if (!this.view?.visible) {
-      // Do not schedule background refresh when the tree view is hidden.
+      // 树视图隐藏时不要安排后台刷新。
       return
     }
 
